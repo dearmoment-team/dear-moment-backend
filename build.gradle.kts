@@ -3,6 +3,7 @@ plugins {
 	id("org.springframework.boot") version "3.3.5"   // Spring Boot 플러그인
 	kotlin("plugin.spring") version "2.0.21"   // Kotlin Spring 플러그인
 	id("io.spring.dependency-management") version "1.1.0"   // 의존성 관리 플러그인
+	id("org.sonarqube") version "5.1.0.4882"        // sonarqube
 }
 
 
@@ -35,4 +36,15 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+
+
+// sonarqube
+sonar {
+  properties {
+    property("sonar.projectKey", "Onboarding-serivce_BE-onboarding")
+    property("sonar.organization", "onboarding-serivce")
+    property("sonar.host.url", "https://sonarcloud.io")
+  }
 }
