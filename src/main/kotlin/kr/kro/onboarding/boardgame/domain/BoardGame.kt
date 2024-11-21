@@ -4,7 +4,7 @@ class BoardGame(
     val name: String,
     val koreanName: String,
     val playTime: Int,
-    val category: BoardGameCategory,
+    val category: Category,
     val age: Int,
     val publisher: String,
     val minPlayer: Int,
