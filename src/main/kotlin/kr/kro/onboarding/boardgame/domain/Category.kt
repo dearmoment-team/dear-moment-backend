@@ -1,6 +1,6 @@
 package kr.kro.onboarding.boardgame.domain
 
-enum class BoardGameCategory(val label: String) {
+enum class Category(val label: String) {
     STRATEGY_GAME("전략 게임"),
     ABSTRACT_STRATEGY_GAME("추상 전략 게임"),
     COLLECTIBLE_GAME("컬렉터블 게임"),

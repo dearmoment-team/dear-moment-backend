@@ -9,10 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 class WebConfig(val objectMapper: ObjectMapper) : WebMvcConfigurer {
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
-        converters.add(HIGHEST_CONVERT_PRIORITY, CustomHttpMessageConverter(objectMapper))
+        converters.add(HIGHEST_CONVERTER_PRIORITY, CustomHttpMessageConverter(objectMapper))
     }
 
     companion object {
-        private const val HIGHEST_CONVERT_PRIORITY = 0
+        private const val HIGHEST_CONVERTER_PRIORITY = 0
     }
 }

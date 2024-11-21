@@ -28,6 +28,10 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     // kotlin jackson 역직렬화 모듈
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+
+    // DB
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("com.oracle.database.jdbc:ojdbc11")
 }
 
 kotlin {
