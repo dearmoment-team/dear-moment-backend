@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 class WebConfig(val objectMapper: ObjectMapper) : WebMvcConfigurer {
-
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         converters.add(HIGHEST_CONVERT_PRIORITY, CustomHttpMessageConverter(objectMapper))
     }
