@@ -4,6 +4,7 @@ import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
 import org.springframework.http.server.ServletServerHttpResponse
@@ -16,7 +17,7 @@ class ResponseWrapper : ResponseBodyAdvice<Any> {
         returnType: MethodParameter,
         converterType: Class<out HttpMessageConverter<*>>,
     ): Boolean {
-        return true
+        return MappingJackson2HttpMessageConverter::class.java.isAssignableFrom(converterType)
     }
 
     override fun beforeBodyWrite(
