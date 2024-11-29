@@ -37,6 +37,9 @@ dependencies {
     // REST Docs, Mock
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.4")
+
+    // dotenv
+    implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }
 
 kotlin {
@@ -56,9 +59,6 @@ openapi3 {
 tasks {
     withType<Test> {
         useJUnitPlatform()
-        ktlint {
-            verbose.set(true)
-        }
     }
 
     register<Copy>("copyOasToSwagger") {
@@ -71,4 +71,9 @@ tasks {
     build {
         finalizedBy("copyOasToSwagger") // build 작업 후 copyOasToSwagger 실행
     }
+
+    bootRun {
+        workingDir = file(".") // 애플리케이션의 작업 디렉토리를 프로젝트 루트로 설정
+    }
 }
+
