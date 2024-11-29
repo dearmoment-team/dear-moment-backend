@@ -39,5 +39,8 @@ out/
 ### Kotlin ###
 .kotlin
 
+### env ###
+.env
+
 ##
 /src/main/resources/application.properties
