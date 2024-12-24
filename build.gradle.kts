@@ -1,10 +1,10 @@
+import org.gradle.jvm.tasks.Jar
+
 plugins {
-    kotlin("jvm") version "2.0.21" // Kotlin 플러그인 버전
-    id("org.springframework.boot") version "3.3.5" // Spring Boot 플러그인
-    kotlin("plugin.spring") version "2.0.21" // Kotlin Spring 플러그인
-    id("io.spring.dependency-management") version "1.1.0" // 의존성 관리 플러그인
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0" // ktlint 플러그인
-    id("com.epages.restdocs-api-spec") version "0.18.4" // rest doc + openapi3
+    kotlin("jvm") version "1.8.22" // 안정적인 Kotlin 버전
+    id("org.springframework.boot") version "3.3.5"
+    kotlin("plugin.spring") version "1.8.22"
+    id("io.spring.dependency-management") version "1.1.0"
 }
 
 group = "com.example"
@@ -21,59 +21,55 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot 기본 모듈
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    // kotlin jackson 역직렬화 모듈
+    // Spring Data JPA
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    // Kotlin
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+
+    // Jackson Kotlin 모듈
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
 
-    // DB
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    // Database (Oracle)
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
 
-    // REST Docs, Mock
+    // REST Docs
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.4")
 
-    // dotenv
-    implementation("io.github.cdimascio:dotenv-java:3.0.0")
-}
+    // REST Assured (REST API 테스트)
+    testImplementation("io.rest-assured:rest-assured:5.3.0")
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
+    // Mocking 라이브러리
+    testImplementation("io.mockk:mockk:1.13.4")
+
+    // Hibernate Validator (Bean Validation)
+    implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    implementation("javax.validation:validation-api:2.0.1.Final")
+
+    // JUnit 5
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+
+    // H2 Database for Testing
+    testImplementation("com.h2database:h2:2.2.220")
+
+    // Spring Boot 테스트 (JUnit 5 지원 포함)
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine") // JUnit 4 제외
     }
 }
 
-openapi3 {
-    this.setServer("https://localhost:8080") // list로 넣을 수 있어 각종 환경의 URL을 넣을 수 있음!
-    title = "My API"
-    description = "My API description"
-    version = "0.1.0"
-    format = "yaml" // or json
-}
-
-tasks {
-    withType<Test> {
-        useJUnitPlatform()
-    }
-
-    register<Copy>("copyOasToSwagger") {
-        delete("src/main/resources/static/swagger-ui/openapi3.yaml") // 기존 OAS 파일 삭제
-        from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml") // 복제할 OAS 파일 지정
-        into("src/main/resources/static/swagger-ui/.") // 타겟 디렉터리로 파일 복제
-        dependsOn("openapi3") // openapi3 Task가 먼저 실행되도록 설정
-    }
-
-    build {
-        finalizedBy("copyOasToSwagger") // build 작업 후 copyOasToSwagger 실행
-    }
-
-    bootRun {
-        workingDir = file(".") // 애플리케이션의 작업 디렉토리를 프로젝트 루트로 설정
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "kr.kro.onboarding.OnBoardingApplicationKt"
     }
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform() // JUnit 5 사용
+}
