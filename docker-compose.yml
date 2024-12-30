@@ -1,0 +1,56 @@
+services:
+  db:
+    image: gvenzl/oracle-free
+    container_name: oracle-db
+    ports:
+      - "1522:1521"
+    env_file:
+      - .env
+    environment:
+      # 관리자 계정 비밀번호
+      ORACLE_PASSWORD: "${ORACLE_PASSWORD}"
+
+      # 새 유저 생성
+      APP_USER: "${APP_USER}"
+      APP_USER_PASSWORD: "${APP_USER_PASSWORD}"
+
+    volumes:
+      - db_data:/opt/oracle/oradata
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+
+    # 호스트의 src, Gradle 설정 파일을 마운트하여,
+    # 변경 사항이 컨테이너 내부에 실시간 반영되도록 함
+    volumes:
+      - ./src:/app/src
+      - ./build.gradle.kts:/app/build.gradle.kts
+      - ./settings.gradle.kts:/app/settings.gradle.kts
+
+    env_file:
+      - .env
+
+    environment:
+      SPRING_DATASOURCE_URL: "${SPRING_DATASOURCE_URL}"
+      SPRING_DATASOURCE_USERNAME: "${SPRING_DATASOURCE_USERNAME}"
+      SPRING_DATASOURCE_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: "${SPRING_DATASOURCE_DRIVER_CLASS_NAME}"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "${SPRING_JPA_HIBERNATE_DDL_AUTO}"
+      SPRING_JPA_SHOW_SQL: "${SPRING_JPA_SHOW_SQL}"
+      SPRING_JPA_DATABASE_PLATFORM: "${SPRING_JPA_DATABASE_PLATFORM}"
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
+      SPRING_APPLICATION_NAME: "${SPRING_APPLICATION_NAME}"
+
+    # DB가 기동된 뒤에 bootRun을 실행하도록 함 (wait-for-it.sh 사용)
+    command: /app/wait-for-it.sh db:1521 -- ./gradlew bootRun
+
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+    driver: local
