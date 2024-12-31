@@ -1,6 +1,6 @@
 services:
   db:
-    image: gvenzl/oracle-free
+    image: gvenzl/oracle-free:slim
     container_name: oracle-db
     ports:
       - "1522:1521"
