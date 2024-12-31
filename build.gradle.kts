@@ -55,6 +55,9 @@ dependencies {
     // JUnit 5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 
+    // 최신 버전 springdoc-openapi-starter-webmvc-ui
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4")
+
     // H2 Database for Testing
     testImplementation("com.h2database:h2:2.2.220")
 
