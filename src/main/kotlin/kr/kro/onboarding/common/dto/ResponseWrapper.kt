@@ -15,7 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 
-@RestControllerAdvice
+
+@RestControllerAdvice("kr.kro.onboarding.api")
 class ResponseWrapper : ResponseBodyAdvice<Any> {
 
     private val antPathMatcher = AntPathMatcher()
