@@ -76,3 +76,4 @@ tasks.withType<Jar> {
 tasks.withType<Test> {
     useJUnitPlatform() // JUnit 5 사용
 }
+
