@@ -13,7 +13,7 @@ class BoardGameController {
 
     @GetMapping("/health")
     @Operation(
-        summary = "헬스 서버",
+        summary = "헬스",
         description = "서버 상태를 확인하기 위한 API입니다.",
         tags = ["Health Check"]
     )
