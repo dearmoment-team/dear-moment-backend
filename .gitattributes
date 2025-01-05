@@ -1,3 +1,12 @@
+# Shell scripts must use LF
+*.sh text eol=lf
+
+# Gradle wrapper scripts
 /gradlew text eol=lf
+/gradlew.bat text eol=crlf
+
+# Batch files must use CRLF
 *.bat text eol=crlf
+
+# JAR files are binary and should not be modified
 *.jar binary
