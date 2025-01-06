@@ -5,6 +5,8 @@ plugins {
     id("org.springframework.boot") version "3.3.5"
     kotlin("plugin.spring") version "1.8.22"
     id("io.spring.dependency-management") version "1.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0" // ktlint 플러그인
+    id("org.sonarqube") version "5.1.0.4882" // sonarqube
 }
 
 group = "com.example"
@@ -75,5 +77,15 @@ tasks.withType<Jar> {
 
 tasks.withType<Test> {
     useJUnitPlatform() // JUnit 5 사용
+    ktlint {
+        verbose.set(true)
+    }
 }
 
+sonar {
+    properties {
+        property("sonar.projectKey", "Onboarding-serivce_BE-onboarding")
+        property("sonar.organization", "onboarding-serivce")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
+}
