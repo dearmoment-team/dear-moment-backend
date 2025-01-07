@@ -7,6 +7,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0" // ktlint 플러그인
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
+    id("com.epages.restdocs-api-spec") version "0.18.4" // rest doc + openapi3
 }
 
 group = "com.example"
@@ -44,21 +45,14 @@ dependencies {
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.4")
 
-    // REST Assured (REST API 테스트)
-    testImplementation("io.rest-assured:rest-assured:5.3.0")
-
     // Mocking 라이브러리
     testImplementation("io.mockk:mockk:1.13.4")
 
     // Hibernate Validator (Bean Validation)
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("javax.validation:validation-api:2.0.1.Final")
-
     // JUnit 5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-
-    // 최신 버전 springdoc-openapi-starter-webmvc-ui
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4")
 
     // H2 Database for Testing
     testImplementation("com.h2database:h2:2.2.220")
@@ -75,10 +69,34 @@ tasks.withType<Jar> {
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform() // JUnit 5 사용
-    ktlint {
-        verbose.set(true)
+openapi3 {
+    this.setServer("https://localhost:8080") // list로 넣을 수 있어 각종 환경의 URL을 넣을 수 있음!
+    title = "My API"
+    description = "My API description"
+    version = "0.1.0"
+    format = "yaml" // or json
+}
+
+tasks {
+    withType<Test> {
+        useJUnitPlatform()
+        ktlint {
+            verbose.set(true)
+        }
+    }
+
+    register<Copy>("copyOasToSwagger") {
+        doFirst {
+            println("Copying OAS file from: ${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
+        }
+        delete("src/main/resources/static/swagger-ui/openapi3.yaml") // 기존 OAS 파일 삭제
+        from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml") // 복제할 OAS 파일 지정
+        into("src/main/resources/static/swagger-ui/.") // 타겟 디렉터리로 파일 복제
+        dependsOn("openapi3") // openapi3 Task가 먼저 실행되도록 설정
+    }
+
+    build {
+        finalizedBy("copyOasToSwagger") // build 작업 후 copyOasToSwagger 실행
     }
 }
 
