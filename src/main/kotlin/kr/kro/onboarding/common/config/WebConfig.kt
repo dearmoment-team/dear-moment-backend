@@ -11,11 +11,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class WebConfig(val objectMapper: ObjectMapper) : WebMvcConfigurer {
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         // 커스텀 컨버터 제거
-        // converters.add(HIGHEST_CONVERTER_PRIORITY, CustomHttpMessageConverter(objectMapper))
+        converters.add(HIGHEST_CONVERTER_PRIORITY, CustomHttpMessageConverter(objectMapper))
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/")
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/static/swagger-ui/")
+    }
+
+    companion object {
+        private const val HIGHEST_CONVERTER_PRIORITY = 0
     }
 }
