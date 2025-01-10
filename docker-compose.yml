@@ -37,9 +37,8 @@ services:
       SPRING_APPLICATION_NAME: "${SPRING_APPLICATION_NAME}"
     command: >
       /app/wait-for-it.sh db:1521 -- bash -c "
-      source /root/.sdkman/bin/sdkman-init.sh &&
-      ./gradlew copyOasToSwagger &&
-      ./gradlew bootRun
+      source /root/.sdkman.bin/sdkman-init.sh &&
+      ./gradlew devRun
       "
     depends_on:
       - db

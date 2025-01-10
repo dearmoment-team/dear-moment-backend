@@ -41,7 +41,7 @@ dependencies {
     // Database (Oracle)
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
 
-    // REST Docs
+    // REST Docs & OpenAPI
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.4")
 
@@ -51,15 +51,16 @@ dependencies {
     // Hibernate Validator (Bean Validation)
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("javax.validation:validation-api:2.0.1.Final")
+
     // JUnit 5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 
     // H2 Database for Testing
     testImplementation("com.h2database:h2:2.2.220")
 
-    // Spring Boot 테스트 (JUnit 5 지원 포함)
+    // Spring Boot 테스트 (JUnit 5 지원)
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine") // JUnit 4 제외
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine") // JUnit4 제외
     }
 }
 
@@ -70,7 +71,8 @@ tasks.withType<Jar> {
 }
 
 openapi3 {
-    this.setServer("https://localhost:8080") // list로 넣을 수 있어 각종 환경의 URL을 넣을 수 있음!
+    // OpenAPI 설정
+    setServer("https://localhost:8080") // 필요 시 여러 환경(Dev/Prod 등) URL을 추가 가능
     title = "My API"
     description = "My API description"
     version = "0.1.0"
@@ -78,6 +80,7 @@ openapi3 {
 }
 
 tasks {
+    // Kotlin/JUnit5 세팅
     withType<Test> {
         useJUnitPlatform()
         ktlint {
@@ -85,19 +88,35 @@ tasks {
         }
     }
 
+    // Swagger 문서 복사
     register<Copy>("copyOasToSwagger") {
         doFirst {
             println("Copying OAS file from: ${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
         }
-        delete("src/main/resources/static/swagger-ui/openapi3.yaml") // 기존 OAS 파일 삭제
-        from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml") // 복제할 OAS 파일 지정
-        into("src/main/resources/static/swagger-ui/.") // 타겟 디렉터리로 파일 복제
-        dependsOn("openapi3") // openapi3 Task가 먼저 실행되도록 설정
+        // 기존 OAS 파일 삭제
+        delete("src/main/resources/static/swagger-ui/openapi3.yaml")
+        // 복제할 OAS 파일 지정
+        from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
+        // 타겟 디렉터리로 파일 복제
+        into("src/main/resources/static/swagger-ui/.")
+        // openapi3 Task가 먼저 실행되도록 설정
+        dependsOn("openapi3")
     }
 
+    // 전체 빌드가 끝난 후 Swagger 문서 복사(빌드 산출물 확정)
     build {
-        finalizedBy("copyOasToSwagger") // build 작업 후 copyOasToSwagger 실행
+        finalizedBy("copyOasToSwagger")
     }
+
+    // ---------- 핵심: 별도 devRun 태스크로 "테스트 → Swagger 복사 → 부트런" 순서 ----------
+    register("devRun") {
+        group = "application"
+        description = "Runs test, copies OAS, then starts Spring Boot."
+        dependsOn("test")
+        dependsOn("copyOasToSwagger")
+        dependsOn("bootRun")
+    }
+    // ----------------------------------------------------------------------------
 }
 
 sonar {
