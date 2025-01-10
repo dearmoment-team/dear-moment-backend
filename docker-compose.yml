@@ -42,7 +42,7 @@ services:
       /app/wait-for-it.sh db:1521 -- bash -c "
       source /root/.sdkman/bin/sdkman-init.sh &&
       ./gradlew prepareSwagger &&
-      ./gradlew bootRun
+      ./gradlew bootRun --rerun-tasks
       "
     depends_on:
       - db
