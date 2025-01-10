@@ -1,13 +1,13 @@
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.8.22" // 안정적인 Kotlin 버전
+    kotlin("jvm") version "1.8.22"
     id("org.springframework.boot") version "3.3.5"
     kotlin("plugin.spring") version "1.8.22"
     id("io.spring.dependency-management") version "1.1.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0" // ktlint 플러그인
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0" // ktlint
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
-    id("com.epages.restdocs-api-spec") version "0.18.4" // rest doc + openapi3
+    id("com.epages.restdocs-api-spec") version "0.18.4" // restdocs + openapi
 }
 
 group = "com.example"
@@ -24,43 +24,38 @@ repositories {
 }
 
 dependencies {
-    // Spring Boot 기본 모듈
+    // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter")
-
     // Spring Data JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-
-    // Jackson Kotlin 모듈
+    // Jackson Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
 
-    // Database (Oracle)
+    // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
 
     // REST Docs & OpenAPI
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.4")
 
-    // Mocking 라이브러리
+    // Mockk
     testImplementation("io.mockk:mockk:1.13.4")
 
-    // Hibernate Validator (Bean Validation)
+    // Hibernate Validator
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("javax.validation:validation-api:2.0.1.Final")
 
-    // JUnit 5
+    // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-
-    // H2 Database for Testing
+    // H2
     testImplementation("com.h2database:h2:2.2.220")
-
-    // Spring Boot 테스트 (JUnit 5 지원)
+    // Spring Boot Test (JUnit5)
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine") // JUnit4 제외
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 }
 
@@ -71,8 +66,7 @@ tasks.withType<Jar> {
 }
 
 openapi3 {
-    // OpenAPI 설정
-    setServer("https://localhost:8080") // 필요 시 여러 환경(Dev/Prod 등) URL을 추가 가능
+    setServer("https://localhost:8080")
     title = "My API"
     description = "My API description"
     version = "0.1.0"
@@ -80,7 +74,7 @@ openapi3 {
 }
 
 tasks {
-    // Kotlin/JUnit5 세팅
+    // Kotlin/JUnit5
     withType<Test> {
         useJUnitPlatform()
         ktlint {
@@ -95,28 +89,28 @@ tasks {
         }
         // 기존 OAS 파일 삭제
         delete("src/main/resources/static/swagger-ui/openapi3.yaml")
-        // 복제할 OAS 파일 지정
+        // 복제할 OAS 파일
         from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
-        // 타겟 디렉터리로 파일 복제
+        // 복사될 위치
         into("src/main/resources/static/swagger-ui/.")
-        // openapi3 Task가 먼저 실행되도록 설정
+        // openapi3 Task 먼저 실행
         dependsOn("openapi3")
     }
 
-    // 전체 빌드가 끝난 후 Swagger 문서 복사(빌드 산출물 확정)
+    // build가 끝난 후 Swagger 문서 복사
     build {
         finalizedBy("copyOasToSwagger")
     }
 
-    // ---------- 핵심: 별도 devRun 태스크로 "테스트 → Swagger 복사 → 부트런" 순서 ----------
-    register("devRun") {
-        group = "application"
-        description = "Runs test, copies OAS, then starts Spring Boot."
-        dependsOn("test")
+    // (1) swagger 준비 태스크: openapi3 → copyOasToSwagger 순서 보장
+    register("prepareSwagger") {
         dependsOn("copyOasToSwagger")
-        dependsOn("bootRun")
     }
-    // ----------------------------------------------------------------------------
+
+    // (2) bootRun은 prepareSwagger 완료 후 실행
+    named("bootRun") {
+        dependsOn("prepareSwagger")
+    }
 }
 
 sonar {
