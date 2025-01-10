@@ -49,8 +49,6 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("javax.validation:validation-api:2.0.1.Final")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     // H2
@@ -72,7 +70,7 @@ openapi3 {
     title = "My API"
     description = "My API description"
     version = "0.1.0"
-    format = "json" // or json
+    format = "yaml" // or json
 }
 
 tasks {
@@ -87,23 +85,16 @@ tasks {
     // Swagger 문서 복사
     register<Copy>("copyOasToSwagger") {
         doFirst {
-            println("Copying OAS file from: ${layout.buildDirectory.get().asFile}/api-spec/openapi3.json")
+            println("Copying OAS file from: ${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
         }
         // 기존 OAS 파일 삭제
-        delete("src/main/resources/static/swagger-ui/openapi3.json")
+        delete("src/main/resources/static/swagger-ui/openapi3.yaml")
         // 복제할 OAS 파일
-        from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.json")
+        from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
         // 복사될 위치
         into("src/main/resources/static/swagger-ui/.")
         // openapi3 Task 먼저 실행
         dependsOn("openapi3")
-
-        doLast {
-            val copiedFile = file("src/main/resources/static/swagger-ui/openapi3.yaml")
-            if (copiedFile.exists()) {
-                copiedFile.setWritable(true) // 파일을 쓰기 가능으로 설정
-            }
-        }
     }
 
     // build가 끝난 후 Swagger 문서 복사
