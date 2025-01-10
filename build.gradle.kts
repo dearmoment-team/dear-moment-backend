@@ -85,10 +85,6 @@ tasks {
         }
     }
 
-    named("bootRun") {
-        dependsOn("copyOasToSwagger")
-    }
-
     register<Copy>("copyOasToSwagger") {
         doFirst {
             println("Copying OAS file from: ${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
