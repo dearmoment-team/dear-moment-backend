@@ -1,13 +1,14 @@
+import org.gradle.api.tasks.Copy
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.8.22"
-    id("org.springframework.boot") version "3.3.5"
-    kotlin("plugin.spring") version "1.8.22"
+    kotlin("jvm") version "1.9.25"
+    id("org.springframework.boot") version "3.4.1"
+    kotlin("plugin.spring") version "1.9.25"
     id("io.spring.dependency-management") version "1.1.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0" // ktlint
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2" // ktlint
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
-    id("com.epages.restdocs-api-spec") version "0.18.4" // restdocs + openapi
+    id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
 }
 
 group = "com.example"
@@ -15,7 +16,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -32,23 +33,18 @@ dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    // Jackson Kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
-
+    // Jackson Kotlin (Spring Boot가 버전을 관리하므로 별도 버전 지정 제거)
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
-
     // REST Docs & OpenAPI
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.4")
-
+    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4")
     // Mockk
     testImplementation("io.mockk:mockk:1.13.4")
-
     // Hibernate Validator
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
-    implementation("javax.validation:validation-api:2.0.1.Final")
-
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     // H2
@@ -70,47 +66,35 @@ openapi3 {
     title = "My API"
     description = "My API description"
     version = "0.1.0"
-    format = "yaml" // or json
+    format = "yaml" // 또는 "json"
 }
 
-tasks {
-    // Kotlin/JUnit5
-    withType<Test> {
-        useJUnitPlatform()
-        ktlint {
-            verbose.set(true)
-        }
-    }
+ktlint {
+    verbose.set(true)
+}
 
-    // Swagger 문서 복사
-    register<Copy>("copyOasToSwagger") {
-        doFirst {
-            println("Copying OAS file from: ${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
-        }
-        // 기존 OAS 파일 삭제
+// Swagger 문서 복사 태스크 등록
+tasks.register<Copy>("copyOasToSwagger") {
+    dependsOn("openapi3") // openapi3 태스크가 먼저 실행되도록 설정
+
+    doFirst {
+        val sourceFile = layout.buildDirectory.file("api-spec/openapi3.yaml").get().asFile
+        println("Copying OAS file from: ${sourceFile.path}")
         delete("src/main/resources/static/swagger-ui/openapi3.yaml")
-        // 복제할 OAS 파일
-        from("${layout.buildDirectory.get().asFile}/api-spec/openapi3.yaml")
-        // 복사될 위치
-        into("src/main/resources/static/swagger-ui/.")
-        // openapi3 Task 먼저 실행
-        dependsOn("openapi3")
     }
 
-    // build가 끝난 후 Swagger 문서 복사
-    build {
-        finalizedBy("copyOasToSwagger")
-    }
+    from(layout.buildDirectory.file("api-spec/openapi3.yaml").get().asFile)
+    into("src/main/resources/static/swagger-ui/")
+}
 
-    // (1) swagger 준비 태스크: openapi3 → copyOasToSwagger 순서 보장
-    register("prepareSwagger") {
-        dependsOn("copyOasToSwagger")
-    }
+// build 태스크가 끝난 후 Swagger 문서 복사 태스크 실행
+tasks.named("build") {
+    finalizedBy("copyOasToSwagger")
+}
 
-    // (2) bootRun은 prepareSwagger 완료 후 실행
-    named("bootRun") {
-        dependsOn("prepareSwagger")
-    }
+// bootRun 태스크가 Swagger 문서 복사 태스크에 의존하도록 설정
+tasks.named("bootRun") {
+    dependsOn("copyOasToSwagger")
 }
 
 sonar {
