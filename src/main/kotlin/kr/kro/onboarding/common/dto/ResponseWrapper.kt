@@ -8,25 +8,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
 import org.springframework.http.server.ServletServerHttpResponse
-import org.springframework.util.AntPathMatcher
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
 @RestControllerAdvice("kr.kro.onboarding.api")
 class ResponseWrapper : ResponseBodyAdvice<Any> {
-    private val antPathMatcher = AntPathMatcher()
-
-    // Swagger/OpenAPI 관련 엔드포인트 패턴 리스트
-    private val swaggerPaths =
-        listOf(
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-resources/**",
-            "/swagger-config/**",
-            "/api/docs/**",
-        )
-
     override fun supports(
         returnType: MethodParameter,
         converterType: Class<out HttpMessageConverter<*>>,
