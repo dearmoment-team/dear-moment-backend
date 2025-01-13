@@ -8,7 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2" // ktlint
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
-    id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
+    id("com.epages.restdocs-api-spec") version "0.18.4" // restdocs + openapi
 }
 
 group = "com.example"
@@ -51,9 +51,11 @@ dependencies {
     // H2
     testImplementation("com.h2database:h2:2.2.220")
     // Spring Boot Test (JUnit5)
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.withType<Jar> {
@@ -68,7 +70,7 @@ openapi3 {
     title = "My API"
     description = "My API description"
     version = "0.1.0"
-    format = "yaml" // 또는 "json"
+    format = "json" // 또는 "json"
 }
 
 // ktlint 설정
@@ -81,12 +83,12 @@ tasks.register<Copy>("copyOasToSwagger") {
     dependsOn("openapi3") // openapi3 태스크가 먼저 실행되도록 설정
 
     doFirst {
-        val sourceFile = layout.buildDirectory.file("api-spec/openapi3.yaml").get().asFile
+        val sourceFile = layout.buildDirectory.file("api-spec/openapi3.json").get().asFile
         println("Copying OAS file from: ${sourceFile.path}")
-        delete("src/main/resources/static/swagger-ui/openapi3.yaml")
+        delete("src/main/resources/static/swagger-ui/openapi3.json")
     }
 
-    from(layout.buildDirectory.file("api-spec/openapi3.yaml").get().asFile)
+    from(layout.buildDirectory.file("api-spec/openapi3.json").get().asFile)
     into("src/main/resources/static/swagger-ui/")
 }
 
