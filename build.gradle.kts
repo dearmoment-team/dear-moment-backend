@@ -8,7 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2" // ktlint
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
-    id("com.epages.restdocs-api-spec") version "0.18.4" // restdocs + openapi
+    id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
 }
 
 group = "com.example"
@@ -28,7 +28,7 @@ dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+
     // Spring Data JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     // Kotlin
