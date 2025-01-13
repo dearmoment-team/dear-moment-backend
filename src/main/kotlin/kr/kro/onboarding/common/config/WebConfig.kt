@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kr.kro.onboarding.common.converter.CustomHttpMessageConverter
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.HttpMessageConverter
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -23,6 +24,12 @@ class WebConfig(
             .addResourceLocations("classpath:/static/swagger-ui/")
         registry.addResourceHandler("/swagger-ui/**")
             .addResourceLocations("classpath:/static/swagger-ui/")
+    }
+
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowedOriginPatterns("*")
+            .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
     }
 
     companion object {
