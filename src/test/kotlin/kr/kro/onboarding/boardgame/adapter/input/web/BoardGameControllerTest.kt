@@ -10,10 +10,12 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.restdocs.RestDocumentationExtension
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler
 import org.springframework.restdocs.operation.preprocess.Preprocessors
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -28,20 +30,24 @@ class BoardGameControllerTest {
     private val objectMapper = jacksonObjectMapper()
 
     private val restDocumentation: RestDocumentationResultHandler =
-        MockMvcRestDocumentationWrapper
-            .document(
-                "{class-name}/{method-name}",
-                Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
-                Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
-            )
+        MockMvcRestDocumentationWrapper.document(
+            "{class-name}/{method-name}",
+            Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
+            Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+            responseFields(
+                fieldWithPath("success").description("Indicates if the request was successful"),
+                fieldWithPath("code").description("HTTP status code"),
+                fieldWithPath("data").description("Response data"),
+            ),
+        )
 
     @Test
-    fun `healthCheck`() {
+    fun healthCheck() {
         val expectedResponse = BaseResponse(success = true, code = 200, data = "OK")
 
         mockMvc.perform(get("/health"))
-            .andExpect { status().isOk }
-            .andExpect { content().json(objectMapper.writeValueAsString(expectedResponse)) }
+            .andExpect(status().isOk)
+            .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)))
             .andDo(restDocumentation)
     }
 }
