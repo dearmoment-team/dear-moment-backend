@@ -41,6 +41,7 @@ dependencies {
     // REST Docs & OpenAPI
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4") // 플러그인 버전에 맞게 업데이트
+
     // Mockk
     testImplementation("io.mockk:mockk:1.13.4")
     // Hibernate Validator
@@ -66,7 +67,7 @@ tasks.withType<Jar> {
 
 // OpenAPI 설정
 openapi3 {
-    setServer("https://localhost:8080")
+    setServer("http://localhost:8080")
     title = "My API"
     description = "My API description"
     version = "0.1.0"

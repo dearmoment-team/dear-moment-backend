@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   db:
     image: gvenzl/oracle-free:slim
     container_name: oracle-db
     ports:
-      - "1522:1521"
+      - "50060:1521"
     env_file:
       - .env
     environment:
