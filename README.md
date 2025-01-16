@@ -1,4 +1,4 @@
-# 디어모먼트 백엔드
+# 디어모먼트 백엔드 업무분장표
 
 ## 업무 분장표
 
@@ -37,3 +37,50 @@
 - 데이터베이스 백업 및 복구 프로세스 준비.
 
 ---
+
+## 예상 API 엔드포인트 갯수
+
+### 1. 이미지 관련 기능 (성민)
+- **POST /api/images**: 이미지 업로드
+- **GET /api/images/{id}**: 이미지 조회
+- **DELETE /api/images/{id}**: 이미지 삭제
+
+**예상 API 개수**: 3개
+
+### 2. 회원가입 및 사용자 관리 (병욱)
+- **POST /api/users/signup**: 회원가입
+- **POST /api/users/login**: 로그인
+- **GET /api/users/{id}**: 사용자 정보 조회
+- **PATCH /api/users/{id}**: 사용자 정보 수정
+- **POST /api/users/logout**: 로그아웃
+
+**예상 API 개수**: 5개
+
+### 3. 게시글 작성 및 관리 (성민)
+- **POST /api/posts**: 게시글 작성
+- **GET /api/posts**: 게시글 목록 조회
+- **GET /api/posts/{id}**: 게시글 상세 조회
+- **PATCH /api/posts/{id}**: 게시글 수정
+- **DELETE /api/posts/{id}**: 게시글 삭제
+
+**예상 API 개수**: 5개
+
+### 4. 댓글 기능 (호준)
+- **POST /api/comments**: 댓글 작성
+- **GET /api/comments/{postId}**: 댓글 조회
+- **PATCH /api/comments/{id}**: 댓글 수정
+- **DELETE /api/comments/{id}**: 댓글 삭제
+
+**예상 API 개수**: 4개
+
+### 5. 백오피스 기능 (호준)
+- **GET /api/admin/users**: 사용자 목록 조회
+- **PATCH /api/admin/users/{id}**: 사용자 권한 변경
+- **GET /api/admin/stats**: 통계 데이터 조회
+- **PATCH /api/admin/settings**: 시스템 설정 변경
+
+**예상 API 개수**: 4개
+
+---
+
+### **총 예상 API 개수**: 21개
