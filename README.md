@@ -84,3 +84,42 @@
 ---
 
 ### **총 예상 API 개수**: 21개
+
+---
+
+## 데이터베이스 상세 설명
+
+### 1. Users 테이블
+- **user_id** (PK): 사용자의 고유 ID.
+- **username**: 사용자의 이름.
+- **email**: 사용자의 이메일 주소.
+- **password_hash**: 암호화된 비밀번호.
+- **created_at**: 계정 생성 일자.
+
+### 2. Posts 테이블
+- **post_id** (PK): 게시글의 고유 ID.
+- **user_id** (FK): 게시글을 작성한 사용자 ID.
+- **title**: 게시글 제목.
+- **content**: 게시글 내용.
+- **created_at**: 게시글 작성 일자.
+
+### 3. Images 테이블
+- **image_id** (PK): 이미지의 고유 ID.
+- **post_id** (FK): 이미지를 포함한 게시글 ID.
+- **file_path**: 이미지 파일 경로.
+- **created_at**: 이미지 업로드 일자.
+
+### 4. Comments 테이블
+- **comment_id** (PK): 댓글의 고유 ID.
+- **post_id** (FK): 댓글이 달린 게시글 ID.
+- **user_id** (FK): 댓글을 작성한 사용자 ID.
+- **content**: 댓글 내용.
+- **created_at**: 댓글 작성 일자.
+
+### 5. Admin 테이블
+- **admin_id** (PK): 관리자의 고유 ID.
+- **username**: 관리자 계정 이름.
+- **password_hash**: 암호화된 비밀번호.
+- **role**: 관리자 역할 (예: superadmin, editor).
+
+![img.png](img.png)
