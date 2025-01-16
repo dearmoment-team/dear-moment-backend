@@ -28,7 +28,6 @@ dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter")
-
     // Spring Data JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     // Kotlin
@@ -40,8 +39,7 @@ dependencies {
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
     // REST Docs & OpenAPI
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4") // 플러그인 버전에 맞게 업데이트
-
+    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4")
     // Mockk
     testImplementation("io.mockk:mockk:1.13.4")
     // Hibernate Validator
@@ -71,7 +69,7 @@ openapi3 {
     title = "My API"
     description = "My API description"
     version = "0.1.0"
-    format = "json" // 또는 "json"
+    format = "json"
 }
 
 // ktlint 설정
