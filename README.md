@@ -104,6 +104,9 @@
 ---
 
 ## 데이터베이스 상세 설명
+![img.png](img.png)
+![img_1.png](img_1.png)
+
 
 ### 1. Users 테이블
 - **user_id** (PK): 사용자의 고유 ID.
@@ -144,4 +147,3 @@
 - **post_id** (FK): 찜한 게시글 ID.
 - **created_at**: 찜한 일자.
 
-![img.png](img.png)
