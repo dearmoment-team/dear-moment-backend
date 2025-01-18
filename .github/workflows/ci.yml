@@ -30,7 +30,7 @@ jobs:
 
       # Gradle 빌드 실행
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test -x koverVerify
 
   test:
     runs-on: ubuntu-latest
