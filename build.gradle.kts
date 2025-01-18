@@ -9,6 +9,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2" // ktlint
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
     id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
+    id("org.jetbrains.kotlinx.kover") version "0.9.1" // kover
 }
 
 group = "com.example"
@@ -35,26 +36,37 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     // Jackson Kotlin (Spring Boot가 버전을 관리하므로 별도 버전 지정 제거)
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    // Oracle JDBC
-    runtimeOnly("com.oracle.database.jdbc:ojdbc11")
-    // REST Docs & OpenAPI
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4")
-    // Mockk
-    testImplementation("io.mockk:mockk:1.13.4")
     // Hibernate Validator
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+
+    // Oracle JDBC
+    runtimeOnly("com.oracle.database.jdbc:ojdbc11")
+
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     // H2
     testImplementation("com.h2database:h2:2.2.220")
     // Spring Boot Test (JUnit5)
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation(kotlin("test")) // junit
+    // REST Docs & OpenAPI
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4")
+    // Mockk
+    testImplementation("io.mockk:mockk:1.13.4")
+    // Kotest Core 모듈 (필수)
+    testImplementation("io.kotest:kotest-runner-junit5:5.7.0")
+    // 빈 주입 사용 가능
+    testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
+    // Kotest Assertions (선택적, 다양한 assert 기능 제공)
+    testImplementation("io.kotest:kotest-assertions-core:5.7.0")
 }
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy("koverXmlReport")
+    finalizedBy("koverHtmlReport")
 }
 
 tasks.withType<Jar> {
@@ -101,10 +113,22 @@ tasks.named("bootRun") {
     dependsOn("copyOasToSwagger")
 }
 
+kover {
+    reports {
+        filters.excludes {
+            packages("kr.kro.onboarding.common.*")
+        }
+        verify.rule {
+            minBound(75)
+        }
+    }
+}
+
 sonar {
     properties {
         property("sonar.projectKey", "Onboarding-serivce_BE-onboarding")
         property("sonar.organization", "onboarding-serivce")
         property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory}/reports/kover/report.xml")
     }
 }
