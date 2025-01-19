@@ -1,11 +1,11 @@
-package com.example.demo
+package kr.kro.dearmoment
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class OnBordingApplication
+class OnBoardingApplication
 
 fun main(args: Array<String>) {
-	runApplication<OnBordingApplication>(*args)
+    runApplication<OnBoardingApplication>(*args)
 }
