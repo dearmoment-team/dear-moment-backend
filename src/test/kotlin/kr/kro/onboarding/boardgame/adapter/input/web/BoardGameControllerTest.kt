@@ -37,7 +37,7 @@ class BoardGameControllerTest {
 
     @Test
     fun healthCheck() {
-        val expectedResponse = BaseResponse(success = true, code = 200, data = "OK")
+        val expectedResponse = BaseResponse.success(data = "OK")
 
         mockMvc.perform(get("/health"))
             .andExpect { status().isOk }

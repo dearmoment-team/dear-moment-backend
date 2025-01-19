@@ -36,7 +36,7 @@ class ResponseWrapper : ResponseBodyAdvice<Any> {
             BaseResponse(success = true, code = status, data = body)
         } else {
             print("Not wrapping response due to non-2xx status\n")
-            body
+            BaseResponse.error(code = status)
         }
     }
 }
