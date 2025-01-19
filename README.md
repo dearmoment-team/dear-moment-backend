@@ -131,7 +131,7 @@
 
 ## 📂 데이터베이스 상세 설명
 
-![img.png](img.png)
+![img.png](image/img.png)
 
 ### 1. Users 테이블
 - **user_id** (PK): 사용자의 고유 ID.
@@ -301,6 +301,10 @@ src/main/java/com/example/yourproject
 - 외부 의존성 검증 (adapter.out):
   - 외부 시스템으로부터 받은 데이터를 검증합니다.
   - 예: 외부 API의 응답 데이터 유효성 확인.
+
+- 이외 참고 자료 (만들면서 배우는 클린 아키텍처 책 발췌)
+  ![img2.png](image/img2.png)
+  ![img3.png](image/img3.png)
 
 ### 의존성 방향
 - 의존성은 항상 Core 방향으로 흘러가야 합니다.
