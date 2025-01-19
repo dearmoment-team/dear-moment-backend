@@ -118,13 +118,8 @@ tasks.named("sonar") {
 }
 
 kover {
-    reports {
-        filters.excludes {
-            packages("kr.kro.onboarding.common.*")
-        }
-        verify.rule {
-            minBound(75)
-        }
+    reports.verify.rule {
+        minBound(75)
     }
 }
 
@@ -134,6 +129,5 @@ sonar {
         property("sonar.organization", "onboarding-serivce")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/kover/report.xml")
-        property("sonar.coverage.exclusions", "src/main/kotlin/kr.kro.onboarding.common.**")
     }
 }
