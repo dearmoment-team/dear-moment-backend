@@ -1,8 +1,8 @@
-package kr.kro.onboarding.boardgame.adapter.input.web
+package kr.kro.dearmoment.boardgame.adapter.input.web
 
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kr.kro.onboarding.common.dto.BaseResponse
+import kr.kro.dearmoment.common.dto.BaseResponse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,10 +18,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ExtendWith(RestDocumentationExtension::class)
-@WebMvcTest(BoardGameController::class)
+@WebMvcTest(HealthCheckController::class)
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
-class BoardGameControllerTest {
+class HealthCheckControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 

@@ -1,7 +1,7 @@
-package kr.kro.onboarding.common.config
+package kr.kro.dearmoment.common.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kr.kro.onboarding.common.converter.CustomHttpMessageConverter
+import kr.kro.dearmoment.common.converter.CustomHttpMessageConverter
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.web.servlet.config.annotation.CorsRegistry
