@@ -134,5 +134,6 @@ sonar {
         property("sonar.organization", "onboarding-serivce")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/kover/report.xml")
+        property("sonar.coverage.exclusions", "kr.kro.onboarding.common.**")
     }
 }
