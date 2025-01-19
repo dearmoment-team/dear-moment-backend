@@ -1,4 +1,4 @@
-package kr.kro.onboarding
+package kr.kro.dearmoment
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

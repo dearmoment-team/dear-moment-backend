@@ -1,7 +1,7 @@
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import kr.kro.onboarding.common.dto.BaseResponse
-import kr.kro.onboarding.common.dto.ResponseWrapper
+import kr.kro.dearmoment.common.dto.BaseResponse
+import kr.kro.dearmoment.common.dto.ResponseWrapper
 import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType

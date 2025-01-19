@@ -1,4 +1,4 @@
-package kr.kro.onboarding.common.dto
+package kr.kro.dearmoment.common.dto
 
 import org.springframework.http.HttpStatus
 

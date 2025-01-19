@@ -1,10 +1,10 @@
-package kr.kro.onboarding
+package kr.kro.dearmoment
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class OnBoardingApplicationTests {
+class DearMomentApplicationTests {
     @Test
     fun contextLoads() {
     }
