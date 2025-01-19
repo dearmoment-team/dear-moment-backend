@@ -19,7 +19,7 @@ class ResponseWrapperTest : StringSpec({
     val responseWrapper = ResponseWrapper()
     val converter: Class<out HttpMessageConverter<*>> = MappingJackson2HttpMessageConverter::class.java
 
-    "API 호출 시 응답 상태가 2xx 라면 응답 객체는 BaseResponse" {
+    "API 호출 시 응답 상태가 2xx 라면 BaseResponse.success()를 반환한다." {
         val body = mapOf("key" to "value")
         val method =
             ResponseWrapper::class.java.getMethod(
@@ -51,7 +51,7 @@ class ResponseWrapperTest : StringSpec({
         wrappedResponse shouldBe BaseResponse.success(data = body)
     }
 
-    "should not wrap non-2xx response" {
+    "API 호출 시 응답 상태가 2xx 아니라면 BaseResponse.error()를 반환한다." {
         val body = mapOf("error" to "Bad Request")
         val method =
             ResponseWrapper::class.java.getMethod(
