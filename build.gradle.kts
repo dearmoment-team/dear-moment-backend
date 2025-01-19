@@ -113,6 +113,10 @@ tasks.named("bootRun") {
     dependsOn("copyOasToSwagger")
 }
 
+tasks.named("sonar") {
+    dependsOn("koverXmlReport")
+}
+
 kover {
     reports {
         filters.excludes {
@@ -129,6 +133,6 @@ sonar {
         property("sonar.projectKey", "Onboarding-serivce_BE-onboarding")
         property("sonar.organization", "onboarding-serivce")
         property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory}/reports/kover/report.xml")
+        property("sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/kover/report.xml")
     }
 }
