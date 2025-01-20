@@ -1,3 +1,4 @@
+# Dockerfile
 FROM azul/zulu-openjdk-alpine:21
 WORKDIR /app
 
@@ -30,8 +31,9 @@ COPY gradle gradle
 # Gradle 의존성 사전 다운로드
 RUN ./gradlew dependencies
 
-# 실제 소스코드는 docker-compose.yml에서 볼륨 마운트
-# (개발 환경이므로 COPY . . 대신 볼륨 마운트를 사용)
+# 디버깅 포트 개방
+EXPOSE 8080
+EXPOSE 5005
 
-# ENTRYPOINT 설정을 bash로 변경
+# ENTRYPOINT 설정
 ENTRYPOINT ["bash", "/app/entrypoint.sh"]

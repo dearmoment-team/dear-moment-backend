@@ -1,5 +1,6 @@
 import org.gradle.api.tasks.Copy
 import org.gradle.jvm.tasks.Jar
+import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     kotlin("jvm") version "1.9.25"
@@ -108,9 +109,15 @@ tasks.named("build") {
     finalizedBy("copyOasToSwagger")
 }
 
-// bootRun 태스크가 Swagger 문서 복사 태스크에 의존하도록 설정
-tasks.named("bootRun") {
+// bootRun 태스크가 Swagger 문서 복사 태스크에 의존하도록 설정 + 디버그 옵션 적용
+tasks.named<BootRun>("bootRun") {
     dependsOn("copyOasToSwagger")
+
+    // JVM 디버그 옵션 설정
+    jvmArgs =
+        listOf(
+            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005",
+        )
 }
 
 tasks.named("sonar") {
