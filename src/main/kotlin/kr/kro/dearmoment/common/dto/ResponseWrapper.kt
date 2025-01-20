@@ -11,7 +11,7 @@ import org.springframework.http.server.ServletServerHttpResponse
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
-@RestControllerAdvice("kr.kro.onboarding.api")
+@RestControllerAdvice
 class ResponseWrapper : ResponseBodyAdvice<Any> {
     override fun supports(
         returnType: MethodParameter,
