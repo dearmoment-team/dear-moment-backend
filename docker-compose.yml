@@ -20,6 +20,7 @@ services:
     container_name: spring-app
     ports:
       - "8080:8080"
+      - "5005:5005"  # 디버그 포트 매핑
     volumes:
       - ./src:/app/src
       - ./build.gradle.kts:/app/build.gradle.kts
@@ -36,6 +37,7 @@ services:
       SPRING_JPA_DATABASE_PLATFORM: "${SPRING_JPA_DATABASE_PLATFORM}"
       SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
       SPRING_APPLICATION_NAME: "${SPRING_APPLICATION_NAME}"
+
     depends_on:
       - db
 
