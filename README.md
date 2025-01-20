@@ -221,3 +221,92 @@
 - **created_at**: 환불 규정 생성 일자.
 
 ---
+
+## 헥사고날 아키텍처 예시
+```
+src/main/java/com/example/yourproject
+├── application
+│   ├── port
+│   │   ├── in
+│   │   │   ├── UseCaseInterface1.java  # Core로 들어오는 요청을 정의하는 포트
+│   │   │   ├── UseCaseInterface2.java
+│   │   └── out
+│   │       ├── ExternalServicePort.java  # Core가 외부와 상호작용하기 위한 포트
+│   │       ├── PersistencePort.java
+│   ├── service
+│       ├── UseCaseService1.java  # 도메인 로직을 구현하는 서비스
+│       ├── UseCaseService2.java
+├── domain
+│   ├── model
+│   │   ├── Entity1.java   # 도메인 엔티티
+│   │   ├── Entity2.java
+│   ├── exception
+│       ├── BusinessException.java  # 비즈니스 로직 예외
+│       ├── ValidationException.java
+├── adapter
+│   ├── in
+│   │   ├── web
+│   │   │   ├── Controller1.java  # HTTP 요청 처리
+│   │   │   ├── Controller2.java
+│   │   ├── messaging
+│   │       ├── MessageListener1.java  # 메시지 큐 리스너
+│   │       ├── MessageListener2.java
+│   └── out
+│       ├── persistence
+│       │   ├── RepositoryImpl1.java  # DB와 상호작용
+│       │   ├── RepositoryImpl2.java
+│       ├── external
+│           ├── ExternalServiceAdapter1.java  # 외부 API 호출
+│           ├── ExternalServiceAdapter2.java
+
+```
+
+### 주요 클래스 및 역할
+- application.port.in
+    - 애플리케이션의 유스케이스를 정의하는 인터페이스입니다.
+    - 예: CreateOrderUseCase, GetOrderDetailsUseCase 등. 
+  
+- application.port.out
+  - 도메인 로직이 외부 시스템과 상호작용해야 할 때 사용하는 인터페이스입니다.
+  - 예: OrderRepository, PaymentGatewayPort 등.
+
+- application.service
+  - 포트(인터페이스)를 구현하는 서비스 클래스입니다.
+  - 비즈니스 로직을 처리하며, 도메인 객체와 상호작용합니다.
+
+- domain
+  - 핵심 도메인 로직과 엔티티를 포함합니다.
+  - 모든 비즈니스 규칙은 이 계층에 정의됩니다.
+  - 예: Order, Customer, OrderStatus 등.
+
+- adapter.in
+  - 사용자 인터페이스 계층입니다.
+  - REST API, 메시지 큐 리스너 등 외부에서 애플리케이션으로 들어오는 요청을 처리합니다.
+
+- adapter.out
+  - 외부 시스템과의 상호작용을 담당합니다.
+  - 예: 데이터베이스, 외부 API, 파일 시스템 등과의 연동.
+
+### 유효성 검증
+- 입력 데이터 검증 (adapter.in):
+  - HTTP 요청 또는 메시지 큐로부터 들어오는 데이터를 검증합니다.
+  - 예: @RequestBody 객체의 필드 유효성 검사.
+  - 기술: javax.validation 또는 Spring Validation.
+
+- 도메인 로직 검증 (domain):
+  - 도메인 규칙을 위반하는 데이터는 생성되지 않도록 합니다.
+  - 예: 엔티티 생성 시, 값이 유효하지 않으면 ValidationException 발생.
+  - 기술: 생성자 또는 정적 팩토리 메서드.
+
+- 외부 의존성 검증 (adapter.out):
+  - 외부 시스템으로부터 받은 데이터를 검증합니다.
+  - 예: 외부 API의 응답 데이터 유효성 확인.
+
+### 의존성 방향
+- 의존성은 항상 Core 방향으로 흘러가야 합니다.
+- 어댑터 → 포트 → Core의 방향을 유지하여 Core가 어댑터나 외부 시스템에 의존하지 않도록 해야 합니다.
+
+## 참고자료
+- [주니어 개발자의 백엔드 아키텍처 개선 도전기](https://techblog.uplus.co.kr/%EC%A3%BC%EB%8B%88%EC%96%B4-%EA%B0%9C%EB%B0%9C%EC%9E%90%EC%9D%98-%EB%B0%B1%EC%97%94%EB%93%9C-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98-%EA%B0%9C%EC%84%A0-%EB%8F%84%EC%A0%84%EA%B8%B0-9fb19982db9c)
+- [만들면서 배우는 클린 아키텍처 책 예제 소스 깃](https://github.com/wikibook/clean-architecture)
+- [hexagonal architecture?](https://medium.com/@hello-every-one/hexagonal-architecture-3729e9a9200b)
