@@ -18,6 +18,8 @@ data class Product(
     val contactInfo: String? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
+    // 추가: 옵션 리스트
+    val options: List<ProductOption>? = null,
 ) {
     val hasPackage: Boolean
         get() = (typeCode == 1)
