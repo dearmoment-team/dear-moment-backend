@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.product.adapter.persistence
+package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
