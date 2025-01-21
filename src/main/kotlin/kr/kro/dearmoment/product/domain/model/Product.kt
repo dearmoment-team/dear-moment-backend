@@ -7,7 +7,7 @@ data class Product(
     val userId: Long? = null,
     val title: String,
     val description: String? = null,
-    val price: Int,
+    val price: Long,
     val typeCode: Int,
     val shootingTime: LocalDateTime? = null,
     val shootingLocation: String? = null,
