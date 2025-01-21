@@ -79,7 +79,7 @@ class ProductEntity(
             userId = userId,
             title = title,
             description = description,
-            price = price.toInt(),
+            price = price,
             typeCode = typeCode,
             shootingTime = shootingTime,
             shootingLocation = shootingLocation,

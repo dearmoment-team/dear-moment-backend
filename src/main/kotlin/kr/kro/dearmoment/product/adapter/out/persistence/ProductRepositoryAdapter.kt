@@ -14,9 +14,11 @@ class ProductRepositoryAdapter(
         return saved.toDomain()
     }
 
-    override fun findById(id: Long): Product? {
-        val entity = jpaProductRepository.findById(id).orElse(null)
-        return entity?.toDomain()
+    override fun findById(id: Long): Product {
+        val entity =
+            jpaProductRepository.findById(id)
+                .orElseThrow { IllegalArgumentException("Product with ID $id not found") }
+        return entity.toDomain()
     }
 
     override fun findAll(): List<Product> {
