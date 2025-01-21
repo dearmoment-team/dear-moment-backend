@@ -1,11 +1,13 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -50,30 +52,44 @@ class ProductEntity(
     @Column(name = "updated_at")
     @LastModifiedDate
     val updatedAt: LocalDateTime? = null,
+    // 추가: 옵션 리스트
+    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val options: MutableList<ProductOptionEntity> = mutableListOf(),
 ) {
     companion object {
         fun fromDomain(product: kr.kro.dearmoment.product.domain.model.Product): ProductEntity {
-            return ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                title = product.title,
-                description = product.description,
-                price = product.price.toLong(),
-                typeCode = product.typeCode,
-                shootingTime = product.shootingTime,
-                shootingLocation = product.shootingLocation,
-                numberOfCostumes = product.numberOfCostumes,
-                packagePartnerShops = product.packagePartnerShops,
-                detailedInfo = product.detailedInfo,
-                warrantyInfo = product.warrantyInfo,
-                contactInfo = product.contactInfo,
-                createdAt = product.createdAt,
-                updatedAt = product.updatedAt,
-            )
+            val productEntity =
+                ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    title = product.title,
+                    description = product.description,
+                    price = product.price.toLong(),
+                    typeCode = product.typeCode,
+                    shootingTime = product.shootingTime,
+                    shootingLocation = product.shootingLocation,
+                    numberOfCostumes = product.numberOfCostumes,
+                    packagePartnerShops = product.packagePartnerShops,
+                    detailedInfo = product.detailedInfo,
+                    warrantyInfo = product.warrantyInfo,
+                    contactInfo = product.contactInfo,
+                    createdAt = product.createdAt,
+                    updatedAt = product.updatedAt,
+                )
+
+            // 도메인 내 ProductOption 리스트를 받아서 엔티티로 변환 후 productEntity.options 에 추가
+            product.options?.forEach { optionDomain ->
+                val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
+                productEntity.options.add(optionEntity)
+            }
+
+            return productEntity
         }
     }
 
     fun toDomain(): kr.kro.dearmoment.product.domain.model.Product {
+        val domainOptions = options.map { it.toDomain() }
+
         return kr.kro.dearmoment.product.domain.model.Product(
             productId = productId ?: 0L,
             userId = userId,
@@ -90,6 +106,7 @@ class ProductEntity(
             contactInfo = contactInfo,
             createdAt = createdAt,
             updatedAt = updatedAt,
+            options = domainOptions,
         )
     }
 }
