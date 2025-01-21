@@ -1,14 +1,14 @@
-package kr.kro.dearmoment.boardgame.adapter.input.web
+package kr.kro.dearmoment.image.adapter.input.web
 
 import andDocument
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.BOOLEAN
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.NUMBER
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.OBJECT
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.STRING
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.responseBody
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.toJson
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.type
 import kr.kro.dearmoment.common.dto.BaseResponse
+import kr.kro.dearmoment.image.adapter.input.web.restdocs.BOOLEAN
+import kr.kro.dearmoment.image.adapter.input.web.restdocs.NUMBER
+import kr.kro.dearmoment.image.adapter.input.web.restdocs.OBJECT
+import kr.kro.dearmoment.image.adapter.input.web.restdocs.STRING
+import kr.kro.dearmoment.image.adapter.input.web.restdocs.responseBody
+import kr.kro.dearmoment.image.adapter.input.web.restdocs.toJson
+import kr.kro.dearmoment.image.adapter.input.web.restdocs.type
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired

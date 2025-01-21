@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.boardgame.adapter.input.web.restdocs
+package kr.kro.dearmoment.image.adapter.input.web.restdocs
 
 import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.request.PathParametersSnippet
