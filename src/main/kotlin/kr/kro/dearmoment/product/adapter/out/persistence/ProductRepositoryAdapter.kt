@@ -1,14 +1,13 @@
-package kr.kro.dearmoment.product.adapter.persistence
+package kr.kro.dearmoment.product.adapter.out.persistence
 
-import kr.kro.dearmoment.product.application.port.ProductRepository
+import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
 class ProductRepositoryAdapter(
     private val jpaProductRepository: JpaProductRepository,
-) : ProductRepository {
+) : ProductPersistencePort {
     override fun save(product: Product): Product {
         val entity = ProductEntity.fromDomain(product)
         val saved = jpaProductRepository.save(entity)
@@ -25,5 +24,3 @@ class ProductRepositoryAdapter(
             .map { it.toDomain() }
     }
 }
-
-interface JpaProductRepository : JpaRepository<ProductEntity, Long>
