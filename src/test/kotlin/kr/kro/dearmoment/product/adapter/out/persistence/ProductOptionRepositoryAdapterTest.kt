@@ -11,17 +11,22 @@ import io.mockk.mockk
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import java.time.LocalDateTime
 
 @DataJpaTest
 @Import(ProductOptionRepositoryAdapterTest.TestConfig::class, ProductOptionRepositoryAdapter::class)
+@EntityScan(basePackages = ["kr.kro.dearmoment.product.domain.model", "kr.kro.dearmoment.product.adapter.out.persistence"])
+@EnableJpaRepositories(basePackages = ["kr.kro.dearmoment.product.adapter.out.persistence"])
 class ProductOptionRepositoryAdapterTest(
     @Autowired val productOptionRepositoryAdapter: ProductOptionRepositoryAdapter,
     @Autowired val jpaProductOptionRepository: JpaProductOptionRepository,
+    @Autowired val jpaProductRepository: JpaProductRepository,
     @Autowired val productEntityRetrievalPort: ProductEntityRetrievalPort
 ) : StringSpec() {
 
@@ -30,7 +35,16 @@ class ProductOptionRepositoryAdapterTest(
     @Configuration
     class TestConfig {
         @Bean
-        fun productEntityRetrievalPort(): ProductEntityRetrievalPort = mockk()
+        fun productEntityRetrievalPort(jpaProductRepository: JpaProductRepository): ProductEntityRetrievalPort {
+            // 실제 ProductEntityRetrievalPort 구현을 사용하는 대신, 모킹된 버전을 반환
+            val mockPort = mockk<ProductEntityRetrievalPort>()
+            // mockPort의 getProductEntityById 메서드를 jpaProductRepository를 사용하여 실제로 데이터를 가져오도록 설정
+            every { mockPort.getProductEntityById(any()) } answers {
+                val id = firstArg<Long>()
+                jpaProductRepository.findById(id).orElseThrow { IllegalArgumentException("Product with ID $id not found") }
+            }
+            return mockPort
+        }
     }
 
     init {
@@ -38,9 +52,8 @@ class ProductOptionRepositoryAdapterTest(
             // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
-            val productId = 1L
             val productEntity = ProductEntity(
-                productId = productId,
+                productId = null,
                 userId = 1L,
                 title = "테스트 상품",
                 description = "테스트 설명",
@@ -50,15 +63,15 @@ class ProductOptionRepositoryAdapterTest(
                 updatedAt = fixedNow
             )
 
-            // Mocking the retrieval of ProductEntity
-            every { productEntityRetrievalPort.getProductEntityById(productId) } returns productEntity
+            // ProductEntity를 실제로 저장
+            val savedProductEntity = jpaProductRepository.save(productEntity)
 
             val productOption = ProductOption(
                 optionId = 0L,
                 name = "테스트 옵션",
                 additionalPrice = 5_000,
                 description = "테스트 옵션 설명",
-                productId = productId,
+                productId = savedProductEntity.productId!!,
                 createdAt = fixedNow,
                 updatedAt = fixedNow
             )
@@ -81,9 +94,8 @@ class ProductOptionRepositoryAdapterTest(
             // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
-            val productId = 2L
             val productEntity = ProductEntity(
-                productId = productId,
+                productId = null,
                 userId = 2L,
                 title = "엔티티 조회 상품",
                 description = "엔티티 조회 설명",
@@ -93,14 +105,14 @@ class ProductOptionRepositoryAdapterTest(
                 updatedAt = fixedNow
             )
 
-            every { productEntityRetrievalPort.getProductEntityById(productId) } returns productEntity
+            val savedProductEntity = jpaProductRepository.save(productEntity)
 
             val productOption = ProductOption(
                 optionId = 0L,
                 name = "기본 옵션",
                 additionalPrice = 5_000,
                 description = "기본 옵션 설명",
-                productId = productId,
+                productId = savedProductEntity.productId!!,
                 createdAt = fixedNow,
                 updatedAt = fixedNow
             )
@@ -115,16 +127,15 @@ class ProductOptionRepositoryAdapterTest(
             retrievedOption.name shouldBe "기본 옵션"
             retrievedOption.additionalPrice shouldBe 5_000
             retrievedOption.description shouldBe "기본 옵션 설명"
-            retrievedOption.productId shouldBe productId
+            retrievedOption.productId shouldBe savedProductEntity.productId!!
         }
 
         "모든 옵션을 조회할 수 있어야 한다" {
             // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
-            val productId = 3L
             val productEntity = ProductEntity(
-                productId = productId,
+                productId = null,
                 userId = 3L,
                 title = "모든 조회 상품",
                 description = "모든 조회 설명",
@@ -134,14 +145,14 @@ class ProductOptionRepositoryAdapterTest(
                 updatedAt = fixedNow
             )
 
-            every { productEntityRetrievalPort.getProductEntityById(productId) } returns productEntity
+            val savedProductEntity = jpaProductRepository.save(productEntity)
 
             val option1 = ProductOption(
                 optionId = 0L,
                 name = "옵션 A",
                 additionalPrice = 10_000,
                 description = "옵션 A 설명",
-                productId = productId,
+                productId = savedProductEntity.productId!!,
                 createdAt = fixedNow,
                 updatedAt = fixedNow
             )
@@ -151,7 +162,7 @@ class ProductOptionRepositoryAdapterTest(
                 name = "옵션 B",
                 additionalPrice = 20_000,
                 description = "옵션 B 설명",
-                productId = productId,
+                productId = savedProductEntity.productId!!,
                 createdAt = fixedNow,
                 updatedAt = fixedNow
             )
@@ -182,9 +193,8 @@ class ProductOptionRepositoryAdapterTest(
             // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
-            val productId = 4L
             val productEntity = ProductEntity(
-                productId = productId,
+                productId = null,
                 userId = 4L,
                 title = "삭제 테스트 상품",
                 description = "삭제 테스트 설명",
@@ -194,14 +204,14 @@ class ProductOptionRepositoryAdapterTest(
                 updatedAt = fixedNow
             )
 
-            every { productEntityRetrievalPort.getProductEntityById(productId) } returns productEntity
+            val savedProductEntity = jpaProductRepository.save(productEntity)
 
             val productOption = ProductOption(
                 optionId = 0L,
                 name = "삭제 옵션",
                 additionalPrice = 15_000,
                 description = "삭제 옵션 설명",
-                productId = productId,
+                productId = savedProductEntity.productId!!,
                 createdAt = fixedNow,
                 updatedAt = fixedNow
             )
