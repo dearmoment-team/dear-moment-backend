@@ -22,63 +22,77 @@ class ProductEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     val productId: Long? = null,
+
     @Column(name = "user_id")
     val userId: Long? = null,
+
     @Column(nullable = false)
     val title: String,
+
     @Column
     val description: String? = null,
+
     @Column(nullable = false)
     val price: Long,
+
     @Column(name = "type_code", nullable = false)
     val typeCode: Int,
+
     @Column(name = "shooting_time")
     val shootingTime: LocalDateTime? = null,
+
     @Column(name = "shooting_location")
     val shootingLocation: String? = null,
+
     @Column(name = "number_of_costumes")
     val numberOfCostumes: Int? = null,
+
     @Column(name = "package_partner_shops")
     val packagePartnerShops: String? = null,
+
     @Column(name = "detailed_info")
     val detailedInfo: String? = null,
+
     @Column(name = "warranty_info")
     val warrantyInfo: String? = null,
+
     @Column(name = "contact_info")
     val contactInfo: String? = null,
+
     @Column(name = "created_at", updatable = false)
     @CreatedDate
     val createdAt: LocalDateTime? = null,
+
     @Column(name = "updated_at")
     @LastModifiedDate
     val updatedAt: LocalDateTime? = null,
-    // 추가: 옵션 리스트
+
+    // 수정: options를 non-nullable로 유지하고 기본값을 빈 리스트로 설정
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     val options: MutableList<ProductOptionEntity> = mutableListOf(),
 ) {
     companion object {
         fun fromDomain(product: kr.kro.dearmoment.product.domain.model.Product): ProductEntity {
-            val productEntity =
-                ProductEntity(
-                    productId = if (product.productId == 0L) null else product.productId,
-                    userId = product.userId,
-                    title = product.title,
-                    description = product.description,
-                    price = product.price.toLong(),
-                    typeCode = product.typeCode,
-                    shootingTime = product.shootingTime,
-                    shootingLocation = product.shootingLocation,
-                    numberOfCostumes = product.numberOfCostumes,
-                    packagePartnerShops = product.packagePartnerShops,
-                    detailedInfo = product.detailedInfo,
-                    warrantyInfo = product.warrantyInfo,
-                    contactInfo = product.contactInfo,
-                    createdAt = product.createdAt,
-                    updatedAt = product.updatedAt,
-                )
+            val productEntity = ProductEntity(
+                productId = if (product.productId == 0L) null else product.productId,
+                userId = product.userId,
+                title = product.title,
+                description = product.description,
+                price = product.price,
+                typeCode = product.typeCode,
+                shootingTime = product.shootingTime,
+                shootingLocation = product.shootingLocation,
+                numberOfCostumes = product.numberOfCostumes,
+                packagePartnerShops = product.packagePartnerShops,
+                detailedInfo = product.detailedInfo,
+                warrantyInfo = product.warrantyInfo,
+                contactInfo = product.contactInfo,
+                createdAt = product.createdAt,
+                updatedAt = product.updatedAt,
+            )
 
             // 도메인 내 ProductOption 리스트를 받아서 엔티티로 변환 후 productEntity.options 에 추가
-            product.options?.forEach { optionDomain ->
+            product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
                 productEntity.options.add(optionEntity)
             }
