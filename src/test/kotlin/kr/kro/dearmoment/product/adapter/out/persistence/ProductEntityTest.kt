@@ -8,45 +8,47 @@ import java.time.LocalDateTime
 
 class ProductEntityTest : DescribeSpec({
     describe("ProductEntity") {
-        val sampleOptions = listOf(
-            ProductOption(
-                optionId = 1L,
-                name = "옵션 A",
-                additionalPrice = 500L,
-                description = "옵션 A 설명",
-                productId = 1L,
-                createdAt = LocalDateTime.of(2023, 1, 1, 11, 0),
-                updatedAt = LocalDateTime.of(2023, 1, 2, 11, 0)
-            ),
-            ProductOption(
-                optionId = 2L,
-                name = "옵션 B",
-                additionalPrice = 1000L,
-                description = "옵션 B 설명",
-                productId = 1L,
-                createdAt = LocalDateTime.of(2023, 1, 1, 12, 0),
-                updatedAt = LocalDateTime.of(2023, 1, 2, 12, 0)
+        val sampleOptions =
+            listOf(
+                ProductOption(
+                    optionId = 1L,
+                    name = "옵션 A",
+                    additionalPrice = 500L,
+                    description = "옵션 A 설명",
+                    productId = 1L,
+                    createdAt = LocalDateTime.of(2023, 1, 1, 11, 0),
+                    updatedAt = LocalDateTime.of(2023, 1, 2, 11, 0),
+                ),
+                ProductOption(
+                    optionId = 2L,
+                    name = "옵션 B",
+                    additionalPrice = 1000L,
+                    description = "옵션 B 설명",
+                    productId = 1L,
+                    createdAt = LocalDateTime.of(2023, 1, 1, 12, 0),
+                    updatedAt = LocalDateTime.of(2023, 1, 2, 12, 0),
+                ),
             )
-        )
 
-        val sampleProduct = Product(
-            productId = 1L,
-            userId = 100L,
-            title = "샘플 상품",
-            description = "이것은 샘플 상품입니다.",
-            price = 9999L,
-            typeCode = 1,
-            shootingTime = LocalDateTime.of(2023, 1, 1, 12, 0),
-            shootingLocation = "서울",
-            numberOfCostumes = 5,
-            packagePartnerShops = "파트너 샵 A, 파트너 샵 B",
-            detailedInfo = "상품에 대한 상세 정보.",
-            warrantyInfo = "1년 보증.",
-            contactInfo = "contact@example.com",
-            createdAt = LocalDateTime.of(2023, 1, 1, 10, 0),
-            updatedAt = LocalDateTime.of(2023, 1, 2, 10, 0),
-            options = sampleOptions
-        )
+        val sampleProduct =
+            Product(
+                productId = 1L,
+                userId = 100L,
+                title = "샘플 상품",
+                description = "이것은 샘플 상품입니다.",
+                price = 9999L,
+                typeCode = 1,
+                shootingTime = LocalDateTime.of(2023, 1, 1, 12, 0),
+                shootingLocation = "서울",
+                numberOfCostumes = 5,
+                packagePartnerShops = "파트너 샵 A, 파트너 샵 B",
+                detailedInfo = "상품에 대한 상세 정보.",
+                warrantyInfo = "1년 보증.",
+                contactInfo = "contact@example.com",
+                createdAt = LocalDateTime.of(2023, 1, 1, 10, 0),
+                updatedAt = LocalDateTime.of(2023, 1, 2, 10, 0),
+                options = sampleOptions,
+            )
 
         it("fromDomain 메서드는 도메인 모델을 올바르게 ProductEntity로 매핑해야 합니다") {
             val productEntity = ProductEntity.fromDomain(sampleProduct)
@@ -83,24 +85,25 @@ class ProductEntityTest : DescribeSpec({
 
         it("toDomain 메서드는 ProductEntity를 올바르게 도메인 모델로 매핑해야 합니다") {
             // 먼저 ProductEntity를 생성합니다. options는 빈 리스트로 초기화합니다.
-            val productEntity = ProductEntity(
-                productId = sampleProduct.productId,
-                userId = sampleProduct.userId,
-                title = sampleProduct.title,
-                description = sampleProduct.description,
-                price = sampleProduct.price,
-                typeCode = sampleProduct.typeCode,
-                shootingTime = sampleProduct.shootingTime,
-                shootingLocation = sampleProduct.shootingLocation,
-                numberOfCostumes = sampleProduct.numberOfCostumes,
-                packagePartnerShops = sampleProduct.packagePartnerShops,
-                detailedInfo = sampleProduct.detailedInfo,
-                warrantyInfo = sampleProduct.warrantyInfo,
-                contactInfo = sampleProduct.contactInfo,
-                createdAt = sampleProduct.createdAt,
-                updatedAt = sampleProduct.updatedAt,
-                options = mutableListOf()
-            )
+            val productEntity =
+                ProductEntity(
+                    productId = sampleProduct.productId,
+                    userId = sampleProduct.userId,
+                    title = sampleProduct.title,
+                    description = sampleProduct.description,
+                    price = sampleProduct.price,
+                    typeCode = sampleProduct.typeCode,
+                    shootingTime = sampleProduct.shootingTime,
+                    shootingLocation = sampleProduct.shootingLocation,
+                    numberOfCostumes = sampleProduct.numberOfCostumes,
+                    packagePartnerShops = sampleProduct.packagePartnerShops,
+                    detailedInfo = sampleProduct.detailedInfo,
+                    warrantyInfo = sampleProduct.warrantyInfo,
+                    contactInfo = sampleProduct.contactInfo,
+                    createdAt = sampleProduct.createdAt,
+                    updatedAt = sampleProduct.updatedAt,
+                    options = mutableListOf(),
+                )
 
             // 실제 테스트에서 사용할 옵션 엔티티를 추가합니다.
             sampleOptions.forEach { optionDomain ->
