@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
@@ -16,11 +15,10 @@ import java.time.LocalDateTime
 @DataJpaTest
 @Import(ProductRepositoryAdapter::class)
 @ContextConfiguration
-class ProductRepositoryAdapterTest : StringSpec() {
+class ProductRepositoryAdapterTest(
+    private val productRepositoryAdapter: ProductRepositoryAdapter
+) : StringSpec() {
     override fun extensions() = listOf(SpringExtension)
-
-    @Autowired
-    private lateinit var productRepositoryAdapter: ProductRepositoryAdapter
 
     init {
         "상품과 옵션을 저장 후 다시 조회해본다" {
