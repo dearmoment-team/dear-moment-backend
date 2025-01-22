@@ -18,8 +18,6 @@ import java.time.LocalDateTime
 class ProductRepositoryAdapterTest(
     private val productRepositoryAdapter: ProductRepositoryAdapter
 ) : StringSpec() {
-    override fun extensions() = listOf(SpringExtension)
-
     init {
         "상품과 옵션을 저장 후 다시 조회해본다" {
             // given
