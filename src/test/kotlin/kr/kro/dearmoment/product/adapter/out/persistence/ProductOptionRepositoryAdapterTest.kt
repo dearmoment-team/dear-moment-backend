@@ -10,7 +10,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Bean
@@ -29,9 +28,6 @@ class ProductOptionRepositoryAdapterTest(
     private val jpaProductRepository: JpaProductRepository,
     private val productEntityRetrievalPort: ProductEntityRetrievalPort
 ) : StringSpec() {
-
-    override fun extensions() = listOf(SpringExtension)
-
     @Configuration
     class TestConfig {
         @Bean
