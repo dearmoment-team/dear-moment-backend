@@ -24,10 +24,10 @@ import java.time.LocalDateTime
 @EntityScan(basePackages = ["kr.kro.dearmoment.product.domain.model", "kr.kro.dearmoment.product.adapter.out.persistence"])
 @EnableJpaRepositories(basePackages = ["kr.kro.dearmoment.product.adapter.out.persistence"])
 class ProductOptionRepositoryAdapterTest(
-    @Autowired val productOptionRepositoryAdapter: ProductOptionRepositoryAdapter,
-    @Autowired val jpaProductOptionRepository: JpaProductOptionRepository,
-    @Autowired val jpaProductRepository: JpaProductRepository,
-    @Autowired val productEntityRetrievalPort: ProductEntityRetrievalPort
+    private val productOptionRepositoryAdapter: ProductOptionRepositoryAdapter,
+    private val jpaProductOptionRepository: JpaProductOptionRepository,
+    private val jpaProductRepository: JpaProductRepository,
+    private val productEntityRetrievalPort: ProductEntityRetrievalPort
 ) : StringSpec() {
 
     override fun extensions() = listOf(SpringExtension)
@@ -36,9 +36,7 @@ class ProductOptionRepositoryAdapterTest(
     class TestConfig {
         @Bean
         fun productEntityRetrievalPort(jpaProductRepository: JpaProductRepository): ProductEntityRetrievalPort {
-            // 실제 ProductEntityRetrievalPort 구현을 사용하는 대신, 모킹된 버전을 반환
             val mockPort = mockk<ProductEntityRetrievalPort>()
-            // mockPort의 getProductEntityById 메서드를 jpaProductRepository를 사용하여 실제로 데이터를 가져오도록 설정
             every { mockPort.getProductEntityById(any()) } answers {
                 val id = firstArg<Long>()
                 jpaProductRepository.findById(id).orElseThrow { IllegalArgumentException("Product with ID $id not found") }
@@ -49,7 +47,6 @@ class ProductOptionRepositoryAdapterTest(
 
     init {
         "옵션을 저장하고 다시 조회할 수 있어야 한다" {
-            // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
             val productEntity = ProductEntity(
@@ -63,7 +60,6 @@ class ProductOptionRepositoryAdapterTest(
                 updatedAt = fixedNow
             )
 
-            // ProductEntity를 실제로 저장
             val savedProductEntity = jpaProductRepository.save(productEntity)
 
             val productOption = ProductOption(
@@ -76,11 +72,9 @@ class ProductOptionRepositoryAdapterTest(
                 updatedAt = fixedNow
             )
 
-            // When
             val savedOption = productOptionRepositoryAdapter.save(productOption)
             val foundOption = productOptionRepositoryAdapter.findById(savedOption.optionId)
 
-            // Then
             foundOption.optionId shouldBe savedOption.optionId
             foundOption.name shouldBe productOption.name
             foundOption.additionalPrice shouldBe productOption.additionalPrice
@@ -91,7 +85,6 @@ class ProductOptionRepositoryAdapterTest(
         }
 
         "ID로 옵션을 조회할 수 있어야 한다" {
-            // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
             val productEntity = ProductEntity(
@@ -119,10 +112,8 @@ class ProductOptionRepositoryAdapterTest(
 
             val savedOption = productOptionRepositoryAdapter.save(productOption)
 
-            // When
             val retrievedOption = productOptionRepositoryAdapter.findById(savedOption.optionId)
 
-            // Then
             retrievedOption.optionId shouldBe savedOption.optionId
             retrievedOption.name shouldBe "기본 옵션"
             retrievedOption.additionalPrice shouldBe 5_000
@@ -131,7 +122,6 @@ class ProductOptionRepositoryAdapterTest(
         }
 
         "모든 옵션을 조회할 수 있어야 한다" {
-            // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
             val productEntity = ProductEntity(
@@ -170,19 +160,15 @@ class ProductOptionRepositoryAdapterTest(
             productOptionRepositoryAdapter.save(option1)
             productOptionRepositoryAdapter.save(option2)
 
-            // When
             val allOptions = productOptionRepositoryAdapter.findAll()
 
-            // Then
             allOptions shouldHaveSize 2
             allOptions.map { it.name } shouldContainAll listOf("옵션 A", "옵션 B")
         }
 
         "존재하지 않는 ID로 조회 시 예외가 발생해야 한다" {
-            // Given
             val nonExistentId = 999L
 
-            // When & Then
             val exception = shouldThrow<IllegalArgumentException> {
                 productOptionRepositoryAdapter.findById(nonExistentId)
             }
@@ -190,7 +176,6 @@ class ProductOptionRepositoryAdapterTest(
         }
 
         "옵션을 ID로 삭제할 수 있어야 한다" {
-            // Given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
 
             val productEntity = ProductEntity(
@@ -218,10 +203,8 @@ class ProductOptionRepositoryAdapterTest(
 
             val savedOption = productOptionRepositoryAdapter.save(productOption)
 
-            // When
             productOptionRepositoryAdapter.deleteById(savedOption.optionId)
 
-            // Then
             val exception = shouldThrow<IllegalArgumentException> {
                 productOptionRepositoryAdapter.findById(savedOption.optionId)
             }
