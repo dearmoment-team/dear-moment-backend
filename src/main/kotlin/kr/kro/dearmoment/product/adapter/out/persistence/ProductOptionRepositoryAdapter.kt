@@ -11,7 +11,6 @@ class ProductOptionRepositoryAdapter(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val productEntityRetrievalPort: ProductEntityRetrievalPort,
 ) : ProductOptionPersistencePort {
-
     override fun save(productOption: ProductOption): ProductOption {
         val productEntity = getProductEntity(productOption.productId)
         val entity = ProductOptionEntity.fromDomain(productOption, productEntity)
@@ -20,8 +19,9 @@ class ProductOptionRepositoryAdapter(
     }
 
     override fun findById(id: Long): ProductOption {
-        val entity = jpaProductOptionRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("ProductOption with ID $id not found") }
+        val entity =
+            jpaProductOptionRepository.findById(id)
+                .orElseThrow { IllegalArgumentException("ProductOption with ID $id not found") }
         return entity.toDomain()
     }
 
