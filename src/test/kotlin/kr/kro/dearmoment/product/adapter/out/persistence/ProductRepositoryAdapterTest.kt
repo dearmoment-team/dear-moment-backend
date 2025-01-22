@@ -1,24 +1,22 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
 import java.time.LocalDateTime
-import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.assertions.throwables.shouldThrow
-
 
 @DataJpaTest
 @Import(ProductRepositoryAdapter::class)
-@ContextConfiguration // 필요한 경우 추가 설정
+@ContextConfiguration
 class ProductRepositoryAdapterTest : StringSpec() {
-
     override fun extensions() = listOf(SpringExtension)
 
     @Autowired
@@ -29,38 +27,40 @@ class ProductRepositoryAdapterTest : StringSpec() {
             // given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0) // 고정된 시간 사용
 
-            val options = listOf(
-                kr.kro.dearmoment.product.domain.model.ProductOption(
-                    optionId = 0L,
-                    name = "익스프레스 서비스",
-                    additionalPrice = 80000,
-                    description = "최대 1주~3주 내 보정본 전달",
-                    productId = 0L, // 저장 전이므로 0L
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow
-                ),
-                kr.kro.dearmoment.product.domain.model.ProductOption(
-                    optionId = 0L,
-                    name = "세부 보정 추가",
-                    additionalPrice = 10000,
-                    description = "세부 보정 15장 제공",
-                    productId = 0L,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow
+            val options =
+                listOf(
+                    kr.kro.dearmoment.product.domain.model.ProductOption(
+                        optionId = 0L,
+                        name = "익스프레스 서비스",
+                        additionalPrice = 80000,
+                        description = "최대 1주~3주 내 보정본 전달",
+                        productId = 0L,
+                        createdAt = fixedNow,
+                        updatedAt = fixedNow,
+                    ),
+                    kr.kro.dearmoment.product.domain.model.ProductOption(
+                        optionId = 0L,
+                        name = "세부 보정 추가",
+                        additionalPrice = 10000,
+                        description = "세부 보정 15장 제공",
+                        productId = 0L,
+                        createdAt = fixedNow,
+                        updatedAt = fixedNow,
+                    ),
                 )
-            )
 
-            val product = kr.kro.dearmoment.product.domain.model.Product(
-                productId = 0L, // 저장 전이므로 0L
-                userId = 1L,
-                title = "옵션 테스트 상품",
-                description = "옵션 포함 테스트 설명",
-                price = 100000,
-                typeCode = 1,
-                createdAt = fixedNow,
-                updatedAt = fixedNow,
-                options = options,
-            )
+            val product =
+                kr.kro.dearmoment.product.domain.model.Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "옵션 테스트 상품",
+                    description = "옵션 포함 테스트 설명",
+                    price = 100000,
+                    typeCode = 1,
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow,
+                    options = options,
+                )
 
             // when
             val savedProduct = productRepositoryAdapter.save(product)
@@ -93,29 +93,31 @@ class ProductRepositoryAdapterTest : StringSpec() {
             // given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0) // 고정된 시간 사용
 
-            val options = listOf(
-                kr.kro.dearmoment.product.domain.model.ProductOption(
-                    optionId = 0L,
-                    name = "기본 옵션",
-                    additionalPrice = 5000,
-                    description = "기본 옵션 설명",
-                    productId = 0L, // 저장 전이므로 0L
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow
+            val options =
+                listOf(
+                    kr.kro.dearmoment.product.domain.model.ProductOption(
+                        optionId = 0L,
+                        name = "기본 옵션",
+                        additionalPrice = 5000,
+                        description = "기본 옵션 설명",
+                        productId = 0L,
+                        createdAt = fixedNow,
+                        updatedAt = fixedNow,
+                    ),
                 )
-            )
 
-            val product = kr.kro.dearmoment.product.domain.model.Product(
-                productId = 0L, // 저장 전이므로 0L
-                userId = 1L,
-                title = "엔티티 조회 테스트",
-                description = "엔티티 조회 설명",
-                price = 150000,
-                typeCode = 2,
-                createdAt = fixedNow,
-                updatedAt = fixedNow,
-                options = options,
-            )
+            val product =
+                kr.kro.dearmoment.product.domain.model.Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "엔티티 조회 테스트",
+                    description = "엔티티 조회 설명",
+                    price = 150000,
+                    typeCode = 2,
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow,
+                    options = options,
+                )
 
             // 엔티티 저장
             val savedProduct = productRepositoryAdapter.save(product)
@@ -145,39 +147,42 @@ class ProductRepositoryAdapterTest : StringSpec() {
             // given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0) // 고정된 시간 사용
 
-            val product1 = kr.kro.dearmoment.product.domain.model.Product(
-                productId = 0L,
-                userId = 1L,
-                title = "상품 1",
-                description = "상품 1 설명",
-                price = 100000,
-                typeCode = 1,
-                createdAt = fixedNow,
-                updatedAt = fixedNow,
-                options = emptyList(),
-            )
+            val product1 =
+                kr.kro.dearmoment.product.domain.model.Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "상품 1",
+                    description = "상품 1 설명",
+                    price = 100000,
+                    typeCode = 1,
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow,
+                    options = emptyList(),
+                )
 
-            val product2 = kr.kro.dearmoment.product.domain.model.Product(
-                productId = 0L,
-                userId = 2L,
-                title = "상품 2",
-                description = "상품 2 설명",
-                price = 200000,
-                typeCode = 2,
-                createdAt = fixedNow,
-                updatedAt = fixedNow,
-                options = listOf(
-                    kr.kro.dearmoment.product.domain.model.ProductOption(
-                        optionId = 0L,
-                        name = "옵션 A",
-                        additionalPrice = 15000,
-                        description = "옵션 A 설명",
-                        productId = 0L,
-                        createdAt = fixedNow,
-                        updatedAt = fixedNow
-                    )
-                ),
-            )
+            val product2 =
+                kr.kro.dearmoment.product.domain.model.Product(
+                    productId = 0L,
+                    userId = 2L,
+                    title = "상품 2",
+                    description = "상품 2 설명",
+                    price = 200000,
+                    typeCode = 2,
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow,
+                    options =
+                        listOf(
+                            kr.kro.dearmoment.product.domain.model.ProductOption(
+                                optionId = 0L,
+                                name = "옵션 A",
+                                additionalPrice = 15000,
+                                description = "옵션 A 설명",
+                                productId = 0L,
+                                createdAt = fixedNow,
+                                updatedAt = fixedNow,
+                            ),
+                        ),
+                )
 
             // 저장
             productRepositoryAdapter.save(product1)
@@ -204,9 +209,10 @@ class ProductRepositoryAdapterTest : StringSpec() {
             val nonExistentId = 999L
 
             // when & then
-            val exception = shouldThrow<IllegalArgumentException> {
-                productRepositoryAdapter.findById(nonExistentId)
-            }
+            val exception =
+                shouldThrow<IllegalArgumentException> {
+                    productRepositoryAdapter.findById(nonExistentId)
+                }
             exception.message shouldBe "Product with ID $nonExistentId not found"
         }
     }
