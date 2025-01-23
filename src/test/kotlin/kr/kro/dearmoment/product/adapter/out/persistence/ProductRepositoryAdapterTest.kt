@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 @Import(ProductRepositoryAdapter::class)
 @ContextConfiguration
 class ProductRepositoryAdapterTest(
-    private val productRepositoryAdapter: ProductRepositoryAdapter
+    private val productRepositoryAdapter: ProductRepositoryAdapter,
 ) : StringSpec() {
     init {
         "상품과 옵션을 저장 후 다시 조회해본다" {
