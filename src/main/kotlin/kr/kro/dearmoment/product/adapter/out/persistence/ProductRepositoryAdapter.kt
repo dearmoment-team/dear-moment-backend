@@ -11,9 +11,17 @@ class ProductRepositoryAdapter(
 ) : ProductPersistencePort, ProductEntityRetrievalPort {
     override fun save(product: Product): Product {
         val entity = ProductEntity.fromDomain(product)
+
+        entity.options.clear()
+        product.options.forEach { optionDomain ->
+            val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
+            entity.options.add(optionEntity)
+        }
+
         val saved = jpaProductRepository.save(entity)
         return saved.toDomain()
     }
+
 
     override fun findById(id: Long): Product {
         return jpaProductRepository.findById(id)
