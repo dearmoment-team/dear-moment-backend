@@ -25,11 +25,15 @@ class ProductUseCase(
 
         // 옵션 저장
         product.options.forEach { option ->
-            val updatedOption = option.copy(productId = savedProduct.productId)
-            productOptionPersistencePort.save(updatedOption)
+            try {
+                val updatedOption = option.copy(productId = savedProduct.productId)
+                productOptionPersistencePort.save(updatedOption)
+            } catch (e: Exception) {
+                throw RuntimeException("옵션 저장 중 문제가 발생했습니다: ${e.message}", e)
+            }
         }
 
-        return savedProduct
+        return savedProduct.copy(options = product.options)
     }
 
     /**
@@ -48,28 +52,27 @@ class ProductUseCase(
     @Transactional
     fun updateProduct(product: Product): Product {
         // 기존 상품 조회
-        val existingProduct =
-            productPersistencePort.findById(product.productId)
-                ?: throw IllegalArgumentException("Product with ID ${product.productId} not found")
+        val existingProduct = productPersistencePort.findById(product.productId)
+            ?: throw IllegalArgumentException("Product with ID ${product.productId} not found")
 
-        // 업데이트된 옵션 반영
-        val updatedOptions =
-            product.options.map { option ->
-                val updatedOption = option.copy(productId = product.productId)
-                productOptionPersistencePort.save(updatedOption)
-                updatedOption
-            }
+        // 상품 정보 업데이트
+        val updatedProduct = existingProduct.copy(
+            title = product.title,
+            description = product.description,
+            price = product.price,
+            updatedAt = product.updatedAt
+        )
 
-        // 상품 업데이트
-        val updatedProduct =
-            existingProduct.copy(
-                title = product.title,
-                description = product.description,
-                price = product.price,
-                updatedAt = product.updatedAt,
-                options = updatedOptions,
-            )
-        return productPersistencePort.save(updatedProduct)
+        productPersistencePort.save(updatedProduct)
+
+        // 옵션 업데이트 처리
+        modifyProductOptions(product.productId, product.options)
+
+        // 업데이트 후 옵션 포함된 상품 반환
+        val updatedOptions = productOptionPersistencePort.findByProduct(
+            productEntityRetrievalPort.getProductEntityById(product.productId)
+        )
+        return updatedProduct.copy(options = updatedOptions)
     }
 
     /**
@@ -86,21 +89,23 @@ class ProductUseCase(
 
         // 기존 옵션 중 삭제 대상 식별 및 삭제
         existingOptions.forEach { option ->
-            if (newOptions.none { it.optionId == option.optionId && it.name == option.name }) {
+            if (newOptions.none { it.optionId == option.optionId }) {
                 productOptionPersistencePort.deleteById(option.optionId)
             }
         }
 
-        // 새로운 옵션 중 기존 옵션에 없는 것만 저장
-        val optionsToSave = newOptions.filter { newOption ->
+        // 새로운 옵션 중 기존 옵션과 일치하지 않는 것만 저장
+        newOptions.filter { newOption ->
             existingOptions.none {
-                it.optionId == newOption.optionId && it.name == newOption.name
+                it.optionId == newOption.optionId &&
+                        it.name == newOption.name &&
+                        it.description == newOption.description &&
+                        it.additionalPrice == newOption.additionalPrice
             }
-        }
-
-        optionsToSave.forEach { option ->
+        }.forEach { option ->
             val updatedOption = option.copy(productId = productId)
             productOptionPersistencePort.save(updatedOption)
         }
     }
+
 }
