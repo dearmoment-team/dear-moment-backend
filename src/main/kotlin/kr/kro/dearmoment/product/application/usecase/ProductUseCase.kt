@@ -1,11 +1,12 @@
 package kr.kro.dearmoment.product.application.usecase
 
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import org.springframework.stereotype.Service
 
 @Service
 class ProductUseCase(
@@ -13,9 +14,11 @@ class ProductUseCase(
     private val productOptionPersistencePort: ProductOptionPersistencePort,
     private val productEntityRetrievalPort: ProductEntityRetrievalPort,
 ) {
+
     /**
      * 상품과 옵션을 저장합니다.
      */
+    @Transactional
     fun saveProduct(product: Product): Product {
         // 상품 저장
         val savedProduct = productPersistencePort.save(product)
@@ -42,6 +45,7 @@ class ProductUseCase(
      * 상품 정보를 업데이트합니다.
      * @throws IllegalArgumentException 상품이 존재하지 않을 경우 예외 발생
      */
+    @Transactional
     fun updateProduct(product: Product): Product {
         // 기존 상품 조회
         val existingProduct =
@@ -72,6 +76,7 @@ class ProductUseCase(
      * 상품 옵션 추가 및 삭제를 처리합니다.
      * @throws IllegalArgumentException 상품이 존재하지 않을 경우 예외 발생
      */
+    @Transactional
     fun modifyProductOptions(
         productId: Long,
         newOptions: List<ProductOption>,
@@ -98,6 +103,4 @@ class ProductUseCase(
             productOptionPersistencePort.save(updatedOption)
         }
     }
-
-
 }
