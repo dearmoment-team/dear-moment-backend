@@ -102,17 +102,17 @@ class ProductRepositoryAdapterTest(
                     createdAt = fixedNow,
                     updatedAt = fixedNow,
                     options =
-                    listOf(
-                        ProductOption(
-                            optionId = 0L,
-                            name = "옵션 A",
-                            additionalPrice = 15000,
-                            description = "옵션 A 설명",
-                            productId = 0L,
-                            createdAt = fixedNow,
-                            updatedAt = fixedNow,
+                        listOf(
+                            ProductOption(
+                                optionId = 0L,
+                                name = "옵션 A",
+                                additionalPrice = 15000,
+                                description = "옵션 A 설명",
+                                productId = 0L,
+                                createdAt = fixedNow,
+                                updatedAt = fixedNow,
+                            ),
                         ),
-                    ),
                 )
 
             // 저장

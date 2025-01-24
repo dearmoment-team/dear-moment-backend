@@ -22,73 +22,59 @@ class ProductEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     val productId: Long? = null,
-
     @Column(name = "user_id")
     val userId: Long? = null,
-
     @Column(nullable = false)
     val title: String,
-
     @Column
     val description: String? = null,
-
     @Column(nullable = false)
     val price: Long,
-
     @Column(name = "type_code", nullable = false)
     val typeCode: Int,
-
     @Column(name = "shooting_time")
     val shootingTime: LocalDateTime? = null,
-
     @Column(name = "shooting_location")
     val shootingLocation: String? = null,
-
     @Column(name = "number_of_costumes")
     val numberOfCostumes: Int? = null,
-
     @Column(name = "package_partner_shops")
     val packagePartnerShops: String? = null,
-
     @Column(name = "detailed_info")
     val detailedInfo: String? = null,
-
     @Column(name = "warranty_info")
     val warrantyInfo: String? = null,
-
     @Column(name = "contact_info")
     val contactInfo: String? = null,
-
     @Column(name = "created_at", updatable = false)
     @CreatedDate
     val createdAt: LocalDateTime? = null,
-
     @Column(name = "updated_at")
     @LastModifiedDate
     val updatedAt: LocalDateTime? = null,
-
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val options: MutableList<ProductOptionEntity> = mutableListOf()
+    val options: MutableList<ProductOptionEntity> = mutableListOf(),
 ) {
     companion object {
         fun fromDomain(product: kr.kro.dearmoment.product.domain.model.Product): ProductEntity {
-            val productEntity = ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                title = product.title,
-                description = product.description,
-                price = product.price,
-                typeCode = product.typeCode,
-                shootingTime = product.shootingTime,
-                shootingLocation = product.shootingLocation,
-                numberOfCostumes = product.numberOfCostumes,
-                packagePartnerShops = product.packagePartnerShops,
-                detailedInfo = product.detailedInfo,
-                warrantyInfo = product.warrantyInfo,
-                contactInfo = product.contactInfo,
-                createdAt = product.createdAt,
-                updatedAt = product.updatedAt
-            )
+            val productEntity =
+                ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    title = product.title,
+                    description = product.description,
+                    price = product.price,
+                    typeCode = product.typeCode,
+                    shootingTime = product.shootingTime,
+                    shootingLocation = product.shootingLocation,
+                    numberOfCostumes = product.numberOfCostumes,
+                    packagePartnerShops = product.packagePartnerShops,
+                    detailedInfo = product.detailedInfo,
+                    warrantyInfo = product.warrantyInfo,
+                    contactInfo = product.contactInfo,
+                    createdAt = product.createdAt,
+                    updatedAt = product.updatedAt,
+                )
 
             productEntity.options.clear()
             product.options.forEach { optionDomain ->
@@ -119,8 +105,7 @@ class ProductEntity(
             contactInfo = contactInfo,
             createdAt = createdAt,
             updatedAt = updatedAt,
-            options = domainOptions
+            options = domainOptions,
         )
     }
 }
-

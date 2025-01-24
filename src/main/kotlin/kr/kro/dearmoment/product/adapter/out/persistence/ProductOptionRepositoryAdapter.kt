@@ -9,9 +9,8 @@ import java.lang.IllegalArgumentException
 @Repository
 class ProductOptionRepositoryAdapter(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
-    private val productEntityRetrievalPort: ProductEntityRetrievalPort
+    private val productEntityRetrievalPort: ProductEntityRetrievalPort,
 ) : ProductOptionPersistencePort {
-
     override fun save(productOption: ProductOption): ProductOption {
         val productEntity = getProductEntity(productOption.productId)
         val entity = ProductOptionEntity.fromDomain(productOption, productEntity)

@@ -8,9 +8,8 @@ import org.springframework.stereotype.Service
 @Service
 class ProductOptionUseCase(
     private val productOptionPersistencePort: ProductOptionPersistencePort,
-    private val productEntityRetrievalPort: ProductEntityRetrievalPort
+    private val productEntityRetrievalPort: ProductEntityRetrievalPort,
 ) {
-
     fun saveProductOption(productOption: ProductOption) {
         // 1. ProductEntity 조회
         val productEntity = productEntityRetrievalPort.getProductEntityById(productOption.productId)
@@ -27,7 +26,7 @@ class ProductOptionUseCase(
 
     private fun validateDuplicateOptionName(
         existingOptionNames: Set<String>,
-        newOptionName: String
+        newOptionName: String,
     ) {
         if (newOptionName in existingOptionNames) {
             throw IllegalArgumentException("Duplicate option name: $newOptionName")
