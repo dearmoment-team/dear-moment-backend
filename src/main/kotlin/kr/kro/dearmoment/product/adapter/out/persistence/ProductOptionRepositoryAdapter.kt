@@ -36,8 +36,8 @@ class ProductOptionRepositoryAdapter(
         jpaProductOptionRepository.deleteById(id)
     }
 
-    override fun findByProductId(productId: Long): List<ProductOption> {
-        return jpaProductOptionRepository.findByProductId(productId).map { it.toDomain() }
+    override fun findByProduct(product: ProductEntity): List<ProductOption> {
+        return jpaProductOptionRepository.findByProduct(product).map { it.toDomain() }
     }
 
     private fun getProductEntity(productId: Long): ProductEntity {
