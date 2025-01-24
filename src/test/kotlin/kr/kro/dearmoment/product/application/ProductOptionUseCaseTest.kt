@@ -1,0 +1,42 @@
+package kr.kro.dearmoment.product.application
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
+import kr.kro.dearmoment.product.application.usecase.ProductOptionUseCase
+import java.time.LocalDateTime
+
+class ProductOptionUseCaseTest : StringSpec({
+
+    // Mock 초기화
+    val productOptionPersistencePort: ProductOptionPersistencePort = mockk()
+    val productOptionUseCase = ProductOptionUseCase(productOptionPersistencePort)
+
+    "중복된 옵션 이름 저장 시 예외 발생" {
+        // given
+        val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
+        val existingOptions = listOf(
+            ProductOption(1L, 1L, "중복 옵션", 5000, "중복 옵션 설명", fixedNow, fixedNow)
+        )
+        val newOption = ProductOption(2L, 1L, "중복 옵션", 10000, "또 다른 중복 옵션 설명", fixedNow, fixedNow)
+
+        // Mock 설정: findByProductId 호출 시 기존 옵션 반환
+        every { productOptionPersistencePort.findByProductId(1L) } returns existingOptions
+
+        // when & then
+        val exception = shouldThrow<IllegalArgumentException> {
+            productOptionUseCase.saveProductOption(newOption)
+        }
+
+        // 예외 메시지 검증
+        exception.message shouldBe "Duplicate option name: 중복 옵션"
+
+        // 호출 검증
+        verify(exactly = 1) { productOptionPersistencePort.findByProductId(1L) }
+    }
+})
