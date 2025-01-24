@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.application.port.out
 
+import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.domain.model.ProductOption
 
 interface ProductOptionPersistencePort {
@@ -7,5 +8,5 @@ interface ProductOptionPersistencePort {
     fun findById(id: Long): ProductOption
     fun findAll(): List<ProductOption>
     fun deleteById(id: Long)
-    fun findByProductId(productId: Long): List<ProductOption>
+    fun findByProduct(product: ProductEntity): List<ProductOption>
 }
