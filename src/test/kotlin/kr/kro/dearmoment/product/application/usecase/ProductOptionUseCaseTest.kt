@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.product.application
+package kr.kro.dearmoment.product.application.usecase
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
@@ -9,7 +9,6 @@ import io.mockk.verify
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.application.usecase.ProductOptionUseCase
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import java.time.LocalDateTime
 
