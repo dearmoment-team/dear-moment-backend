@@ -23,32 +23,26 @@ class ProductOptionEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "option_id")
     val optionId: Long? = null,
-
     @Column(nullable = false)
     val name: String,
-
     @Column(nullable = false)
     val additionalPrice: Long,
-
     @Column
     val description: String? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     val product: ProductEntity,
-
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime? = null,
-
     @LastModifiedDate
     @Column(name = "updated_at")
-    val updatedAt: LocalDateTime? = null
+    val updatedAt: LocalDateTime? = null,
 ) {
     companion object {
         fun fromDomain(
             domain: kr.kro.dearmoment.product.domain.model.ProductOption,
-            productEntity: ProductEntity
+            productEntity: ProductEntity,
         ): ProductOptionEntity {
             return ProductOptionEntity(
                 optionId = if (domain.optionId == 0L) null else domain.optionId,
@@ -57,7 +51,7 @@ class ProductOptionEntity(
                 description = domain.description,
                 product = productEntity,
                 createdAt = domain.createdAt,
-                updatedAt = domain.updatedAt
+                updatedAt = domain.updatedAt,
             )
         }
     }
@@ -70,8 +64,7 @@ class ProductOptionEntity(
             description = description,
             productId = product.productId ?: 0L,
             createdAt = createdAt,
-            updatedAt = updatedAt
+            updatedAt = updatedAt,
         )
     }
 }
-
