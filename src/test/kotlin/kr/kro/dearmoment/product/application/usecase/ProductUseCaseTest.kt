@@ -4,9 +4,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
@@ -14,7 +12,6 @@ import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import java.time.LocalDateTime
-
 
 class ProductUseCaseTest : BehaviorSpec({
 
@@ -64,7 +61,7 @@ class ProductUseCaseTest : BehaviorSpec({
             )
 
             every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
-            every { productOptionPersistencePort.findByProduct(any()) } returns emptyList()
+            every { productOptionPersistencePort.findByProduct(productEntity) } returns emptyList()
 
             // when
             productUseCase.modifyProductOptions(1L, newOptions)
@@ -74,87 +71,7 @@ class ProductUseCaseTest : BehaviorSpec({
             verify(exactly = 1) { productOptionPersistencePort.save(newOptions[0]) }
         }
 
-        When("옵션 삭제 시 모든 기존 옵션이 삭제된다") {
-            // given
-            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
-            val productEntity = ProductEntity(
-                productId = 1L,
-                userId = 1L,
-                title = "테스트 상품",
-                description = "테스트 설명",
-                price = 100000,
-                typeCode = 1,
-                createdAt = fixedNow,
-                updatedAt = fixedNow,
-                options = mutableListOf()
-            )
-            val existingOptions = listOf(
-                ProductOption(optionId = 1L, productId = 1L, name = "기존 옵션 1", additionalPrice = 1000, description = "기존 옵션 설명"),
-                ProductOption(optionId = 2L, productId = 1L, name = "기존 옵션 2", additionalPrice = 2000, description = "기존 옵션 설명")
-            )
-
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
-            every { productOptionPersistencePort.findByProduct(any()) } returns existingOptions
-
-            // when
-            productUseCase.modifyProductOptions(1L, emptyList())
-
-            // then
-            verify(exactly = 2) { productOptionPersistencePort.deleteById(any()) }
-            existingOptions.forEach { option ->
-                verify { productOptionPersistencePort.deleteById(option.optionId) }
-            }
-        }
-
-        When("옵션 업데이트 시 중복된 옵션이 존재하면 업데이트를 적용하지 않는다") {
-            // given
-            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
-            val productEntity = ProductEntity(
-                productId = 1L,
-                userId = 1L,
-                title = "테스트 상품",
-                description = "테스트 설명",
-                price = 100000,
-                typeCode = 1,
-                createdAt = fixedNow,
-                updatedAt = fixedNow,
-                options = mutableListOf()
-            )
-            val existingOptions = listOf(
-                ProductOption(
-                    optionId = 0L,
-                    productId = 1L,
-                    name = "새 옵션",
-                    additionalPrice = 5000,
-                    description = "새 옵션 설명",
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow
-                )
-            )
-            val newOptions = listOf(
-                ProductOption(
-                    optionId = 0L,
-                    productId = 1L,
-                    name = "새 옵션",
-                    additionalPrice = 5000,
-                    description = "새 옵션 설명",
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow
-                )
-            )
-
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
-            every { productOptionPersistencePort.findByProduct(any()) } returns existingOptions
-
-            // when
-            productUseCase.modifyProductOptions(1L, newOptions)
-
-            // then
-            verify(exactly = 0) { productOptionPersistencePort.save(any()) }
-            verify(exactly = 0) { productOptionPersistencePort.deleteById(any()) }
-        }
-
-        When("옵션 업데이트 시 새로운 옵션이 기존과 다르면 저장된다") {
+        When("옵션 업데이트 시 새로운 옵션이 기존과 다르면 저장되고 기존 옵션은 삭제된다") {
             // given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
             val productEntity = ProductEntity(
@@ -192,13 +109,61 @@ class ProductUseCaseTest : BehaviorSpec({
             )
 
             every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
-            every { productOptionPersistencePort.findByProduct(any()) } returns existingOptions
+            every { productOptionPersistencePort.findByProduct(productEntity) } returns existingOptions
 
             // when
             productUseCase.modifyProductOptions(1L, newOptions)
 
             // then
             verify(exactly = 1) { productOptionPersistencePort.save(newOptions[0]) }
+            verify(exactly = 1) { productOptionPersistencePort.deleteById(1L) }
+        }
+
+        When("옵션 업데이트 시 중복된 옵션이 존재하면 업데이트를 적용하지 않는다") {
+            // given
+            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
+            val productEntity = ProductEntity(
+                productId = 1L,
+                userId = 1L,
+                title = "테스트 상품",
+                description = "테스트 설명",
+                price = 100000,
+                typeCode = 1,
+                createdAt = fixedNow,
+                updatedAt = fixedNow,
+                options = mutableListOf()
+            )
+            val existingOptions = listOf(
+                ProductOption(
+                    optionId = 1L,
+                    productId = 1L,
+                    name = "기존 옵션",
+                    additionalPrice = 1000,
+                    description = "기존 옵션 설명",
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow
+                )
+            )
+            val newOptions = listOf(
+                ProductOption(
+                    optionId = 1L,
+                    productId = 1L,
+                    name = "기존 옵션", // 동일한 옵션
+                    additionalPrice = 1000,
+                    description = "기존 옵션 설명",
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow
+                )
+            )
+
+            every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
+            every { productOptionPersistencePort.findByProduct(productEntity) } returns existingOptions
+
+            // when
+            productUseCase.modifyProductOptions(1L, newOptions)
+
+            // then
+            verify(exactly = 0) { productOptionPersistencePort.save(any()) }
             verify(exactly = 0) { productOptionPersistencePort.deleteById(any()) }
         }
 
@@ -384,18 +349,6 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "옵션 1 설명",
                         createdAt = fixedNow,
                         updatedAt = fixedNow
-                    )
-                )
-            )
-
-            val updatedProduct = existingProduct.copy(
-                title = "업데이트된 상품",
-                description = "업데이트된 상품 설명",
-                price = 120000,
-                updatedAt = fixedNow.plusDays(1),
-                options = listOf(
-                    existingProduct.options[0].copy(
-                        description = "업데이트된 옵션 설명"
                     ),
                     ProductOption(
                         optionId = 2L,
@@ -409,17 +362,70 @@ class ProductUseCaseTest : BehaviorSpec({
                 )
             )
 
+            val newOptions = listOf(
+                existingProduct.options[0].copy(
+                    description = "업데이트된 옵션 1 설명",
+                    updatedAt = fixedNow.plusDays(1)
+                ),
+                ProductOption(
+                    optionId = 3L,
+                    productId = 1L,
+                    name = "옵션 3",
+                    additionalPrice = 8000,
+                    description = "옵션 3 설명",
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow
+                )
+            )
+
+            val updatedProduct = existingProduct.copy(
+                title = "업데이트된 상품",
+                description = "업데이트된 상품 설명",
+                price = 120000,
+                updatedAt = fixedNow.plusDays(1),
+                options = newOptions
+            )
+
+            val expectedOptions = newOptions
+
+            // Mock 설정
             every { productPersistencePort.findById(1L) } returns existingProduct
-            every { productOptionPersistencePort.save(any()) } returnsArgument 0
+            every { productOptionPersistencePort.findByProduct(any()) } returns existingProduct.options andThen expectedOptions
             every { productPersistencePort.save(any()) } returns updatedProduct
+            every { productOptionPersistencePort.save(any()) } returnsArgument 0
+            every { productEntityRetrievalPort.getProductEntityById(1L) } returns ProductEntity(
+                productId = 1L,
+                userId = 1L,
+                title = "업데이트된 상품",
+                description = "업데이트된 상품 설명",
+                price = 120000,
+                typeCode = 1,
+                createdAt = fixedNow,
+                updatedAt = fixedNow.plusDays(1),
+                options = mutableListOf()
+            )
 
             // when
             val result = productUseCase.updateProduct(updatedProduct)
 
             // then
-            result shouldBe updatedProduct
+            // 개별 필드 검증
+            result.productId shouldBe updatedProduct.productId
+            result.title shouldBe updatedProduct.title
+            result.description shouldBe updatedProduct.description
+            result.price shouldBe updatedProduct.price
+            result.updatedAt shouldBe updatedProduct.updatedAt
+            result.options shouldHaveSize 2
+            result.options[0].optionId shouldBe 1L
+            result.options[0].description shouldBe "업데이트된 옵션 1 설명"
+            result.options[1].optionId shouldBe 3L
+            result.options[1].name shouldBe "옵션 3"
+
+            // 검증
             verify(exactly = 1) { productPersistencePort.findById(1L) }
-            verify(exactly = 2) { productOptionPersistencePort.save(any()) }
+            verify(exactly = 1) { productOptionPersistencePort.save(newOptions[0]) }
+            verify(exactly = 1) { productOptionPersistencePort.save(newOptions[1]) }
+            verify(exactly = 1) { productOptionPersistencePort.deleteById(2L) }
             verify(exactly = 1) { productPersistencePort.save(any()) }
         }
 
@@ -492,17 +498,43 @@ class ProductUseCaseTest : BehaviorSpec({
                 )
             )
 
+            // Mock 설정
             every { productPersistencePort.findById(1L) } returns existingProduct
-            every { productOptionPersistencePort.save(any()) } returnsArgument 0
+            every { productOptionPersistencePort.findByProduct(any()) } returns existingProduct.options andThen updatedProduct.options
             every { productPersistencePort.save(any()) } returns updatedProduct
+            every { productOptionPersistencePort.save(any()) } returnsArgument 0
+            every { productEntityRetrievalPort.getProductEntityById(1L) } returns ProductEntity(
+                productId = 1L,
+                userId = 1L,
+                title = "업데이트된 상품",
+                description = "업데이트된 상품 설명",
+                price = 120000,
+                typeCode = 1,
+                createdAt = fixedNow,
+                updatedAt = fixedNow.plusDays(1),
+                options = mutableListOf()
+            )
 
             // when
             val result = productUseCase.updateProduct(updatedProduct)
 
             // then
-            result shouldBe updatedProduct
+            // 개별 필드 검증
+            result.productId shouldBe updatedProduct.productId
+            result.title shouldBe updatedProduct.title
+            result.description shouldBe updatedProduct.description
+            result.price shouldBe updatedProduct.price
+            result.updatedAt shouldBe updatedProduct.updatedAt
+            result.options shouldHaveSize 2
+            result.options[0].optionId shouldBe 1L
+            result.options[0].description shouldBe "업데이트된 옵션 설명"
+            result.options[1].optionId shouldBe 1L
+            result.options[1].name shouldBe "옵션 1"
+
+            // 검증
             verify(exactly = 1) { productPersistencePort.findById(1L) }
-            verify(exactly = 2) { productOptionPersistencePort.save(any()) }
+            verify(exactly = 1) { productOptionPersistencePort.save(any()) } // 업데이트된 옵션 1 설명
+            verify(exactly = 0) { productOptionPersistencePort.deleteById(any()) }
             verify(exactly = 1) { productPersistencePort.save(any()) }
         }
 
@@ -539,23 +571,65 @@ class ProductUseCaseTest : BehaviorSpec({
                     )
                 )
             )
-
-            val updatedProduct = existingProduct.copy(
-                options = listOf(
-                    existingProduct.options[0].copy(description = "업데이트된 옵션 1 설명")
-                    // 옵션 2는 삭제됨
+            val newOptions = listOf(
+                ProductOption(
+                    optionId = 1L,
+                    productId = 1L,
+                    name = "옵션 1",
+                    additionalPrice = 5000,
+                    description = "업데이트된 옵션 1 설명",
+                    createdAt = fixedNow,
+                    updatedAt = fixedNow.plusDays(1)
                 )
+                // 옵션 2L은 삭제됨
             )
 
+            val updatedProduct = Product(
+                productId = 1L,
+                userId = 1L,
+                title = "업데이트된 상품",
+                description = "업데이트된 상품 설명",
+                price = 120000,
+                typeCode = 1,
+                createdAt = fixedNow,
+                updatedAt = fixedNow.plusDays(1),
+                options = newOptions
+            )
+
+            // Mock 설정
             every { productPersistencePort.findById(1L) } returns existingProduct
-            every { productOptionPersistencePort.save(any()) } returnsArgument 0
+            every { productOptionPersistencePort.findByProduct(any()) } returns existingProduct.options andThen newOptions
             every { productPersistencePort.save(any()) } returns updatedProduct
+            every { productOptionPersistencePort.save(any()) } returnsArgument 0
+            every { productEntityRetrievalPort.getProductEntityById(1L) } returns ProductEntity(
+                productId = 1L,
+                userId = 1L,
+                title = "업데이트된 상품",
+                description = "업데이트된 상품 설명",
+                price = 120000,
+                typeCode = 1,
+                createdAt = fixedNow,
+                updatedAt = fixedNow.plusDays(1),
+                options = mutableListOf()
+            )
 
             // when
-            productUseCase.updateProduct(updatedProduct)
+            val result = productUseCase.updateProduct(updatedProduct)
 
             // then
-            verify(exactly = 1) { productOptionPersistencePort.save(any()) }
+            // 개별 필드 검증
+            result.productId shouldBe updatedProduct.productId
+            result.title shouldBe updatedProduct.title
+            result.description shouldBe updatedProduct.description
+            result.price shouldBe updatedProduct.price
+            result.updatedAt shouldBe updatedProduct.updatedAt
+            result.options shouldHaveSize 1
+            result.options[0].optionId shouldBe 1L
+            result.options[0].description shouldBe "업데이트된 옵션 1 설명"
+
+            // 검증
+            verify(exactly = 1) { productPersistencePort.findById(1L) }
+            verify(exactly = 1) { productOptionPersistencePort.save(newOptions[0]) }
             verify(exactly = 1) { productOptionPersistencePort.deleteById(2L) }
             verify(exactly = 1) { productPersistencePort.save(any()) }
         }
