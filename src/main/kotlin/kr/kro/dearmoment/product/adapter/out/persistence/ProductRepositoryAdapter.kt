@@ -7,21 +7,15 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class ProductRepositoryAdapter(
-    private val jpaProductRepository: JpaProductRepository,
+    private val jpaProductRepository: JpaProductRepository
 ) : ProductPersistencePort, ProductEntityRetrievalPort {
+
     override fun save(product: Product): Product {
+        // 상품 엔티티 저장
         val entity = ProductEntity.fromDomain(product)
-
-        entity.options.clear()
-        product.options.forEach { optionDomain ->
-            val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
-            entity.options.add(optionEntity)
-        }
-
-        val saved = jpaProductRepository.save(entity)
-        return saved.toDomain()
+        val savedEntity = jpaProductRepository.saveAndFlush(entity)
+        return savedEntity.toDomain()
     }
-
 
     override fun findById(id: Long): Product {
         return jpaProductRepository.findById(id)
