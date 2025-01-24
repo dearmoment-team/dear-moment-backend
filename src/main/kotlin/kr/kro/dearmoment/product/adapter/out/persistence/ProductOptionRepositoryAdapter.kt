@@ -9,8 +9,9 @@ import java.lang.IllegalArgumentException
 @Repository
 class ProductOptionRepositoryAdapter(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
-    private val productEntityRetrievalPort: ProductEntityRetrievalPort,
+    private val productEntityRetrievalPort: ProductEntityRetrievalPort
 ) : ProductOptionPersistencePort {
+
     override fun save(productOption: ProductOption): ProductOption {
         val productEntity = getProductEntity(productOption.productId)
         val entity = ProductOptionEntity.fromDomain(productOption, productEntity)
@@ -19,15 +20,13 @@ class ProductOptionRepositoryAdapter(
     }
 
     override fun findById(id: Long): ProductOption {
-        val entity =
-            jpaProductOptionRepository.findById(id)
-                .orElseThrow { IllegalArgumentException("ProductOption with ID $id not found") }
-        return entity.toDomain()
+        return jpaProductOptionRepository.findById(id)
+            .orElseThrow { IllegalArgumentException("ProductOption with ID $id not found") }
+            .toDomain()
     }
 
     override fun findAll(): List<ProductOption> {
-        return jpaProductOptionRepository.findAll()
-            .map { it.toDomain() }
+        return jpaProductOptionRepository.findAll().map { it.toDomain() }
     }
 
     override fun deleteById(id: Long) {
@@ -35,6 +34,10 @@ class ProductOptionRepositoryAdapter(
             throw IllegalArgumentException("ProductOption with ID $id not found")
         }
         jpaProductOptionRepository.deleteById(id)
+    }
+
+    override fun findByProductId(productId: Long): List<ProductOption> {
+        return jpaProductOptionRepository.findByProductId(productId).map { it.toDomain() }
     }
 
     private fun getProductEntity(productId: Long): ProductEntity {
