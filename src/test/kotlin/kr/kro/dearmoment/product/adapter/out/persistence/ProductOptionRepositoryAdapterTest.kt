@@ -27,6 +27,7 @@ class ProductOptionRepositoryAdapterTest(
     private val jpaProductRepository: JpaProductRepository,
     private val productEntityRetrievalPort: ProductEntityRetrievalPort,
 ) : StringSpec() {
+
     @Configuration
     class TestConfig {
         @Bean
@@ -41,180 +42,100 @@ class ProductOptionRepositoryAdapterTest(
     }
 
     init {
+        val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
+
         "옵션을 저장하고 다시 조회할 수 있어야 한다" {
-            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
-
-            val productEntity =
-                ProductEntity(
-                    productId = null,
-                    userId = 1L,
-                    title = "테스트 상품",
-                    description = "테스트 설명",
-                    price = 100_000,
-                    typeCode = 1,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
+            val productEntity = createTestProductEntity(fixedNow)
             val savedProductEntity = jpaProductRepository.save(productEntity)
 
-            val productOption =
-                ProductOption(
-                    optionId = 0L,
-                    name = "테스트 옵션",
-                    additionalPrice = 5_000,
-                    description = "테스트 옵션 설명",
-                    productId = savedProductEntity.productId!!,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
+            val productOption = createTestProductOption(fixedNow, savedProductEntity.productId!!)
             val savedOption = productOptionRepositoryAdapter.save(productOption)
+
             val foundOption = productOptionRepositoryAdapter.findById(savedOption.optionId)
 
-            foundOption.optionId shouldBe savedOption.optionId
-            foundOption.name shouldBe productOption.name
-            foundOption.additionalPrice shouldBe productOption.additionalPrice
-            foundOption.description shouldBe productOption.description
-            foundOption.productId shouldBe productOption.productId
-            foundOption.createdAt shouldBe fixedNow
-            foundOption.updatedAt shouldBe fixedNow
+            foundOption shouldBe savedOption.copy()
         }
 
         "ID로 옵션을 조회할 수 있어야 한다" {
-            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
-
-            val productEntity =
-                ProductEntity(
-                    productId = null,
-                    userId = 2L,
-                    title = "엔티티 조회 상품",
-                    description = "엔티티 조회 설명",
-                    price = 150_000,
-                    typeCode = 2,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
+            val productEntity = createTestProductEntity(fixedNow)
             val savedProductEntity = jpaProductRepository.save(productEntity)
 
-            val productOption =
-                ProductOption(
-                    optionId = 0L,
-                    name = "기본 옵션",
-                    additionalPrice = 5_000,
-                    description = "기본 옵션 설명",
-                    productId = savedProductEntity.productId!!,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
+            val productOption = createTestProductOption(fixedNow, savedProductEntity.productId!!)
             val savedOption = productOptionRepositoryAdapter.save(productOption)
 
             val retrievedOption = productOptionRepositoryAdapter.findById(savedOption.optionId)
 
-            retrievedOption.optionId shouldBe savedOption.optionId
-            retrievedOption.name shouldBe "기본 옵션"
-            retrievedOption.additionalPrice shouldBe 5_000
-            retrievedOption.description shouldBe "기본 옵션 설명"
-            retrievedOption.productId shouldBe savedProductEntity.productId!!
+            retrievedOption shouldBe savedOption.copy()
         }
 
         "모든 옵션을 조회할 수 있어야 한다" {
-            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
-
-            val productEntity =
-                ProductEntity(
-                    productId = null,
-                    userId = 3L,
-                    title = "모든 조회 상품",
-                    description = "모든 조회 설명",
-                    price = 200_000,
-                    typeCode = 3,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
+            val productEntity = createTestProductEntity(fixedNow)
             val savedProductEntity = jpaProductRepository.save(productEntity)
 
-            val option1 =
-                ProductOption(
-                    optionId = 0L,
-                    name = "옵션 A",
-                    additionalPrice = 10_000,
-                    description = "옵션 A 설명",
-                    productId = savedProductEntity.productId!!,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
+            val options = listOf(
+                createTestProductOption(fixedNow, savedProductEntity.productId!!, "옵션 A", 10_000),
+                createTestProductOption(fixedNow, savedProductEntity.productId!!, "옵션 B", 20_000)
+            )
 
-            val option2 =
-                ProductOption(
-                    optionId = 0L,
-                    name = "옵션 B",
-                    additionalPrice = 20_000,
-                    description = "옵션 B 설명",
-                    productId = savedProductEntity.productId!!,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
-            productOptionRepositoryAdapter.save(option1)
-            productOptionRepositoryAdapter.save(option2)
+            options.forEach { productOptionRepositoryAdapter.save(it) }
 
             val allOptions = productOptionRepositoryAdapter.findAll()
 
-            allOptions shouldHaveSize 2
-            allOptions.map { it.name } shouldContainAll listOf("옵션 A", "옵션 B")
+            allOptions shouldHaveSize options.size
+            allOptions.map { it.name } shouldContainAll options.map { it.name }
         }
 
         "존재하지 않는 ID로 조회 시 예외가 발생해야 한다" {
             val nonExistentId = 999L
-
-            val exception =
-                shouldThrow<IllegalArgumentException> {
-                    productOptionRepositoryAdapter.findById(nonExistentId)
-                }
+            val exception = shouldThrow<IllegalArgumentException> {
+                productOptionRepositoryAdapter.findById(nonExistentId)
+            }
             exception.message shouldBe "ProductOption with ID $nonExistentId not found"
         }
 
         "옵션을 ID로 삭제할 수 있어야 한다" {
-            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
-
-            val productEntity =
-                ProductEntity(
-                    productId = null,
-                    userId = 4L,
-                    title = "삭제 테스트 상품",
-                    description = "삭제 테스트 설명",
-                    price = 250_000,
-                    typeCode = 4,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
+            val productEntity = createTestProductEntity(fixedNow)
             val savedProductEntity = jpaProductRepository.save(productEntity)
 
-            val productOption =
-                ProductOption(
-                    optionId = 0L,
-                    name = "삭제 옵션",
-                    additionalPrice = 15_000,
-                    description = "삭제 옵션 설명",
-                    productId = savedProductEntity.productId!!,
-                    createdAt = fixedNow,
-                    updatedAt = fixedNow,
-                )
-
+            val productOption = createTestProductOption(fixedNow, savedProductEntity.productId!!)
             val savedOption = productOptionRepositoryAdapter.save(productOption)
 
             productOptionRepositoryAdapter.deleteById(savedOption.optionId)
 
-            val exception =
-                shouldThrow<IllegalArgumentException> {
-                    productOptionRepositoryAdapter.findById(savedOption.optionId)
-                }
+            val exception = shouldThrow<IllegalArgumentException> {
+                productOptionRepositoryAdapter.findById(savedOption.optionId)
+            }
             exception.message shouldBe "ProductOption with ID ${savedOption.optionId} not found"
         }
+    }
+
+    private fun createTestProductEntity(fixedNow: LocalDateTime): ProductEntity {
+        return ProductEntity(
+            productId = null,
+            userId = 1L,
+            title = "테스트 상품",
+            description = "테스트 설명",
+            price = 100_000,
+            typeCode = 1,
+            createdAt = fixedNow,
+            updatedAt = fixedNow,
+        )
+    }
+
+    private fun createTestProductOption(
+        fixedNow: LocalDateTime,
+        productId: Long,
+        name: String = "테스트 옵션",
+        additionalPrice: Long = 5_000L,
+    ): ProductOption {
+        return ProductOption(
+            optionId = 0L,
+            name = name,
+            additionalPrice = additionalPrice,
+            description = "$name 설명",
+            productId = productId,
+            createdAt = fixedNow,
+            updatedAt = fixedNow,
+        )
     }
 }
