@@ -183,6 +183,50 @@ class ProductUseCaseTest : BehaviorSpec({
 
     Given("ProductUseCase의 saveProduct 메서드") {
 
+        When("옵션 저장 실패 시 트랜잭션이 롤백된다") {
+            // given
+            val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
+            val product = Product(
+                productId = 0L,
+                userId = 1L,
+                title = "새 상품",
+                description = "새 상품 설명",
+                price = 100000,
+                typeCode = 1,
+                createdAt = fixedNow,
+                updatedAt = fixedNow,
+                options = listOf(
+                    ProductOption(
+                        optionId = 0L,
+                        productId = 0L,
+                        name = "옵션 1",
+                        additionalPrice = 5000,
+                        description = "옵션 1 설명",
+                        createdAt = fixedNow,
+                        updatedAt = fixedNow
+                    )
+                )
+            )
+
+            every { productPersistencePort.save(product) } returns product.copy(productId = 1L)
+            every { productOptionPersistencePort.save(any()) } throws RuntimeException("옵션 저장 실패")
+
+            // when & then
+            val exception = shouldThrow<RuntimeException> {
+                productUseCase.saveProduct(product)
+            }
+
+            // 트랜잭션 롤백 확인
+            exception.message shouldBe "옵션 저장 중 문제가 발생했습니다: 옵션 저장 실패"
+
+            // 상품이 실제로 저장되지 않았는지 확인
+            verify(exactly = 1) { productPersistencePort.save(product) }
+            verify(exactly = 1) { productOptionPersistencePort.save(any()) }
+
+            // 트랜잭션 롤백이 발생하여 데이터베이스에 저장되지 않았음을 검증
+            verify(exactly = 0) { productEntityRetrievalPort.getProductEntityById(1L) }
+        }
+
         When("상품과 옵션을 정상적으로 저장할 수 있다") {
             // given
             val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
@@ -283,10 +327,11 @@ class ProductUseCaseTest : BehaviorSpec({
                 productUseCase.saveProduct(product)
             }
 
-            exception.message shouldBe "옵션 저장 실패"
+            exception.message shouldBe "옵션 저장 중 문제가 발생했습니다: 옵션 저장 실패"
             verify(exactly = 1) { productPersistencePort.save(product) }
             verify(exactly = 1) { productOptionPersistencePort.save(any()) }
         }
+
 
         When("상품 저장 시 상품 저장 실패 시 예외가 발생하면 옵션 저장이 시도되지 않는다") {
             // given
