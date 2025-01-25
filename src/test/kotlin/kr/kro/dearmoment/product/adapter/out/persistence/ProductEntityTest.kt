@@ -6,8 +6,15 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import java.time.LocalDateTime
 
+/**
+ * ProductEntity의 동작을 검증하기 위한 테스트 클래스입니다.
+ */
 class ProductEntityTest : DescribeSpec({
+
     describe("ProductEntity") {
+        /**
+         * 샘플 옵션 데이터를 생성합니다.
+         */
         val sampleOptions =
             listOf(
                 ProductOption(
@@ -30,6 +37,9 @@ class ProductEntityTest : DescribeSpec({
                 ),
             )
 
+        /**
+         * 샘플 제품 데이터를 생성합니다.
+         */
         val sampleProduct =
             Product(
                 productId = 1L,
@@ -84,7 +94,6 @@ class ProductEntityTest : DescribeSpec({
         }
 
         it("toDomain 메서드는 ProductEntity를 올바르게 도메인 모델로 매핑해야 합니다") {
-            // 먼저 ProductEntity를 생성합니다. options는 빈 리스트로 초기화합니다.
             val productEntity =
                 ProductEntity(
                     productId = sampleProduct.productId,
@@ -105,7 +114,6 @@ class ProductEntityTest : DescribeSpec({
                     options = mutableListOf(),
                 )
 
-            // 실제 테스트에서 사용할 옵션 엔티티를 추가합니다.
             sampleOptions.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
                 productEntity.options.add(optionEntity)
@@ -157,3 +165,4 @@ class ProductEntityTest : DescribeSpec({
         }
     }
 })
+
