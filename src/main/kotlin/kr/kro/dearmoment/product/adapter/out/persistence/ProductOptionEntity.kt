@@ -87,8 +87,8 @@ class ProductOptionEntity(
     /**
      * ProductOptionEntity를 도메인 객체로 변환합니다.
      */
-    fun toDomain(): kr.kro.dearmoment.product.domain.model.ProductOption {
-        return kr.kro.dearmoment.product.domain.model.ProductOption(
+    fun toDomain(): ProductOption {
+        return ProductOption(
             optionId = optionId ?: 0L,
             name = name,
             additionalPrice = additionalPrice,
