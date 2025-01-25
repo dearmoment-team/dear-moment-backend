@@ -39,7 +39,7 @@ class ProductOptionEntity(
     companion object {
         fun fromDomain(
             domain: kr.kro.dearmoment.product.domain.model.ProductOption,
-            productEntity: ProductEntity,
+            productEntity: ProductEntity
         ): ProductOptionEntity {
             return ProductOptionEntity(
                 optionId = if (domain.optionId == 0L) null else domain.optionId,

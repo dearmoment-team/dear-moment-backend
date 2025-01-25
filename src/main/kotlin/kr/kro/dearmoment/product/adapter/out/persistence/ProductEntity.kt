@@ -63,38 +63,37 @@ class ProductEntity(
     val options: MutableList<ProductOptionEntity> = mutableListOf(),
 ) {
     companion object {
-        fun fromDomain(product: kr.kro.dearmoment.product.domain.model.Product): ProductEntity {
-            val productEntity = ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                title = product.title,
-                description = product.description,
-                price = product.price,
-                typeCode = product.typeCode,
-                shootingTime = product.shootingTime,
-                shootingLocation = product.shootingLocation,
-                numberOfCostumes = product.numberOfCostumes,
-                packagePartnerShops = product.packagePartnerShops,
-                detailedInfo = product.detailedInfo,
-                warrantyInfo = product.warrantyInfo,
-                contactInfo = product.contactInfo,
-                createdAt = product.createdAt,
-                updatedAt = product.updatedAt,
-            )
+            fun fromDomain(product: kr.kro.dearmoment.product.domain.model.Product): ProductEntity {
+                val productEntity = ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    title = product.title,
+                    description = product.description,
+                    price = product.price,
+                    typeCode = product.typeCode,
+                    shootingTime = product.shootingTime,
+                    shootingLocation = product.shootingLocation,
+                    numberOfCostumes = product.numberOfCostumes,
+                    packagePartnerShops = product.packagePartnerShops,
+                    detailedInfo = product.detailedInfo,
+                    warrantyInfo = product.warrantyInfo,
+                    contactInfo = product.contactInfo,
+                    createdAt = product.createdAt,
+                    updatedAt = product.updatedAt
+                )
 
-            productEntity.options.clear()
-            product.options.forEach { optionDomain ->
-                val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
-                productEntity.options.add(optionEntity)
+                productEntity.options.clear()
+                product.options.forEach { optionDomain ->
+                    val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
+                    productEntity.options.add(optionEntity)
+                }
+
+                return productEntity
             }
-
-            return productEntity
         }
-    }
 
-    fun toDomain(): kr.kro.dearmoment.product.domain.model.Product {
-        val domainOptions = options.map { it.toDomain() }
 
+        fun toDomain(): kr.kro.dearmoment.product.domain.model.Product {
         return kr.kro.dearmoment.product.domain.model.Product(
             productId = productId ?: 0L,
             userId = userId,
@@ -111,7 +110,8 @@ class ProductEntity(
             contactInfo = contactInfo,
             createdAt = createdAt,
             updatedAt = updatedAt,
-            options = domainOptions,
+            options = options.map { it.toDomain() }
         )
     }
 }
+
