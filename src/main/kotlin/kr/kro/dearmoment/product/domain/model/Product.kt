@@ -3,7 +3,7 @@ package kr.kro.dearmoment.product.domain.model
 import java.time.LocalDateTime
 
 data class Product(
-    val productId: Long = 0L,
+    val productId: Long,
     val userId: Long? = null,
     val title: String,
     val description: String? = null,
@@ -19,4 +19,7 @@ data class Product(
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val options: List<ProductOption> = emptyList(),
-)
+) {
+    val hasPackage: Boolean
+        get() = typeCode == 1
+}
