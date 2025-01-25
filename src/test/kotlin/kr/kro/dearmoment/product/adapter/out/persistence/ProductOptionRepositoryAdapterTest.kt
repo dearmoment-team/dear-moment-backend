@@ -5,41 +5,23 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
-import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
+import kr.kro.dearmoment.common.TestConfig
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import java.time.LocalDateTime
 
 @DataJpaTest
-@Import(ProductOptionRepositoryAdapterTest.TestConfig::class, ProductOptionRepositoryAdapter::class)
-@EntityScan(basePackages = ["kr.kro.dearmoment.product.domain.model", "kr.kro.dearmoment.product.adapter.out.persistence"])
+@Import(TestConfig::class)
+@EntityScan(basePackages = ["kr.kro.dearmoment.product.adapter.out.persistence"])
 @EnableJpaRepositories(basePackages = ["kr.kro.dearmoment.product.adapter.out.persistence"])
 class ProductOptionRepositoryAdapterTest(
     private val productOptionRepositoryAdapter: ProductOptionRepositoryAdapter,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
-    private val jpaProductRepository: JpaProductRepository,
-    private val productEntityRetrievalPort: ProductEntityRetrievalPort,
+    private val jpaProductRepository: JpaProductRepository
 ) : StringSpec() {
-
-    @Configuration
-    class TestConfig {
-        @Bean
-        fun productEntityRetrievalPort(jpaProductRepository: JpaProductRepository): ProductEntityRetrievalPort {
-            val mockPort = mockk<ProductEntityRetrievalPort>()
-            every { mockPort.getProductEntityById(any()) } answers {
-                val id = firstArg<Long>()
-                jpaProductRepository.findById(id).orElseThrow { IllegalArgumentException("Product with ID $id not found") }
-            }
-            return mockPort
-        }
-    }
 
     init {
         val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
@@ -51,8 +33,8 @@ class ProductOptionRepositoryAdapterTest(
             val productOption = createTestProductOption(fixedNow, savedProductEntity.productId!!)
             val savedOption = productOptionRepositoryAdapter.save(productOption)
 
-            val foundOption = productOptionRepositoryAdapter.findById(savedOption.optionId)
-
+            // nullable optionId 처리
+            val foundOption = productOptionRepositoryAdapter.findById(savedOption.optionId!!)
             foundOption shouldBe savedOption.copy()
         }
 
@@ -63,8 +45,8 @@ class ProductOptionRepositoryAdapterTest(
             val productOption = createTestProductOption(fixedNow, savedProductEntity.productId!!)
             val savedOption = productOptionRepositoryAdapter.save(productOption)
 
-            val retrievedOption = productOptionRepositoryAdapter.findById(savedOption.optionId)
-
+            // nullable optionId 처리
+            val retrievedOption = productOptionRepositoryAdapter.findById(savedOption.optionId!!)
             retrievedOption shouldBe savedOption.copy()
         }
 
@@ -86,7 +68,7 @@ class ProductOptionRepositoryAdapterTest(
         }
 
         "존재하지 않는 ID로 조회 시 예외가 발생해야 한다" {
-            val nonExistentId = 999L
+            val nonExistentId: Long = 999L
             val exception = shouldThrow<IllegalArgumentException> {
                 productOptionRepositoryAdapter.findById(nonExistentId)
             }
@@ -100,10 +82,11 @@ class ProductOptionRepositoryAdapterTest(
             val productOption = createTestProductOption(fixedNow, savedProductEntity.productId!!)
             val savedOption = productOptionRepositoryAdapter.save(productOption)
 
-            productOptionRepositoryAdapter.deleteById(savedOption.optionId)
+            // nullable optionId 처리
+            productOptionRepositoryAdapter.deleteById(savedOption.optionId!!)
 
             val exception = shouldThrow<IllegalArgumentException> {
-                productOptionRepositoryAdapter.findById(savedOption.optionId)
+                productOptionRepositoryAdapter.findById(savedOption.optionId!!)
             }
             exception.message shouldBe "ProductOption with ID ${savedOption.optionId} not found"
         }
@@ -129,7 +112,7 @@ class ProductOptionRepositoryAdapterTest(
         additionalPrice: Long = 5_000L,
     ): ProductOption {
         return ProductOption(
-            optionId = 0L,
+            optionId = null, // ID를 nullable로 설정
             name = name,
             additionalPrice = additionalPrice,
             description = "$name 설명",
