@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.*
+import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -38,17 +39,20 @@ class ProductOptionEntity(
 ) {
     companion object {
         fun fromDomain(
-            domain: kr.kro.dearmoment.product.domain.model.ProductOption,
+            domain: ProductOption,
             productEntity: ProductEntity
         ): ProductOptionEntity {
+            require(!domain.name.isNullOrBlank()) { "ProductOption name must not be null or blank" }
+            require(domain.additionalPrice >= 0) { "ProductOption additionalPrice must not be negative" }
+
             return ProductOptionEntity(
                 optionId = if (domain.optionId == 0L) null else domain.optionId,
-                name = domain.name,
+                name = domain.name ?: "기본 옵션 이름", // 기본값 설정
                 additionalPrice = domain.additionalPrice,
                 description = domain.description,
                 product = productEntity,
-                createdAt = domain.createdAt,
-                updatedAt = domain.updatedAt,
+                createdAt = domain.createdAt ?: LocalDateTime.now(), // 기본값 설정
+                updatedAt = domain.updatedAt ?: LocalDateTime.now()  // 기본값 설정
             )
         }
     }

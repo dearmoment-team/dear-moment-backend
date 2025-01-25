@@ -1,3 +1,5 @@
+package kr.kro.dearmoment.common
+
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
@@ -10,6 +12,7 @@ import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.ProductUseCase
+import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -41,6 +44,21 @@ class TestConfig : AbstractProjectConfig() {
         jpaProductOptionRepository: JpaProductOptionRepository,
         productEntityRetrievalPort: ProductEntityRetrievalPort,
     ): ProductOptionPersistencePort {
+        return mockk<ProductOptionPersistencePort>().apply {
+            every { save(any()) } answers {
+                val option = firstArg<ProductOption>()
+                println("Mock saving ProductOption: $option")
+                require(!option.name.isNullOrBlank()) { "Mock detected null or blank name in ProductOption" }
+                option
+            }
+        }
+    }
+
+    @Bean
+    fun productOptionRepositoryAdapter(
+        jpaProductOptionRepository: JpaProductOptionRepository,
+        productEntityRetrievalPort: ProductEntityRetrievalPort
+    ): ProductOptionRepositoryAdapter {
         return ProductOptionRepositoryAdapter(
             jpaProductOptionRepository = jpaProductOptionRepository,
             productEntityRetrievalPort = productEntityRetrievalPort,

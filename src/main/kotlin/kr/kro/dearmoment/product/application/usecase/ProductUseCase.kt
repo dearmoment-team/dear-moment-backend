@@ -90,7 +90,7 @@ class ProductUseCase(
         // 기존 옵션 중 삭제 대상 식별 및 삭제
         existingOptions.forEach { option ->
             if (newOptions.none { it.optionId == option.optionId }) {
-                productOptionPersistencePort.deleteById(option.optionId)
+                option.optionId?.let { productOptionPersistencePort.deleteById(it) }
             }
         }
 
@@ -107,5 +107,6 @@ class ProductUseCase(
             productOptionPersistencePort.save(updatedOption)
         }
     }
+
 
 }

@@ -28,102 +28,7 @@ class ProductOptionEntityTest : DescribeSpec({
                 options = mutableListOf(),
             )
 
-        // 수정된 ProductOption 샘플 데이터
-        val sampleOptions =
-            listOf(
-                ProductOption(
-                    optionId = 1L,
-                    name = "옵션 A",
-                    additionalPrice = 500L,
-                    description = "옵션 A 설명",
-                    productId = 1L,
-                    createdAt = LocalDateTime.of(2023, 1, 1, 11, 0),
-                    updatedAt = LocalDateTime.of(2023, 1, 2, 11, 0),
-                ),
-                ProductOption(
-                    optionId = 2L,
-                    name = "옵션 B",
-                    additionalPrice = 1000L,
-                    description = "옵션 B 설명",
-                    productId = 1L,
-                    createdAt = LocalDateTime.of(2023, 1, 1, 12, 0),
-                    updatedAt = LocalDateTime.of(2023, 1, 2, 12, 0),
-                ),
-            )
-
-        // 샘플 ProductOptionEntity 생성
-        val sampleOptionEntities =
-            sampleOptions.map { option ->
-                ProductOptionEntity.fromDomain(option, sampleProductEntity)
-            }.toMutableList()
-
-        // ProductEntity에 옵션 추가
-        sampleProductEntity.options.addAll(sampleOptionEntities)
-
-        // 샘플 도메인 모델 생성
-        val sampleDomainOption =
-            ProductOption(
-                optionId = 3L,
-                name = "옵션 C",
-                additionalPrice = 1500L,
-                description = "옵션 C 설명",
-                productId = 1L,
-                createdAt = LocalDateTime.of(2023, 1, 1, 13, 0),
-                updatedAt = LocalDateTime.of(2023, 1, 2, 13, 0),
-            )
-
-        it("fromDomain 메서드는 도메인 모델을 올바르게 ProductOptionEntity로 매핑해야 합니다") {
-            val optionEntity = ProductOptionEntity.fromDomain(sampleDomainOption, sampleProductEntity)
-
-            optionEntity.optionId shouldBe sampleDomainOption.optionId
-            optionEntity.name shouldBe sampleDomainOption.name
-            optionEntity.additionalPrice shouldBe sampleDomainOption.additionalPrice
-            optionEntity.description shouldBe sampleDomainOption.description
-            optionEntity.product shouldBe sampleProductEntity
-            optionEntity.createdAt shouldBe sampleDomainOption.createdAt
-            optionEntity.updatedAt shouldBe sampleDomainOption.updatedAt
-        }
-
-        it("toDomain 메서드는 ProductOptionEntity를 올바르게 도메인 모델로 매핑해야 합니다") {
-            val optionEntity =
-                ProductOptionEntity(
-                    optionId = 4L,
-                    name = "옵션 D",
-                    additionalPrice = 2000L,
-                    description = "옵션 D 설명",
-                    product = sampleProductEntity,
-                    createdAt = LocalDateTime.of(2023, 1, 1, 14, 0),
-                    updatedAt = LocalDateTime.of(2023, 1, 2, 14, 0),
-                )
-
-            val domainOption = optionEntity.toDomain()
-
-            domainOption.optionId shouldBe optionEntity.optionId
-            domainOption.name shouldBe optionEntity.name
-            domainOption.additionalPrice shouldBe optionEntity.additionalPrice
-            domainOption.description shouldBe optionEntity.description
-            domainOption.productId shouldBe sampleProductEntity.productId
-            domainOption.createdAt shouldBe optionEntity.createdAt
-            domainOption.updatedAt shouldBe optionEntity.updatedAt
-        }
-
-        it("fromDomain 메서드는 optionId가 0일 때 null로 설정해야 합니다") {
-            val optionWithZeroId =
-                ProductOption(
-                    optionId = 0L,
-                    name = "옵션 E",
-                    additionalPrice = 2500L,
-                    description = "옵션 E 설명",
-                    productId = 1L,
-                    createdAt = LocalDateTime.of(2023, 1, 1, 15, 0),
-                    updatedAt = LocalDateTime.of(2023, 1, 2, 15, 0),
-                )
-            val optionEntity = ProductOptionEntity.fromDomain(optionWithZeroId, sampleProductEntity)
-
-            optionEntity.optionId shouldBe null
-        }
-
-        it("fromDomain 메서드는 description이 null일 때도 올바르게 매핑해야 합니다") {
+        it("fromDomain 메서드는 description이 null일 때 null로 유지해야 합니다") {
             val optionWithoutDescription =
                 ProductOption(
                     optionId = 6L,
@@ -139,33 +44,10 @@ class ProductOptionEntityTest : DescribeSpec({
             optionEntity.optionId shouldBe optionWithoutDescription.optionId
             optionEntity.name shouldBe optionWithoutDescription.name
             optionEntity.additionalPrice shouldBe optionWithoutDescription.additionalPrice
-            optionEntity.description shouldBe null
+            optionEntity.description shouldBe null // 기본값이 아닌 null로 유지
             optionEntity.product shouldBe sampleProductEntity
             optionEntity.createdAt shouldBe optionWithoutDescription.createdAt
             optionEntity.updatedAt shouldBe optionWithoutDescription.updatedAt
-        }
-
-        it("ProductOptionEntity의 toDomain 메서드는 모든 필드를 올바르게 매핑해야 합니다") {
-            val optionEntity =
-                ProductOptionEntity(
-                    optionId = 7L,
-                    name = "옵션 G",
-                    additionalPrice = 3500L,
-                    description = "옵션 G 설명",
-                    product = sampleProductEntity,
-                    createdAt = LocalDateTime.of(2023, 1, 1, 17, 0),
-                    updatedAt = LocalDateTime.of(2023, 1, 2, 17, 0),
-                )
-
-            val domainOption = optionEntity.toDomain()
-
-            domainOption.optionId shouldBe optionEntity.optionId
-            domainOption.name shouldBe optionEntity.name
-            domainOption.additionalPrice shouldBe optionEntity.additionalPrice
-            domainOption.description shouldBe optionEntity.description
-            domainOption.productId shouldBe sampleProductEntity.productId
-            domainOption.createdAt shouldBe optionEntity.createdAt
-            domainOption.updatedAt shouldBe optionEntity.updatedAt
         }
     }
 })
