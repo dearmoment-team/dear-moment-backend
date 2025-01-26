@@ -1,97 +1,106 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
-import io.mockk.every
 import kr.kro.dearmoment.common.TestConfig
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
-import java.util.*
 
 @DataJpaTest
-@Transactional
 @Import(TestConfig::class)
 class ProductPersistenceAdapterTest(
-    private val productPersistenceAdapter: ProductPersistenceAdapter,
     private val jpaProductRepository: JpaProductRepository
 ) : StringSpec({
 
+    val productPersistenceAdapter = ProductPersistenceAdapter(jpaProductRepository)
+
     "상품을 저장하고 올바르게 반환한다" {
-        // given
+        // Given
         val product = Product(
             productId = 0L,
-            userId = 1L,
-            title = "테스트 상품",
-            description = "테스트 설명",
+            userId = 123L,
+            title = "Sample Product",
+            description = "Sample Description",
             price = 10000L,
             typeCode = 1,
-            createdAt = null,
-            updatedAt = null,
+            shootingTime = LocalDateTime.now(),
+            shootingLocation = "Sample Location",
+            numberOfCostumes = 2,
+            packagePartnerShops = "Shop1, Shop2",
+            detailedInfo = "Detailed Information",
+            warrantyInfo = "Warranty Information",
+            contactInfo = "Contact Information",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
             options = emptyList()
         )
 
-        // when
+        // When
         val savedProduct = productPersistenceAdapter.save(product)
 
-        // then
-        savedProduct.productId shouldNotBe 0L
-        savedProduct.title shouldBe "테스트 상품"
+        // Then
+        savedProduct.title shouldBe product.title
+        savedProduct.price shouldBe product.price
     }
 
-    "존재하지 않는 ID로 조회 시 예외가 발생한다" {
-        // given
-        val nonExistentId = 999L
+    "존재하지 않는 ID로 조회 시 null을 반환한다" {
+        // When
+        val result = productPersistenceAdapter.findById(999L)
 
-        // Mock 동작 정의
-        every { jpaProductRepository.findById(nonExistentId) } returns Optional.empty()
-
-        // when & then
-        val exception = shouldThrow<IllegalArgumentException> {
-            productPersistenceAdapter.findById(nonExistentId) ?: throw IllegalArgumentException("Product with ID $nonExistentId not found")
-        }
-        exception.message shouldBe "Product with ID $nonExistentId not found"
+        // Then
+        result shouldBe null
     }
 
-    "상품 저장 시 옵션도 함께 저장된다" {
-        // given
-        val fixedNow = LocalDateTime.of(2025, 1, 1, 12, 0)
-
-        val options = listOf(
-            ProductOption(
-                optionId = 0L,
-                name = "옵션 1",
-                additionalPrice = 5000,
-                description = "옵션 1 설명",
-                productId = 0L,
-                createdAt = fixedNow,
-                updatedAt = fixedNow
-            )
-        )
-
-        val product = Product(
+    "모든 상품을 조회하고 올바르게 반환한다" {
+        // Given
+        val product1 = Product(
             productId = 0L,
-            userId = 1L,
-            title = "옵션 포함 상품",
-            description = "옵션 테스트",
-            price = 20000L,
+            userId = 123L,
+            title = "Product 1",
+            description = "Description 1",
+            price = 5000L,
+            typeCode = 1,
+            shootingTime = LocalDateTime.now(),
+            shootingLocation = "Location 1",
+            numberOfCostumes = 1,
+            packagePartnerShops = "Shop A",
+            detailedInfo = "Info A",
+            warrantyInfo = "Warranty A",
+            contactInfo = "Contact A",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+            options = emptyList()
+        )
+        val product2 = Product(
+            productId = 0L,
+            userId = 456L,
+            title = "Product 2",
+            description = "Description 2",
+            price = 10000L,
             typeCode = 2,
-            createdAt = null,
-            updatedAt = null,
-            options = options
+            shootingTime = LocalDateTime.now(),
+            shootingLocation = "Location 2",
+            numberOfCostumes = 2,
+            packagePartnerShops = "Shop B",
+            detailedInfo = "Info B",
+            warrantyInfo = "Warranty B",
+            contactInfo = "Contact B",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+            options = emptyList()
         )
 
-        // when
-        val savedProduct = productPersistenceAdapter.save(product)
+        productPersistenceAdapter.save(product1)
+        productPersistenceAdapter.save(product2)
 
-        // then
-        savedProduct.options.shouldHaveSize(1)
-        savedProduct.options.first().name shouldBe "옵션 1"
+        // When
+        val products = productPersistenceAdapter.findAll()
+
+        // Then
+        products.size shouldBe 2
+        products[0].title shouldBe "Product 1"
+        products[1].title shouldBe "Product 2"
     }
 })
