@@ -6,8 +6,10 @@ import kr.kro.dearmoment.common.TestConfig
 import kr.kro.dearmoment.common.TestObjectFactory
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
+import org.springframework.transaction.annotation.Transactional
 
 @DataJpaTest
+@Transactional
 @Import(TestConfig::class)
 class ProductPersistenceAdapterTest(
     private val productPersistenceAdapter: ProductPersistenceAdapter,
