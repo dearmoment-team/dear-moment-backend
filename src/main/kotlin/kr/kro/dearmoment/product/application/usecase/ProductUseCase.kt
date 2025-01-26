@@ -70,7 +70,7 @@ class ProductUseCase(
 
         // 업데이트 후 옵션 포함된 상품 반환
         val updatedOptions = productOptionPersistencePort.findByProduct(
-            productEntityRetrievalPort.getProductEntityById(product.productId)
+            productEntityRetrievalPort.getEntityById(product.productId)
         )
         return updatedProduct.copy(options = updatedOptions)
     }
@@ -84,7 +84,7 @@ class ProductUseCase(
         productId: Long,
         newOptions: List<ProductOption>,
     ) {
-        val productEntity = productEntityRetrievalPort.getProductEntityById(productId)
+        val productEntity = productEntityRetrievalPort.getEntityById(productId)
         val existingOptions = productOptionPersistencePort.findByProduct(productEntity)
 
         // 기존 옵션 중 삭제 대상 식별 및 삭제

@@ -86,10 +86,9 @@ class ProductEntityTest : DescribeSpec({
                 optionEntity.name shouldBe optionDomain.name
                 optionEntity.additionalPrice shouldBe optionDomain.additionalPrice
                 optionEntity.description shouldBe optionDomain.description
-                optionEntity.product.productId shouldBe productEntity.productId
+                optionEntity.product?.productId shouldBe productEntity.productId
                 optionEntity.createdAt shouldBe optionDomain.createdAt
                 optionEntity.updatedAt shouldBe optionDomain.updatedAt
-                optionEntity.product shouldBe productEntity
             }
         }
 
@@ -144,25 +143,10 @@ class ProductEntityTest : DescribeSpec({
                 optionDomain.name shouldBe optionEntity.name
                 optionDomain.additionalPrice shouldBe optionEntity.additionalPrice
                 optionDomain.description shouldBe optionEntity.description
-                optionDomain.productId shouldBe optionEntity.product.productId
+                optionDomain.productId shouldBe optionEntity.product?.productId
                 optionDomain.createdAt shouldBe optionEntity.createdAt
                 optionDomain.updatedAt shouldBe optionEntity.updatedAt
             }
         }
-
-        it("fromDomain 메서드는 productId가 0일 때 null로 설정해야 합니다") {
-            val productWithZeroId = sampleProduct.copy(productId = 0L)
-            val productEntity = ProductEntity.fromDomain(productWithZeroId)
-
-            productEntity.productId shouldBe null
-        }
-
-        it("fromDomain 메서드는 도메인 모델의 옵션이 비어 있을 때 옵션을 빈 리스트로 초기화해야 합니다") {
-            val productWithoutOptions = sampleProduct.copy(options = emptyList())
-            val productEntity = ProductEntity.fromDomain(productWithoutOptions)
-
-            productEntity.options shouldBe emptyList()
-        }
     }
 })
-

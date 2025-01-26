@@ -112,7 +112,7 @@ class ProductOptionRepositoryAdapterTest(
         additionalPrice: Long = 5_000L,
     ): ProductOption {
         return ProductOption(
-            optionId = null, // ID를 nullable로 설정
+            optionId = null,
             name = name,
             additionalPrice = additionalPrice,
             description = "$name 설명",

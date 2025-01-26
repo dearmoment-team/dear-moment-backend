@@ -60,7 +60,7 @@ class ProductUseCaseTest : BehaviorSpec({
                 )
             )
 
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
+            every { productEntityRetrievalPort.getEntityById(1L) } returns productEntity
             every { productOptionPersistencePort.findByProduct(productEntity) } returns emptyList()
 
             // when
@@ -108,7 +108,7 @@ class ProductUseCaseTest : BehaviorSpec({
                 )
             )
 
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
+            every { productEntityRetrievalPort.getEntityById(1L) } returns productEntity
             every { productOptionPersistencePort.findByProduct(productEntity) } returns existingOptions
 
             // when
@@ -156,7 +156,7 @@ class ProductUseCaseTest : BehaviorSpec({
                 )
             )
 
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
+            every { productEntityRetrievalPort.getEntityById(1L) } returns productEntity
             every { productOptionPersistencePort.findByProduct(productEntity) } returns existingOptions
 
             // when
@@ -169,7 +169,7 @@ class ProductUseCaseTest : BehaviorSpec({
 
         When("존재하지 않는 제품 ID로 호출 시 예외를 던진다") {
             // given
-            every { productEntityRetrievalPort.getProductEntityById(999L) } throws IllegalArgumentException("존재하지 않는 제품 ID입니다.")
+            every { productEntityRetrievalPort.getEntityById(999L) } throws IllegalArgumentException("존재하지 않는 제품 ID입니다.")
 
             // when
             val exception = shouldThrow<IllegalArgumentException> {
@@ -224,7 +224,7 @@ class ProductUseCaseTest : BehaviorSpec({
             verify(exactly = 1) { productOptionPersistencePort.save(any()) }
 
             // 트랜잭션 롤백이 발생하여 데이터베이스에 저장되지 않았음을 검증
-            verify(exactly = 0) { productEntityRetrievalPort.getProductEntityById(1L) }
+            verify(exactly = 0) { productEntityRetrievalPort.getEntityById(1L) }
         }
 
         When("상품과 옵션을 정상적으로 저장할 수 있다") {
@@ -438,7 +438,7 @@ class ProductUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.findByProduct(any()) } returns existingProduct.options andThen expectedOptions
             every { productPersistencePort.save(any()) } returns updatedProduct
             every { productOptionPersistencePort.save(any()) } returnsArgument 0
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns ProductEntity(
+            every { productEntityRetrievalPort.getEntityById(1L) } returns ProductEntity(
                 productId = 1L,
                 userId = 1L,
                 title = "업데이트된 상품",
@@ -548,7 +548,7 @@ class ProductUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.findByProduct(any()) } returns existingProduct.options andThen updatedProduct.options
             every { productPersistencePort.save(any()) } returns updatedProduct
             every { productOptionPersistencePort.save(any()) } returnsArgument 0
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns ProductEntity(
+            every { productEntityRetrievalPort.getEntityById(1L) } returns ProductEntity(
                 productId = 1L,
                 userId = 1L,
                 title = "업데이트된 상품",
@@ -646,7 +646,7 @@ class ProductUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.findByProduct(any()) } returns existingProduct.options andThen newOptions
             every { productPersistencePort.save(any()) } returns updatedProduct
             every { productOptionPersistencePort.save(any()) } returnsArgument 0
-            every { productEntityRetrievalPort.getProductEntityById(1L) } returns ProductEntity(
+            every { productEntityRetrievalPort.getEntityById(1L) } returns ProductEntity(
                 productId = 1L,
                 userId = 1L,
                 title = "업데이트된 상품",
