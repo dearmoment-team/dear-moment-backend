@@ -16,10 +16,16 @@ class ProductOptionRepositoryAdapter(
         val product = getProduct(productOption.productId)
         val productEntity = ProductEntity.fromDomain(product)
 
+        // 동일한 옵션인지 확인
+        val existingOptions = jpaProductOptionRepository.findByProduct(productEntity)
+            .map { it.toDomain() }
+
+        if (existingOptions.any { it == productOption }) {
+            throw IllegalArgumentException("ProductOption already exists: $productOption")
+        }
+
         val entity = ProductOptionEntity.fromDomain(productOption, productEntity)
-
         val savedEntity = jpaProductOptionRepository.save(entity)
-
         return savedEntity.toDomain()
     }
 
