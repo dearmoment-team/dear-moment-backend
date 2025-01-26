@@ -3,38 +3,25 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.common.TestConfig
-import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.common.TestObjectFactory
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
-import java.time.LocalDateTime
 
 @DataJpaTest
 @Import(TestConfig::class)
 class ProductPersistenceAdapterTest(
-    private val jpaProductRepository: JpaProductRepository
+    private val productPersistenceAdapter: ProductPersistenceAdapter,
+    private val testObjectFactory: TestObjectFactory // TestObjectFactory 사용
 ) : StringSpec({
-
-    val productPersistenceAdapter = ProductPersistenceAdapter(jpaProductRepository)
 
     "상품을 저장하고 올바르게 반환한다" {
         // Given
-        val product = Product(
-            productId = 0L,
+        val product = testObjectFactory.createTestProductDomain(
             userId = 123L,
             title = "Sample Product",
             description = "Sample Description",
             price = 10000L,
-            typeCode = 1,
-            shootingTime = LocalDateTime.now(),
-            shootingLocation = "Sample Location",
-            numberOfCostumes = 2,
-            packagePartnerShops = "Shop1, Shop2",
-            detailedInfo = "Detailed Information",
-            warrantyInfo = "Warranty Information",
-            contactInfo = "Contact Information",
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-            options = emptyList()
+            typeCode = 1
         )
 
         // When
@@ -55,41 +42,19 @@ class ProductPersistenceAdapterTest(
 
     "모든 상품을 조회하고 올바르게 반환한다" {
         // Given
-        val product1 = Product(
-            productId = 0L,
+        val product1 = testObjectFactory.createTestProductDomain(
             userId = 123L,
             title = "Product 1",
             description = "Description 1",
             price = 5000L,
-            typeCode = 1,
-            shootingTime = LocalDateTime.now(),
-            shootingLocation = "Location 1",
-            numberOfCostumes = 1,
-            packagePartnerShops = "Shop A",
-            detailedInfo = "Info A",
-            warrantyInfo = "Warranty A",
-            contactInfo = "Contact A",
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-            options = emptyList()
+            typeCode = 1
         )
-        val product2 = Product(
-            productId = 0L,
+        val product2 = testObjectFactory.createTestProductDomain(
             userId = 456L,
             title = "Product 2",
             description = "Description 2",
             price = 10000L,
-            typeCode = 2,
-            shootingTime = LocalDateTime.now(),
-            shootingLocation = "Location 2",
-            numberOfCostumes = 2,
-            packagePartnerShops = "Shop B",
-            detailedInfo = "Info B",
-            warrantyInfo = "Warranty B",
-            contactInfo = "Contact B",
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-            options = emptyList()
+            typeCode = 2
         )
 
         productPersistenceAdapter.save(product1)
@@ -104,3 +69,4 @@ class ProductPersistenceAdapterTest(
         products[1].title shouldBe "Product 2"
     }
 })
+

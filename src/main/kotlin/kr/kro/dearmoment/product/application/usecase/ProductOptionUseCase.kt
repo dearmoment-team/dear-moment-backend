@@ -12,7 +12,7 @@ class ProductOptionUseCase(
 ) {
     fun saveProductOption(productOption: ProductOption) {
         // 1. ProductEntity 조회
-        val productEntity = productEntityRetrievalPort.getEntityById(productOption.productId)
+        val productEntity = productEntityRetrievalPort.getProductById(productOption.productId)
 
         // 2. 기존 옵션 조회
         val existingOptions = productOptionPersistencePort.findByProduct(productEntity)
