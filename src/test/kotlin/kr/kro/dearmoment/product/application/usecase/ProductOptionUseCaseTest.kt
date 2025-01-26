@@ -30,7 +30,7 @@ class ProductOptionUseCaseTest : StringSpec({
         val newOption = ProductOption(2L, 1L, "중복 옵션", 10000, "또 다른 중복 옵션 설명", fixedNow, fixedNow)
 
         // Mock 설정: getProductEntityById 호출 및 findByProduct 동작 설정
-        every { productEntityRetrievalPort.getProductEntityById(1L) } returns productEntity
+        every { productEntityRetrievalPort.getEntityById(1L) } returns productEntity
         every { productOptionPersistencePort.findByProduct(productEntity) } returns existingOptions
 
         // when & then
@@ -43,7 +43,7 @@ class ProductOptionUseCaseTest : StringSpec({
         exception.message shouldBe "Duplicate option name: 중복 옵션"
 
         // 호출 검증
-        verify(exactly = 1) { productEntityRetrievalPort.getProductEntityById(1L) }
+        verify(exactly = 1) { productEntityRetrievalPort.getEntityById(1L) }
         verify(exactly = 1) { productOptionPersistencePort.findByProduct(productEntity) }
     }
 })
