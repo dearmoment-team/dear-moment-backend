@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.*
+import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -70,7 +71,10 @@ class ProductEntity(
     constructor() : this(title = "", price = 0L, typeCode = 0)
 
     companion object {
-        fun fromDomain(product: kr.kro.dearmoment.product.domain.model.Product): ProductEntity {
+        /**
+         * 도메인 모델을 엔티티로 변환합니다.
+         */
+        fun fromDomain(product: Product): ProductEntity {
             val productEntity = ProductEntity(
                 productId = if (product.productId == 0L) null else product.productId,
                 userId = product.userId,
@@ -85,20 +89,25 @@ class ProductEntity(
                 detailedInfo = product.detailedInfo,
                 warrantyInfo = product.warrantyInfo,
                 contactInfo = product.contactInfo,
-                createdAt = product.createdAt,
-                updatedAt = product.updatedAt
+                createdAt = product.createdAt ?: LocalDateTime.now(),
+                updatedAt = product.updatedAt ?: LocalDateTime.now()
             )
+
             productEntity.options.clear()
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
                 productEntity.options.add(optionEntity)
             }
+
             return productEntity
         }
     }
 
-    fun toDomain(): kr.kro.dearmoment.product.domain.model.Product {
-        return kr.kro.dearmoment.product.domain.model.Product(
+    /**
+     * 엔티티를 도메인 모델로 변환합니다.
+     */
+    fun toDomain(): Product {
+        return Product(
             productId = productId ?: 0L,
             userId = userId,
             title = title,
