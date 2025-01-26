@@ -121,7 +121,8 @@ class ProductUseCaseTest : BehaviorSpec({
                 productId = product.productId,
                 name = "Option to Delete",
                 additionalPrice = 3000L
-            ).copy(optionId = 20L) // ★ 삭제 대상 옵션이므로 ID=20L
+            // ★ 삭제 대상 옵션이므로 ID=20L
+            ).copy(optionId = 20L)
 
             // updatedOption: 기존 옵션(10L)을 업데이트하는 시나리오
             val updatedOption = existingOption.copy(
@@ -154,7 +155,8 @@ class ProductUseCaseTest : BehaviorSpec({
             verify(exactly = 1) {
                 productOptionPersistencePort.save(
                     match {
-                        it.optionId == 10L && // 기존 옵션 ID 그대로
+                        // 기존 옵션 ID 그대로
+                        it.optionId == 10L &&
                                 it.name == "Updated Option Name" &&
                                 it.additionalPrice == 6000L &&
                                 it.productId == 1L
