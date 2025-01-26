@@ -13,9 +13,6 @@ class TestObjectFactory(
     private val jpaProductOptionRepository: JpaProductOptionRepository
 ) {
 
-    /**
-     * 테스트용 ProductEntity 생성
-     */
     fun createTestProductEntity(
         fixedNow: LocalDateTime = LocalDateTime.now(),
         userId: Long = 1L,
@@ -36,9 +33,6 @@ class TestObjectFactory(
         )
     }
 
-    /**
-     * 테스트용 ProductOption 도메인 객체 생성
-     */
     fun createTestProductOptionDomain(
         fixedNow: LocalDateTime = LocalDateTime.now(),
         productId: Long,
@@ -57,9 +51,6 @@ class TestObjectFactory(
         )
     }
 
-    /**
-     * 테스트용 Product 도메인 객체 생성
-     */
     fun createTestProductDomain(
         userId: Long = 1L,
         title: String = "테스트 상품",
@@ -90,28 +81,20 @@ class TestObjectFactory(
         )
     }
 
-    /**
-     * ProductEntity 저장
-     */
+
     fun saveProductEntity(productEntity: ProductEntity): ProductEntity {
         return jpaProductRepository.saveAndFlush(productEntity)
     }
 
-    /**
-     * ProductOptionEntity -> 도메인 변환 후 저장
-     */
     fun saveProductOption(option: ProductOption): ProductOption {
         val productEntity = jpaProductRepository.findById(option.productId)
             .orElseThrow { IllegalArgumentException("Product with ID ${option.productId} not found") }
 
         val entity = ProductOptionEntity.fromDomain(option, productEntity)
         val savedEntity = jpaProductOptionRepository.saveAndFlush(entity)
-
-        // 연관 관계 설정
         productEntity.options.add(savedEntity)
         jpaProductRepository.saveAndFlush(productEntity)
 
         return savedEntity.toDomain()
     }
-
 }

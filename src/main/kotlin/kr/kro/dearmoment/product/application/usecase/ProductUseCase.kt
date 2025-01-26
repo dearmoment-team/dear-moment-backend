@@ -20,17 +20,10 @@ class ProductUseCase(
      */
     @Transactional
     fun saveProduct(product: Product): Product {
-        // 상품 저장
         val savedProduct = productPersistencePort.save(product)
 
-        // 옵션 저장
         product.options.forEach { option ->
-            try {
-                val updatedOption = option.copy(productId = savedProduct.productId)
-                productOptionPersistencePort.save(updatedOption)
-            } catch (e: Exception) {
-                throw RuntimeException("옵션 저장 중 문제가 발생했습니다: ${e.message}", e)
-            }
+            saveOrUpdateOption(savedProduct.productId, option)
         }
 
         return savedProduct.copy(options = product.options)
@@ -51,11 +44,9 @@ class ProductUseCase(
      */
     @Transactional
     fun updateProduct(product: Product): Product {
-        // 기존 상품 조회
         val existingProduct = productPersistencePort.findById(product.productId)
             ?: throw IllegalArgumentException("Product with ID ${product.productId} not found")
 
-        // 상품 정보 업데이트
         val updatedProduct = existingProduct.copy(
             title = product.title,
             description = product.description,
@@ -64,11 +55,8 @@ class ProductUseCase(
         )
 
         productPersistencePort.save(updatedProduct)
-
-        // 옵션 업데이트 처리
         modifyProductOptions(product.productId, product.options)
 
-        // 업데이트 후 옵션 포함된 상품 반환
         val updatedOptions = productOptionPersistencePort.findByProduct(
             productEntityRetrievalPort.getProductById(product.productId)
         )
@@ -80,33 +68,61 @@ class ProductUseCase(
      * @throws IllegalArgumentException 상품이 존재하지 않을 경우 예외 발생
      */
     @Transactional
-    fun modifyProductOptions(
-        productId: Long,
-        newOptions: List<ProductOption>,
-    ) {
+    fun modifyProductOptions(productId: Long, newOptions: List<ProductOption>) {
         val productEntity = productEntityRetrievalPort.getProductById(productId)
         val existingOptions = productOptionPersistencePort.findByProduct(productEntity)
 
-        // 기존 옵션 중 삭제 대상 식별 및 삭제
-        existingOptions.forEach { option ->
-            if (newOptions.none { it.optionId == option.optionId }) {
-                option.optionId?.let { productOptionPersistencePort.deleteById(it) }
-            }
-        }
+        // 삭제 처리
+        deleteUnusedOptions(existingOptions, newOptions)
 
-        // 새로운 옵션 중 기존 옵션과 일치하지 않는 것만 저장
-        newOptions.filter { newOption ->
-            existingOptions.none {
-                it.optionId == newOption.optionId &&
-                        it.name == newOption.name &&
-                        it.description == newOption.description &&
-                        it.additionalPrice == newOption.additionalPrice
+        // 추가 또는 업데이트 처리
+        val processedOptions = mutableSetOf<Long?>() // 저장된 옵션 ID 추적
+        newOptions.forEach { option ->
+            if (isNewOrUpdatedOption(option, existingOptions) && option.optionId !in processedOptions) {
+                saveOrUpdateOption(productId, option)
+                processedOptions.add(option.optionId) // 저장된 옵션 ID 추가
             }
-        }.forEach { option ->
-            val updatedOption = option.copy(productId = productId)
-            productOptionPersistencePort.save(updatedOption)
         }
     }
 
+    /**
+     * 기존 옵션 중 사용되지 않는 옵션 삭제
+     */
+    private fun deleteUnusedOptions(
+        existingOptions: List<ProductOption>,
+        newOptions: List<ProductOption>
+    ) {
+        existingOptions.filter { existingOption ->
+            newOptions.none { it.optionId == existingOption.optionId }
+        }.forEach { option ->
+            option.optionId?.let { productOptionPersistencePort.deleteById(it) }
+        }
+    }
 
+    /**
+     * 새로운 옵션인지 또는 업데이트가 필요한 옵션인지 확인
+     */
+    private fun isNewOrUpdatedOption(
+        newOption: ProductOption,
+        existingOptions: List<ProductOption>
+    ): Boolean {
+        return newOption.optionId == null || existingOptions.none { existingOption ->
+            existingOption.optionId == newOption.optionId &&
+                    existingOption.name == newOption.name &&
+                    existingOption.description == newOption.description &&
+                    existingOption.additionalPrice == newOption.additionalPrice
+        }
+    }
+
+    /**
+     * 옵션 저장 또는 업데이트
+     */
+    private fun saveOrUpdateOption(productId: Long, option: ProductOption) {
+        try {
+            val updatedOption = option.copy(productId = productId)
+            productOptionPersistencePort.save(updatedOption)
+        } catch (e: Exception) {
+            throw RuntimeException("옵션 저장 중 문제가 발생했습니다: ${e.message}", e)
+        }
+    }
 }
