@@ -12,11 +12,6 @@ class ProductOptionRepositoryAdapter(
     private val productEntityRetrievalPort: ProductEntityRetrievalPort,
 ) : ProductOptionPersistencePort {
     override fun save(productOption: ProductOption): ProductOption {
-        // 모든 필드 값 검증
-        require(!productOption.name.isNullOrBlank()) { "ProductOption name must not be null or blank" }
-        require(productOption.additionalPrice >= 0) { "ProductOption additionalPrice must not be negative" }
-        require(productOption.productId != null) { "ProductOption productId must not be null" }
-
         val productEntity = getProductEntity(productOption.productId)
         val entity = ProductOptionEntity.fromDomain(productOption, productEntity)
         val savedEntity = jpaProductOptionRepository.save(entity)
@@ -47,6 +42,6 @@ class ProductOptionRepositoryAdapter(
     }
 
     private fun getProductEntity(productId: Long): ProductEntity {
-        return productEntityRetrievalPort.getProductEntityById(productId)
+        return productEntityRetrievalPort.getEntityById(productId)
     }
 }

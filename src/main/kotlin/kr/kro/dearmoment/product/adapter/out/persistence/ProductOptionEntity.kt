@@ -16,58 +16,33 @@ import java.time.LocalDateTime
 @EntityListeners(AuditingEntityListener::class)
 class ProductOptionEntity(
 
-    /**
-     * 옵션의 고유 ID입니다. 기본 키로 사용되며 자동으로 생성됩니다.
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "option_id")
     val optionId: Long? = null,
 
-    /**
-     * 옵션의 이름입니다. 필수 필드로 설정되어 있습니다.
-     */
     @Column(nullable = false)
-    val name: String,
+    val name: String = "",
 
-    /**
-     * 옵션의 추가 가격입니다. 필수 필드로 설정되어 있습니다.
-     */
     @Column(nullable = false)
-    val additionalPrice: Long,
+    val additionalPrice: Long = 0L,
 
-    /**
-     * 옵션에 대한 설명입니다. 선택적 필드입니다.
-     */
     @Column
     val description: String? = null,
 
-    /**
-     * 옵션이 속한 제품을 나타냅니다. ProductEntity와 다대일 관계로 설정되어 있습니다.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    val product: ProductEntity,
+    var product: ProductEntity? = null,
 
-    /**
-     * 생성 시각입니다. 변경 불가능한 필드로 설정되어 있습니다.
-     */
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime? = null,
 
-    /**
-     * 마지막 수정 시각입니다.
-     */
     @LastModifiedDate
     @Column(name = "updated_at")
     val updatedAt: LocalDateTime? = null,
 ) {
     companion object {
-
-        /**
-         * 도메인 객체를 ProductOptionEntity로 변환합니다.
-         */
         fun fromDomain(
             domain: ProductOption,
             productEntity: ProductEntity
@@ -84,16 +59,13 @@ class ProductOptionEntity(
         }
     }
 
-    /**
-     * ProductOptionEntity를 도메인 객체로 변환합니다.
-     */
     fun toDomain(): ProductOption {
         return ProductOption(
             optionId = optionId ?: 0L,
             name = name,
             additionalPrice = additionalPrice,
             description = description,
-            productId = product.productId ?: 0L,
+            productId = product?.productId ?: 0L,
             createdAt = createdAt,
             updatedAt = updatedAt,
         )

@@ -4,10 +4,7 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.mockk
-import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductRepository
-import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
-import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionRepositoryAdapter
-import kr.kro.dearmoment.product.adapter.out.persistence.ProductRepositoryAdapter
+import kr.kro.dearmoment.product.adapter.out.persistence.*
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
@@ -26,17 +23,11 @@ class TestConfig : AbstractProjectConfig() {
     override fun extensions() = listOf(SpringExtension)
 
     /**
-     * `ProductEntityRetrievalPort`를 Mock으로 설정하여 데이터베이스에서 `ProductEntity`를 조회하는 작업을 시뮬레이션합니다.
+     * `ProductEntityRetrievalPort`의 Adapter를 생성하여 데이터베이스에서 `ProductEntity`를 조회하는 작업을 수행합니다.
      */
     @Bean
     fun productEntityRetrievalPort(jpaProductRepository: JpaProductRepository): ProductEntityRetrievalPort {
-        return mockk<ProductEntityRetrievalPort>().apply {
-            every { getProductEntityById(any()) } answers {
-                val id = firstArg<Long>()
-                jpaProductRepository.findById(id)
-                    .orElseThrow { IllegalArgumentException("Product with ID $id not found") }
-            }
-        }
+        return ProductEntityRetrievalAdapter(jpaProductRepository)
     }
 
     /**
@@ -44,12 +35,11 @@ class TestConfig : AbstractProjectConfig() {
      */
     @Bean
     fun productPersistencePort(jpaProductRepository: JpaProductRepository): ProductPersistencePort {
-        return ProductRepositoryAdapter(jpaProductRepository)
+        return ProductPersistenceAdapter(jpaProductRepository)
     }
 
     /**
      * `ProductOptionPersistencePort`를 Mock으로 설정하여 `ProductOption` 저장 작업을 시뮬레이션합니다.
-     * 저장 시 `name`이 null 또는 빈 문자열인지 검증합니다.
      */
     @Bean
     @Primary
