@@ -2,9 +2,6 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.*
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
 /**
@@ -13,36 +10,25 @@ import java.time.LocalDateTime
  */
 @Entity
 @Table(name = "product_options")
-@EntityListeners(AuditingEntityListener::class)
 class ProductOptionEntity(
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "option_id")
     val optionId: Long? = null,
-
-    @Column(nullable = false)
-    val name: String = "",
-
-    @Column(nullable = false)
-    val additionalPrice: Long = 0L,
-
-    @Column
+    val name: String,
+    val additionalPrice: Long,
     val description: String? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    var product: ProductEntity? = null,
-
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    val createdAt: LocalDateTime? = null,
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    val updatedAt: LocalDateTime? = null,
+    @JoinColumn(name = "product_id")
+    val product: ProductEntity,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime
 ) {
     companion object {
+        /**
+         * 도메인 모델을 JPA 엔티티로 변환합니다.
+         * @param domain 변환할 ProductOption 도메인 모델
+         * @param productEntity ProductEntity (이미 생성된 엔티티)
+         */
         fun fromDomain(
             domain: ProductOption,
             productEntity: ProductEntity
@@ -59,15 +45,19 @@ class ProductOptionEntity(
         }
     }
 
+    /**
+     * JPA 엔티티를 도메인 모델로 변환합니다.
+     * @return ProductOption 도메인 모델
+     */
     fun toDomain(): ProductOption {
         return ProductOption(
             optionId = optionId ?: 0L,
+            productId = product.productId ?: 0L,
             name = name,
             additionalPrice = additionalPrice,
             description = description,
-            productId = product?.productId ?: 0L,
             createdAt = createdAt,
-            updatedAt = updatedAt,
+            updatedAt = updatedAt
         )
     }
 }

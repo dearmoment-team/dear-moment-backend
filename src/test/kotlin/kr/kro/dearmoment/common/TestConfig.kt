@@ -23,42 +23,18 @@ class TestConfig : AbstractProjectConfig() {
     override fun extensions() = listOf(SpringExtension)
 
     /**
-     * `ProductEntityRetrievalPort`의 Adapter를 생성하여 데이터베이스에서 `ProductEntity`를 조회하는 작업을 수행합니다.
+     * JPA 관련 빈 생성
      */
     @Bean
     fun productEntityRetrievalPort(jpaProductRepository: JpaProductRepository): ProductEntityRetrievalPort {
         return ProductEntityRetrievalAdapter(jpaProductRepository)
     }
 
-    /**
-     * `ProductPersistencePort`의 Adapter를 생성하여 데이터베이스와 상호작용할 수 있도록 설정합니다.
-     */
     @Bean
     fun productPersistencePort(jpaProductRepository: JpaProductRepository): ProductPersistencePort {
         return ProductPersistenceAdapter(jpaProductRepository)
     }
 
-    /**
-     * `ProductOptionPersistencePort`를 Mock으로 설정하여 `ProductOption` 저장 작업을 시뮬레이션합니다.
-     */
-    @Bean
-    @Primary
-    fun productOptionPersistencePort(
-        jpaProductOptionRepository: JpaProductOptionRepository,
-        productEntityRetrievalPort: ProductEntityRetrievalPort,
-    ): ProductOptionPersistencePort {
-        return mockk<ProductOptionPersistencePort>().apply {
-            every { save(any()) } answers {
-                val option = firstArg<ProductOption>()
-                require(!option.name.isNullOrBlank()) { "Mock detected null or blank name in ProductOption" }
-                option
-            }
-        }
-    }
-
-    /**
-     * `ProductOptionRepositoryAdapter`를 생성하여 데이터베이스와의 상호작용을 지원합니다.
-     */
     @Bean
     fun productOptionRepositoryAdapter(
         jpaProductOptionRepository: JpaProductOptionRepository,
@@ -71,7 +47,22 @@ class TestConfig : AbstractProjectConfig() {
     }
 
     /**
-     * `ProductUseCase`를 생성하여 애플리케이션 비즈니스 로직을 실행할 수 있도록 설정합니다.
+     * Mock 설정 - ProductOptionPersistencePort
+     */
+    @Bean
+    @Primary
+    fun productOptionPersistencePort(): ProductOptionPersistencePort {
+        return mockk<ProductOptionPersistencePort>().apply {
+            every { save(any()) } answers {
+                val option = firstArg<ProductOption>()
+                require(!option.name.isNullOrBlank()) { "Mock detected null or blank name in ProductOption" }
+                option
+            }
+        }
+    }
+
+    /**
+     * ProductUseCase Bean 생성
      */
     @Bean
     fun productUseCase(
@@ -85,4 +76,13 @@ class TestConfig : AbstractProjectConfig() {
             productEntityRetrievalPort,
         )
     }
+
+    /**
+     * 공통 객체 생성 유틸리티
+     */
+    @Bean
+    fun testObjectFactory(
+        jpaProductRepository: JpaProductRepository,
+        jpaProductOptionRepository: JpaProductOptionRepository
+    ) = TestObjectFactory(jpaProductRepository, jpaProductOptionRepository)
 }
