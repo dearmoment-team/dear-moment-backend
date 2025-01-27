@@ -9,7 +9,7 @@ interface ProductEntityRetrievalPort {
      * @param id 조회할 Product의 ID
      * @return 조회된 Product 도메인 모델
      */
-    fun getProductById(id: Long): Product
+    fun getProductById(id: Long?): Product
 
     /**
      * 모든 Product 도메인 모델을 반환합니다.

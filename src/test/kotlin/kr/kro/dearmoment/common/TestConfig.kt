@@ -2,7 +2,9 @@ package kr.kro.dearmoment.common
 
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.extensions.spring.SpringExtension
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import kr.kro.dearmoment.product.adapter.out.persistence.*
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
@@ -10,20 +12,24 @@ import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePo
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.ProductUseCase
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 
 /**
- * 테스트 환경에서 필요한 Mock 및 실제 Bean을 제공하는 설정 클래스입니다.
+ * [스프링 컨텍스트 기반 테스트를 위한 구성]
+ *
+ * - @TestConfiguration: 테스트용으로만 사용되는 Configuration
+ * - 여기에 @Primary로 등록된 Mock을 사용해,
+ *   UseCase 테스트에서 deleteAllByProductId, deleteById, save 등의 호출을 검증한다.
  */
-@Configuration
+@TestConfiguration
 class TestConfig : AbstractProjectConfig() {
 
     override fun extensions() = listOf(SpringExtension)
 
     /**
-     * JPA 관련 빈 생성
+     * 실제 JPA Adapters (주로 필요하면)
      */
     @Bean
     fun productEntityRetrievalPort(jpaProductRepository: JpaProductRepository): ProductEntityRetrievalPort {
@@ -31,8 +37,11 @@ class TestConfig : AbstractProjectConfig() {
     }
 
     @Bean
-    fun productPersistencePort(jpaProductRepository: JpaProductRepository): ProductPersistencePort {
-        return ProductPersistenceAdapter(jpaProductRepository)
+    fun productPersistencePort(
+        jpaProductRepository: JpaProductRepository,
+        jpaProductOptionRepository: JpaProductOptionRepository
+    ): ProductPersistencePort {
+        return ProductPersistenceAdapter(jpaProductRepository, jpaProductOptionRepository)
     }
 
     @Bean
@@ -47,22 +56,39 @@ class TestConfig : AbstractProjectConfig() {
     }
 
     /**
-     * Mock 설정 - ProductOptionPersistencePort
+     * [중요] @Primary Mock Bean
+     * - UseCase는 이 Bean을 주입받아서 로직을 수행.
+     * - 모든 메서드를 Stub 처리하여 "Verification failed" 문제 해소.
      */
     @Bean
     @Primary
     fun productOptionPersistencePort(): ProductOptionPersistencePort {
-        return mockk<ProductOptionPersistencePort>().apply {
+        return mockk(relaxed = false) {
+
+            // save(...) Stub
             every { save(any()) } answers {
                 val option = firstArg<ProductOption>()
-                require(!option.name.isNullOrBlank()) { "Mock detected null or blank name in ProductOption" }
+                // 단순 유효성 검사
+                require(!option.name.isNullOrBlank()) { "Mock detected blank option name" }
                 option
             }
+
+            // deleteById(...) Stub
+            every { deleteById(any()) } just Runs
+
+            // deleteAllByProductId(...) Stub
+            every { deleteAllByProductId(any()) } just Runs
+
+            // findByProduct(...) Stub
+            every { findByProduct(any()) } returns emptyList()
+
+            // findById(...) Stub
+            every { findById(any()) } returns mockk(relaxed = true)
         }
     }
 
     /**
-     * ProductUseCase Bean 생성
+     * UseCase Bean 생성
      */
     @Bean
     fun productUseCase(
@@ -78,7 +104,7 @@ class TestConfig : AbstractProjectConfig() {
     }
 
     /**
-     * 공통 객체 생성 유틸리티
+     * 테스트용 Factory
      */
     @Bean
     fun testObjectFactory(

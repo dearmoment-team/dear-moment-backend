@@ -37,4 +37,6 @@ interface ProductOptionPersistencePort {
      * @return 조회된 ProductOption 리스트
      */
     fun findByProduct(product: Product): List<ProductOption>
+
+    fun deleteAllByProductId(productId: Long)
 }

@@ -9,12 +9,11 @@ class ProductEntityRetrievalAdapter(
     private val jpaProductRepository: JpaProductRepository
 ) : ProductEntityRetrievalPort {
 
-    override fun getProductById(id: Long): Product {
-        val entity = jpaProductRepository.findById(id)
+    override fun getProductById(id: Long?): Product {
+        val entity = jpaProductRepository.findById(id ?: throw IllegalArgumentException("Product ID cannot be null"))
             .orElseThrow { IllegalArgumentException("Product with ID $id not found") }
         return entity.toDomain()
     }
-
     override fun getAllProducts(): List<Product> {
         return jpaProductRepository.findAll().map { it.toDomain() }
     }
