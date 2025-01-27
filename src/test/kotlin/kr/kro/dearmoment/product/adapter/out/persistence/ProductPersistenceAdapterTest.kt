@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 @Import(TestConfig::class)
 class ProductPersistenceAdapterTest(
     private val productPersistenceAdapter: ProductPersistenceAdapter,
-    private val testObjectFactory: TestObjectFactory // TestObjectFactory 사용
+    private val testObjectFactory: TestObjectFactory
 ) : StringSpec({
 
     "상품을 저장하고 올바르게 반환한다" {

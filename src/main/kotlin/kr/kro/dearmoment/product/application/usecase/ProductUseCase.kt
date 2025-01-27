@@ -23,7 +23,7 @@ class ProductUseCase(
         val savedProduct = productPersistencePort.save(product)
 
         product.options.forEach { option ->
-            saveOrUpdateOption(savedProduct.productId, option)
+            saveOrUpdateOption(savedProduct.productId!!, option)
         }
 
         return savedProduct.copy(options = product.options)
@@ -44,7 +44,7 @@ class ProductUseCase(
      */
     @Transactional
     fun updateProduct(product: Product): Product {
-        val existingProduct = productPersistencePort.findById(product.productId)
+        val existingProduct = productPersistencePort.findById(product.productId!!)
             ?: throw IllegalArgumentException("Product with ID ${product.productId} not found")
 
         val updatedProduct = existingProduct.copy(
@@ -55,7 +55,7 @@ class ProductUseCase(
         )
 
         productPersistencePort.save(updatedProduct)
-        modifyProductOptions(product.productId, product.options)
+        modifyProductOptions(product.productId!!, product.options)
 
         val updatedOptions = productOptionPersistencePort.findByProduct(
             productEntityRetrievalPort.getProductById(product.productId)
@@ -68,7 +68,7 @@ class ProductUseCase(
      * @throws IllegalArgumentException 상품이 존재하지 않을 경우 예외 발생
      */
     @Transactional
-    fun modifyProductOptions(productId: Long, newOptions: List<ProductOption>) {
+    fun modifyProductOptions(productId: Long?, newOptions: List<ProductOption>) {
         val productEntity = productEntityRetrievalPort.getProductById(productId)
         val existingOptions = productOptionPersistencePort.findByProduct(productEntity)
 
@@ -79,7 +79,7 @@ class ProductUseCase(
         val processedOptions = mutableSetOf<Long?>() // 저장된 옵션 ID 추적
         newOptions.forEach { option ->
             if (isNewOrUpdatedOption(option, existingOptions) && option.optionId !in processedOptions) {
-                saveOrUpdateOption(productId, option)
+                saveOrUpdateOption(productId!!, option)
                 processedOptions.add(option.optionId) // 저장된 옵션 ID 추가
             }
         }
@@ -125,4 +125,26 @@ class ProductUseCase(
             throw RuntimeException("옵션 저장 중 문제가 발생했습니다: ${e.message}", e)
         }
     }
+
+    /**
+     * 상품과 연관된 옵션을 삭제한 후 상품을 삭제합니다.
+     * @throws IllegalArgumentException 상품이 존재하지 않을 경우 예외 발생
+     */
+    /**
+     * 상품과 연관된 옵션을 삭제한 후 상품을 삭제합니다.
+     * @throws IllegalArgumentException 상품이 존재하지 않을 경우 예외 발생
+     */
+    @Transactional
+    fun deleteProduct(productId: Long) {
+        // 상품 ID로 상품을 조회 (존재 여부 확인)
+        val productEntity = productEntityRetrievalPort.getProductById(productId)
+
+        // 연관된 옵션을 일괄 삭제
+        productOptionPersistencePort.deleteAllByProductId(productId)
+
+        // 상품 삭제
+        productPersistencePort.deleteById(productId)
+    }
+
+
 }

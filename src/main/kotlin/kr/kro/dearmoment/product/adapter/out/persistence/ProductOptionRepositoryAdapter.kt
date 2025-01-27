@@ -13,21 +13,23 @@ class ProductOptionRepositoryAdapter(
 ) : ProductOptionPersistencePort {
 
     override fun save(productOption: ProductOption): ProductOption {
-        val product = getProduct(productOption.productId)
+        val product = productOption.productId?.let { getProduct(it) }
+            ?: throw IllegalArgumentException("Product ID must be provided")
         val productEntity = ProductEntity.fromDomain(product)
 
         // 동일한 옵션인지 확인
         val existingOptions = jpaProductOptionRepository.findByProduct(productEntity)
             .map { it.toDomain() }
 
-        if (existingOptions.any { it == productOption }) {
-            throw IllegalArgumentException("ProductOption already exists: $productOption")
+        if (existingOptions.any { it.name == productOption.name }) { // 예시로 이름으로 중복 체크
+            throw IllegalArgumentException("ProductOption already exists: ${productOption.name}")
         }
 
         val entity = ProductOptionEntity.fromDomain(productOption, productEntity)
         val savedEntity = jpaProductOptionRepository.save(entity)
         return savedEntity.toDomain()
     }
+
 
     override fun findById(id: Long): ProductOption {
         return jpaProductOptionRepository.findById(id)
@@ -53,5 +55,9 @@ class ProductOptionRepositoryAdapter(
 
     private fun getProduct(productId: Long): Product {
         return productEntityRetrievalPort.getProductById(productId)
+    }
+
+    override fun deleteAllByProductId(productId: Long) {
+        jpaProductOptionRepository.deleteAllByProductProductId(productId)
     }
 }
