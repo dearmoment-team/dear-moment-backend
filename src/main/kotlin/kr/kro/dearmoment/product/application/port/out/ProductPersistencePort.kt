@@ -45,4 +45,10 @@ interface ProductPersistencePort {
      * @return 조건에 맞는 Product 리스트
      */
     fun searchByCriteria(title: String?, priceRange: Pair<Long?, Long?>?): List<Product>
+
+    /**
+     * ID를 기준으로 Product를 삭제합니다.
+     * @param id 삭제할 Product의 ID
+     */
+    fun deleteById(id: Long)
 }

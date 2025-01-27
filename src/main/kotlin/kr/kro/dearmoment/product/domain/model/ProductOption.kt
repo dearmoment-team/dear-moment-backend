@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 data class ProductOption(
     val optionId: Long? = null,
-    val productId: Long = 0L,
+    val productId: Long? = null,
     val name: String,
     val additionalPrice: Long,
     val description: String? = null,

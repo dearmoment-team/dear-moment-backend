@@ -3,7 +3,7 @@ package kr.kro.dearmoment.product.domain.model
 import java.time.LocalDateTime
 
 data class Product(
-    val productId: Long,
+    val productId: Long? = null,
     val userId: Long? = null,
     val title: String,
     val description: String? = null,
