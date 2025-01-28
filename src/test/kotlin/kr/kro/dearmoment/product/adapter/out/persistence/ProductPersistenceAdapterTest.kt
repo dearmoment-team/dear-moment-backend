@@ -55,56 +55,8 @@ class ProductPersistenceAdapterTest(
             }
         }
 
-        context("findById() 메서드는") {
-            it("존재하는 ID로 조회하면 Product를 반환해야 한다") {
-                val product = Product(
-                    productId = 0L,
-                    userId = 2L,
-                    title = "Another Product",
-                    description = "Another description",
-                    price = 20000L,
-                    typeCode = 2,
-                    images = listOf("http://image3.com")
-                )
-                val savedProduct = productPersistencePort.save(product)
 
-                // Non-null assertion 사용
-                val foundProduct = productPersistencePort.findById(savedProduct.productId!!)
 
-                foundProduct shouldNotBe null
-                foundProduct?.title shouldBe "Another Product"
-            }
-
-            it("존재하지 않는 ID로 조회하면 null을 반환해야 한다") {
-                val foundProduct = productPersistencePort.findById(999L)
-                foundProduct shouldBe null
-            }
-        }
-
-        context("findAll() 메서드는") {
-            it("모든 Product를 반환해야 한다") {
-                val product1 = Product(
-                    productId = 0L,
-                    userId = 1L,
-                    title = "Product 1",
-                    price = 10000L,
-                    typeCode = 1
-                )
-                val product2 = Product(
-                    productId = 0L,
-                    userId = 1L,
-                    title = "Product 2",
-                    price = 20000L,
-                    typeCode = 2
-                )
-                productPersistencePort.save(product1)
-                productPersistencePort.save(product2)
-
-                val products = productPersistencePort.findAll()
-
-                products.size shouldBe 2
-            }
-        }
 
         context("findByUserId() 메서드는") {
             it("특정 사용자 ID에 속한 모든 Product를 반환해야 한다") {

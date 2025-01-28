@@ -34,7 +34,7 @@ class ProductUseCase(
      * @throws IllegalArgumentException 상품이 존재하지 않을 경우 예외 발생
      */
     fun getProductById(productId: Long): Product {
-        return productPersistencePort.findById(productId)
+        return productEntityRetrievalPort.getProductById(productId)
             ?: throw IllegalArgumentException("Product with ID $productId not found")
     }
 
@@ -44,7 +44,7 @@ class ProductUseCase(
      */
     @Transactional
     fun updateProduct(product: Product): Product {
-        val existingProduct = productPersistencePort.findById(product.productId!!)
+        val existingProduct = productEntityRetrievalPort.getProductById(product.productId!!)
             ?: throw IllegalArgumentException("Product with ID ${product.productId} not found")
 
         val updatedProduct = existingProduct.copy(
@@ -55,7 +55,7 @@ class ProductUseCase(
         )
 
         productPersistencePort.save(updatedProduct)
-        modifyProductOptions(product.productId!!, product.options)
+        modifyProductOptions(product.productId, product.options)
 
         val updatedOptions = productOptionPersistencePort.findByProduct(
             productEntityRetrievalPort.getProductById(product.productId)!!
@@ -76,11 +76,11 @@ class ProductUseCase(
         deleteUnusedOptions(existingOptions, newOptions)
 
         // 추가 또는 업데이트 처리
-        val processedOptions = mutableSetOf<Long?>() // 저장된 옵션 ID 추적
+        val processedOptions = mutableSetOf<Long?>()
         newOptions.forEach { option ->
             if (isNewOrUpdatedOption(option, existingOptions) && option.optionId !in processedOptions) {
                 saveOrUpdateOption(productId!!, option)
-                processedOptions.add(option.optionId) // 저장된 옵션 ID 추가
+                processedOptions.add(option.optionId)
             }
         }
     }

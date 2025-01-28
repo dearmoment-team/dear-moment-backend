@@ -16,7 +16,6 @@ class ProductOptionUseCaseTest : DescribeSpec({
     val productRetrievalPort = mockk<ProductEntityRetrievalPort>()
     val useCase = ProductOptionUseCase(productOptionPort, productRetrievalPort)
 
-    // 공통 테스트 데이터
     val validProduct = Product(
         productId = 1L,
         title = "Test Product",
