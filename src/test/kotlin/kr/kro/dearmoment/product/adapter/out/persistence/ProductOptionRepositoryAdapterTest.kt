@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.assertions.throwables.shouldThrow
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
-import kr.kro.dearmoment.product.config.JpaConfig
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDateTime
 
 @DataJpaTest
-@Import(ProductOptionRepositoryAdapter::class, ProductEntityRetrievalAdapter::class, JpaConfig::class)
+@Import(ProductOptionRepositoryAdapter::class, ProductEntityRetrievalAdapter::class)
 @ActiveProfiles("test")
 class ProductOptionRepositoryAdapterTest(
     @Autowired private val productOptionRepositoryAdapter: ProductOptionRepositoryAdapter,
