@@ -107,7 +107,7 @@ class ProductOptionRepositoryAdapterTest(
                 it("상품 기준 옵션 조회 성공") {
                     // When
                     val product = testProduct.toDomain()
-                    val found = productOptionPersistencePort.findByProduct(product)
+                    val found = productOptionPersistencePort.findByProductId(product.productId!!)
 
                     // Then
                     found.map { it.name } shouldContainExactlyInAnyOrder listOf("옵션A", "옵션B")

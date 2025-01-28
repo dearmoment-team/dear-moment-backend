@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.product.application.port.out
 
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
-import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 
 interface ProductOptionPersistencePort {
@@ -37,10 +36,10 @@ interface ProductOptionPersistencePort {
 
     /**
      * 특정 Product에 속한 모든 ProductOption을 조회합니다.
-     * @param product 조회할 Product 도메인 모델
+     * @param productId 조회할 Product ID
      * @return 해당 Product에 속한 ProductOption 도메인 모델 리스트
      */
-    fun findByProduct(product: Product): List<ProductOption>
+    fun findByProductId(productId: Long): List<ProductOption>
 
     /**
      * 특정 Product ID에 속한 모든 ProductOption을 삭제합니다.
