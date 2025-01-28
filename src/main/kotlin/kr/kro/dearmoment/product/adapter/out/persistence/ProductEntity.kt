@@ -91,6 +91,7 @@ open class ProductEntity(
                 images = product.images
             )
 
+            // 기존 옵션을 초기화하고 새로운 옵션을 추가
             productEntity.options.clear()
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
