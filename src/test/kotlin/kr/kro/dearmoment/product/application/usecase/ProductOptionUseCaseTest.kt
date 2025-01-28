@@ -19,34 +19,38 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>()
     val useCase = ProductOptionUseCase(productOptionPersistencePort, productPersistencePort)
 
-    val mockProduct =  Product(
-        productId = 1L,
-        title = "Test Product",
-        price = 10000,
-        typeCode = 1,
-        images = listOf("image1.jpg"),
-        partnerShops = listOf(
-            PartnerShop(
-                name = "Test Partner",
-                link = "https://partner.com"
-            )
+    val mockProduct =
+        Product(
+            productId = 1L,
+            title = "Test Product",
+            price = 10000,
+            typeCode = 1,
+            images = listOf("image1.jpg"),
+            partnerShops =
+                listOf(
+                    PartnerShop(
+                        name = "Test Partner",
+                        link = "https://partner.com",
+                    ),
+                ),
         )
-    )
 
-    val validOption = ProductOption(
-        productId = 1L,
-        name = "Option 1",
-        additionalPrice = 5000
-    )
+    val validOption =
+        ProductOption(
+            productId = 1L,
+            name = "Option 1",
+            additionalPrice = 5000,
+        )
 
     Given("saveProductOption") {
         When("productId가 없는 경우") {
             val invalidOption = validOption.copy(productId = null)
 
             Then("IllegalArgumentException 발생") {
-                val exception = shouldThrow<IllegalArgumentException> {
-                    useCase.saveProductOption(invalidOption)
-                }
+                val exception =
+                    shouldThrow<IllegalArgumentException> {
+                        useCase.saveProductOption(invalidOption)
+                    }
                 exception shouldHaveMessage "Product ID must be provided"
             }
         }
@@ -55,23 +59,26 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             every { productPersistencePort.findById(any()) } returns null
 
             Then("IllegalArgumentException 발생") {
-                val exception = shouldThrow<IllegalArgumentException> {
-                    useCase.saveProductOption(validOption)
-                }
+                val exception =
+                    shouldThrow<IllegalArgumentException> {
+                        useCase.saveProductOption(validOption)
+                    }
                 exception shouldHaveMessage "Product with ID 1 not found"
             }
         }
 
         When("중복된 옵션 이름이 존재할 경우") {
             every { productPersistencePort.findById(any()) } returns mockProduct
-            every { productOptionPersistencePort.findByProductId(any()) } returns listOf(
-                validOption.copy(optionId = 1L)
-            )
+            every { productOptionPersistencePort.findByProductId(any()) } returns
+                listOf(
+                    validOption.copy(optionId = 1L),
+                )
 
             Then("IllegalArgumentException 발생") {
-                val exception = shouldThrow<IllegalArgumentException> {
-                    useCase.saveProductOption(validOption)
-                }
+                val exception =
+                    shouldThrow<IllegalArgumentException> {
+                        useCase.saveProductOption(validOption)
+                    }
                 exception shouldHaveMessage "Duplicate option name: Option 1"
             }
         }
@@ -130,10 +137,11 @@ class ProductOptionUseCaseTest : BehaviorSpec({
 
     Given("getProductOptionsByProductId") {
         val productId = 1L
-        val mockOptions = listOf(
-            validOption.copy(optionId = 1L),
-            validOption.copy(optionId = 2L, name = "Option 2")
-        )
+        val mockOptions =
+            listOf(
+                validOption.copy(optionId = 1L),
+                validOption.copy(optionId = 2L, name = "Option 2"),
+            )
 
         When("특정 상품의 옵션 조회 시") {
             every { productOptionPersistencePort.findByProductId(productId) } returns mockOptions
