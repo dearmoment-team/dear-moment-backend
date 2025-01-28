@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -46,11 +45,7 @@ class ProductOptionRepositoryAdapter(
     }
 
     @Transactional(readOnly = true)
-    override fun findByProduct(product: Product): List<ProductOption> {
-        val productId =
-            product.productId
-                ?: throw IllegalArgumentException("Product ID must be provided for finding options")
-
+    override fun findByProductId(productId: Long): List<ProductOption> {
         return jpaProductOptionRepository.findByProductProductId(productId).map { it.toDomain() }
     }
 
