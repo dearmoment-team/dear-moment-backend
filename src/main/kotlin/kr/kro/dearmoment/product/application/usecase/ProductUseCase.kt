@@ -1,6 +1,5 @@
 package kr.kro.dearmoment.product.application.usecase
 
-import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
@@ -35,9 +34,8 @@ class ProductUseCase(
 
         handleDeletedOptions(toDelete)
 
-        val productEntity = ProductEntity.fromDomain(product)
         product.options.forEach { option ->
-            productOptionPersistencePort.save(option, productEntity)
+            productOptionPersistencePort.save(option, product)
         }
 
         val updatedProduct = productPersistencePort.save(product)
@@ -64,8 +62,7 @@ class ProductUseCase(
         product: Product,
         options: List<ProductOption>,
     ): List<ProductOption> {
-        val productEntity = ProductEntity.fromDomain(product)
-        return options.map { productOptionPersistencePort.save(it, productEntity) }
+        return options.map { productOptionPersistencePort.save(it, product) }
     }
 
     fun searchProducts(

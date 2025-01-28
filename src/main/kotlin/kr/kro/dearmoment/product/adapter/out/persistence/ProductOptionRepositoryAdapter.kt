@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
+import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -8,13 +9,22 @@ import org.springframework.transaction.annotation.Transactional
 @Repository
 class ProductOptionRepositoryAdapter(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
+    private val jpaProductRepository: JpaProductRepository,
 ) : ProductOptionPersistencePort {
     @Transactional
     override fun save(
         productOption: ProductOption,
-        productEntity: ProductEntity,
+        product: Product,
     ): ProductOption {
-        if (jpaProductOptionRepository.existsByProductProductIdAndName(productEntity.productId!!, productOption.name)) {
+        val productEntity =
+            jpaProductRepository.findById(product.productId!!)
+                .orElseThrow { IllegalArgumentException("Product not found: ${product.productId}") }
+
+        if (jpaProductOptionRepository.existsByProductProductIdAndName(
+                productEntity.productId!!,
+                productOption.name,
+            )
+        ) {
             throw IllegalArgumentException("ProductOption already exists: ${productOption.name}")
         }
 
