@@ -19,6 +19,7 @@ data class Product(
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val options: List<ProductOption> = emptyList(),
+    val images: List<String> = emptyList()  // 이미지 URL 리스트 추가
 ) {
     val hasPackage: Boolean
         get() = typeCode == 1

@@ -2,57 +2,58 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.*
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
 
-/**
- * ProductOptionEntity는 제품 옵션 정보를 저장하기 위한 JPA 엔티티 클래스입니다.
- * ProductEntity와 연관되며, 옵션의 다양한 속성을 포함합니다.
- */
+
 @Entity
 @Table(name = "product_options")
-class ProductOptionEntity(
+open class ProductOptionEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val optionId: Long? = null,
-    val name: String,
-    val additionalPrice: Long,
-    val description: String? = null,
+    @Column(name = "option_id")
+    var optionId: Long? = null,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    val product: ProductEntity,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime
+    var product: ProductEntity? = null,
+
+    @Column(nullable = false)
+    var name: String = "",
+
+    @Column(nullable = false)
+    var additionalPrice: Long = 0L,
+
+    @Column
+    var description: String? = null,
+
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    var createdAt: LocalDateTime? = null,
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    var updatedAt: LocalDateTime? = null
 ) {
     companion object {
-        /**
-         * 도메인 모델을 JPA 엔티티로 변환합니다.
-         * @param domain 변환할 ProductOption 도메인 모델
-         * @param productEntity ProductEntity (이미 생성된 엔티티)
-         */
-        fun fromDomain(
-            domain: ProductOption,
-            productEntity: ProductEntity
-        ): ProductOptionEntity {
+        fun fromDomain(option: ProductOption, productEntity: ProductEntity): ProductOptionEntity {
             return ProductOptionEntity(
-                optionId = if (domain.optionId == 0L) null else domain.optionId,
-                name = domain.name,
-                additionalPrice = domain.additionalPrice,
-                description = domain.description,
+                optionId = option.optionId,
                 product = productEntity,
-                createdAt = domain.createdAt ?: LocalDateTime.now(),
-                updatedAt = domain.updatedAt ?: LocalDateTime.now()
+                name = option.name,
+                additionalPrice = option.additionalPrice,
+                description = option.description,
+                createdAt = option.createdAt ?: LocalDateTime.now(),
+                updatedAt = option.updatedAt ?: LocalDateTime.now()
             )
         }
     }
 
-    /**
-     * JPA 엔티티를 도메인 모델로 변환합니다.
-     * @return ProductOption 도메인 모델
-     */
     fun toDomain(): ProductOption {
         return ProductOption(
-            optionId = optionId ?: 0L,
-            productId = product.productId ?: 0L,
+            optionId = optionId,
+            productId = product?.productId,
             name = name,
             additionalPrice = additionalPrice,
             description = description,
