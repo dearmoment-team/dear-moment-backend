@@ -25,7 +25,6 @@ class ProductEntityRetrievalAdapterTest(
     describe("ProductEntityRetrievalAdapter") {
 
         beforeEach {
-            // 각 테스트 전에 데이터베이스를 초기화
             jpaProductRepository.deleteAll()
             jpaProductOptionRepository.deleteAll()
         }
@@ -33,7 +32,7 @@ class ProductEntityRetrievalAdapterTest(
         context("getProductById() 메서드는") {
             it("존재하는 ID로 조회하면 Product를 반환해야 한다") {
                 val product = Product(
-                    productId = 0L, // 저장 시 null로 설정될 것임
+                    productId = 0L,
                     userId = 1L,
                     title = "Test Product",
                     description = "This is a test product",
@@ -74,8 +73,8 @@ class ProductEntityRetrievalAdapterTest(
 
             it("옵션이 포함된 Product를 반환해야 한다") {
                 val option1 = ProductOption(
-                    optionId = null, // JPA expects null for new entities
-                    productId = null, // will be set by ProductEntity.fromDomain
+                    optionId = null,
+                    productId = null,
                     name = "Option 1",
                     additionalPrice = 500L,
                     description = "Option 1 description",
