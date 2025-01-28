@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional
 @Repository
 class ProductOptionRepositoryAdapter(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
-    private val jpaProductRepository: JpaProductRepository,
     private val productEntityRetrievalPort: ProductEntityRetrievalPort,
 ) : ProductOptionPersistencePort {
 
