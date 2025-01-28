@@ -3,8 +3,10 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import kr.kro.dearmoment.product.application.port.out.ProductEntityRetrievalPort
 import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 
 @Repository
+@Transactional(readOnly = true)
 class ProductEntityRetrievalAdapter(
     private val jpaProductRepository: JpaProductRepository
 ) : ProductEntityRetrievalPort {
@@ -14,6 +16,7 @@ class ProductEntityRetrievalAdapter(
             .orElseThrow { IllegalArgumentException("Product with ID $id not found") }
         return entity.toDomain()
     }
+
     override fun getAllProducts(): List<Product> {
         return jpaProductRepository.findAll().map { it.toDomain() }
     }

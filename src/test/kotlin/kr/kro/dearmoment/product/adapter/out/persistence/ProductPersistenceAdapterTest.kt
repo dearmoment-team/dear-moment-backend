@@ -1,74 +1,225 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.common.TestConfig
-import kr.kro.dearmoment.common.TestObjectFactory
+import io.kotest.matchers.shouldNotBe
+import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.product.domain.model.Product
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.test.context.ActiveProfiles
+import java.time.LocalDateTime
 
 @DataJpaTest
-@Transactional
-@Import(TestConfig::class)
+@Import(ProductPersistenceAdapter::class)
+@ActiveProfiles("test") // application-test.properties 사용
 class ProductPersistenceAdapterTest(
-    private val productPersistenceAdapter: ProductPersistenceAdapter,
-    private val testObjectFactory: TestObjectFactory
-) : StringSpec({
+    @Autowired private val productPersistencePort: ProductPersistencePort,
+    @Autowired private val jpaProductRepository: JpaProductRepository,
+    @Autowired private val jpaProductOptionRepository: JpaProductOptionRepository
+) : DescribeSpec({
 
-    "상품을 저장하고 올바르게 반환한다" {
-        // Given
-        val product = testObjectFactory.createTestProductDomain(
-            userId = 123L,
-            title = "Sample Product",
-            description = "Sample Description",
-            price = 10000L,
-            typeCode = 1
-        )
+    describe("ProductPersistenceAdapter") {
 
-        // When
-        val savedProduct = productPersistenceAdapter.save(product)
+        beforeEach {
+            // 각 테스트 전에 데이터베이스를 초기화
+            jpaProductRepository.deleteAll()
+            jpaProductOptionRepository.deleteAll()
+        }
 
-        // Then
-        savedProduct.title shouldBe product.title
-        savedProduct.price shouldBe product.price
-    }
+        context("save() 메서드는") {
+            it("Product를 저장하고 반환해야 한다") {
+                val product = Product(
+                    productId = 0L, // 저장 시 null로 설정될 것임
+                    userId = 1L,
+                    title = "Test Product",
+                    description = "This is a test product",
+                    price = 10000L,
+                    typeCode = 1,
+                    shootingTime = LocalDateTime.now(),
+                    shootingLocation = "Seoul",
+                    numberOfCostumes = 2,
+                    packagePartnerShops = "Partner Shop A",
+                    detailedInfo = "Detailed information",
+                    warrantyInfo = "Warranty details",
+                    contactInfo = "contact@example.com",
+                    images = listOf("http://image1.com", "http://image2.com"),
+                    options = emptyList()
+                )
 
-    "존재하지 않는 ID로 조회 시 null을 반환한다" {
-        // When
-        val result = productPersistenceAdapter.findById(999L)
+                val savedProduct = productPersistencePort.save(product)
 
-        // Then
-        result shouldBe null
-    }
+                savedProduct.productId shouldNotBe 0L
+                savedProduct.title shouldBe "Test Product"
+                savedProduct.images.size shouldBe 2
+            }
+        }
 
-    "모든 상품을 조회하고 올바르게 반환한다" {
-        // Given
-        val product1 = testObjectFactory.createTestProductDomain(
-            userId = 123L,
-            title = "Product 1",
-            description = "Description 1",
-            price = 5000L,
-            typeCode = 1
-        )
-        val product2 = testObjectFactory.createTestProductDomain(
-            userId = 456L,
-            title = "Product 2",
-            description = "Description 2",
-            price = 10000L,
-            typeCode = 2
-        )
+        context("findById() 메서드는") {
+            it("존재하는 ID로 조회하면 Product를 반환해야 한다") {
+                val product = Product(
+                    productId = 0L,
+                    userId = 2L,
+                    title = "Another Product",
+                    description = "Another description",
+                    price = 20000L,
+                    typeCode = 2,
+                    images = listOf("http://image3.com")
+                )
+                val savedProduct = productPersistencePort.save(product)
 
-        productPersistenceAdapter.save(product1)
-        productPersistenceAdapter.save(product2)
+                // Non-null assertion 사용
+                val foundProduct = productPersistencePort.findById(savedProduct.productId!!)
 
-        // When
-        val products = productPersistenceAdapter.findAll()
+                foundProduct shouldNotBe null
+                foundProduct?.title shouldBe "Another Product"
+            }
 
-        // Then
-        products.size shouldBe 2
-        products[0].title shouldBe "Product 1"
-        products[1].title shouldBe "Product 2"
+            it("존재하지 않는 ID로 조회하면 null을 반환해야 한다") {
+                val foundProduct = productPersistencePort.findById(999L)
+                foundProduct shouldBe null
+            }
+        }
+
+        context("findAll() 메서드는") {
+            it("모든 Product를 반환해야 한다") {
+                val product1 = Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "Product 1",
+                    price = 10000L,
+                    typeCode = 1
+                )
+                val product2 = Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "Product 2",
+                    price = 20000L,
+                    typeCode = 2
+                )
+                productPersistencePort.save(product1)
+                productPersistencePort.save(product2)
+
+                val products = productPersistencePort.findAll()
+
+                products.size shouldBe 2
+            }
+        }
+
+        context("findByUserId() 메서드는") {
+            it("특정 사용자 ID에 속한 모든 Product를 반환해야 한다") {
+                val product1 = Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "User1 Product 1",
+                    price = 15000L,
+                    typeCode = 1
+                )
+                val product2 = Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "User1 Product 2",
+                    price = 25000L,
+                    typeCode = 2
+                )
+                val product3 = Product(
+                    productId = 0L,
+                    userId = 2L,
+                    title = "User2 Product",
+                    price = 30000L,
+                    typeCode = 3
+                )
+                productPersistencePort.save(product1)
+                productPersistencePort.save(product2)
+                productPersistencePort.save(product3)
+
+                val user1Products = productPersistencePort.findByUserId(1L)
+
+                user1Products.size shouldBe 2
+                user1Products.all { it.userId == 1L } shouldBe true
+            }
+        }
+
+        context("existsById() 메서드는") {
+            it("존재하는 ID이면 true를 반환해야 한다") {
+                val product = Product(
+                    productId = 0L,
+                    userId = 3L,
+                    title = "Existence Test Product",
+                    price = 5000L,
+                    typeCode = 1
+                )
+                val savedProduct = productPersistencePort.save(product)
+
+                // Non-null assertion 사용
+                val exists = productPersistencePort.existsById(savedProduct.productId!!)
+
+                exists shouldBe true
+            }
+
+            it("존재하지 않는 ID이면 false를 반환해야 한다") {
+                val exists = productPersistencePort.existsById(1000L)
+                exists shouldBe false
+            }
+        }
+
+        context("searchByCriteria() 메서드는") {
+            it("제목과 가격 범위에 따라 Product를 검색해야 한다") {
+                val product1 = Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "Spring Boot Book",
+                    price = 30000L,
+                    typeCode = 1
+                )
+                val product2 = Product(
+                    productId = 0L,
+                    userId = 1L,
+                    title = "Kotlin Programming",
+                    price = 45000L,
+                    typeCode = 2
+                )
+                val product3 = Product(
+                    productId = 0L,
+                    userId = 2L,
+                    title = "Java Concurrency",
+                    price = 35000L,
+                    typeCode = 3
+                )
+                productPersistencePort.save(product1)
+                productPersistencePort.save(product2)
+                productPersistencePort.save(product3)
+
+                val searchedProducts = productPersistencePort.searchByCriteria(
+                    title = "Programming",
+                    priceRange = 40000L to 50000L
+                )
+
+                searchedProducts.size shouldBe 1
+                searchedProducts[0].title shouldBe "Kotlin Programming"
+            }
+        }
+
+        context("deleteById() 메서드는") {
+            it("특정 ID의 Product를 삭제해야 한다") {
+                val product = Product(
+                    productId = 0L,
+                    userId = 4L,
+                    title = "Delete Test Product",
+                    price = 20000L,
+                    typeCode = 1,
+                    options = emptyList() // 옵션이 있다면 추가
+                )
+                val savedProduct = productPersistencePort.save(product)
+
+                // Non-null assertion 사용
+                productPersistencePort.existsById(savedProduct.productId!!) shouldBe true
+
+                productPersistencePort.deleteById(savedProduct.productId!!)
+
+                productPersistencePort.existsById(savedProduct.productId!!) shouldBe false
+            }
+        }
     }
 })
-
