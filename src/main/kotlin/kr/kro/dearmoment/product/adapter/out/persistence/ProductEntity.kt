@@ -2,11 +2,11 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.*
 import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.PartnerShop
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
-
 
 @Entity
 @Table(name = "products")
@@ -42,8 +42,9 @@ open class ProductEntity(
     @Column(name = "number_of_costumes")
     var numberOfCostumes: Int? = null,
 
-    @Column(name = "package_partner_shops")
-    var packagePartnerShops: String? = null,
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "product_partner_shops", joinColumns = [JoinColumn(name = "product_id")])
+    var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
 
     @Column(name = "detailed_info")
     var detailedInfo: String? = null,
@@ -82,7 +83,7 @@ open class ProductEntity(
                 shootingTime = product.shootingTime,
                 shootingLocation = product.shootingLocation,
                 numberOfCostumes = product.numberOfCostumes,
-                packagePartnerShops = product.packagePartnerShops,
+                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
                 detailedInfo = product.detailedInfo,
                 warrantyInfo = product.warrantyInfo,
                 contactInfo = product.contactInfo,
@@ -91,7 +92,6 @@ open class ProductEntity(
                 images = product.images
             )
 
-            // 기존 옵션을 초기화하고 새로운 옵션을 추가
             productEntity.options.clear()
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
@@ -113,7 +113,7 @@ open class ProductEntity(
             shootingTime = shootingTime,
             shootingLocation = shootingLocation,
             numberOfCostumes = numberOfCostumes,
-            packagePartnerShops = packagePartnerShops,
+            partnerShops = partnerShops.map { PartnerShop(it.name, it.link) },
             detailedInfo = detailedInfo,
             warrantyInfo = warrantyInfo,
             contactInfo = contactInfo,
@@ -124,3 +124,12 @@ open class ProductEntity(
         )
     }
 }
+
+@Embeddable
+data class PartnerShopEmbeddable(
+    @Column(name = "name", nullable = false)
+    val name: String = "",
+
+    @Column(name = "link", nullable = false)
+    val link: String = ""
+)
