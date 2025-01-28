@@ -58,7 +58,7 @@ class ProductUseCase(
         modifyProductOptions(product.productId!!, product.options)
 
         val updatedOptions = productOptionPersistencePort.findByProduct(
-            productEntityRetrievalPort.getProductById(product.productId)
+            productEntityRetrievalPort.getProductById(product.productId)!!
         )
         return updatedProduct.copy(options = updatedOptions)
     }
@@ -70,7 +70,7 @@ class ProductUseCase(
     @Transactional
     fun modifyProductOptions(productId: Long?, newOptions: List<ProductOption>) {
         val productEntity = productEntityRetrievalPort.getProductById(productId)
-        val existingOptions = productOptionPersistencePort.findByProduct(productEntity)
+        val existingOptions = productOptionPersistencePort.findByProduct(productEntity!!)
 
         // 삭제 처리
         deleteUnusedOptions(existingOptions, newOptions)

@@ -56,8 +56,8 @@ class ProductEntityRetrievalAdapterTest(
                 val foundProduct = productEntityRetrievalPort.getProductById(savedProductId)
 
                 foundProduct shouldNotBe null
-                foundProduct.title shouldBe "Test Product"
-                foundProduct.images.size shouldBe 2
+                foundProduct?.title shouldBe "Test Product"
+                foundProduct?.images?.size shouldBe 2
             }
 
             it("null ID로 조회하면 IllegalArgumentException을 던져야 한다") {
