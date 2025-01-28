@@ -51,4 +51,12 @@ interface ProductPersistencePort {
      * @param id 삭제할 Product의 ID
      */
     fun deleteById(id: Long)
+
+    /**
+     * 특정 사용자 ID와 상품명 조합의 존재 여부 확인
+     * @param userId 사용자 ID
+     * @param title 검색할 상품명
+     * @return 존재 여부 (true/false)
+     */
+    fun existsByUserIdAndTitle(userId: Long, title: String): Boolean
 }

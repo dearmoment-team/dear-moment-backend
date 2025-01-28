@@ -43,4 +43,13 @@ class ProductPersistenceAdapter(
         jpaProductOptionRepository.deleteAllByProductProductId(id)
         jpaProductRepository.deleteById(id)
     }
+
+    /**
+     * 사용자 ID와 상품명 조합으로 중복 확인
+     * - 상품 생성 시 동일 사용자의 중복 상품명 검증용
+     */
+    override fun existsByUserIdAndTitle(userId: Long, title: String): Boolean {
+        return jpaProductRepository.existsByUserIdAndTitle(userId, title)
+    }
+
 }

@@ -9,12 +9,12 @@ interface JpaProductOptionRepository : JpaRepository<ProductOptionEntity, Long> 
     /**
      * 특정 ProductEntity와 옵션 이름으로 ProductOption의 존재 여부를 확인합니다.
      */
-    fun existsByProductAndName(product: ProductEntity, name: String): Boolean
+    fun existsByProductProductIdAndName(productId: Long, name: String): Boolean
 
     /**
-     * 특정 ProductEntity에 속한 모든 ProductOption을 조회합니다.
+     * 특정 Product ID에 속한 모든 ProductOption을 조회합니다.
      */
-    fun findByProduct(product: ProductEntity): List<ProductOptionEntity>
+    fun findByProductProductId(productId: Long): List<ProductOptionEntity>
 
     /**
      * 특정 Product ID에 속한 모든 ProductOption을 삭제합니다.
