@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.application.port.out
 
+import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 
@@ -8,9 +9,10 @@ interface ProductOptionPersistencePort {
     /**
      * ProductOption을 저장합니다.
      * @param productOption 저장할 ProductOption 도메인 모델
+     * @param productEntity 연결된 ProductEntity
      * @return 저장된 ProductOption 도메인 모델
      */
-    fun save(productOption: ProductOption): ProductOption
+    fun save(productOption: ProductOption, productEntity: ProductEntity): ProductOption
 
     /**
      * ID를 기준으로 ProductOption을 조회합니다.
