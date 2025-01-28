@@ -7,26 +7,27 @@ import java.time.LocalDateTime
 
 class ProductEntityTest : StringSpec({
 
-    "ProductEntity should convert from domain model correctly" {
+    "ProductEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
         val product = Product(
             productId = 1L,
             userId = 123L,
-            title = "Test Product",
-            description = "This is a test product",
+            title = "테스트 제품",
+            description = "이것은 테스트 제품입니다",
             price = 1000L,
             typeCode = 1,
             shootingTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0),
-            shootingLocation = "Test Location",
+            shootingLocation = "테스트 장소",
             numberOfCostumes = 5,
-            packagePartnerShops = "Test Shop",
-            detailedInfo = "Detailed information",
-            warrantyInfo = "1 year warranty",
+            packagePartnerShops = "테스트 상점",
+            detailedInfo = "상세 정보",
+            warrantyInfo = "1년 보증",
             contactInfo = "test@example.com",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             images = listOf("image1.jpg", "image2.jpg")
         )
 
+        /* ProductEntity 생성 후 도메인 모델과 값 비교 */
         val productEntity = ProductEntity.fromDomain(product)
 
         productEntity.productId shouldBe product.productId
@@ -45,26 +46,30 @@ class ProductEntityTest : StringSpec({
         productEntity.images shouldBe product.images
     }
 
-    "ProductEntity should convert to domain model correctly" {
+    "ProductEntity는 도메인 모델로 올바르게 변환되어야 한다" {
+        /* ProductEntity 생성
+           - 각 필드에 대한 값은 도메인 모델로 변환될 데이터를 기반으로 설정됨
+        */
         val productEntity = ProductEntity(
             productId = 1L,
             userId = 123L,
-            title = "Test Product",
-            description = "This is a test product",
+            title = "테스트 제품",
+            description = "이것은 테스트 제품입니다",
             price = 1000L,
             typeCode = 1,
             shootingTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0),
-            shootingLocation = "Test Location",
+            shootingLocation = "테스트 장소",
             numberOfCostumes = 5,
-            packagePartnerShops = "Test Shop",
-            detailedInfo = "Detailed information",
-            warrantyInfo = "1 year warranty",
+            packagePartnerShops = "테스트 상점",
+            detailedInfo = "상세 정보",
+            warrantyInfo = "1년 보증",
             contactInfo = "test@example.com",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             images = listOf("image1.jpg", "image2.jpg")
         )
 
+        /* 도메인 모델로 변환 후 각 필드 값 비교 */
         val product = productEntity.toDomain()
 
         product.productId shouldBe productEntity.productId

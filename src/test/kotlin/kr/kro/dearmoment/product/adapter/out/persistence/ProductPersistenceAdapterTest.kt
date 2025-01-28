@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 
 @DataJpaTest
 @Import(ProductPersistenceAdapter::class)
-@ActiveProfiles("test") // application-test.properties 사용
+@ActiveProfiles("test")
 class ProductPersistenceAdapterTest(
     @Autowired private val productPersistencePort: ProductPersistencePort,
     @Autowired private val jpaProductRepository: JpaProductRepository,
@@ -23,7 +23,6 @@ class ProductPersistenceAdapterTest(
     describe("ProductPersistenceAdapter") {
 
         beforeEach {
-            // 각 테스트 전에 데이터베이스를 초기화
             jpaProductRepository.deleteAll()
             jpaProductOptionRepository.deleteAll()
         }
@@ -31,7 +30,7 @@ class ProductPersistenceAdapterTest(
         context("save() 메서드는") {
             it("Product를 저장하고 반환해야 한다") {
                 val product = Product(
-                    productId = 0L, // 저장 시 null로 설정될 것임
+                    productId = 0L,
                     userId = 1L,
                     title = "Test Product",
                     description = "This is a test product",
@@ -213,7 +212,6 @@ class ProductPersistenceAdapterTest(
                 )
                 val savedProduct = productPersistencePort.save(product)
 
-                // Non-null assertion 사용
                 productPersistencePort.existsById(savedProduct.productId!!) shouldBe true
 
                 productPersistencePort.deleteById(savedProduct.productId!!)
