@@ -46,6 +46,8 @@ interface ProductPersistencePort {
     fun searchByCriteria(
         title: String?,
         priceRange: Pair<Long?, Long?>?,
+        typeCode: Int?,
+        sortBy: String?,
     ): List<Product>
 
     /**
