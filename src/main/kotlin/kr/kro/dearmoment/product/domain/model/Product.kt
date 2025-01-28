@@ -19,7 +19,7 @@ data class Product(
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val options: List<ProductOption> = emptyList(),
-    val images: List<String> = emptyList()
+    val images: List<String> = emptyList(),
 ) {
     init {
         require(images.isNotEmpty()) { "최소 1개 이상의 이미지가 필요합니다" }
@@ -45,14 +45,24 @@ data class Product(
     }
 
     fun updateOptions(newOptions: List<ProductOption>): Pair<List<ProductOption>, Set<Long>> {
-        val existingOptions = options.associateBy { it.optionId }
+        val existingOptionsMap = options.associateBy { it.optionId }
         val newOptionsMap = newOptions.associateBy { it.optionId }
 
-        val toDelete = existingOptions.keys - newOptionsMap.keys
-        val toUpdate = newOptions.filter { it.optionId in existingOptions.keys }
-        val toInsert = newOptions.filter { it.optionId == null }
+        // 삭제할 옵션 식별
+        val toDelete = existingOptionsMap.keys - newOptionsMap.keys
 
-        val updatedOptions = (toInsert + toUpdate).map { it.copy(productId = productId) }
+        // 업데이트할 옵션
+        val toUpdate =
+            newOptions.filter { it.optionId != null && existingOptionsMap.containsKey(it.optionId) }
+                .map { it.copy(productId = productId) }
+
+        // 새로 추가할 옵션
+        val toInsert =
+            newOptions.filter { it.optionId == null }
+                .map { it.copy(productId = productId) }
+
+        // 업데이트된 옵션을 먼저, 새로운 옵션을 나중에 추가
+        val updatedOptions = toUpdate + toInsert
 
         return Pair(updatedOptions, toDelete.filterNotNull().toSet())
     }
