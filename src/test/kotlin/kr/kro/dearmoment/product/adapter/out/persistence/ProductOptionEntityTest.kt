@@ -7,27 +7,37 @@ import java.time.LocalDateTime
 
 class ProductOptionEntityTest : StringSpec({
 
-    "ProductOptionEntity should convert from domain model correctly" {
+    "ProductOptionEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
         val productEntity = ProductEntity(
             productId = 1L,
-            title = "Test Product",
+            title = "테스트 제품",
             price = 1000L,
             typeCode = 1
         )
 
+        /* ProductOption 도메인 모델 생성
+           - optionId: 옵션 ID
+           - productId: 연관된 제품 ID
+           - name: 옵션 이름
+           - additionalPrice: 추가 가격
+           - description: 옵션 설명
+           - createdAt: 생성 시간
+           - updatedAt: 수정 시간
+        */
         val productOption = ProductOption(
             optionId = 1L,
             productId = 1L,
-            name = "Test Option",
+            name = "테스트 옵션",
             additionalPrice = 500L,
-            description = "Option description",
+            description = "옵션 설명",
             createdAt = LocalDateTime.of(2023, 1, 1, 10, 0, 0),
             updatedAt = LocalDateTime.of(2023, 1, 1, 12, 0, 0)
         )
 
+        /* ProductOptionEntity로 변환 */
         val productOptionEntity = ProductOptionEntity.fromDomain(productOption, productEntity)
 
-
+        /* 변환된 필드 값 확인 */
         productOptionEntity.optionId shouldBe productOption.optionId
         productOptionEntity.name shouldBe productOption.name
         productOptionEntity.additionalPrice shouldBe productOption.additionalPrice
@@ -37,29 +47,37 @@ class ProductOptionEntityTest : StringSpec({
         productOptionEntity.updatedAt shouldBe productOption.updatedAt
     }
 
-    "ProductOptionEntity should convert to domain model correctly" {
-        // given: ProductOptionEntity 객체 준비
+    "ProductOptionEntity는 도메인 모델로 올바르게 변환되어야 한다" {
+        /* ProductOptionEntity 객체 생성
+           - optionId: 옵션 ID
+           - name: 옵션 이름
+           - additionalPrice: 추가 가격
+           - description: 옵션 설명
+           - product: 연관된 ProductEntity
+           - createdAt: 생성 시간
+           - updatedAt: 수정 시간
+        */
         val productEntity = ProductEntity(
             productId = 1L,
-            title = "Test Product",
+            title = "테스트 제품",
             price = 1000L,
             typeCode = 1
         )
 
         val productOptionEntity = ProductOptionEntity(
             optionId = 1L,
-            name = "Test Option",
+            name = "테스트 옵션",
             additionalPrice = 500L,
-            description = "Option description",
+            description = "옵션 설명",
             product = productEntity,
             createdAt = LocalDateTime.of(2023, 1, 1, 10, 0, 0),
             updatedAt = LocalDateTime.of(2023, 1, 1, 12, 0, 0)
         )
 
-        // when: ProductOptionEntity에서 도메인 모델로 변환
+        /* ProductOptionEntity에서 도메인 모델로 변환 */
         val productOption = productOptionEntity.toDomain()
 
-        // then: 변환된 도메인 모델의 필드들이 올바르게 설정되었는지 확인
+        /* 변환된 도메인 모델의 필드 값 확인 */
         productOption.optionId shouldBe productOptionEntity.optionId
         productOption.name shouldBe productOptionEntity.name
         productOption.additionalPrice shouldBe productOptionEntity.additionalPrice

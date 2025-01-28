@@ -25,17 +25,15 @@ class ProductOptionRepositoryAdapter(
         val productId = productOption.productId
             ?: throw IllegalArgumentException("Product ID must be provided")
 
-        // 영속성 컨텍스트에서 ProductEntity를 조회
-        val productEntity = jpaProductRepository.findById(productId)
-            .orElseThrow { IllegalArgumentException("Product with ID $productId not found") }
+        val product = productEntityRetrievalPort.getProductById(productId)
+            ?: throw IllegalArgumentException("Product with ID $productId not found")
 
-        // 동일한 이름의 옵션이 이미 존재하는지 확인 (효율적인 방법)
-        if (jpaProductOptionRepository.existsByProductAndName(productEntity, productOption.name)) {
+        if (jpaProductOptionRepository.existsByProductAndName(ProductEntity.fromDomain(product), productOption.name)) {
             throw IllegalArgumentException("ProductOption already exists: ${productOption.name}")
         }
 
         // 새로운 ProductOptionEntity 생성
-        val optionEntity = ProductOptionEntity.fromDomain(productOption, productEntity)
+        val optionEntity = ProductOptionEntity.fromDomain(productOption, ProductEntity.fromDomain(product))
 
         // 옵션 저장
         val savedEntity = jpaProductOptionRepository.save(optionEntity)
@@ -82,10 +80,10 @@ class ProductOptionRepositoryAdapter(
         val productId = product.productId
             ?: throw IllegalArgumentException("Product ID must be provided for finding options")
 
-        val productEntity = jpaProductRepository.findById(productId)
-            .orElseThrow { IllegalArgumentException("Product with ID $productId not found") }
+        val someProduct = productEntityRetrievalPort.getProductById(productId)
+            ?: throw IllegalArgumentException("Product with ID $productId not found")
 
-        return jpaProductOptionRepository.findByProduct(productEntity).map { it.toDomain() }
+        return jpaProductOptionRepository.findByProduct(ProductEntity.fromDomain(someProduct)).map { it.toDomain() }
     }
 
     /**
@@ -100,7 +98,7 @@ class ProductOptionRepositoryAdapter(
      * 특정 Product ID에 속한 ProductOption의 존재 여부를 확인합니다.
      */
     @Transactional(readOnly = true)
-    fun existsByProductId(productId: Long): Boolean {
+    override fun existsByProductId(productId: Long): Boolean {
         return jpaProductOptionRepository.existsByProductProductId(productId)
     }
 }
