@@ -12,25 +12,24 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
      */
     fun findByUserId(userId: Long): List<ProductEntity>
 
-    /**
-     * 조건에 따라 Product 리스트를 검색합니다.
-     * @param title 검색할 Product의 제목 (nullable)
-     * @param minPrice 최소 가격 (nullable)
-     * @param maxPrice 최대 가격 (nullable)
-     * @return 조건에 맞는 Product 리스트
-     */
     @Query(
         """
-        SELECT p FROM ProductEntity p 
-        WHERE (:title IS NULL OR p.title LIKE %:title%) 
-        AND (:minPrice IS NULL OR p.price >= :minPrice) 
-        AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-    """,
+    SELECT p FROM ProductEntity p 
+    WHERE (:title IS NULL OR p.title LIKE %:title%) 
+    AND (:minPrice IS NULL OR p.price >= :minPrice) 
+    AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+    AND (:typeCode IS NULL OR p.typeCode = :typeCode)
+    ORDER BY
+        CASE WHEN :sortBy = 'price-desc' THEN p.price END DESC,
+        CASE WHEN :sortBy = 'price-asc' THEN p.price END ASC
+""",
     )
     fun searchByCriteria(
         @Param("title") title: String?,
         @Param("minPrice") minPrice: Long?,
         @Param("maxPrice") maxPrice: Long?,
+        @Param("typeCode") typeCode: Int?,
+        @Param("sortBy") sortBy: String?,
     ): List<ProductEntity>
 
     /**
