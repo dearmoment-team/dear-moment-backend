@@ -202,15 +202,14 @@ class ProductUseCaseTest : BehaviorSpec({
                 listOf(
                     Product(title = "Product1", price = 10000, typeCode = 0, images = listOf("img1.jpg")),
                     Product(title = "Product2", price = 20000, typeCode = 0, images = listOf("img2.jpg")),
+                    Product(title = "Product3", price = 30000, typeCode = 0, images = listOf("img3.jpg")),
                 )
 
-            // ✅ Mock 좋아요 데이터 추가
             val mockProductsWithLikes =
                 listOf(
-                    // Product1 -> 50 좋아요
-                    Pair(sampleProducts[0], 50),
-                    // Product2 -> 100 좋아요
-                    Pair(sampleProducts[1], 100),
+                    Pair(sampleProducts[0], 1),
+                    Pair(sampleProducts[1], 2),
+                    Pair(sampleProducts[2], 3),
                 )
 
             every {
@@ -222,14 +221,13 @@ class ProductUseCaseTest : BehaviorSpec({
                 )
             } returns sampleProducts
 
-            // ✅ Mock 좋아요 개수를 고려하여 결과 생성
             val results = productUseCase.searchProducts("test", 10000, 30000, sortBy = "likes")
 
             then("좋아요 개수가 많은 순서로 정렬됨") {
-                results.content shouldHaveSize 2
+                results.content shouldHaveSize 3
 
                 // ✅ 좋아요가 많은 순서로 정렬 확인
-                val expectedOrder = mockProductsWithLikes.sortedByDescending { it.second }.map { it.first.title }
+                val expectedOrder = listOf("Product3", "Product2", "Product1")
                 results.content.map { it.title } shouldContainExactly expectedOrder
             }
         }
