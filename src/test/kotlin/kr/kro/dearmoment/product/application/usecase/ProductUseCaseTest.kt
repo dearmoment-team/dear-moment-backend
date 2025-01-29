@@ -226,10 +226,10 @@ class ProductUseCaseTest : BehaviorSpec({
             then("좋아요 개수가 많은 순서로 정렬됨") {
                 results.content shouldHaveSize 3
 
-                // ✅ 좋아요가 많은 순서로 정렬 확인
-                val expectedOrder = listOf("Product3", "Product2", "Product1")
+                val expectedOrder = mockProductsWithLikes.sortedByDescending { it.second }.map { it.first.title }
                 results.content.map { it.title } shouldContainExactly expectedOrder
             }
+
         }
 
         `when`("잘못된 가격 범위로 검색 요청이 오면") {
