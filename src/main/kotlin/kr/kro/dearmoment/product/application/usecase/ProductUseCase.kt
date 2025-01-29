@@ -86,8 +86,8 @@ class ProductUseCase(
             )
 
         val mockData =
-            result.map { product ->
-                Pair(product, (1..100).random())
+            result.mapIndexed { index, product ->
+                Pair(product, index + 1)
             }
 
         val sortedProducts =
