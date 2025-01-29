@@ -1,6 +1,11 @@
 package kr.kro.dearmoment.product.application.usecase
 
-import kr.kro.dearmoment.product.application.dto.PagedResponse
+import kr.kro.dearmoment.product.application.dto.extensions.toDomain
+import kr.kro.dearmoment.product.application.dto.extensions.toResponse
+import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
+import kr.kro.dearmoment.product.application.dto.response.PagedResponse
+import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
@@ -14,15 +19,23 @@ class ProductUseCase(
     private val productOptionPersistencePort: ProductOptionPersistencePort,
 ) {
     @Transactional
-    fun saveProduct(product: Product): Product {
+    fun saveProduct(request: CreateProductRequest): ProductResponse {
+        val product = request.toDomain()
         validateForCreation(product)
+
         val savedProduct = productPersistencePort.save(product)
-        saveProductOptions(savedProduct, product.options)
-        return savedProduct.copy(options = productOptionPersistencePort.findByProductId(savedProduct.productId!!))
+        saveProductOptions(savedProduct, product.options.orEmpty()) // null 방지
+
+        val completeProduct = savedProduct.copy(
+            options = productOptionPersistencePort.findByProductId(savedProduct.productId!!)
+        )
+        return completeProduct.toResponse()
     }
 
+
     @Transactional
-    fun updateProduct(product: Product): Product {
+    fun updateProduct(request: UpdateProductRequest): ProductResponse {
+        val product = request.toDomain()
         product.validateForUpdate()
 
         val existingProduct =
@@ -40,7 +53,11 @@ class ProductUseCase(
         }
 
         val updatedProduct = productPersistencePort.save(product)
-        return updatedProduct.copy(options = productOptionPersistencePort.findByProductId(updatedProduct.productId!!))
+        val completeProduct =
+            updatedProduct.copy(
+                options = productOptionPersistencePort.findByProductId(updatedProduct.productId!!),
+            )
+        return completeProduct.toResponse()
     }
 
     @Transactional
@@ -52,18 +69,16 @@ class ProductUseCase(
         productPersistencePort.deleteById(productId)
     }
 
-    fun getProductById(productId: Long): Product {
+    fun getProductById(productId: Long): ProductResponse {
         val product =
             productPersistencePort.findById(productId)
                 ?: throw IllegalArgumentException("Product with ID $productId not found.")
-        return product.copy(options = productOptionPersistencePort.findByProductId(productId))
-    }
 
-    private fun saveProductOptions(
-        product: Product,
-        options: List<ProductOption>,
-    ): List<ProductOption> {
-        return options.map { productOptionPersistencePort.save(it, product) }
+        val completeProduct =
+            product.copy(
+                options = productOptionPersistencePort.findByProductId(productId),
+            )
+        return completeProduct.toResponse()
     }
 
     fun searchProducts(
@@ -74,7 +89,7 @@ class ProductUseCase(
         sortBy: String? = null,
         page: Int = 0,
         size: Int = 10,
-    ): PagedResponse<Product> {
+    ): PagedResponse<ProductResponse> {
         validatePriceRange(minPrice, maxPrice)
 
         val result =
@@ -99,12 +114,19 @@ class ProductUseCase(
             }.map { it.first }
 
         return PagedResponse(
-            content = sortedProducts,
+            content = sortedProducts.map { it.toResponse() },
             page = page,
             size = size,
             totalElements = sortedProducts.size.toLong(),
             totalPages = (sortedProducts.size / size) + 1,
         )
+    }
+
+    private fun saveProductOptions(
+        product: Product,
+        options: List<ProductOption>,
+    ): List<ProductOption> {
+        return options.map { productOptionPersistencePort.save(it, product) }
     }
 
     private fun validatePriceRange(
