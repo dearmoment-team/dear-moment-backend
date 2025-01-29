@@ -131,7 +131,7 @@ class ProductPersistenceAdapterTest(
                             ),
                         ).map { productPersistencePort.save(it) }
 
-                    jpaProductRepository.flush() // 데이터베이스 동기화
+                    jpaProductRepository.flush()
                 }
 
                 it("패키지 상품만 필터링 가능해야 함") {
@@ -143,11 +143,8 @@ class ProductPersistenceAdapterTest(
                             sortBy = null,
                         )
 
-                    results.map { it.title } shouldContainExactlyInAnyOrder
-                        listOf(
-                            "스냅 사진 기본 패키지",
-                            "아기 사진 전문 촬영",
-                        )
+                    val expectedTitles = testProducts.filter { it.typeCode == 1 }.map { it.title }
+                    results.map { it.title } shouldContainExactlyInAnyOrder expectedTitles
                 }
 
                 it("가격 오름차순 정렬이 올바르게 동작해야 함") {
