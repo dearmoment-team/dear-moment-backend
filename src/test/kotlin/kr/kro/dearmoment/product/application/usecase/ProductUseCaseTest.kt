@@ -197,11 +197,20 @@ class ProductUseCaseTest : BehaviorSpec({
     }
 
     given("searchProducts 메소드") {
-        `when`("유효한 검색 조건으로 요청이 오면") {
+        `when`("정렬 기준이 'likes'인 경우") {
             val sampleProducts =
                 listOf(
                     Product(title = "Product1", price = 10000, typeCode = 0, images = listOf("img1.jpg")),
                     Product(title = "Product2", price = 20000, typeCode = 0, images = listOf("img2.jpg")),
+                )
+
+            // ✅ Mock 좋아요 데이터 추가
+            val mockProductsWithLikes =
+                listOf(
+                    // Product1 -> 50 좋아요
+                    Pair(sampleProducts[0], 50),
+                    // Product2 -> 100 좋아요
+                    Pair(sampleProducts[1], 100),
                 )
 
             every {
@@ -209,15 +218,19 @@ class ProductUseCaseTest : BehaviorSpec({
                     title = "test",
                     priceRange = Pair(10000L, 30000L),
                     typeCode = null,
-                    sortBy = null,
+                    sortBy = "likes",
                 )
             } returns sampleProducts
 
-            val results = productUseCase.searchProducts("test", 10000, 30000)
+            // ✅ Mock 좋아요 개수를 고려하여 결과 생성
+            val results = productUseCase.searchProducts("test", 10000, 30000, sortBy = "likes")
 
-            then("조건에 맞는 상품 목록 반환") {
-                results shouldHaveSize 2
-                results.map { it.title } shouldContainExactly listOf("Product1", "Product2")
+            then("좋아요 개수가 많은 순서로 정렬됨") {
+                results.content shouldHaveSize 2
+
+                // ✅ 좋아요가 많은 순서로 정렬 확인
+                val expectedOrder = mockProductsWithLikes.sortedByDescending { it.second }.map { it.first.title }
+                results.content.map { it.title } shouldContainExactly expectedOrder
             }
         }
 
