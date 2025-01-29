@@ -38,14 +38,12 @@ class ProductPersistenceAdapter(
         typeCode: Int?,
         sortBy: String?,
     ): List<Product> {
-        val (minPrice, maxPrice) = priceRange ?: Pair(null, null)
-        return jpaProductRepository.searchByCriteria(
-            title = title,
-            minPrice = minPrice,
-            maxPrice = maxPrice,
-            typeCode = typeCode,
-            sortBy = sortBy,
-        ).map { it.toDomain() }
+        val minPrice = priceRange?.first
+        val maxPrice = priceRange?.second
+
+        val productEntities = jpaProductRepository.searchByCriteria(title, minPrice, maxPrice, typeCode, sortBy)
+
+        return productEntities.map { it.toDomain() }
     }
 
     @Transactional
