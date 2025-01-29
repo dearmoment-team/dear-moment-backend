@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.application.usecase
 
+import kr.kro.dearmoment.product.application.dto.PagedResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
@@ -71,13 +72,38 @@ class ProductUseCase(
         maxPrice: Long?,
         typeCode: Int? = null,
         sortBy: String? = null,
-    ): List<Product> {
+        page: Int = 0,
+        size: Int = 10,
+    ): PagedResponse<Product> {
         validatePriceRange(minPrice, maxPrice)
-        return productPersistencePort.searchByCriteria(
-            title = title,
-            priceRange = minPrice?.let { Pair(it, maxPrice) },
-            typeCode = typeCode,
-            sortBy = sortBy,
+
+        val result =
+            productPersistencePort.searchByCriteria(
+                title = title,
+                priceRange = minPrice?.let { Pair(it, maxPrice) },
+                typeCode = typeCode,
+                sortBy = sortBy,
+            )
+
+        val mockData =
+            result.map { product ->
+                Pair(product, (1..100).random())
+            }
+
+        val sortedProducts =
+            when (sortBy) {
+                "likes" -> mockData.sortedByDescending { it.second }
+                "price-asc" -> mockData.sortedBy { it.first.price }
+                "price-desc" -> mockData.sortedByDescending { it.first.price }
+                else -> mockData
+            }.map { it.first }
+
+        return PagedResponse(
+            content = sortedProducts,
+            page = page,
+            size = size,
+            totalElements = sortedProducts.size.toLong(),
+            totalPages = (sortedProducts.size / size) + 1,
         )
     }
 
