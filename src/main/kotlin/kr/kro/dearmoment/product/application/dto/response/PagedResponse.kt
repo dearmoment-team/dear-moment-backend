@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.product.application.dto
+package kr.kro.dearmoment.product.application.dto.response
 
 data class PagedResponse<T>(
     val content: List<T>,
