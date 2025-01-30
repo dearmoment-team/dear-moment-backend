@@ -28,6 +28,8 @@ repositories {
     mavenCentral()
 }
 
+val ociSdkVersion by extra("3.55.3")
+
 dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -43,9 +45,9 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     // OCI Object Storage
-    implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.55.3")
-    implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:3.55.3")
-    implementation("com.oracle.oci.sdk:oci-java-sdk-addons-apache-configurator-jersey3:3.55.3")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common:$ociSdkVersion")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:$ociSdkVersion")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-addons-apache-configurator-jersey3:$ociSdkVersion")
 
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
