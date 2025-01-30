@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.data.annotation.CreatedDate
@@ -15,26 +16,34 @@ import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "product_options")
+@Table(name = "PRODUCT_OPTIONS")
 open class ProductOptionEntity(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "option_id")
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "product_options_seq",
+    )
+    @SequenceGenerator(
+        name = "product_options_seq",
+        sequenceName = "PRODUCT_OPTIONS_SEQ",
+        allocationSize = 1,
+    )
+    @Column(name = "OPTION_ID")
     var optionId: Long? = null,
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "PRODUCT_ID")
     var product: ProductEntity? = null,
-    @Column(nullable = false)
+    @Column(name = "NAME", nullable = false)
     var name: String = "",
-    @Column(nullable = false)
+    @Column(name = "ADDITIONAL_PRICE", nullable = false)
     var additionalPrice: Long = 0L,
-    @Column
+    @Column(name = "DESCRIPTION")
     var description: String? = null,
     @CreatedDate
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "CREATED_AT", updatable = false)
     var createdAt: LocalDateTime? = null,
     @LastModifiedDate
-    @Column(name = "updated_at")
+    @Column(name = "UPDATED_AT")
     var updatedAt: LocalDateTime? = null,
 ) {
     companion object {

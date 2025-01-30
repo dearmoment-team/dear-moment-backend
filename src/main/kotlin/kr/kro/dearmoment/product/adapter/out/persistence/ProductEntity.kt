@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
+import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
@@ -21,49 +22,63 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "products")
+@Table(name = "PRODUCTS")
 @EntityListeners(AuditingEntityListener::class)
 open class ProductEntity(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_id")
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "products_seq",
+    )
+    @SequenceGenerator(
+        name = "products_seq",
+        sequenceName = "PRODUCTS_SEQ",
+        allocationSize = 1,
+    )
+    @Column(name = "PRODUCT_ID")
     var productId: Long? = null,
-    @Column(name = "user_id")
+    @Column(name = "USER_ID")
     var userId: Long? = null,
-    @Column(nullable = false)
+    @Column(name = "TITLE", nullable = false)
     var title: String = "",
-    @Column
+    @Column(name = "DESCRIPTION")
     var description: String? = null,
-    @Column(nullable = false)
+    @Column(name = "PRICE", nullable = false)
     var price: Long = 0L,
-    @Column(name = "type_code", nullable = false)
+    @Column(name = "TYPE_CODE", nullable = false)
     var typeCode: Int = 0,
-    @Column(name = "shooting_time")
+    @Column(name = "SHOOTING_TIME")
     var shootingTime: LocalDateTime? = null,
-    @Column(name = "shooting_location")
+    @Column(name = "SHOOTING_LOCATION")
     var shootingLocation: String? = null,
-    @Column(name = "number_of_costumes")
+    @Column(name = "NUMBER_OF_COSTUMES")
     var numberOfCostumes: Int? = null,
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "product_partner_shops", joinColumns = [JoinColumn(name = "product_id")])
+    @CollectionTable(
+        name = "PRODUCT_PARTNER_SHOPS",
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+    )
     var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
-    @Column(name = "detailed_info")
+    @Column(name = "DETAILED_INFO")
     var detailedInfo: String? = null,
-    @Column(name = "warranty_info")
+    @Column(name = "WARRANTY_INFO")
     var warrantyInfo: String? = null,
-    @Column(name = "contact_info")
+    @Column(name = "CONTACT_INFO")
     var contactInfo: String? = null,
     @CreatedDate
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "CREATED_AT", updatable = false)
     var createdAt: LocalDateTime? = null,
     @LastModifiedDate
-    @Column(name = "updated_at")
+    @Column(name = "UPDATED_AT")
     var updatedAt: LocalDateTime? = null,
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "product_images", joinColumns = [JoinColumn(name = "product_id")])
-    @Column(name = "image_url")
+    @CollectionTable(
+        name = "PRODUCT_IMAGES",
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+    )
+    @Column(name = "IMAGE_URL")
     var images: List<String> = mutableListOf(),
 ) {
     companion object {

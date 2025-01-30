@@ -15,13 +15,17 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
     @Query(
         """
     SELECT p FROM ProductEntity p 
-    WHERE (:title IS NULL OR p.title LIKE %:title%) 
-    AND (:minPrice IS NULL OR p.price >= :minPrice) 
+    WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER('%'||:title||'%'))
+    AND (:minPrice IS NULL OR p.price >= :minPrice)
     AND (:maxPrice IS NULL OR p.price <= :maxPrice)
     AND (:typeCode IS NULL OR p.typeCode = :typeCode)
     ORDER BY
-        CASE WHEN :sortBy = 'price-desc' THEN p.price END DESC,
-        CASE WHEN :sortBy = 'price-asc' THEN p.price END ASC
+        CASE 
+            WHEN :sortBy = 'price-desc' THEN p.price 
+        END DESC NULLS LAST,
+        CASE 
+            WHEN :sortBy = 'price-asc' THEN p.price 
+        END ASC NULLS LAST
 """,
     )
     fun searchByCriteria(
