@@ -4,9 +4,19 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import kr.kro.dearmoment.product.application.dto.extensions.toDomain
-import kr.kro.dearmoment.product.application.dto.request.*
+import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
+import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
+import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdatePartnerShopRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
@@ -23,10 +33,11 @@ class ProductUseCaseTest : BehaviorSpec({
 
     beforeEach {
         // 각 테스트 전에 ProductUseCase 인스턴스 초기화
-        productUseCase = ProductUseCase(
-            productPersistencePort,
-            productOptionPersistencePort,
-        )
+        productUseCase =
+            ProductUseCase(
+                productPersistencePort,
+                productOptionPersistencePort,
+            )
     }
 
     afterEach {
@@ -36,22 +47,23 @@ class ProductUseCaseTest : BehaviorSpec({
 
     given("saveProduct 메소드") {
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val createProduct = CreateProductRequest(
-            userId = 1L,
-            title = "New Product",
-            price = 10000,
-            typeCode = 0,
-            images = listOf("image1.jpg"),
-            options = listOf(CreateProductOptionRequest(name = "Option1", additionalPrice = 2000)),
-            contactInfo = "contact@example.com",
-            description = "Product description",
-            detailedInfo = "Detailed product information",
-            numberOfCostumes = 3,
-            partnerShops = listOf(CreatePartnerShopRequest(name = "Partner", link = "http://naver.com")),
-            shootingLocation = "Location1",
-            shootingTime = fixedDateTime,
-            warrantyInfo = "blabla",
-        )
+        val createProduct =
+            CreateProductRequest(
+                userId = 1L,
+                title = "New Product",
+                price = 10000,
+                typeCode = 0,
+                images = listOf("image1.jpg"),
+                options = listOf(CreateProductOptionRequest(name = "Option1", additionalPrice = 2000)),
+                contactInfo = "contact@example.com",
+                description = "Product description",
+                detailedInfo = "Detailed product information",
+                numberOfCostumes = 3,
+                partnerShops = listOf(CreatePartnerShopRequest(name = "Partner", link = "http://naver.com")),
+                shootingLocation = "Location1",
+                shootingTime = fixedDateTime,
+                warrantyInfo = "blabla",
+            )
         val validProduct = createProduct.toDomain()
 
         `when`("유효한 상품 생성 요청이 오면") {
@@ -65,9 +77,10 @@ class ProductUseCaseTest : BehaviorSpec({
             }
 
             // findByProductId 메소드가 호출될 때, optionId가 1L인 ProductOption을 반환
-            every { productOptionPersistencePort.findByProductId(1L) } returns listOf(
-                validProduct.options[0].copy(optionId = 1L, productId = 1L)
-            )
+            every { productOptionPersistencePort.findByProductId(1L) } returns
+                listOf(
+                    validProduct.options[0].copy(optionId = 1L, productId = 1L),
+                )
 
             then("상품과 옵션이 저장되어야 함") {
                 val result = productUseCase.saveProduct(createProduct)
@@ -98,65 +111,71 @@ class ProductUseCaseTest : BehaviorSpec({
     }
 
     given("updateProduct 메소드") {
-        val existingOptions = listOf(
-            ProductOption(optionId = 1L, productId = 1L, name = "Old Option", additionalPrice = 1000),
-            ProductOption(optionId = 2L, productId = 1L, name = "To Delete", additionalPrice = 2000),
-        )
+        val existingOptions =
+            listOf(
+                ProductOption(optionId = 1L, productId = 1L, name = "Old Option", additionalPrice = 1000),
+                ProductOption(optionId = 2L, productId = 1L, name = "To Delete", additionalPrice = 2000),
+            )
 
-        val updateRequest = UpdateProductRequest(
-            productId = 1L,
-            title = "Updated Product",
-            description = "Updated description",
-            price = 15000,
-            typeCode = 0,
-            shootingTime = null,
-            shootingLocation = null,
-            numberOfCostumes = null,
-            partnerShops = listOf(
-                UpdatePartnerShopRequest(
-                    name = "Shop1",
-                    link = "http://shop1.com",
-                ),
-            ),
-            detailedInfo = "Updated detailed info",
-            warrantyInfo = "Updated warranty info",
-            contactInfo = "Updated contact info",
-            options = listOf(
-                UpdateProductOptionRequest(
-                    optionId = 1L,
-                    name = "Updated Option1",
-                    additionalPrice = 1500,
-                    description = "Updated option1 description",
-                ),
-                UpdateProductOptionRequest(
-                    optionId = null,
-                    name = "New Option",
-                    additionalPrice = 3000,
-                    description = "New option description",
-                ),
-            ),
-            images = listOf("image1.jpg"),
-        )
+        val updateRequest =
+            UpdateProductRequest(
+                productId = 1L,
+                title = "Updated Product",
+                description = "Updated description",
+                price = 15000,
+                typeCode = 0,
+                shootingTime = null,
+                shootingLocation = null,
+                numberOfCostumes = null,
+                partnerShops =
+                    listOf(
+                        UpdatePartnerShopRequest(
+                            name = "Shop1",
+                            link = "http://shop1.com",
+                        ),
+                    ),
+                detailedInfo = "Updated detailed info",
+                warrantyInfo = "Updated warranty info",
+                contactInfo = "Updated contact info",
+                options =
+                    listOf(
+                        UpdateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Updated Option1",
+                            additionalPrice = 1500,
+                            description = "Updated option1 description",
+                        ),
+                        UpdateProductOptionRequest(
+                            optionId = null,
+                            name = "New Option",
+                            additionalPrice = 3000,
+                            description = "New option description",
+                        ),
+                    ),
+                images = listOf("image1.jpg"),
+            )
         // userId를 설정하여 NPE 방지
         val updatedProduct = updateRequest.toDomain().copy(userId = 1L)
 
         `when`("유효한 업데이트 요청이 오면") {
             // 모의 객체의 동작 정의
-            every { productPersistencePort.findById(1L) } returns Product(
-                productId = 1L,
-                userId = 1L,
-                title = "Original Product",
-                description = "Original Description",
-                price = 10000,
-                typeCode = 0,
-                images = listOf("image1.jpg"),
-                options = existingOptions,
-            )
+            every { productPersistencePort.findById(1L) } returns
+                Product(
+                    productId = 1L,
+                    userId = 1L,
+                    title = "Original Product",
+                    description = "Original Description",
+                    price = 10000,
+                    typeCode = 0,
+                    images = listOf("image1.jpg"),
+                    options = existingOptions,
+                )
             every { productPersistencePort.save(any()) } returns updatedProduct.copy(productId = 1L, userId = 1L)
-            every { productOptionPersistencePort.findByProductId(1L) } returns listOf(
-                updatedProduct.options[0].copy(optionId = 1L, productId = 1L),
-                updatedProduct.options[1].copy(optionId = 3L, productId = 1L),
-            )
+            every { productOptionPersistencePort.findByProductId(1L) } returns
+                listOf(
+                    updatedProduct.options[0].copy(optionId = 1L, productId = 1L),
+                    updatedProduct.options[1].copy(optionId = 3L, productId = 1L),
+                )
             every { productOptionPersistencePort.deleteById(2L) } just Runs
             every { productOptionPersistencePort.save(any(), any()) } answers {
                 val option = firstArg<ProductOption>()
@@ -231,25 +250,26 @@ class ProductUseCaseTest : BehaviorSpec({
 
     given("getProductById 메소드") {
         `when`("존재하는 상품 조회 요청이 오면") {
-            val sampleProduct = Product(
-                productId = 1L,
-                userId = 1L,
-                title = "Sample Product",
-                description = "Sample Description",
-                price = 10000,
-                typeCode = 0,
-                shootingTime = null,
-                shootingLocation = null,
-                numberOfCostumes = null,
-                partnerShops = emptyList(),
-                detailedInfo = null,
-                warrantyInfo = null,
-                contactInfo = null,
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
-                options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000)),
-                images = listOf("image1.jpg"),
-            )
+            val sampleProduct =
+                Product(
+                    productId = 1L,
+                    userId = 1L,
+                    title = "Sample Product",
+                    description = "Sample Description",
+                    price = 10000,
+                    typeCode = 0,
+                    shootingTime = null,
+                    shootingLocation = null,
+                    numberOfCostumes = null,
+                    partnerShops = emptyList(),
+                    detailedInfo = null,
+                    warrantyInfo = null,
+                    contactInfo = null,
+                    createdAt = LocalDateTime.now(),
+                    updatedAt = LocalDateTime.now(),
+                    options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000)),
+                    images = listOf("image1.jpg"),
+                )
 
             // 모의 객체의 동작 정의
             every { productPersistencePort.findById(1L) } returns sampleProduct
@@ -284,74 +304,76 @@ class ProductUseCaseTest : BehaviorSpec({
 
     given("searchProducts 메소드") {
         `when`("정렬 기준이 'likes'인 경우") {
-            val sampleProducts = listOf(
-                Product(
-                    productId = 1L,
-                    userId = 1L,
-                    title = "Product1",
-                    description = "Description1",
-                    price = 10000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000)),
-                    images = listOf("img1.jpg"),
-                ),
-                Product(
-                    productId = 2L,
-                    userId = 1L,
-                    title = "Product2",
-                    description = "Description2",
-                    price = 20000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 2L, productId = 2L, name = "Option2", additionalPrice = 3000)),
-                    images = listOf("img2.jpg"),
-                ),
-                Product(
-                    productId = 3L,
-                    userId = 1L,
-                    title = "Product3",
-                    description = "Description3",
-                    price = 30000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 3L, productId = 3L, name = "Option3", additionalPrice = 4000)),
-                    images = listOf("img3.jpg"),
-                ),
-            )
+            val sampleProducts =
+                listOf(
+                    Product(
+                        productId = 1L,
+                        userId = 1L,
+                        title = "Product1",
+                        description = "Description1",
+                        price = 10000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000)),
+                        images = listOf("img1.jpg"),
+                    ),
+                    Product(
+                        productId = 2L,
+                        userId = 1L,
+                        title = "Product2",
+                        description = "Description2",
+                        price = 20000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 2L, productId = 2L, name = "Option2", additionalPrice = 3000)),
+                        images = listOf("img2.jpg"),
+                    ),
+                    Product(
+                        productId = 3L,
+                        userId = 1L,
+                        title = "Product3",
+                        description = "Description3",
+                        price = 30000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 3L, productId = 3L, name = "Option3", additionalPrice = 4000)),
+                        images = listOf("img3.jpg"),
+                    ),
+                )
 
             // Mock likes count (별도의 likes 카운트 로직이 있다고 가정)
             // 여기서는 단순히 인덱스+1을 likes로 가정하여 정렬
             // 실제 구현에 맞게 수정 필요
-            val mockProductsWithLikes = listOf(
-                Pair(sampleProducts[0], 1),
-                Pair(sampleProducts[1], 2),
-                Pair(sampleProducts[2], 3),
-            )
+            val mockProductsWithLikes =
+                listOf(
+                    Pair(sampleProducts[0], 1),
+                    Pair(sampleProducts[1], 2),
+                    Pair(sampleProducts[2], 3),
+                )
 
             // 모의 객체의 동작 정의
             every {
@@ -387,65 +409,66 @@ class ProductUseCaseTest : BehaviorSpec({
         }
 
         `when`("정렬 기준이 'price-asc'인 경우") {
-            val sampleProducts = listOf(
-                Product(
-                    productId = 1L,
-                    userId = 1L,
-                    title = "ProductA",
-                    description = "DescriptionA",
-                    price = 10000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000)),
-                    images = listOf("imgA.jpg"),
-                ),
-                Product(
-                    productId = 2L,
-                    userId = 1L,
-                    title = "ProductB",
-                    description = "DescriptionB",
-                    price = 20000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000)),
-                    images = listOf("imgB.jpg"),
-                ),
-                Product(
-                    productId = 3L,
-                    userId = 1L,
-                    title = "ProductC",
-                    description = "DescriptionC",
-                    price = 30000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000)),
-                    images = listOf("imgC.jpg"),
-                ),
-            )
+            val sampleProducts =
+                listOf(
+                    Product(
+                        productId = 1L,
+                        userId = 1L,
+                        title = "ProductA",
+                        description = "DescriptionA",
+                        price = 10000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000)),
+                        images = listOf("imgA.jpg"),
+                    ),
+                    Product(
+                        productId = 2L,
+                        userId = 1L,
+                        title = "ProductB",
+                        description = "DescriptionB",
+                        price = 20000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000)),
+                        images = listOf("imgB.jpg"),
+                    ),
+                    Product(
+                        productId = 3L,
+                        userId = 1L,
+                        title = "ProductC",
+                        description = "DescriptionC",
+                        price = 30000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000)),
+                        images = listOf("imgC.jpg"),
+                    ),
+                )
 
             // 모의 객체의 동작 정의
             every {
@@ -468,65 +491,66 @@ class ProductUseCaseTest : BehaviorSpec({
         }
 
         `when`("정렬 기준이 'price-desc'인 경우") {
-            val sampleProducts = listOf(
-                Product(
-                    productId = 1L,
-                    userId = 1L,
-                    title = "ProductA",
-                    description = "DescriptionA",
-                    price = 10000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000)),
-                    images = listOf("imgA.jpg"),
-                ),
-                Product(
-                    productId = 2L,
-                    userId = 1L,
-                    title = "ProductB",
-                    description = "DescriptionB",
-                    price = 20000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000)),
-                    images = listOf("imgB.jpg"),
-                ),
-                Product(
-                    productId = 3L,
-                    userId = 1L,
-                    title = "ProductC",
-                    description = "DescriptionC",
-                    price = 30000,
-                    typeCode = 0,
-                    shootingTime = null,
-                    shootingLocation = null,
-                    numberOfCostumes = null,
-                    partnerShops = emptyList(),
-                    detailedInfo = null,
-                    warrantyInfo = null,
-                    contactInfo = null,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    options = listOf(ProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000)),
-                    images = listOf("imgC.jpg"),
-                ),
-            )
+            val sampleProducts =
+                listOf(
+                    Product(
+                        productId = 1L,
+                        userId = 1L,
+                        title = "ProductA",
+                        description = "DescriptionA",
+                        price = 10000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000)),
+                        images = listOf("imgA.jpg"),
+                    ),
+                    Product(
+                        productId = 2L,
+                        userId = 1L,
+                        title = "ProductB",
+                        description = "DescriptionB",
+                        price = 20000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000)),
+                        images = listOf("imgB.jpg"),
+                    ),
+                    Product(
+                        productId = 3L,
+                        userId = 1L,
+                        title = "ProductC",
+                        description = "DescriptionC",
+                        price = 30000,
+                        typeCode = 0,
+                        shootingTime = null,
+                        shootingLocation = null,
+                        numberOfCostumes = null,
+                        partnerShops = emptyList(),
+                        detailedInfo = null,
+                        warrantyInfo = null,
+                        contactInfo = null,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        options = listOf(ProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000)),
+                        images = listOf("imgC.jpg"),
+                    ),
+                )
 
             // 모의 객체의 동작 정의
             every {
