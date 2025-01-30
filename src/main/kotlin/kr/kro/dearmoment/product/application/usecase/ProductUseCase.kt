@@ -26,12 +26,12 @@ class ProductUseCase(
         val savedProduct = productPersistencePort.save(product)
         saveProductOptions(savedProduct, product.options.orEmpty()) // null 방지
 
-        val completeProduct = savedProduct.copy(
-            options = productOptionPersistencePort.findByProductId(savedProduct.productId!!)
-        )
+        val completeProduct =
+            savedProduct.copy(
+                options = productOptionPersistencePort.findByProductId(savedProduct.productId!!),
+            )
         return completeProduct.toResponse()
     }
-
 
     @Transactional
     fun updateProduct(request: UpdateProductRequest): ProductResponse {
