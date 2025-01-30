@@ -2,14 +2,15 @@ package kr.kro.dearmoment.product.application.usecase
 
 import kr.kro.dearmoment.product.application.dto.extensions.toDomain
 import kr.kro.dearmoment.product.application.dto.extensions.toResponse
+import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.PagedResponse
+import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,44 +21,46 @@ class ProductUseCase(
 ) {
     @Transactional
     fun saveProduct(request: CreateProductRequest): ProductResponse {
-        val product = request.toDomain()
+        val product = request.toDomain().copy(options = emptyList())
         validateForCreation(product)
 
         val savedProduct = productPersistencePort.save(product)
-        saveProductOptions(savedProduct, product.options.orEmpty()) // null 방지
+        saveProductOptions(savedProduct, request.options)
 
-        val completeProduct =
-            savedProduct.copy(
-                options = productOptionPersistencePort.findByProductId(savedProduct.productId!!),
-            )
+        val completeProduct = savedProduct.copy(
+            options = productOptionPersistencePort.findByProductId(savedProduct.productId!!)
+        )
         return completeProduct.toResponse()
     }
 
     @Transactional
     fun updateProduct(request: UpdateProductRequest): ProductResponse {
-        val product = request.toDomain()
+        val product = request.toDomain().copy(options = emptyList())
         product.validateForUpdate()
 
-        val existingProduct =
-            productPersistencePort.findById(product.productId!!)
-                ?: throw IllegalArgumentException("Product with ID ${product.productId} not found.")
+        val existingProduct = productPersistencePort.findById(product.productId!!)
+            ?: throw IllegalArgumentException("Product not found: ${product.productId}")
 
+        // 옵션 처리 (신규 생성, 업데이트, 삭제)
         val existingOptionIds = existingProduct.options.mapNotNull { it.optionId }.toSet()
-        val incomingOptionIds = product.options.mapNotNull { it.optionId }.toSet()
+        val incomingOptionIds = request.options.mapNotNull { it.optionId }.toSet()
         val toDelete = existingOptionIds subtract incomingOptionIds
 
+        // 1. 삭제할 옵션 처리
         handleDeletedOptions(toDelete)
 
-        product.options.forEach { option ->
-            productOptionPersistencePort.save(option, product)
+        request.options.forEach { dto ->
+            val domainOption = dto.toDomain().copy(
+                productId = product.productId
+            )
+            productOptionPersistencePort.save(domainOption, product)
         }
 
         val updatedProduct = productPersistencePort.save(product)
-        val completeProduct =
-            updatedProduct.copy(
-                options = productOptionPersistencePort.findByProductId(updatedProduct.productId!!),
-            )
-        return completeProduct.toResponse()
+
+        return updatedProduct.copy(
+            options = productOptionPersistencePort.findByProductId(updatedProduct.productId!!)
+        ).toResponse()
     }
 
     @Transactional
@@ -124,9 +127,14 @@ class ProductUseCase(
 
     private fun saveProductOptions(
         product: Product,
-        options: List<ProductOption>,
-    ): List<ProductOption> {
-        return options.map { productOptionPersistencePort.save(it, product) }
+        options: List<CreateProductOptionRequest>
+    ): List<ProductOptionResponse> {
+        return options.map { dto ->
+            val domainOption = dto.toDomain().copy(
+                productId = product.productId!!
+            )
+            productOptionPersistencePort.save(domainOption, product).toResponse()
+        }
     }
 
     private fun validatePriceRange(
