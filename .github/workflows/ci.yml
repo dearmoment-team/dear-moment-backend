@@ -31,9 +31,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Run OCI Setup Workflow
-        uses: ./.github/workflows/setup-oci.yml
-
       # Gradle 빌드 실행
       - name: Build with Gradle
         run: ./gradlew build
