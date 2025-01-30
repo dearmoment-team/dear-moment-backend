@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.product.application.dto.request
 
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.PositiveOrZero
 import java.time.LocalDateTime
 
 data class CreateProductRequest(
@@ -25,7 +27,9 @@ data class CreatePartnerShopRequest(
 )
 
 data class CreateProductOptionRequest(
+    @field:NotBlank(message = "옵션 이름은 필수입니다.")
     val name: String,
+    @field:PositiveOrZero(message = "추가 가격은 0 이상이어야 합니다.")
     val additionalPrice: Long,
-    val description: String? = null,
+    val description: String? = null
 )

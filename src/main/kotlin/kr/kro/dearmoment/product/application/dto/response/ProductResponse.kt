@@ -29,9 +29,10 @@ data class PartnerShopResponse(
 
 data class ProductOptionResponse(
     val optionId: Long,
+    val productId: Long,
     val name: String,
     val additionalPrice: Long,
     val description: String?,
     val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?
 )

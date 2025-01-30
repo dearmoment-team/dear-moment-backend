@@ -78,9 +78,15 @@ class ProductUseCaseTest : BehaviorSpec({
 
             // findByProductId 메소드가 호출될 때, optionId가 1L인 ProductOption을 반환
             every { productOptionPersistencePort.findByProductId(1L) } returns
-                listOf(
-                    validProduct.options[0].copy(optionId = 1L, productId = 1L),
-                )
+                    listOf(
+                        ProductOption(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option1",
+                            additionalPrice = 2000,
+                            description = null
+                        )
+                    )
 
             then("상품과 옵션이 저장되어야 함") {
                 val result = productUseCase.saveProduct(createProduct)
@@ -213,7 +219,7 @@ class ProductUseCaseTest : BehaviorSpec({
                     io.kotest.assertions.throwables.shouldThrow<IllegalArgumentException> {
                         productUseCase.updateProduct(updateRequest.copy(productId = 999L))
                     }
-                exception.message shouldBe "Product with ID 999 not found."
+                exception.message shouldBe "Product not found: 999"
             }
         }
     }
