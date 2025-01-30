@@ -1,6 +1,8 @@
 package kr.kro.dearmoment.product.application.dto.extensions
 
+import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
@@ -18,15 +20,6 @@ fun CreateProductRequest.toDomain(): Product {
             )
         }
 
-    val productOptionList =
-        options.map { optionRequest ->
-            ProductOption(
-                name = optionRequest.name,
-                additionalPrice = optionRequest.additionalPrice,
-                description = optionRequest.description,
-            )
-        }
-
     return Product(
         userId = userId,
         title = title,
@@ -40,8 +33,17 @@ fun CreateProductRequest.toDomain(): Product {
         detailedInfo = detailedInfo,
         warrantyInfo = warrantyInfo,
         contactInfo = contactInfo,
-        options = productOptionList,
         images = images,
+        options = emptyList()
+    )
+}
+
+fun CreateProductOptionRequest.toDomain(): ProductOption {
+    return ProductOption(
+        optionId = null,
+        name = name,
+        additionalPrice = additionalPrice,
+        description = description
     )
 }
 
@@ -82,6 +84,15 @@ fun UpdateProductRequest.toDomain(): Product {
     )
 }
 
+fun UpdateProductOptionRequest.toDomain(): ProductOption {
+    return ProductOption(
+        optionId = this.optionId,
+        name = this.name,
+        additionalPrice = this.additionalPrice,
+        description = this.description
+    )
+}
+
 fun Product.toResponse() =
     ProductResponse(
         productId = productId!!,
@@ -112,6 +123,7 @@ fun PartnerShop.toResponse() =
 fun ProductOption.toResponse() =
     ProductOptionResponse(
         optionId = optionId!!,
+        productId = productId!!,
         name = name,
         additionalPrice = additionalPrice,
         description = description,
