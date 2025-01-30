@@ -6,6 +6,8 @@ plugins {
     kotlin("jvm") version "1.9.25"
     id("org.springframework.boot") version "3.4.1"
     kotlin("plugin.spring") version "1.9.25"
+    kotlin("plugin.jpa") version "1.9.25"
+    kotlin("plugin.noarg") version "1.9.25"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2" // ktlint
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
@@ -40,6 +42,10 @@ dependencies {
     // Hibernate Validator
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    // OCI Object Storage
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.55.3")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:3.55.3")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-addons-apache-configurator-jersey3:3.55.3")
 
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
