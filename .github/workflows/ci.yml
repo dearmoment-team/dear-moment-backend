@@ -31,6 +31,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Check OCI Config and Key Files
+        run: |
+          echo "Checking OCI Config and Private Key Files"
+          ls -l ~/.oci  # ~/.oci 디렉터리 내용 출력
+
       # Gradle 빌드 실행
       - name: Build with Gradle
         run: ./gradlew build
