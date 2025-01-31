@@ -53,4 +53,12 @@ interface ProductOptionPersistencePort {
      * @return ProductOption 존재 여부
      */
     fun existsByProductId(productId: Long): Boolean
+
+    /**
+     * 특정 Product ID와 옵션 이름으로 중복 여부 확인
+     * @param productId Product ID
+     * @param name 옵션 이름
+     * @return 중복 여부
+     */
+    fun existsByProductIdAndName(productId: Long, name: String): Boolean
 }

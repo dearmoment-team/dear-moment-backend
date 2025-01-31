@@ -27,4 +27,5 @@ interface JpaProductOptionRepository : JpaRepository<ProductOptionEntity, Long> 
      * 특정 Product ID에 속한 ProductOption의 존재 여부를 확인합니다.
      */
     fun existsByProductProductId(productId: Long): Boolean
+
 }
