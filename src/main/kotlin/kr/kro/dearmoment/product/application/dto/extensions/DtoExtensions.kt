@@ -38,12 +38,12 @@ fun CreateProductRequest.toDomain(): Product {
     )
 }
 
-fun CreateProductOptionRequest.toDomain(): ProductOption {
+fun CreateProductOptionRequest.toDomain(productId: Long): ProductOption {
     return ProductOption(
-        optionId = null,
-        name = name,
-        additionalPrice = additionalPrice,
-        description = description
+        productId = productId,
+        name = this.name,
+        additionalPrice = this.additionalPrice,
+        description = this.description
     )
 }
 

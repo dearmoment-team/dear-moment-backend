@@ -68,4 +68,8 @@ class ProductOptionRepositoryAdapter(
     override fun existsByProductId(productId: Long): Boolean {
         return jpaProductOptionRepository.existsByProductProductId(productId)
     }
+
+    override fun existsByProductIdAndName(productId: Long, name: String): Boolean {
+        return jpaProductOptionRepository.existsByProductProductIdAndName(productId, name)
+    }
 }
