@@ -18,7 +18,6 @@ class ProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val productOptionPersistencePort: ProductOptionPersistencePort,
 ) : ProductUseCase {
-
     @Transactional
     override fun saveProduct(request: CreateProductRequest): ProductResponse {
         // 도메인 모델 생성 시 옵션은 빈 리스트로 초기화
@@ -28,9 +27,10 @@ class ProductUseCaseImpl(
         val savedProduct = productPersistencePort.save(product)
         saveProductOptions(savedProduct, request.options)
 
-        val completeProduct = savedProduct.copy(
-            options = productOptionPersistencePort.findByProductId(savedProduct.productId)
-        )
+        val completeProduct =
+            savedProduct.copy(
+                options = productOptionPersistencePort.findByProductId(savedProduct.productId),
+            )
         // 정적 팩토리 메서드를 이용하여 도메인 모델 → DTO 변환
         return ProductResponse.fromDomain(completeProduct)
     }
@@ -41,17 +41,19 @@ class ProductUseCaseImpl(
         val product = UpdateProductRequest.toDomain(request).copy(options = emptyList())
         product.validateForUpdate()
 
-        val existingProduct = productPersistencePort.findById(product.productId)
-            ?: throw IllegalArgumentException("Product not found: ${product.productId}")
+        val existingProduct =
+            productPersistencePort.findById(product.productId)
+                ?: throw IllegalArgumentException("Product not found: ${product.productId}")
 
         // 기존 옵션의 식별자는 모두 0L가 아닌 값으로 가정합니다.
         val existingOptionIds: Set<Long> = existingProduct.options.map { it.optionId }.toSet()
 
         // 업데이트 요청에 포함된 옵션 중, optionId가 0L가 아니라면 기존 옵션으로 판단
-        val incomingOptionIds: Set<Long> = request.options
-            .map { it.optionId ?: 0L }
-            .filter { it != 0L }
-            .toSet()
+        val incomingOptionIds: Set<Long> =
+            request.options
+                .map { it.optionId ?: 0L }
+                .filter { it != 0L }
+                .toSet()
 
         // 기존 옵션 중 업데이트 요청에 없는 옵션은 삭제 대상
         val toDelete: Set<Long> = existingOptionIds subtract incomingOptionIds
@@ -66,9 +68,10 @@ class ProductUseCaseImpl(
         }
 
         val updatedProduct = productPersistencePort.save(product)
-        val completeProduct = updatedProduct.copy(
-            options = productOptionPersistencePort.findByProductId(updatedProduct.productId)
-        )
+        val completeProduct =
+            updatedProduct.copy(
+                options = productOptionPersistencePort.findByProductId(updatedProduct.productId),
+            )
         return ProductResponse.fromDomain(completeProduct)
     }
 
@@ -82,12 +85,14 @@ class ProductUseCaseImpl(
     }
 
     override fun getProductById(productId: Long): ProductResponse {
-        val product = productPersistencePort.findById(productId)
-            ?: throw IllegalArgumentException("Product with ID $productId not found.")
+        val product =
+            productPersistencePort.findById(productId)
+                ?: throw IllegalArgumentException("Product with ID $productId not found.")
 
-        val completeProduct = product.copy(
-            options = productOptionPersistencePort.findByProductId(productId)
-        )
+        val completeProduct =
+            product.copy(
+                options = productOptionPersistencePort.findByProductId(productId),
+            )
         return ProductResponse.fromDomain(completeProduct)
     }
 
@@ -102,45 +107,52 @@ class ProductUseCaseImpl(
     ): PagedResponse<ProductResponse> {
         validatePriceRange(minPrice, maxPrice)
 
-        val result = productPersistencePort.searchByCriteria(
-            title = title,
-            priceRange = minPrice?.let { Pair(it, maxPrice) },
-            typeCode = typeCode,
-            sortBy = sortBy,
-        )
+        val result =
+            productPersistencePort.searchByCriteria(
+                title = title,
+                priceRange = minPrice?.let { Pair(it, maxPrice) },
+                typeCode = typeCode,
+                sortBy = sortBy,
+            )
 
         // 정렬 로직 (예시: 모의 추천 수치 사용)
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
-        val sortedProducts = when (sortBy) {
-            "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
-            "price-asc" -> mockData.sortedBy { it.first.price }.map { it.first }
-            "price-desc" -> mockData.sortedByDescending { it.first.price }.map { it.first }
-            else -> mockData.map { it.first }
-        }
+        val sortedProducts =
+            when (sortBy) {
+                "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
+                "price-asc" -> mockData.sortedBy { it.first.price }.map { it.first }
+                "price-desc" -> mockData.sortedByDescending { it.first.price }.map { it.first }
+                else -> mockData.map { it.first }
+            }
 
         return PagedResponse(
             content = sortedProducts.map { ProductResponse.fromDomain(it) },
             page = page,
             size = size,
             totalElements = sortedProducts.size.toLong(),
-            totalPages = ((sortedProducts.size + size - 1) / size)
+            totalPages = ((sortedProducts.size + size - 1) / size),
         )
     }
 
     @Transactional(readOnly = true)
-    override fun getMainPageProducts(page: Int, size: Int): PagedResponse<ProductResponse> {
-        val result = productPersistencePort.searchByCriteria(
-            title = null,
-            priceRange = null,
-            typeCode = null,
-            sortBy = null,
-        )
+    override fun getMainPageProducts(
+        page: Int,
+        size: Int,
+    ): PagedResponse<ProductResponse> {
+        val result =
+            productPersistencePort.searchByCriteria(
+                title = null,
+                priceRange = null,
+                typeCode = null,
+                sortBy = null,
+            )
 
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
-        val sortedProducts = mockData.sortedWith(
-            compareByDescending<Pair<Product, Int>> { it.second }
-                .thenByDescending { it.first.createdAt }
-        ).map { it.first }
+        val sortedProducts =
+            mockData.sortedWith(
+                compareByDescending<Pair<Product, Int>> { it.second }
+                    .thenByDescending { it.first.createdAt },
+            ).map { it.first }
 
         val fromIndex = page * size
         val toIndex = if (fromIndex + size > sortedProducts.size) sortedProducts.size else fromIndex + size
@@ -159,7 +171,7 @@ class ProductUseCaseImpl(
     // 헬퍼 메소드들
     private fun saveProductOptions(
         product: Product,
-        options: List<CreateProductOptionRequest>
+        options: List<CreateProductOptionRequest>,
     ) {
         options.forEach { dto ->
             val domainOption = CreateProductOptionRequest.toDomain(dto, product.productId)
@@ -167,7 +179,10 @@ class ProductUseCaseImpl(
         }
     }
 
-    private fun validatePriceRange(min: Long?, max: Long?) {
+    private fun validatePriceRange(
+        min: Long?,
+        max: Long?,
+    ) {
         if ((min != null && min < 0) || (max != null && max < 0)) {
             throw IllegalArgumentException("Price range must be greater than or equal to 0.")
         }

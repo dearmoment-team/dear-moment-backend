@@ -22,12 +22,13 @@ data class CreateProductRequest(
 ) {
     companion object {
         fun toDomain(request: CreateProductRequest): kr.kro.dearmoment.product.domain.model.Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                kr.kro.dearmoment.product.domain.model.PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link
-                )
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    kr.kro.dearmoment.product.domain.model.PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
             return kr.kro.dearmoment.product.domain.model.Product(
                 userId = request.userId,
                 title = request.title,
@@ -42,7 +43,7 @@ data class CreateProductRequest(
                 warrantyInfo = request.warrantyInfo ?: "",
                 contactInfo = request.contactInfo ?: "",
                 images = request.images,
-                options = emptyList()
+                options = emptyList(),
             )
         }
     }
@@ -62,13 +63,16 @@ data class CreateProductOptionRequest(
     val description: String? = null,
 ) {
     companion object {
-        fun toDomain(request: CreateProductOptionRequest, productId: Long): kr.kro.dearmoment.product.domain.model.ProductOption {
+        fun toDomain(
+            request: CreateProductOptionRequest,
+            productId: Long,
+        ): kr.kro.dearmoment.product.domain.model.ProductOption {
             return kr.kro.dearmoment.product.domain.model.ProductOption(
                 optionId = request.optionId ?: 0L,
                 productId = productId,
                 name = request.name,
                 additionalPrice = request.additionalPrice,
-                description = request.description ?: ""
+                description = request.description ?: "",
             )
         }
     }
