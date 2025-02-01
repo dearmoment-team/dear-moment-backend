@@ -26,20 +26,20 @@ import java.time.LocalDateTime
 
 class ProductUseCaseTest : BehaviorSpec({
 
-    // 모의 객체 생성
     val productPersistencePort = mockk<ProductPersistencePort>(relaxed = true)
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>(relaxed = true)
 
+    // 인터페이스 타입으로 선언하고 실제 구현체 주입
     lateinit var productUseCase: ProductUseCase
 
     beforeEach {
-        // 각 테스트 전에 ProductUseCase 인스턴스 초기화
-        productUseCase =
-            ProductUseCase(
-                productPersistencePort,
-                productOptionPersistencePort,
-            )
+        productUseCase = ProductUseCaseImpl(productPersistencePort, productOptionPersistencePort)
     }
+
+    afterEach {
+        clearMocks(productPersistencePort, productOptionPersistencePort)
+    }
+
 
     afterEach {
         // 각 테스트 후에 모든 모의 객체 초기화
