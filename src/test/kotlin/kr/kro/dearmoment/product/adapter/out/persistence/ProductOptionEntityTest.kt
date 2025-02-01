@@ -6,6 +6,7 @@ import kr.kro.dearmoment.product.domain.model.ProductOption
 import java.time.LocalDateTime
 
 class ProductOptionEntityTest : StringSpec({
+
     "ProductOptionEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
         val fixedCreatedAt = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
         val fixedUpdatedAt = LocalDateTime.of(2023, 1, 1, 12, 0, 0)
@@ -50,8 +51,8 @@ class ProductOptionEntityTest : StringSpec({
         productOptionEntity.additionalPrice shouldBe productOption.additionalPrice
         productOptionEntity.description shouldBe productOption.description
         productOptionEntity.product?.productId shouldBe productOption.productId
-        productOptionEntity.createdAt shouldBe productOption.createdAt
-        productOptionEntity.updatedAt shouldBe productOption.updatedAt
+        productOptionEntity.createdAt shouldBe null
+        productOptionEntity.updatedAt shouldBe null
     }
 
     "ProductOptionEntity는 도메인 모델로 올바르게 변환되어야 한다" {
@@ -87,8 +88,8 @@ class ProductOptionEntityTest : StringSpec({
             additionalPrice = 500L,
             description = "옵션 설명",
             product = productEntity,
-            createdAt = fixedCreatedAt,
-            updatedAt = fixedUpdatedAt
+            createdAt = null,
+            updatedAt = null
         )
 
         val productOption = productOptionEntity.toDomain()
