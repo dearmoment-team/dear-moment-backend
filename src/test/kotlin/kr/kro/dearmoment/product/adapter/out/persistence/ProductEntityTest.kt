@@ -10,30 +10,28 @@ import java.time.LocalDateTime
 class ProductEntityTest : StringSpec({
     "ProductEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops =
-            listOf(
-                PartnerShop(name = "상점1", link = "http://shop1.com"),
-                PartnerShop(name = "상점2", link = "http://shop2.com"),
-            )
-        val product =
-            Product(
-                productId = 1L,
-                userId = 123L,
-                title = "테스트 제품",
-                description = "이것은 테스트 제품입니다",
-                price = 1000L,
-                typeCode = 1,
-                shootingTime = fixedDateTime,
-                shootingLocation = "테스트 장소",
-                numberOfCostumes = 5,
-                partnerShops = partnerShops,
-                detailedInfo = "상세 정보",
-                warrantyInfo = "1년 보증",
-                contactInfo = "test@example.com",
-                createdAt = fixedDateTime,
-                updatedAt = fixedDateTime,
-                images = listOf("image1.jpg", "image2.jpg"),
-            )
+        val partnerShops = listOf(
+            PartnerShop(name = "상점1", link = "http://shop1.com"),
+            PartnerShop(name = "상점2", link = "http://shop2.com")
+        )
+        val product = Product(
+            productId = 1L,
+            userId = 123L,
+            title = "테스트 제품",
+            description = "이것은 테스트 제품입니다",
+            price = 1000L,
+            typeCode = 1,
+            shootingTime = fixedDateTime,
+            shootingLocation = "테스트 장소",
+            numberOfCostumes = 5,
+            partnerShops = partnerShops,
+            detailedInfo = "상세 정보",
+            warrantyInfo = "1년 보증",
+            contactInfo = "test@example.com",
+            createdAt = fixedDateTime,
+            updatedAt = fixedDateTime,
+            images = listOf("image1.jpg", "image2.jpg")
+        )
 
         val productEntity = ProductEntity.fromDomain(product)
 
@@ -58,30 +56,28 @@ class ProductEntityTest : StringSpec({
 
     "ProductEntity는 도메인 모델로 올바르게 변환되어야 한다" {
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops =
-            listOf(
-                PartnerShopEmbeddable(name = "상점1", link = "http://shop1.com"),
-                PartnerShopEmbeddable(name = "상점2", link = "http://shop2.com"),
-            )
-        val productEntity =
-            ProductEntity(
-                productId = 1L,
-                userId = 123L,
-                title = "테스트 제품",
-                description = "이것은 테스트 제품입니다",
-                price = 1000L,
-                typeCode = 1,
-                shootingTime = fixedDateTime,
-                shootingLocation = "테스트 장소",
-                numberOfCostumes = 5,
-                partnerShops = partnerShops,
-                detailedInfo = "상세 정보",
-                warrantyInfo = "1년 보증",
-                contactInfo = "test@example.com",
-                createdAt = fixedDateTime,
-                updatedAt = fixedDateTime,
-                images = listOf("image1.jpg", "image2.jpg"),
-            )
+        val partnerShops = listOf(
+            PartnerShopEmbeddable(name = "상점1", link = "http://shop1.com"),
+            PartnerShopEmbeddable(name = "상점2", link = "http://shop2.com")
+        )
+        val productEntity = ProductEntity(
+            productId = 1L,
+            userId = 123L,
+            title = "테스트 제품",
+            description = "이것은 테스트 제품입니다",
+            price = 1000L,
+            typeCode = 1,
+            shootingTime = fixedDateTime,
+            shootingLocation = "테스트 장소",
+            numberOfCostumes = 5,
+            partnerShops = partnerShops,
+            detailedInfo = "상세 정보",
+            warrantyInfo = "1년 보증",
+            contactInfo = "test@example.com",
+            createdAt = fixedDateTime,
+            updatedAt = fixedDateTime,
+            images = listOf("image1.jpg", "image2.jpg")
+        )
 
         val product = productEntity.toDomain()
 
