@@ -1,20 +1,29 @@
-package kr.kro.dearmoment.product.adapter.`in`.web
+package kr.kro.dearmoment.product.adapter.input.web
 
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.usecase.ProductUseCase
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/products")
 class ProductRestAdapter(
-    private val productUseCase: ProductUseCase
+    private val productUseCase: ProductUseCase,
 ) {
-
     @PostMapping
-    fun createProduct(@RequestBody request: CreateProductRequest): ResponseEntity<*> {
+    fun createProduct(
+        @RequestBody request: CreateProductRequest,
+    ): ResponseEntity<*> {
         val createdProduct = productUseCase.saveProduct(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct)
     }
@@ -22,20 +31,24 @@ class ProductRestAdapter(
     @PutMapping("/{id}")
     fun updateProduct(
         @PathVariable id: Long,
-        @RequestBody request: UpdateProductRequest
+        @RequestBody request: UpdateProductRequest,
     ): ResponseEntity<*> {
         val updatedProduct = productUseCase.updateProduct(request.copy(productId = id))
         return ResponseEntity.ok(updatedProduct)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteProduct(@PathVariable id: Long): ResponseEntity<*> {
+    fun deleteProduct(
+        @PathVariable id: Long,
+    ): ResponseEntity<*> {
         productUseCase.deleteProduct(id)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build<Void>()
     }
 
     @GetMapping("/{id}")
-    fun getProduct(@PathVariable id: Long): ResponseEntity<*> {
+    fun getProduct(
+        @PathVariable id: Long,
+    ): ResponseEntity<*> {
         val product = productUseCase.getProductById(id)
         return ResponseEntity.ok(product)
     }
@@ -44,7 +57,7 @@ class ProductRestAdapter(
     @GetMapping("/main")
     fun getMainPageProducts(
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
     ): ResponseEntity<*> {
         val pagedResponse = productUseCase.getMainPageProducts(page, size)
         return ResponseEntity.ok(pagedResponse)

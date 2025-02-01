@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.product.adapter.`in`.web
+package kr.kro.dearmoment.product.adapter.input.web
 
 import kr.kro.dearmoment.product.application.usecase.ProductUseCase
 import org.mockito.Mockito

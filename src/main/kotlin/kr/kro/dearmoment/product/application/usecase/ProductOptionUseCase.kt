@@ -16,7 +16,10 @@ class ProductOptionUseCase(
     private val productPersistencePort: ProductPersistencePort,
 ) {
     @Transactional
-    fun saveProductOption(productId: Long, request: CreateProductOptionRequest): ProductOptionResponse {
+    fun saveProductOption(
+        productId: Long,
+        request: CreateProductOptionRequest,
+    ): ProductOptionResponse {
         val product = getProductOrThrow(productId)
         validateDuplicateOption(productId, request.name)
 
@@ -30,7 +33,6 @@ class ProductOptionUseCase(
         return productOptionPersistencePort.findById(optionId)
             .toResponse()
     }
-
 
     @Transactional(readOnly = true)
     fun getAllProductOptions(): List<ProductOptionResponse> {
@@ -64,7 +66,10 @@ class ProductOptionUseCase(
             ?: throw IllegalArgumentException("Product not found: $productId")
     }
 
-    private fun validateDuplicateOption(productId: Long, name: String) {
+    private fun validateDuplicateOption(
+        productId: Long,
+        name: String,
+    ) {
         val exists = productOptionPersistencePort.existsByProductIdAndName(productId, name)
         if (exists) throw IllegalArgumentException("Duplicate option name: $name")
     }
