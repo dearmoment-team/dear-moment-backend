@@ -17,7 +17,7 @@ class ProductOptionRepositoryAdapter(
         product: Product,
     ): ProductOption {
         val productEntity =
-            jpaProductRepository.findById(product.productId!!)
+            jpaProductRepository.findById(product.productId)
                 .orElseThrow { IllegalArgumentException("Product not found: ${product.productId}") }
 
         if (jpaProductOptionRepository.existsByProductProductIdAndName(
