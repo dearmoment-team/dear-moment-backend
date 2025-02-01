@@ -13,6 +13,7 @@ import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import java.time.LocalDateTime
@@ -33,13 +34,13 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         shootingTime = LocalDateTime.now(),
         shootingLocation = "Test Location",
         numberOfCostumes = 1,
-        partnerShops = emptyList(),
+        partnerShops = listOf(PartnerShop(name = "Partner1", link = "http://partner1.com")),
         detailedInfo = "Test Info",
         warrantyInfo = "Test Warranty",
         contactInfo = "Test Contact",
         images = listOf("image1.jpg"),
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now(),
+        createdAt = null,
+        updatedAt = null,
         options = emptyList()
     )
 
@@ -55,8 +56,8 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         name = "Option 1",
         additionalPrice = 5000,
         description = "Test option",
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now()
+        createdAt = null,
+        updatedAt = null
     )
 
     Given("saveProductOption") {
