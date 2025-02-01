@@ -13,6 +13,8 @@ import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import kotlin.math.ceil
 
 @Service
 class ProductUseCase(
@@ -110,18 +112,58 @@ class ProductUseCase(
 
         val sortedProducts =
             when (sortBy) {
-                "likes" -> mockData.sortedByDescending { it.second }
-                "price-asc" -> mockData.sortedBy { it.first.price }
-                "price-desc" -> mockData.sortedByDescending { it.first.price }
-                else -> mockData
-            }.map { it.first }
+                "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
+                "price-asc" -> mockData.sortedBy { it.first.price }.map { it.first }
+                "price-desc" -> mockData.sortedByDescending { it.first.price }.map { it.first }
+                else -> mockData.map { it.first }
+            }
 
         return PagedResponse(
             content = sortedProducts.map { it.toResponse() },
             page = page,
             size = size,
             totalElements = sortedProducts.size.toLong(),
-            totalPages = (sortedProducts.size / size) + 1,
+            totalPages = ((sortedProducts.size + size - 1) / size)
+        )
+    }
+
+    /**
+     * 메인페이지에 띄울 추천(모의 추천 수치 기반) 및 최근 일자 정렬 함수.
+     * 첫 번째 정렬 기준은 모의 추천 수치(여기서는 인덱스+1로 가정), 두 번째 정렬 기준은 생성일(createdAt) 내림차순입니다.
+     */
+    @Transactional(readOnly = true)
+    fun getMainPageProducts(
+        page: Int = 0,
+        size: Int = 10
+    ): PagedResponse<ProductResponse> {
+        // 모든 상품을 조회합니다.
+        val result = productPersistencePort.searchByCriteria(
+            title = null,
+            priceRange = null,
+            typeCode = null,
+            sortBy = null
+        )
+
+        // 모의 추천 수치로 index+1을 사용 (실제 환경에서는 추천 점수를 조회)
+        val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
+
+        // 첫 번째: 추천 수치 내림차순, 두 번째: 생성일(createdAt) 내림차순 정렬
+        val sortedProducts = mockData.sortedWith(
+            compareByDescending<Pair<Product, Int>> { it.second }
+                .thenByDescending { it.first.createdAt ?: LocalDateTime.MIN }
+        ).map { it.first }
+
+        // Pagination 처리
+        val fromIndex = page * size
+        val toIndex = if (fromIndex + size > sortedProducts.size) sortedProducts.size else fromIndex + size
+        val pagedContent = if (fromIndex >= sortedProducts.size) emptyList() else sortedProducts.subList(fromIndex, toIndex)
+
+        return PagedResponse(
+            content = pagedContent.map { it.toResponse() },
+            page = page,
+            size = size,
+            totalElements = sortedProducts.size.toLong(),
+            totalPages = ceil(sortedProducts.size.toDouble() / size).toInt()
         )
     }
 
