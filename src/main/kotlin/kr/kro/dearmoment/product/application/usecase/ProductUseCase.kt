@@ -130,9 +130,7 @@ class ProductUseCase(
         options: List<CreateProductOptionRequest>
     ): List<ProductOptionResponse> {
         return options.map { dto ->
-            val domainOption = dto.toDomain().copy(
-                productId = product.productId!!
-            )
+            val domainOption = dto.toDomain(product.productId!!)
             productOptionPersistencePort.save(domainOption, product).toResponse()
         }
     }

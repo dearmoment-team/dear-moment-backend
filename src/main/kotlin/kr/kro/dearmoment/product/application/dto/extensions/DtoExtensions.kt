@@ -40,6 +40,7 @@ fun CreateProductRequest.toDomain(): Product {
 
 fun CreateProductOptionRequest.toDomain(productId: Long): ProductOption {
     return ProductOption(
+        optionId = this.optionId,
         productId = productId,
         name = this.name,
         additionalPrice = this.additionalPrice,
