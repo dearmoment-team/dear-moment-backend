@@ -61,7 +61,7 @@ open class ProductOptionEntity(
                 additionalPrice = option.additionalPrice,
                 description = option.description,
                 createdAt = null,
-                updatedAt = null
+                updatedAt = null,
             )
         }
     }

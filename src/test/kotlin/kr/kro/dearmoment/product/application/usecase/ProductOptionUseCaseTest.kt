@@ -24,50 +24,54 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>()
     val useCase = ProductOptionUseCase(productOptionPersistencePort, productPersistencePort)
 
-    val mockProduct = Product(
-        productId = 1L,
-        userId = 1L,
-        title = "Test Product",
-        description = "Test Description",
-        price = 10000,
-        typeCode = 1,
-        shootingTime = LocalDateTime.now(),
-        shootingLocation = "Test Location",
-        numberOfCostumes = 1,
-        partnerShops = listOf(PartnerShop(name = "Partner1", link = "http://partner1.com")),
-        detailedInfo = "Test Info",
-        warrantyInfo = "Test Warranty",
-        contactInfo = "Test Contact",
-        images = listOf("image1.jpg"),
-        createdAt = null,
-        updatedAt = null,
-        options = emptyList()
-    )
+    val mockProduct =
+        Product(
+            productId = 1L,
+            userId = 1L,
+            title = "Test Product",
+            description = "Test Description",
+            price = 10000,
+            typeCode = 1,
+            shootingTime = LocalDateTime.now(),
+            shootingLocation = "Test Location",
+            numberOfCostumes = 1,
+            partnerShops = listOf(PartnerShop(name = "Partner1", link = "http://partner1.com")),
+            detailedInfo = "Test Info",
+            warrantyInfo = "Test Warranty",
+            contactInfo = "Test Contact",
+            images = listOf("image1.jpg"),
+            createdAt = null,
+            updatedAt = null,
+            options = emptyList(),
+        )
 
-    val validRequest = CreateProductOptionRequest(
-        name = "Option 1",
-        additionalPrice = 5000,
-        description = "Test option"
-    )
+    val validRequest =
+        CreateProductOptionRequest(
+            name = "Option 1",
+            additionalPrice = 5000,
+            description = "Test option",
+        )
 
-    val savedDomainOption = ProductOption(
-        optionId = 1L,
-        productId = 1L,
-        name = "Option 1",
-        additionalPrice = 5000,
-        description = "Test option",
-        createdAt = null,
-        updatedAt = null
-    )
+    val savedDomainOption =
+        ProductOption(
+            optionId = 1L,
+            productId = 1L,
+            name = "Option 1",
+            additionalPrice = 5000,
+            description = "Test option",
+            createdAt = null,
+            updatedAt = null,
+        )
 
     Given("saveProductOption") {
         When("존재하지 않는 productId로 요청 시") {
             every { productPersistencePort.findById(999L) } returns null
 
             Then("IllegalArgumentException 발생") {
-                val exception = shouldThrow<IllegalArgumentException> {
-                    useCase.saveProductOption(999L, validRequest)
-                }
+                val exception =
+                    shouldThrow<IllegalArgumentException> {
+                        useCase.saveProductOption(999L, validRequest)
+                    }
                 exception shouldHaveMessage "Product not found: 999"
             }
         }
@@ -77,9 +81,10 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.existsByProductIdAndName(1L, "Option 1") } returns true
 
             Then("IllegalArgumentException 발생") {
-                val exception = shouldThrow<IllegalArgumentException> {
-                    useCase.saveProductOption(1L, validRequest)
-                }
+                val exception =
+                    shouldThrow<IllegalArgumentException> {
+                        useCase.saveProductOption(1L, validRequest)
+                    }
                 exception shouldHaveMessage "Duplicate option name: Option 1"
             }
         }
@@ -92,19 +97,20 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             Then("옵션이 정상 저장되고 응답 DTO 반환") {
                 val response = useCase.saveProductOption(1L, validRequest)
 
-                response shouldBe ProductOptionResponse(
-                    optionId = 1L,
-                    productId = 1L,
-                    name = "Option 1",
-                    additionalPrice = 5000,
-                    description = "Test option",
-                    createdAt = savedDomainOption.createdAt,
-                    updatedAt = savedDomainOption.updatedAt
-                )
+                response shouldBe
+                    ProductOptionResponse(
+                        optionId = 1L,
+                        productId = 1L,
+                        name = "Option 1",
+                        additionalPrice = 5000,
+                        description = "Test option",
+                        createdAt = savedDomainOption.createdAt,
+                        updatedAt = savedDomainOption.updatedAt,
+                    )
                 verify(exactly = 1) {
                     productOptionPersistencePort.save(
                         match { it.optionId == null },
-                        mockProduct
+                        mockProduct,
                     )
                 }
             }
@@ -123,7 +129,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
 
         When("존재하지 않는 옵션 ID로 요청 시") {
             every { productOptionPersistencePort.findById(999L) } throws
-                    IllegalArgumentException("Not found")
+                IllegalArgumentException("Not found")
 
             Then("예외 발생") {
                 shouldThrow<IllegalArgumentException> {
@@ -134,10 +140,11 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     }
 
     Given("getProductOptionsByProductId") {
-        val options = listOf(
-            savedDomainOption,
-            savedDomainOption.copy(optionId = 2L, name = "Option 2")
-        )
+        val options =
+            listOf(
+                savedDomainOption,
+                savedDomainOption.copy(optionId = 2L, name = "Option 2"),
+            )
 
         When("특정 상품의 옵션 조회 시") {
             every { productOptionPersistencePort.findByProductId(1L) } returns options

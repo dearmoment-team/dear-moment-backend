@@ -60,5 +60,8 @@ interface ProductOptionPersistencePort {
      * @param name 옵션 이름
      * @return 중복 여부
      */
-    fun existsByProductIdAndName(productId: Long, name: String): Boolean
+    fun existsByProductIdAndName(
+        productId: Long,
+        name: String,
+    ): Boolean
 }

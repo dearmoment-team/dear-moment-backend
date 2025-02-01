@@ -32,5 +32,5 @@ data class CreateProductOptionRequest(
     val name: String,
     @field:PositiveOrZero(message = "추가 가격은 0 이상이어야 합니다.")
     val additionalPrice: Long,
-    val description: String? = null
+    val description: String? = null,
 )

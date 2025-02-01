@@ -34,7 +34,7 @@ fun CreateProductRequest.toDomain(): Product {
         warrantyInfo = warrantyInfo,
         contactInfo = contactInfo,
         images = images,
-        options = emptyList()
+        options = emptyList(),
     )
 }
 
@@ -44,7 +44,7 @@ fun CreateProductOptionRequest.toDomain(productId: Long): ProductOption {
         productId = productId,
         name = this.name,
         additionalPrice = this.additionalPrice,
-        description = this.description
+        description = this.description,
     )
 }
 
@@ -90,7 +90,7 @@ fun UpdateProductOptionRequest.toDomain(): ProductOption {
         optionId = this.optionId,
         name = this.name,
         additionalPrice = this.additionalPrice,
-        description = this.description
+        description = this.description,
     )
 }
 
