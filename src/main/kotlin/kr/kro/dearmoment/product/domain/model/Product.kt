@@ -44,7 +44,7 @@ data class Product(
         requireNotNull(productId) { "수정 시 상품 ID는 필수입니다" }
     }
 
-    fun updateOptions(newOptions: List<ProductOption>): Pair<List<ProductOption>, Set<Long>> {
+    fun updateOptions(newOptions: List<ProductOption>): ProductOptionUpdateResult {
         val existingOptionsMap = options.associateBy { it.optionId }
         val newOptionsMap = newOptions.associateBy { it.optionId }
 
@@ -64,6 +64,6 @@ data class Product(
         // 업데이트된 옵션을 먼저, 새로운 옵션을 나중에 추가
         val updatedOptions = toUpdate + toInsert
 
-        return Pair(updatedOptions, toDelete.filterNotNull().toSet())
+        return ProductOptionUpdateResult(updatedOptions, toDelete.filterNotNull().toSet())
     }
 }
