@@ -30,6 +30,15 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
+      - name: Create OCI Config File
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OBJECT_STORAGE_CONFIG }}" > ~/.oci/config
+          chmod 600 ~/.oci/config
+      - name: Create Private Key File
+        run: |
+          echo "${{ secrets.OBJECT_STORAGE_PRIVATE_KEY }}" > ~/.oci/private_key.pem
+          chmod 600 ~/.oci/private_key.pem
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any

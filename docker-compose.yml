@@ -25,6 +25,7 @@ services:
       - ./src:/app/src
       - ./build.gradle.kts:/app/build.gradle.kts
       - ./settings.gradle.kts:/app/settings.gradle.kts
+      - ${HOME}/.oci:/root/.oci  # OCI 설정 파일과 키를 컨테이너에 마운트
     env_file:
       - .env
     environment:
@@ -36,7 +37,9 @@ services:
       SPRING_JPA_SHOW_SQL: "${SPRING_JPA_SHOW_SQL}"
       SPRING_JPA_DATABASE_PLATFORM: "${SPRING_JPA_DATABASE_PLATFORM}"
       SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
-      SPRING_APPLICATION_NAME: "${SPRING_APPLICATION_NAME}"
+      OBJECT_STORAGE_BUCKET_NAME: "${OBJECT_STORAGE_BUCKET_NAME}"
+      OBJECT_STORAGE_NAMESPACE_NAME: "${OBJECT_STORAGE_NAMESPACE_NAME}"
+      OBJECT_STORAGE_IMAGE_DIR: "${OBJECT_STORAGE_IMAGE_DIR}"
 
     depends_on:
       - db
