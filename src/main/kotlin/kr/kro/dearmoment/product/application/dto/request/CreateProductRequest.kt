@@ -19,7 +19,34 @@ data class CreateProductRequest(
     val contactInfo: String?,
     val options: List<CreateProductOptionRequest>,
     val images: List<String>,
-)
+) {
+    companion object {
+        fun toDomain(request: CreateProductRequest): kr.kro.dearmoment.product.domain.model.Product {
+            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
+                kr.kro.dearmoment.product.domain.model.PartnerShop(
+                    name = partnerShopRequest.name,
+                    link = partnerShopRequest.link
+                )
+            }
+            return kr.kro.dearmoment.product.domain.model.Product(
+                userId = request.userId,
+                title = request.title,
+                description = request.description ?: "",
+                price = request.price,
+                typeCode = request.typeCode,
+                shootingTime = request.shootingTime,
+                shootingLocation = request.shootingLocation ?: "",
+                numberOfCostumes = request.numberOfCostumes ?: 0,
+                partnerShops = partnerShopList,
+                detailedInfo = request.detailedInfo ?: "",
+                warrantyInfo = request.warrantyInfo ?: "",
+                contactInfo = request.contactInfo ?: "",
+                images = request.images,
+                options = emptyList()
+            )
+        }
+    }
+}
 
 data class CreatePartnerShopRequest(
     val name: String,
@@ -33,4 +60,16 @@ data class CreateProductOptionRequest(
     @field:PositiveOrZero(message = "추가 가격은 0 이상이어야 합니다.")
     val additionalPrice: Long,
     val description: String? = null,
-)
+) {
+    companion object {
+        fun toDomain(request: CreateProductOptionRequest, productId: Long): kr.kro.dearmoment.product.domain.model.ProductOption {
+            return kr.kro.dearmoment.product.domain.model.ProductOption(
+                optionId = request.optionId ?: 0L,
+                productId = productId,
+                name = request.name,
+                additionalPrice = request.additionalPrice,
+                description = request.description ?: ""
+            )
+        }
+    }
+}
