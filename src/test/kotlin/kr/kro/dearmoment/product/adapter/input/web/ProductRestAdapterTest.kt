@@ -30,10 +30,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
-@Import(ProductRestAdapterTestConfig::class, kr.kro.dearmoment.common.advice.GlobalExceptionHandler::class)
+@Import(ProductRestAdapterTestConfig::class)
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
 class ProductRestAdapterTest {
+
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -49,12 +50,12 @@ class ProductRestAdapterTest {
             price = 10000,
             typeCode = 0,
             images = listOf("image1.jpg"),
-            options = emptyList(),
+            options = emptyList(), // 생성 시 옵션은 빈 리스트
             contactInfo = "contact@example.com",
             description = "Product description",
             detailedInfo = "Detailed product information",
             numberOfCostumes = 3,
-            partnerShops = listOf(),
+            partnerShops = emptyList(),
             shootingLocation = "Location1",
             shootingTime = null,
             warrantyInfo = "blabla",
@@ -191,6 +192,7 @@ class ProductRestAdapterTest {
     fun `상품 수정 API 테스트 - 정상 수정`() {
         // given
         val updateRequest = UpdateProductRequest(
+            userId = 1L,              // userId 명시
             productId = 1L,
             title = "Updated Product",
             description = "Updated description",
@@ -203,7 +205,7 @@ class ProductRestAdapterTest {
             detailedInfo = "Updated detailed information",
             warrantyInfo = "Updated warranty",
             contactInfo = "updated@example.com",
-            options = emptyList(),
+            options = emptyList(),    // 옵션 처리 방식은 내부에서 수행
             images = listOf("image1.jpg"),
         )
         val updatedProductResponse = ProductResponse(
@@ -267,6 +269,7 @@ class ProductRestAdapterTest {
     fun `상품 수정 API 테스트 - 존재하지 않는 상품`() {
         // given
         val updateRequest = UpdateProductRequest(
+            userId = 1L,              // userId 명시
             productId = 999L,
             title = "Updated Product",
             description = "Updated description",

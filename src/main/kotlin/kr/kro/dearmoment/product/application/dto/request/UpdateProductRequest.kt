@@ -3,6 +3,7 @@ package kr.kro.dearmoment.product.application.dto.request
 import java.time.LocalDateTime
 
 data class UpdateProductRequest(
+    val userId: Long,
     val productId: Long,
     val title: String,
     val description: String?,

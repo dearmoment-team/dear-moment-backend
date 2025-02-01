@@ -41,8 +41,6 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             warrantyInfo = "Test Warranty",
             contactInfo = "Test Contact",
             images = listOf("image1.jpg"),
-            createdAt = null,
-            updatedAt = null,
             options = emptyList(),
         )
 
@@ -60,8 +58,6 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             name = "Option 1",
             additionalPrice = 5000,
             description = "Test option",
-            createdAt = null,
-            updatedAt = null,
         )
 
     Given("saveProductOption") {
@@ -110,7 +106,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                         )
                 verify(exactly = 1) {
                     productOptionPersistencePort.save(
-                        match { it.optionId == null },
+                        match { it.optionId == 0L },
                         mockProduct,
                     )
                 }

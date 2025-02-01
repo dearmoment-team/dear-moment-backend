@@ -3,13 +3,13 @@ package kr.kro.dearmoment.product.domain.model
 import java.time.LocalDateTime
 
 data class ProductOption(
-    val optionId: Long? = null,
-    val productId: Long? = null,
+    val optionId: Long = 0L,
+    val productId: Long,
     val name: String,
     val additionalPrice: Long,
-    val description: String? = null,
+    val description: String = "",
     val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null
 ) {
     init {
         require(name.isNotBlank()) { "옵션명은 비어 있을 수 없습니다." }
