@@ -31,41 +31,48 @@ class ProductUseCaseImpl(
 
         val completeProduct =
             savedProduct.copy(
-                options = productOptionPersistencePort.findByProductId(savedProduct.productId!!)
+                options = productOptionPersistencePort.findByProductId(savedProduct.productId)
             )
         return completeProduct.toResponse()
     }
 
     @Transactional
     override fun updateProduct(request: UpdateProductRequest): ProductResponse {
+        // 옵션을 제외한 나머지 필드로 도메인 모델을 생성하고, options는 빈 리스트로 초기화합니다.
         val product = request.toDomain().copy(options = emptyList())
         product.validateForUpdate()
 
         val existingProduct =
-            productPersistencePort.findById(product.productId!!)
+            productPersistencePort.findById(product.productId)
                 ?: throw IllegalArgumentException("Product not found: ${product.productId}")
 
-        // 옵션 처리 (신규 생성, 업데이트, 삭제)
-        val existingOptionIds = existingProduct.options.mapNotNull { it.optionId }.toSet()
-        val incomingOptionIds = request.options.mapNotNull { it.optionId }.toSet()
-        val toDelete = existingOptionIds subtract incomingOptionIds
+        // 기존 옵션의 식별자는 모두 0L가 아닌 값이라고 가정합니다.
+        val existingOptionIds: Set<Long> = existingProduct.options.map { it.optionId }.toSet()
 
-        // 1. 삭제할 옵션 처리
+        // 업데이트 요청에 포함된 옵션 중, optionId가 0L가 아니라면 기존 옵션으로 판단합니다.
+        val incomingOptionIds: Set<Long> = request.options
+            .map { it.optionId ?: 0L }
+            .filter { it != 0L }
+            .toSet()
+
+        // 기존 옵션 ID 중 업데이트 요청에 없는 옵션은 삭제 대상입니다.
+        val toDelete: Set<Long> = existingOptionIds subtract incomingOptionIds
+
+        // 삭제 대상 옵션 처리
         handleDeletedOptions(toDelete)
 
+        // 업데이트 요청에 포함된 각 옵션에 대해, productId를 명시적으로 전달하여 도메인 변환합니다.
         request.options.forEach { dto ->
-            val domainOption =
-                dto.toDomain().copy(
-                    productId = product.productId,
-                )
+            val domainOption = dto.toDomain(product.productId)
             productOptionPersistencePort.save(domainOption, product)
         }
 
         val updatedProduct = productPersistencePort.save(product)
         return updatedProduct.copy(
-            options = productOptionPersistencePort.findByProductId(updatedProduct.productId!!)
+            options = productOptionPersistencePort.findByProductId(updatedProduct.productId)
         ).toResponse()
     }
+
 
     @Transactional
     override fun deleteProduct(productId: Long) {
@@ -138,7 +145,7 @@ class ProductUseCaseImpl(
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
         val sortedProducts = mockData.sortedWith(
             compareByDescending<Pair<Product, Int>> { it.second }
-                .thenByDescending { it.first.createdAt ?: LocalDateTime.MIN }
+                .thenByDescending { it.first.createdAt }
         ).map { it.first }
 
         val fromIndex = page * size
@@ -161,7 +168,7 @@ class ProductUseCaseImpl(
         options: List<CreateProductOptionRequest>
     ) {
         options.forEach { dto ->
-            val domainOption = dto.toDomain(product.productId!!)
+            val domainOption = dto.toDomain(product.productId)
             productOptionPersistencePort.save(domainOption, product)
         }
     }
@@ -176,7 +183,7 @@ class ProductUseCaseImpl(
     }
 
     private fun validateForCreation(product: Product) {
-        if (productPersistencePort.existsByUserIdAndTitle(product.userId!!, product.title)) {
+        if (productPersistencePort.existsByUserIdAndTitle(product.userId, product.title)) {
             throw IllegalArgumentException("A product with the same title already exists: ${product.title}.")
         }
     }

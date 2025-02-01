@@ -27,7 +27,7 @@ internal class ProductTest : StringSpec({
         title: String = "테스트 상품",
         description: String = "테스트 설명",
         price: Long = 100000,
-        typeCode: Int = 1,
+        typeCode: Int = 1, // 기본값: 패키지 상품 → hasPackage = true
         options: List<ProductOption> = emptyList(),
         images: List<String> = defaultImages,
         partnerShops: List<PartnerShop> = if (typeCode == 1) defaultPartnerShops else emptyList(),
@@ -46,10 +46,8 @@ internal class ProductTest : StringSpec({
     "상품 생성 시 hasPackage가 true여야 한다" {
         // given
         val product = createProduct()
-
         // when
         val result = product.hasPackage
-
         // then
         result shouldBe true
     }
@@ -65,10 +63,8 @@ internal class ProductTest : StringSpec({
                 price = 50000,
                 typeCode = 0,
             )
-
         // when
         val result = product.hasPackage
-
         // then
         result shouldBe false
     }
@@ -83,10 +79,8 @@ internal class ProductTest : StringSpec({
                 description = "옵션 없음 설명",
                 price = 75000,
             )
-
         // when
         val result = product.options
-
         // then
         result shouldBe emptyList()
     }
@@ -97,17 +91,17 @@ internal class ProductTest : StringSpec({
             listOf(
                 ProductOption(
                     optionId = 1L,
+                    productId = 4L,
                     name = "옵션1",
                     additionalPrice = 10000,
-                    description = "옵션 설명1",
-                    productId = 4L,
+                    description = "옵션 설명1"
                 ),
                 ProductOption(
                     optionId = 2L,
+                    productId = 4L,
                     name = "옵션2",
                     additionalPrice = 20000,
-                    description = "옵션 설명2",
-                    productId = 4L,
+                    description = "옵션 설명2"
                 ),
             )
 
@@ -120,10 +114,8 @@ internal class ProductTest : StringSpec({
                 price = 150000,
                 options = options,
             )
-
         // when
         val result = product.options
-
         // then
         result shouldBe options
     }
@@ -134,37 +126,37 @@ internal class ProductTest : StringSpec({
             listOf(
                 ProductOption(
                     optionId = 1L,
+                    productId = 5L,
                     name = "기존 옵션1",
                     additionalPrice = 10000,
-                    description = "기존 설명1",
-                    productId = 5L,
+                    description = "기존 설명1"
                 ),
                 ProductOption(
                     optionId = 2L,
+                    productId = 5L,
                     name = "기존 옵션2",
                     additionalPrice = 20000,
-                    description = "기존 설명2",
-                    productId = 5L,
+                    description = "기존 설명2"
                 ),
             )
 
         val newOptions =
             listOf(
-                // 업데이트
+                // 업데이트: 기존 옵션1 유지, 내용 변경
                 ProductOption(
                     optionId = 1L,
+                    productId = 5L,
                     name = "기존 옵션1",
                     additionalPrice = 15000,
-                    description = "업데이트 설명1",
-                    productId = 5L,
+                    description = "업데이트 설명1"
                 ),
-                // 새로 추가
+                // 신규 옵션: 신규 옵션은 optionId를 0L로 지정
                 ProductOption(
-                    optionId = null,
+                    optionId = 0L,
+                    productId = 5L,
                     name = "새 옵션",
                     additionalPrice = 30000,
-                    description = "새 설명",
-                    productId = 5L,
+                    description = "새 설명"
                 ),
             )
 
@@ -180,25 +172,23 @@ internal class ProductTest : StringSpec({
 
         // when
         val (updatedOptions, toDelete) = product.updateOptions(newOptions)
-
         // then
-        updatedOptions shouldContainExactly
-            listOf(
-                ProductOption(
-                    optionId = 1L,
-                    name = "기존 옵션1",
-                    additionalPrice = 15000,
-                    description = "업데이트 설명1",
-                    productId = 5L,
-                ),
-                ProductOption(
-                    optionId = null,
-                    name = "새 옵션",
-                    additionalPrice = 30000,
-                    description = "새 설명",
-                    productId = 5L,
-                ),
+        updatedOptions shouldContainExactly listOf(
+            ProductOption(
+                optionId = 1L,
+                productId = 5L,
+                name = "기존 옵션1",
+                additionalPrice = 15000,
+                description = "업데이트 설명1"
+            ),
+            ProductOption(
+                optionId = 0L,
+                productId = 5L,
+                name = "새 옵션",
+                additionalPrice = 30000,
+                description = "새 설명"
             )
+        )
         toDelete shouldContainExactly setOf(2L)
     }
 
@@ -213,11 +203,9 @@ internal class ProductTest : StringSpec({
                     description = "이미지 없음 설명",
                     price = 60000,
                     typeCode = 1,
-                    // 빈 리스트
                     images = emptyList(),
                 )
             }
-
         exception.message shouldBe "최소 1개 이상의 이미지가 필요합니다"
     }
 
@@ -233,11 +221,9 @@ internal class ProductTest : StringSpec({
                     price = 120000,
                     typeCode = 1,
                     images = defaultImages,
-                    // 빈 리스트
                     partnerShops = emptyList(),
                 )
             }
-
         exception.message shouldBe "패키지 상품은 하나 이상의 협력업체 정보가 필요합니다."
     }
 
@@ -254,16 +240,14 @@ internal class ProductTest : StringSpec({
                     typeCode = 1,
                     images = defaultImages,
                     partnerShops =
-                        listOf(
-                            PartnerShop(
-                                // 빈 이름
-                                name = "",
-                                link = "http://validlink.com",
-                            ),
+                    listOf(
+                        PartnerShop(
+                            name = "",
+                            link = "http://validlink.com",
                         ),
+                    ),
                 )
             }
-
         exception1.message shouldBe "파트너샵 이름은 비어 있을 수 없습니다."
 
         val exception2 =
@@ -277,16 +261,14 @@ internal class ProductTest : StringSpec({
                     typeCode = 1,
                     images = defaultImages,
                     partnerShops =
-                        listOf(
-                            PartnerShop(
-                                name = "Valid Name",
-                                // 빈 링크
-                                link = "",
-                            ),
+                    listOf(
+                        PartnerShop(
+                            name = "Valid Name",
+                            link = "",
                         ),
+                    ),
                 )
             }
-
         exception2.message shouldBe "파트너샵 링크는 비어 있을 수 없습니다."
     }
 })
