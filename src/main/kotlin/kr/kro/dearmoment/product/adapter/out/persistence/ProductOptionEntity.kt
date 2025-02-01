@@ -57,8 +57,8 @@ open class ProductOptionEntity(
                 name = option.name,
                 additionalPrice = option.additionalPrice,
                 description = option.description,
-                createdAt = option.createdAt ?: LocalDateTime.now(),
-                updatedAt = option.updatedAt ?: LocalDateTime.now(),
+                createdAt = option.createdAt,
+                updatedAt = option.updatedAt,
             )
         }
     }

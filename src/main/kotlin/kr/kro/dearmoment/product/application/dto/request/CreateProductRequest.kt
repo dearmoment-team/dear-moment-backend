@@ -27,6 +27,7 @@ data class CreatePartnerShopRequest(
 )
 
 data class CreateProductOptionRequest(
+    val optionId: Long? = null,
     @field:NotBlank(message = "옵션 이름은 필수입니다.")
     val name: String,
     @field:PositiveOrZero(message = "추가 가격은 0 이상이어야 합니다.")
