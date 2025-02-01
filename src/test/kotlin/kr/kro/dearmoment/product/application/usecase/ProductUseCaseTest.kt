@@ -11,7 +11,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kr.kro.dearmoment.product.application.dto.extensions.toDomain
 import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
@@ -61,7 +60,7 @@ class ProductUseCaseTest : BehaviorSpec({
             warrantyInfo = "blabla",
         )
         // toDomain()에서는 createdAt, updatedAt은 null로 처리됨
-        val validProduct = createProduct.toDomain()
+        val validProduct = CreateProductRequest.toDomain(createProduct)
 
         `when`("유효한 상품 생성 요청이 오면") {
             every { productPersistencePort.existsByUserIdAndTitle(1L, "New Product") } returns false
@@ -160,8 +159,7 @@ class ProductUseCaseTest : BehaviorSpec({
             ),
             images = listOf("image1.jpg"),
         )
-        // 업데이트 시 userId는 반드시 설정
-        val updatedProduct = updateRequest.toDomain().copy(userId = 1L)
+        val updatedProduct = UpdateProductRequest.toDomain(updateRequest).copy(userId = 1L)
 
         `when`("유효한 업데이트 요청이 오면") {
             every { productPersistencePort.findById(1L) } returns

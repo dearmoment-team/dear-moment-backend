@@ -1,7 +1,5 @@
 package kr.kro.dearmoment.product.application.usecase
 
-import kr.kro.dearmoment.product.application.dto.extensions.toDomain
-import kr.kro.dearmoment.product.application.dto.extensions.toResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
@@ -24,19 +22,19 @@ class ProductOptionUseCaseImpl(
         val product = getProductOrThrow(productId)
         validateDuplicateOption(productId, request.name)
 
-        val option = request.toDomain(productId)
+        val option = CreateProductOptionRequest.toDomain(request, productId)
         val savedOption = productOptionPersistencePort.save(option, product)
-        return savedOption.toResponse()
+        return ProductOptionResponse.fromDomain(savedOption)
     }
 
     @Transactional(readOnly = true)
     override fun getProductOptionById(optionId: Long): ProductOptionResponse {
-        return productOptionPersistencePort.findById(optionId).toResponse()
+        return ProductOptionResponse.fromDomain(productOptionPersistencePort.findById(optionId))
     }
 
     @Transactional(readOnly = true)
     override fun getAllProductOptions(): List<ProductOptionResponse> {
-        return productOptionPersistencePort.findAll().map { it.toResponse() }
+        return productOptionPersistencePort.findAll().map { ProductOptionResponse.fromDomain(it) }
     }
 
     @Transactional
@@ -46,7 +44,7 @@ class ProductOptionUseCaseImpl(
 
     @Transactional(readOnly = true)
     override fun getProductOptionsByProductId(productId: Long): List<ProductOptionResponse> {
-        return productOptionPersistencePort.findByProductId(productId).map { it.toResponse() }
+        return productOptionPersistencePort.findByProductId(productId).map { ProductOptionResponse.fromDomain(it) }
     }
 
     @Transactional

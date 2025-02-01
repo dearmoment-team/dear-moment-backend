@@ -91,7 +91,7 @@ open class ProductEntity(
                 price = product.price,
                 typeCode = product.typeCode,
                 shootingTime = product.shootingTime,
-                shootingLocation = if (product.shootingLocation.isBlank()) null else product.shootingLocation,
+                shootingLocation = product.shootingLocation.ifBlank { null },
                 numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
                 partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
                 detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
