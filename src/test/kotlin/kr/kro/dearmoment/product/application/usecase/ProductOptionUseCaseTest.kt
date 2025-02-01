@@ -20,9 +20,10 @@ import java.time.LocalDateTime
 
 class ProductOptionUseCaseTest : BehaviorSpec({
 
+    // 인터페이스 타입으로 선언하고 실제 구현체를 주입
     val productPersistencePort = mockk<ProductPersistencePort>()
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>()
-    val useCase = ProductOptionUseCase(productOptionPersistencePort, productPersistencePort)
+    val useCase: ProductOptionUseCase = ProductOptionUseCaseImpl(productOptionPersistencePort, productPersistencePort)
 
     val mockProduct =
         Product(
@@ -98,15 +99,15 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                 val response = useCase.saveProductOption(1L, validRequest)
 
                 response shouldBe
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = 1L,
-                        name = "Option 1",
-                        additionalPrice = 5000,
-                        description = "Test option",
-                        createdAt = savedDomainOption.createdAt,
-                        updatedAt = savedDomainOption.updatedAt,
-                    )
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 5000,
+                            description = "Test option",
+                            createdAt = savedDomainOption.createdAt,
+                            updatedAt = savedDomainOption.updatedAt,
+                        )
                 verify(exactly = 1) {
                     productOptionPersistencePort.save(
                         match { it.optionId == null },
@@ -129,7 +130,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
 
         When("존재하지 않는 옵션 ID로 요청 시") {
             every { productOptionPersistencePort.findById(999L) } throws
-                IllegalArgumentException("Not found")
+                    IllegalArgumentException("Not found")
 
             Then("예외 발생") {
                 shouldThrow<IllegalArgumentException> {
