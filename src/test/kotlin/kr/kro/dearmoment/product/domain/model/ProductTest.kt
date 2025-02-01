@@ -27,7 +27,7 @@ internal class ProductTest : StringSpec({
         title: String = "테스트 상품",
         description: String = "테스트 설명",
         price: Long = 100000,
-        typeCode: Int = 1, // 기본값: 패키지 상품 → hasPackage = true
+        typeCode: Int = 1,
         options: List<ProductOption> = emptyList(),
         images: List<String> = defaultImages,
         partnerShops: List<PartnerShop> = if (typeCode == 1) defaultPartnerShops else emptyList(),
@@ -94,14 +94,14 @@ internal class ProductTest : StringSpec({
                     productId = 4L,
                     name = "옵션1",
                     additionalPrice = 10000,
-                    description = "옵션 설명1"
+                    description = "옵션 설명1",
                 ),
                 ProductOption(
                     optionId = 2L,
                     productId = 4L,
                     name = "옵션2",
                     additionalPrice = 20000,
-                    description = "옵션 설명2"
+                    description = "옵션 설명2",
                 ),
             )
 
@@ -129,14 +129,14 @@ internal class ProductTest : StringSpec({
                     productId = 5L,
                     name = "기존 옵션1",
                     additionalPrice = 10000,
-                    description = "기존 설명1"
+                    description = "기존 설명1",
                 ),
                 ProductOption(
                     optionId = 2L,
                     productId = 5L,
                     name = "기존 옵션2",
                     additionalPrice = 20000,
-                    description = "기존 설명2"
+                    description = "기존 설명2",
                 ),
             )
 
@@ -148,7 +148,7 @@ internal class ProductTest : StringSpec({
                     productId = 5L,
                     name = "기존 옵션1",
                     additionalPrice = 15000,
-                    description = "업데이트 설명1"
+                    description = "업데이트 설명1",
                 ),
                 // 신규 옵션: 신규 옵션은 optionId를 0L로 지정
                 ProductOption(
@@ -156,7 +156,7 @@ internal class ProductTest : StringSpec({
                     productId = 5L,
                     name = "새 옵션",
                     additionalPrice = 30000,
-                    description = "새 설명"
+                    description = "새 설명",
                 ),
             )
 
@@ -173,22 +173,23 @@ internal class ProductTest : StringSpec({
         // when
         val (updatedOptions, toDelete) = product.updateOptions(newOptions)
         // then
-        updatedOptions shouldContainExactly listOf(
-            ProductOption(
-                optionId = 1L,
-                productId = 5L,
-                name = "기존 옵션1",
-                additionalPrice = 15000,
-                description = "업데이트 설명1"
-            ),
-            ProductOption(
-                optionId = 0L,
-                productId = 5L,
-                name = "새 옵션",
-                additionalPrice = 30000,
-                description = "새 설명"
+        updatedOptions shouldContainExactly
+            listOf(
+                ProductOption(
+                    optionId = 1L,
+                    productId = 5L,
+                    name = "기존 옵션1",
+                    additionalPrice = 15000,
+                    description = "업데이트 설명1",
+                ),
+                ProductOption(
+                    optionId = 0L,
+                    productId = 5L,
+                    name = "새 옵션",
+                    additionalPrice = 30000,
+                    description = "새 설명",
+                ),
             )
-        )
         toDelete shouldContainExactly setOf(2L)
     }
 
@@ -240,12 +241,12 @@ internal class ProductTest : StringSpec({
                     typeCode = 1,
                     images = defaultImages,
                     partnerShops =
-                    listOf(
-                        PartnerShop(
-                            name = "",
-                            link = "http://validlink.com",
+                        listOf(
+                            PartnerShop(
+                                name = "",
+                                link = "http://validlink.com",
+                            ),
                         ),
-                    ),
                 )
             }
         exception1.message shouldBe "파트너샵 이름은 비어 있을 수 없습니다."
@@ -261,12 +262,12 @@ internal class ProductTest : StringSpec({
                     typeCode = 1,
                     images = defaultImages,
                     partnerShops =
-                    listOf(
-                        PartnerShop(
-                            name = "Valid Name",
-                            link = "",
+                        listOf(
+                            PartnerShop(
+                                name = "Valid Name",
+                                link = "",
+                            ),
                         ),
-                    ),
                 )
             }
         exception2.message shouldBe "파트너샵 링크는 비어 있을 수 없습니다."

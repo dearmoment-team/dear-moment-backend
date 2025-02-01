@@ -13,7 +13,6 @@ class ProductOptionUseCaseImpl(
     private val productOptionPersistencePort: ProductOptionPersistencePort,
     private val productPersistencePort: ProductPersistencePort,
 ) : ProductOptionUseCase {
-
     @Transactional
     override fun saveProductOption(
         productId: Long,
@@ -62,7 +61,10 @@ class ProductOptionUseCaseImpl(
             ?: throw IllegalArgumentException("Product not found: $productId")
     }
 
-    private fun validateDuplicateOption(productId: Long, name: String) {
+    private fun validateDuplicateOption(
+        productId: Long,
+        name: String,
+    ) {
         val exists = productOptionPersistencePort.existsByProductIdAndName(productId, name)
         if (exists) throw IllegalArgumentException("Duplicate option name: $name")
     }

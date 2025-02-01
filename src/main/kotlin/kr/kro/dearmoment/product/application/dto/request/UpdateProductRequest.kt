@@ -21,16 +21,18 @@ data class UpdateProductRequest(
 ) {
     companion object {
         fun toDomain(request: UpdateProductRequest): kr.kro.dearmoment.product.domain.model.Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                kr.kro.dearmoment.product.domain.model.PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link
-                )
-            }
-            val productOptionList = request.options.map { optionRequest ->
-                // 옵션 변환 시, productId를 UpdateProductRequest의 productId로 전달
-                UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    kr.kro.dearmoment.product.domain.model.PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
+            val productOptionList =
+                request.options.map { optionRequest ->
+                    // 옵션 변환 시, productId를 UpdateProductRequest의 productId로 전달
+                    UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
+                }
             return kr.kro.dearmoment.product.domain.model.Product(
                 productId = request.productId,
                 userId = request.userId,
@@ -46,7 +48,7 @@ data class UpdateProductRequest(
                 warrantyInfo = request.warrantyInfo ?: "",
                 contactInfo = request.contactInfo ?: "",
                 options = productOptionList,
-                images = request.images
+                images = request.images,
             )
         }
     }
@@ -61,16 +63,19 @@ data class UpdateProductOptionRequest(
     val optionId: Long?,
     val name: String,
     val additionalPrice: Long,
-    val description: String?
+    val description: String?,
 ) {
     companion object {
-        fun toDomain(request: UpdateProductOptionRequest, productId: Long): kr.kro.dearmoment.product.domain.model.ProductOption {
+        fun toDomain(
+            request: UpdateProductOptionRequest,
+            productId: Long,
+        ): kr.kro.dearmoment.product.domain.model.ProductOption {
             return kr.kro.dearmoment.product.domain.model.ProductOption(
                 optionId = request.optionId ?: 0L,
                 productId = productId,
                 name = request.name,
                 additionalPrice = request.additionalPrice,
-                description = request.description ?: ""
+                description = request.description ?: "",
             )
         }
     }

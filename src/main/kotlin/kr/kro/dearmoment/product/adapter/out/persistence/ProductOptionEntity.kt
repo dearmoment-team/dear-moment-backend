@@ -33,24 +33,18 @@ open class ProductOptionEntity(
     )
     @Column(name = "OPTION_ID")
     var optionId: Long? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID")
     var product: ProductEntity? = null,
-
     @Column(name = "NAME", nullable = false)
     var name: String = "",
-
     @Column(name = "ADDITIONAL_PRICE", nullable = false)
     var additionalPrice: Long = 0L,
-
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-
     @CreatedDate
     @Column(name = "CREATED_AT", updatable = false)
     var createdAt: LocalDateTime? = null,
-
     @LastModifiedDate
     @Column(name = "UPDATED_AT")
     var updatedAt: LocalDateTime? = null,
