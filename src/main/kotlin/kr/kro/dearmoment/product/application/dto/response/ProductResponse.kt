@@ -1,9 +1,9 @@
 package kr.kro.dearmoment.product.application.dto.response
 
-import java.time.LocalDateTime
+import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import kr.kro.dearmoment.product.domain.model.PartnerShop
+import java.time.LocalDateTime
 
 data class ProductResponse(
     val productId: Long,
@@ -43,7 +43,7 @@ data class ProductResponse(
                 createdAt = product.createdAt,
                 updatedAt = product.updatedAt,
                 options = product.options.map { ProductOptionResponse.fromDomain(it) },
-                images = product.images
+                images = product.images,
             )
         }
     }
@@ -57,7 +57,7 @@ data class PartnerShopResponse(
         fun fromDomain(partnerShop: PartnerShop): PartnerShopResponse {
             return PartnerShopResponse(
                 name = partnerShop.name,
-                link = partnerShop.link
+                link = partnerShop.link,
             )
         }
     }
@@ -81,7 +81,7 @@ data class ProductOptionResponse(
                 additionalPrice = option.additionalPrice,
                 description = option.description.takeIf { it.isNotBlank() },
                 createdAt = option.createdAt,
-                updatedAt = option.updatedAt
+                updatedAt = option.updatedAt,
             )
         }
     }

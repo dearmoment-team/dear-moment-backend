@@ -9,7 +9,7 @@ data class ProductOption(
     val additionalPrice: Long,
     val description: String = "",
     val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null
+    val updatedAt: LocalDateTime? = null,
 ) {
     init {
         require(name.isNotBlank()) { "옵션명은 비어 있을 수 없습니다." }
