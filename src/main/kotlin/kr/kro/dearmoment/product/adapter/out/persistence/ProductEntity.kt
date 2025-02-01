@@ -83,24 +83,25 @@ open class ProductEntity(
 ) {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val productEntity = ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                title = product.title,
-                description = product.description,
-                price = product.price,
-                typeCode = product.typeCode,
-                shootingTime = product.shootingTime,
-                shootingLocation = product.shootingLocation,
-                numberOfCostumes = product.numberOfCostumes,
-                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                detailedInfo = product.detailedInfo,
-                warrantyInfo = product.warrantyInfo,
-                contactInfo = product.contactInfo,
-                createdAt = product.createdAt,
-                updatedAt = product.updatedAt,
-                images = product.images,
-            )
+            val productEntity =
+                ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    title = product.title,
+                    description = product.description,
+                    price = product.price,
+                    typeCode = product.typeCode,
+                    shootingTime = product.shootingTime,
+                    shootingLocation = product.shootingLocation,
+                    numberOfCostumes = product.numberOfCostumes,
+                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                    detailedInfo = product.detailedInfo,
+                    warrantyInfo = product.warrantyInfo,
+                    contactInfo = product.contactInfo,
+                    createdAt = product.createdAt,
+                    updatedAt = product.updatedAt,
+                    images = product.images,
+                )
 
             productEntity.options.clear()
             product.options.forEach { optionDomain ->

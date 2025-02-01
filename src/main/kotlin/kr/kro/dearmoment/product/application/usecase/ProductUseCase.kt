@@ -29,9 +29,10 @@ class ProductUseCase(
         val savedProduct = productPersistencePort.save(product)
         saveProductOptions(savedProduct, request.options)
 
-        val completeProduct = savedProduct.copy(
-            options = productOptionPersistencePort.findByProductId(savedProduct.productId!!)
-        )
+        val completeProduct =
+            savedProduct.copy(
+                options = productOptionPersistencePort.findByProductId(savedProduct.productId!!),
+            )
         return completeProduct.toResponse()
     }
 
@@ -40,8 +41,9 @@ class ProductUseCase(
         val product = request.toDomain().copy(options = emptyList())
         product.validateForUpdate()
 
-        val existingProduct = productPersistencePort.findById(product.productId!!)
-            ?: throw IllegalArgumentException("Product not found: ${product.productId}")
+        val existingProduct =
+            productPersistencePort.findById(product.productId!!)
+                ?: throw IllegalArgumentException("Product not found: ${product.productId}")
 
         // 옵션 처리 (신규 생성, 업데이트, 삭제)
         val existingOptionIds = existingProduct.options.mapNotNull { it.optionId }.toSet()
@@ -52,16 +54,17 @@ class ProductUseCase(
         handleDeletedOptions(toDelete)
 
         request.options.forEach { dto ->
-            val domainOption = dto.toDomain().copy(
-                productId = product.productId
-            )
+            val domainOption =
+                dto.toDomain().copy(
+                    productId = product.productId,
+                )
             productOptionPersistencePort.save(domainOption, product)
         }
 
         val updatedProduct = productPersistencePort.save(product)
 
         return updatedProduct.copy(
-            options = productOptionPersistencePort.findByProductId(updatedProduct.productId!!)
+            options = productOptionPersistencePort.findByProductId(updatedProduct.productId!!),
         ).toResponse()
     }
 
@@ -123,7 +126,7 @@ class ProductUseCase(
             page = page,
             size = size,
             totalElements = sortedProducts.size.toLong(),
-            totalPages = ((sortedProducts.size + size - 1) / size)
+            totalPages = ((sortedProducts.size + size - 1) / size),
         )
     }
 
@@ -134,24 +137,26 @@ class ProductUseCase(
     @Transactional(readOnly = true)
     fun getMainPageProducts(
         page: Int = 0,
-        size: Int = 10
+        size: Int = 10,
     ): PagedResponse<ProductResponse> {
         // 모든 상품을 조회합니다.
-        val result = productPersistencePort.searchByCriteria(
-            title = null,
-            priceRange = null,
-            typeCode = null,
-            sortBy = null
-        )
+        val result =
+            productPersistencePort.searchByCriteria(
+                title = null,
+                priceRange = null,
+                typeCode = null,
+                sortBy = null,
+            )
 
         // 모의 추천 수치로 index+1을 사용 (실제 환경에서는 추천 점수를 조회)
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
 
         // 첫 번째: 추천 수치 내림차순, 두 번째: 생성일(createdAt) 내림차순 정렬
-        val sortedProducts = mockData.sortedWith(
-            compareByDescending<Pair<Product, Int>> { it.second }
-                .thenByDescending { it.first.createdAt ?: LocalDateTime.MIN }
-        ).map { it.first }
+        val sortedProducts =
+            mockData.sortedWith(
+                compareByDescending<Pair<Product, Int>> { it.second }
+                    .thenByDescending { it.first.createdAt ?: LocalDateTime.MIN },
+            ).map { it.first }
 
         // Pagination 처리
         val fromIndex = page * size
@@ -163,13 +168,13 @@ class ProductUseCase(
             page = page,
             size = size,
             totalElements = sortedProducts.size.toLong(),
-            totalPages = ceil(sortedProducts.size.toDouble() / size).toInt()
+            totalPages = ceil(sortedProducts.size.toDouble() / size).toInt(),
         )
     }
 
     private fun saveProductOptions(
         product: Product,
-        options: List<CreateProductOptionRequest>
+        options: List<CreateProductOptionRequest>,
     ): List<ProductOptionResponse> {
         return options.map { dto ->
             val domainOption = dto.toDomain(product.productId!!)

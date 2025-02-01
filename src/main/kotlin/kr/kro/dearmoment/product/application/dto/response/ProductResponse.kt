@@ -34,5 +34,5 @@ data class ProductOptionResponse(
     val additionalPrice: Long,
     val description: String?,
     val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
 )

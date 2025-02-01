@@ -9,7 +9,6 @@ data class ErrorResponse(val message: String)
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(ErrorResponse(e.message ?: "Error occurred"), HttpStatus.BAD_REQUEST)
