@@ -25,7 +25,7 @@ import org.springframework.web.filter.CharacterEncodingFilter
         HealthCheckController::class,
     ],
 )
-abstract class RestApiTestSpringExtensions {
+abstract class RestApiTestBase {
     lateinit var mockMvc: MockMvc
 
     /**
