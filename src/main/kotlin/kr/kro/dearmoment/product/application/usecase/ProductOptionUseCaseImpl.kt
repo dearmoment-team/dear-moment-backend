@@ -65,7 +65,6 @@ class ProductOptionUseCaseImpl(
         productId: Long,
         name: String,
     ) {
-        val exists = productOptionPersistencePort.existsByProductIdAndName(productId, name)
-        if (exists) throw IllegalArgumentException("Duplicate option name: $name")
+        require(!productOptionPersistencePort.existsByProductIdAndName(productId, name)) { "Duplicate option name: $name" }
     }
 }
