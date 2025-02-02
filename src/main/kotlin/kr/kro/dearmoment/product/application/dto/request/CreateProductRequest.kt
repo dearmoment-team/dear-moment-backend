@@ -2,6 +2,8 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
+import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductOption
 import java.time.LocalDateTime
 
 data class CreateProductRequest(
@@ -21,7 +23,7 @@ data class CreateProductRequest(
     val images: List<String>,
 ) {
     companion object {
-        fun toDomain(request: CreateProductRequest): kr.kro.dearmoment.product.domain.model.Product {
+        fun toDomain(request: CreateProductRequest): Product {
             val partnerShopList =
                 request.partnerShops.map { partnerShopRequest ->
                     kr.kro.dearmoment.product.domain.model.PartnerShop(
@@ -66,8 +68,8 @@ data class CreateProductOptionRequest(
         fun toDomain(
             request: CreateProductOptionRequest,
             productId: Long,
-        ): kr.kro.dearmoment.product.domain.model.ProductOption {
-            return kr.kro.dearmoment.product.domain.model.ProductOption(
+        ): ProductOption {
+            return ProductOption(
                 optionId = request.optionId ?: 0L,
                 productId = productId,
                 name = request.name,
