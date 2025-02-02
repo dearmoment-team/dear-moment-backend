@@ -81,7 +81,7 @@ class ProductRestAdapterTest {
                     ),
                 shootingLocation = "Location1",
                 shootingTime = null,
-                warrantyInfo = "blabla",
+                warrantyInfo = "Warranty Description",
             )
         val productResponse =
             ProductResponse(
