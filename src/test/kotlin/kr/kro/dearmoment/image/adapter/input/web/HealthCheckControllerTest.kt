@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.image.adapter.input.web
 
 import andDocument
-import kr.kro.dearmoment.common.dto.BaseResponse
 import kr.kro.dearmoment.image.adapter.input.web.restdocs.BOOLEAN
 import kr.kro.dearmoment.image.adapter.input.web.restdocs.NUMBER
 import kr.kro.dearmoment.image.adapter.input.web.restdocs.OBJECT
@@ -14,10 +13,10 @@ import org.springframework.http.HttpMethod
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-class HealthCheckControllerTest : RestApiTestSpringExtensions() {
+class HealthCheckControllerTest : RestApiTestBase() {
     @Test
     fun healthCheck() {
-        val expectedResponse = BaseResponse.success(data = HealthCheckResponse(value = "OK"))
+        val expectedResponse = HealthCheckResponse(value = "OK")
         val request = RestDocumentationRequestBuilders.request(HttpMethod.GET, "/health")
 
         mockMvc.perform(request)
