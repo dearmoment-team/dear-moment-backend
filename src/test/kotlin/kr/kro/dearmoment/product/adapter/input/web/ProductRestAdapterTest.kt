@@ -9,9 +9,14 @@ import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.STRING
 import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.responseBody
 import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.toJsonString
 import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.type
+import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
+import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.PagedResponse
+import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
+import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.ProductUseCase
 import org.junit.jupiter.api.Test
@@ -50,12 +55,30 @@ class ProductRestAdapterTest {
                 price = 10000,
                 typeCode = 0,
                 images = listOf("image1.jpg"),
-                options = emptyList(),
+                options =
+                    listOf(
+                        CreateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option",
+                        ),
+                    ),
                 contactInfo = "contact@example.com",
                 description = "Product description",
                 detailedInfo = "Detailed product information",
                 numberOfCostumes = 3,
-                partnerShops = emptyList(),
+                partnerShops =
+                    listOf(
+                        CreatePartnerShopRequest(
+                            name = "Shop A",
+                            link = "http://shopA.com",
+                        ),
+                        CreatePartnerShopRequest(
+                            name = "Shop B",
+                            link = "http://shopB.com",
+                        ),
+                    ),
                 shootingLocation = "Location1",
                 shootingTime = null,
                 warrantyInfo = "blabla",
@@ -71,15 +94,37 @@ class ProductRestAdapterTest {
                 shootingTime = null,
                 shootingLocation = "Location1",
                 numberOfCostumes = 3,
-                partnerShops = emptyList(),
+                partnerShops =
+                    listOf(
+                        PartnerShopResponse(
+                            name = "Shop A",
+                            link = "http://shopA.com",
+                        ),
+                        PartnerShopResponse(
+                            name = "Shop B",
+                            link = "http://shopB.com",
+                        ),
+                    ),
                 detailedInfo = "Detailed product information",
                 warrantyInfo = "blabla",
                 contactInfo = "contact@example.com",
                 images = listOf("image1.jpg"),
-                options = emptyList(),
+                options =
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
                 createdAt = null,
                 updatedAt = null,
             )
+        // 실제 컨트롤러에서는 단일 상품 객체를 반환함
         given(productUseCase.saveProduct(request)).willReturn(productResponse)
 
         val requestBuilder =
@@ -94,7 +139,6 @@ class ProductRestAdapterTest {
             .andDocument(
                 "create-product",
                 responseBody(
-                    // ResponseWrapper에 의해 래핑된 최종 응답 구조
                     "success" type BOOLEAN means "응답 성공 여부",
                     "code" type NUMBER means "HTTP 상태 코드",
                     "data" type OBJECT means "상품 데이터",
@@ -108,12 +152,21 @@ class ProductRestAdapterTest {
                     "data.shootingLocation" type STRING means "촬영 장소",
                     "data.numberOfCostumes" type NUMBER means "의상 수",
                     "data.partnerShops" type ARRAY means "협력업체 목록",
+                    "data.partnerShops[].name" type STRING means "협력업체명",
+                    "data.partnerShops[].link" type STRING means "협력업체 링크",
                     "data.detailedInfo" type STRING means "상세 정보",
                     "data.warrantyInfo" type STRING means "보증 정보",
                     "data.contactInfo" type STRING means "연락처",
                     "data.createdAt" type OBJECT means "생성 시간",
                     "data.updatedAt" type OBJECT means "수정 시간",
                     "data.options" type ARRAY means "옵션 목록",
+                    "data.options[].optionId" type NUMBER means "옵션 ID",
+                    "data.options[].productId" type NUMBER means "옵션에 소속된 상품 ID",
+                    "data.options[].name" type STRING means "옵션명",
+                    "data.options[].additionalPrice" type NUMBER means "추가 가격",
+                    "data.options[].description" type STRING means "옵션 설명",
+                    "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
+                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
                     "data.images" type ARRAY means "상품 이미지 리스트",
                 ),
             )
@@ -133,12 +186,33 @@ class ProductRestAdapterTest {
                 shootingTime = null,
                 shootingLocation = "Location1",
                 numberOfCostumes = 3,
-                partnerShops = emptyList(),
+                partnerShops =
+                    listOf(
+                        PartnerShopResponse(
+                            name = "Shop A",
+                            link = "http://shopA.com",
+                        ),
+                        PartnerShopResponse(
+                            name = "Shop B",
+                            link = "http://shopB.com",
+                        ),
+                    ),
                 detailedInfo = "Detailed product information",
                 warrantyInfo = "blabla",
                 contactInfo = "contact@example.com",
                 images = listOf("image1.jpg"),
-                options = emptyList(),
+                options =
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
                 createdAt = null,
                 updatedAt = null,
             )
@@ -166,8 +240,8 @@ class ProductRestAdapterTest {
                 responseBody(
                     "success" type BOOLEAN means "응답 성공 여부",
                     "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "페이지 데이터",
-                    "data.content" type ARRAY means "상품 목록",
+                    "data" type OBJECT means "상품 데이터 (페이징 구조)",
+                    "data.content[]" type ARRAY means "상품 목록",
                     "data.content[].productId" type NUMBER means "상품 ID",
                     "data.content[].userId" type NUMBER means "사용자 ID",
                     "data.content[].title" type STRING means "상품명",
@@ -177,15 +251,24 @@ class ProductRestAdapterTest {
                     "data.content[].shootingTime" type OBJECT means "촬영 시간",
                     "data.content[].shootingLocation" type STRING means "촬영 장소",
                     "data.content[].numberOfCostumes" type NUMBER means "의상 수",
-                    "data.content[].partnerShops" type ARRAY means "협력업체 목록",
+                    "data.content[].partnerShops[]" type ARRAY means "협력업체 목록",
+                    "data.content[].partnerShops[].name" type STRING means "협력업체명",
+                    "data.content[].partnerShops[].link" type STRING means "협력업체 링크",
                     "data.content[].detailedInfo" type STRING means "상세 정보",
                     "data.content[].warrantyInfo" type STRING means "보증 정보",
                     "data.content[].contactInfo" type STRING means "연락처",
                     "data.content[].createdAt" type OBJECT means "생성 시간",
                     "data.content[].updatedAt" type OBJECT means "수정 시간",
-                    "data.content[].options" type ARRAY means "옵션 목록",
+                    "data.content[].options[]" type ARRAY means "옵션 목록",
+                    "data.content[].options[].optionId" type NUMBER means "옵션 ID",
+                    "data.content[].options[].productId" type NUMBER means "옵션에 소속된 상품 ID",
+                    "data.content[].options[].name" type STRING means "옵션명",
+                    "data.content[].options[].additionalPrice" type NUMBER means "추가 가격",
+                    "data.content[].options[].description" type STRING means "옵션 설명",
+                    "data.content[].options[].createdAt" type OBJECT means "옵션 생성 시간",
+                    "data.content[].options[].updatedAt" type OBJECT means "옵션 수정 시간",
                     "data.content[].images" type ARRAY means "상품 이미지 리스트",
-                    "data.page" type NUMBER means "현재 페이지",
+                    "data.page" type NUMBER means "현재 페이지 번호",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.totalElements" type NUMBER means "전체 상품 수",
                     "data.totalPages" type NUMBER means "전체 페이지 수",
@@ -194,8 +277,9 @@ class ProductRestAdapterTest {
     }
 
     @Test
-    fun `상품 수정 API 테스트 - 정상 수정`() {
+    fun `상품 수정 API 테스트 - 정상 수정 (옵션 삭제 포함)`() {
         // given
+        // 업데이트 요청: 기존 옵션 중 옵션 1은 업데이트하고, 신규 옵션 추가 (옵션 삭제 대상: 옵션 2, 옵션 3)
         val updateRequest =
             UpdateProductRequest(
                 userId = 1L,
@@ -211,9 +295,28 @@ class ProductRestAdapterTest {
                 detailedInfo = "Updated detailed information",
                 warrantyInfo = "Updated warranty",
                 contactInfo = "updated@example.com",
-                options = emptyList(),
+                options =
+                    listOf(
+                        // 기존 옵션 업데이트 (이미 존재하는 옵션: 옵션 1)
+                        UpdateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Option 1 Updated",
+                            additionalPrice = 1200,
+                            description = "Extra option updated",
+                        ),
+                        // 신규 옵션 추가 (optionId가 null이면 신규 옵션으로 추가)
+                        UpdateProductOptionRequest(
+                            optionId = null,
+                            name = "New Option",
+                            additionalPrice = 500,
+                            description = "Additional new option",
+                        ),
+                    ),
                 images = listOf("image1.jpg"),
             )
+
+        // 기존 상품의 옵션은 옵션 1, 옵션 2, 옵션 3이 있었던 것으로 가정합니다.
+        // 업데이트 후 응답에서는 옵션 1(업데이트된 결과)과 신규 추가된 옵션만 포함되어야 합니다.
         val updatedProductResponse =
             ProductResponse(
                 productId = 1L,
@@ -230,10 +333,33 @@ class ProductRestAdapterTest {
                 warrantyInfo = "Updated warranty",
                 contactInfo = "updated@example.com",
                 images = listOf("image1.jpg"),
-                options = emptyList(),
+                options =
+                    listOf(
+                        // 기존 옵션 업데이트 결과 (옵션 1)
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1 Updated",
+                            additionalPrice = 1200,
+                            description = "Extra option updated",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                        // 신규 추가된 옵션 (DB에서 부여된 ID 예시: 4L)
+                        ProductOptionResponse(
+                            optionId = 4L,
+                            productId = 1L,
+                            name = "New Option",
+                            additionalPrice = 500,
+                            description = "Additional new option",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
                 createdAt = null,
                 updatedAt = null,
             )
+
         given(productUseCase.updateProduct(updateRequest.copy(productId = 1L)))
             .willReturn(updatedProductResponse)
 
@@ -268,6 +394,13 @@ class ProductRestAdapterTest {
                     "data.createdAt" type OBJECT means "생성 시간",
                     "data.updatedAt" type OBJECT means "수정 시간",
                     "data.options" type ARRAY means "옵션 목록",
+                    "data.options[].optionId" type NUMBER means "옵션 ID",
+                    "data.options[].productId" type NUMBER means "옵션에 소속된 상품 ID",
+                    "data.options[].name" type STRING means "옵션명",
+                    "data.options[].additionalPrice" type NUMBER means "추가 가격",
+                    "data.options[].description" type STRING means "옵션 설명",
+                    "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
+                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
                     "data.images" type ARRAY means "상품 이미지 리스트",
                 ),
             )
