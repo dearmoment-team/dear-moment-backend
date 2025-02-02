@@ -77,9 +77,7 @@ class ProductUseCaseImpl(
 
     @Transactional
     override fun deleteProduct(productId: Long) {
-        if (!productPersistencePort.existsById(productId)) {
-            throw IllegalArgumentException("The product to delete does not exist: $productId.")
-        }
+        require(productPersistencePort.existsById(productId)) { "The product to delete does not exist: $productId." }
         productOptionPersistencePort.deleteAllByProductId(productId)
         productPersistencePort.deleteById(productId)
     }
@@ -183,17 +181,17 @@ class ProductUseCaseImpl(
         min: Long?,
         max: Long?,
     ) {
-        if ((min != null && min < 0) || (max != null && max < 0)) {
-            throw IllegalArgumentException("Price range must be greater than or equal to 0.")
+        require(!((min != null && min < 0) || (max != null && max < 0))) {
+            "Price range must be greater than or equal to 0."
         }
-        if (min != null && max != null && min > max) {
-            throw IllegalArgumentException("Minimum price cannot exceed maximum price.")
+        require(min == null || max == null || min <= max) {
+            "Minimum price cannot exceed maximum price."
         }
     }
 
     private fun validateForCreation(product: Product) {
-        if (productPersistencePort.existsByUserIdAndTitle(product.userId, product.title)) {
-            throw IllegalArgumentException("A product with the same title already exists: ${product.title}.")
+        require(!productPersistencePort.existsByUserIdAndTitle(product.userId, product.title)) {
+            "A product with the same title already exists: ${product.title}."
         }
     }
 

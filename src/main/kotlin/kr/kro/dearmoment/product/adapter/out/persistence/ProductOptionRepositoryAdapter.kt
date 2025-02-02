@@ -20,13 +20,12 @@ class ProductOptionRepositoryAdapter(
             jpaProductRepository.findById(product.productId)
                 .orElseThrow { IllegalArgumentException("Product not found: ${product.productId}") }
 
-        if (jpaProductOptionRepository.existsByProductProductIdAndName(
+        require(
+            !jpaProductOptionRepository.existsByProductProductIdAndName(
                 productEntity.productId!!,
                 productOption.name,
-            )
-        ) {
-            throw IllegalArgumentException("ProductOption already exists: ${productOption.name}")
-        }
+            ),
+        ) { "ProductOption already exists: ${productOption.name}" }
 
         val optionEntity = ProductOptionEntity.fromDomain(productOption, productEntity)
         val savedEntity = jpaProductOptionRepository.save(optionEntity)
@@ -48,9 +47,7 @@ class ProductOptionRepositoryAdapter(
 
     @Transactional
     override fun deleteById(id: Long) {
-        if (!jpaProductOptionRepository.existsById(id)) {
-            throw IllegalArgumentException("Cannot delete ProductOption: ID $id not found.")
-        }
+        require(jpaProductOptionRepository.existsById(id)) { "Cannot delete ProductOption: ID $id not found." }
         jpaProductOptionRepository.deleteById(id)
     }
 
