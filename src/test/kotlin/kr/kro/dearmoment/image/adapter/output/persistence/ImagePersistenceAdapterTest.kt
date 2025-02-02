@@ -5,10 +5,10 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.image.domain.Image
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 
-@DataJpaTest
+@RepositoryTest
 class ImagePersistenceAdapterTest(
     private val imageRepository: JpaImageRepository,
 ) : BehaviorSpec({
