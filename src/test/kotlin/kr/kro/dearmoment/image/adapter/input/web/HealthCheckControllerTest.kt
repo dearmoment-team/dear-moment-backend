@@ -10,25 +10,11 @@ import kr.kro.dearmoment.image.adapter.input.web.restdocs.responseBody
 import kr.kro.dearmoment.image.adapter.input.web.restdocs.toJson
 import kr.kro.dearmoment.image.adapter.input.web.restdocs.type
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.HttpMethod
-import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@ExtendWith(RestDocumentationExtension::class)
-@WebMvcTest(HealthCheckController::class)
-@AutoConfigureRestDocs
-@AutoConfigureMockMvc
-class HealthCheckControllerTest {
-    @Autowired
-    lateinit var mockMvc: MockMvc
-
+class HealthCheckControllerTest : RestApiTestSpringExtensions() {
     @Test
     fun healthCheck() {
         val expectedResponse = BaseResponse.success(data = HealthCheckResponse(value = "OK"))

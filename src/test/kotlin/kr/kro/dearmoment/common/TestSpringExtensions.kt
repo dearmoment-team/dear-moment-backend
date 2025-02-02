@@ -6,6 +6,6 @@ import io.kotest.extensions.spring.SpringTestLifecycleMode
 import org.springframework.boot.test.context.TestConfiguration
 
 @TestConfiguration
-class TestConfig : AbstractProjectConfig() {
+class TestSpringExtensions : AbstractProjectConfig() {
     override fun extensions() = listOf(SpringTestExtension(SpringTestLifecycleMode.Root))
 }
