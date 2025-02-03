@@ -1,6 +1,7 @@
-package kr.kro.dearmoment.image.adapter.input.web
+package kr.kro.dearmoment.common
 
 import kr.kro.dearmoment.TestEnvironment
+import kr.kro.dearmoment.image.adapter.input.web.HealthCheckController
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs

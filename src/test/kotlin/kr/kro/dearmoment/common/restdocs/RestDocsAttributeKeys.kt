@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.image.adapter.input.web.restdocs
+package kr.kro.dearmoment.common.restdocs
 
 /**
  * RestDocs에서 사용되는 속성 키를 정의하는 객체입니다.

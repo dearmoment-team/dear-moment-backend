@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.image.adapter.input.web.restdocs
+package kr.kro.dearmoment.common.restdocs
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.test.web.servlet.ResultMatcher

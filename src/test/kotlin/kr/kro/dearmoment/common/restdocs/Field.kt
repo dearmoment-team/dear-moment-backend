@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.image.adapter.input.web.restdocs
+package kr.kro.dearmoment.common.restdocs
 
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
