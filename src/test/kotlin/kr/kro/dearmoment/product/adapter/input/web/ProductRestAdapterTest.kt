@@ -1,14 +1,14 @@
 package kr.kro.dearmoment.product.adapter.input.web
 
 import andDocument
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.ARRAY
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.BOOLEAN
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.NUMBER
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.OBJECT
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.STRING
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.responseBody
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.toJsonString
-import kr.kro.dearmoment.boardgame.adapter.input.web.restdocs.type
+import kr.kro.dearmoment.common.restdocs.ARRAY
+import kr.kro.dearmoment.common.restdocs.BOOLEAN
+import kr.kro.dearmoment.common.restdocs.NUMBER
+import kr.kro.dearmoment.common.restdocs.OBJECT
+import kr.kro.dearmoment.common.restdocs.STRING
+import kr.kro.dearmoment.common.restdocs.responseBody
+import kr.kro.dearmoment.common.restdocs.toJsonString
+import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
