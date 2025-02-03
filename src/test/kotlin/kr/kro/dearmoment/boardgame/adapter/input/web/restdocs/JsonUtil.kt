@@ -10,3 +10,5 @@ private val objectMapper = jacksonObjectMapper()
 fun Any.toJson(): ResultMatcher {
     return content().json(objectMapper.writeValueAsString(this))
 }
+
+fun Any.toJsonString(): String = jacksonObjectMapper().writeValueAsString(this)
