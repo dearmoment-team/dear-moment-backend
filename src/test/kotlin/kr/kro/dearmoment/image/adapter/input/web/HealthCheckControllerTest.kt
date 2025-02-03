@@ -1,13 +1,14 @@
 package kr.kro.dearmoment.image.adapter.input.web
 
 import andDocument
-import kr.kro.dearmoment.image.adapter.input.web.restdocs.BOOLEAN
-import kr.kro.dearmoment.image.adapter.input.web.restdocs.NUMBER
-import kr.kro.dearmoment.image.adapter.input.web.restdocs.OBJECT
-import kr.kro.dearmoment.image.adapter.input.web.restdocs.STRING
-import kr.kro.dearmoment.image.adapter.input.web.restdocs.responseBody
-import kr.kro.dearmoment.image.adapter.input.web.restdocs.toJson
-import kr.kro.dearmoment.image.adapter.input.web.restdocs.type
+import kr.kro.dearmoment.common.RestApiTestBase
+import kr.kro.dearmoment.common.restdocs.BOOLEAN
+import kr.kro.dearmoment.common.restdocs.NUMBER
+import kr.kro.dearmoment.common.restdocs.OBJECT
+import kr.kro.dearmoment.common.restdocs.STRING
+import kr.kro.dearmoment.common.restdocs.responseBody
+import kr.kro.dearmoment.common.restdocs.toJson
+import kr.kro.dearmoment.common.restdocs.type
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
