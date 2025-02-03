@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.config.AuditingConfig
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +15,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @DataJpaTest
-@Import(ProductOptionRepositoryAdapter::class, AuditingConfig::class)
+@Import(ProductOptionRepositoryAdapter::class)
 @ActiveProfiles("test")
 class ProductOptionRepositoryAdapterTest(
     @Autowired private val productOptionPersistencePort: ProductOptionPersistencePort,
