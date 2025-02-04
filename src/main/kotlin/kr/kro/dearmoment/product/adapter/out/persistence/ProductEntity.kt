@@ -1,3 +1,5 @@
+// 예시: kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity.kt
+
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.CascadeType
@@ -5,6 +7,8 @@ import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -14,8 +18,10 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.BaseTime
+import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import java.time.LocalDateTime
 
 @Entity
@@ -41,14 +47,42 @@ open class ProductEntity(
     var description: String? = null,
     @Column(name = "PRICE", nullable = false)
     var price: Long = 0L,
+    /**
+     * 0=일반, 1=패키지 등 구분
+     */
     @Column(name = "TYPE_CODE", nullable = false)
     var typeCode: Int = 0,
     @Column(name = "SHOOTING_TIME")
     var shootingTime: LocalDateTime? = null,
     @Column(name = "SHOOTING_LOCATION")
     var shootingLocation: String? = null,
+    /**
+     * 최대 의상 벌 수
+     */
     @Column(name = "NUMBER_OF_COSTUMES")
     var numberOfCostumes: Int? = null,
+    /**
+     * 우아한/빈티지 등 콘셉트
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "CONCEPT", nullable = false)
+    var concept: ConceptType = ConceptType.ELEGANT,
+    /**
+     * 원본 제공 여부
+     */
+    @Column(name = "PROVIDE_ORIGINAL", nullable = false)
+    var provideOriginal: Boolean = false,
+    /**
+     * 25년 등 연도
+     */
+    @Column(name = "SEASON_YEAR")
+    var seasonYear: Int? = null,
+    /**
+     * 상반기/하반기
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "SEASON_HALF")
+    var seasonHalf: SeasonHalf? = null,
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
@@ -70,8 +104,7 @@ open class ProductEntity(
     )
     @Column(name = "IMAGE_URL")
     var images: List<String> = mutableListOf(),
-) : BaseTime() { // BaseTime 상속
-
+) : BaseTime() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
             val entity =
@@ -85,17 +118,21 @@ open class ProductEntity(
                     shootingTime = product.shootingTime,
                     shootingLocation = product.shootingLocation.ifBlank { null },
                     numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                    concept = product.concept,
+                    provideOriginal = product.provideOriginal,
+                    seasonYear = product.seasonYear,
+                    seasonHalf = product.seasonHalf,
                     partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
                     detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
                     warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
                     contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
                     images = product.images,
                 )
-            // 도메인에 이미 시간이 있다면, 여기서 엔티티에 반영
+            // BaseTime 상속 필드 (createdDate, updateDate)에 도메인 값 반영
             entity.createdDate = product.createdAt
             entity.updateDate = product.updatedAt
 
-            // 옵션 설정
+            // 옵션 매핑
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
@@ -115,12 +152,16 @@ open class ProductEntity(
             shootingTime = shootingTime,
             shootingLocation = shootingLocation ?: "",
             numberOfCostumes = numberOfCostumes ?: 0,
+            concept = concept,
+            provideOriginal = provideOriginal,
+            seasonYear = seasonYear,
+            seasonHalf = seasonHalf,
             partnerShops = partnerShops.map { PartnerShop(it.name, it.link) },
             detailedInfo = detailedInfo ?: "",
             warrantyInfo = warrantyInfo ?: "",
             contactInfo = contactInfo ?: "",
-            createdAt = this.createdDate,
-            updatedAt = this.updateDate,
+            createdAt = createdDate,
+            updatedAt = updateDate,
             options = options.map { it.toDomain() },
             images = images,
         )
