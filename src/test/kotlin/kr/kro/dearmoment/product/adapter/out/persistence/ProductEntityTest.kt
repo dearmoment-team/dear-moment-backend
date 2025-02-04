@@ -11,29 +11,31 @@ class ProductEntityTest : StringSpec({
 
     "ProductEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops = listOf(
-            PartnerShop("상점1", "http://shop1.com"),
-            PartnerShop("상점2", "http://shop2.com"),
-        )
+        val partnerShops =
+            listOf(
+                PartnerShop("상점1", "http://shop1.com"),
+                PartnerShop("상점2", "http://shop2.com"),
+            )
 
-        val product = Product(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            shootingTime = fixedDateTime,
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            createdAt = fixedDateTime,
-            updatedAt = fixedDateTime,
-            images = listOf("image1.jpg", "image2.jpg"),
-        )
+        val product =
+            Product(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                shootingTime = fixedDateTime,
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                createdAt = fixedDateTime,
+                updatedAt = fixedDateTime,
+                images = listOf("image1.jpg", "image2.jpg"),
+            )
 
         val productEntity = ProductEntity.fromDomain(product)
         productEntity.productId shouldBe product.productId
@@ -59,27 +61,29 @@ class ProductEntityTest : StringSpec({
 
     "ProductEntity는 도메인 모델로 올바르게 변환되어야 한다" {
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops = listOf(
-            PartnerShopEmbeddable("상점1", "http://shop1.com"),
-            PartnerShopEmbeddable("상점2", "http://shop2.com"),
-        )
+        val partnerShops =
+            listOf(
+                PartnerShopEmbeddable("상점1", "http://shop1.com"),
+                PartnerShopEmbeddable("상점2", "http://shop2.com"),
+            )
 
-        val productEntity = ProductEntity(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            shootingTime = fixedDateTime,
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            images = listOf("image1.jpg", "image2.jpg"),
-        )
+        val productEntity =
+            ProductEntity(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                shootingTime = fixedDateTime,
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                images = listOf("image1.jpg", "image2.jpg"),
+            )
 
         // 여기서 createdDate / updateDate == null (DB 저장 전)일 수 있음
         productEntity.createdDate shouldBe null

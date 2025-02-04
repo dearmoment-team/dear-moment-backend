@@ -33,50 +33,36 @@ open class ProductEntity(
     )
     @Column(name = "PRODUCT_ID")
     var productId: Long? = null,
-
     @Column(name = "USER_ID")
     var userId: Long? = null,
-
     @Column(name = "TITLE", nullable = false)
     var title: String = "",
-
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-
     @Column(name = "PRICE", nullable = false)
     var price: Long = 0L,
-
     @Column(name = "TYPE_CODE", nullable = false)
     var typeCode: Int = 0,
-
     @Column(name = "SHOOTING_TIME")
     var shootingTime: LocalDateTime? = null,
-
     @Column(name = "SHOOTING_LOCATION")
     var shootingLocation: String? = null,
-
     @Column(name = "NUMBER_OF_COSTUMES")
     var numberOfCostumes: Int? = null,
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
         joinColumns = [JoinColumn(name = "PRODUCT_ID")],
     )
     var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
-
     @Column(name = "DETAILED_INFO")
     var detailedInfo: String? = null,
-
     @Column(name = "WARRANTY_INFO")
     var warrantyInfo: String? = null,
-
     @Column(name = "CONTACT_INFO")
     var contactInfo: String? = null,
-
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_IMAGES",
@@ -84,27 +70,27 @@ open class ProductEntity(
     )
     @Column(name = "IMAGE_URL")
     var images: List<String> = mutableListOf(),
-
-    ) : BaseTime() {  // BaseTime 상속
+) : BaseTime() { // BaseTime 상속
 
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val entity = ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                title = product.title,
-                description = if (product.description.isBlank()) null else product.description,
-                price = product.price,
-                typeCode = product.typeCode,
-                shootingTime = product.shootingTime,
-                shootingLocation = product.shootingLocation.ifBlank { null },
-                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
-                images = product.images,
-            )
+            val entity =
+                ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    title = product.title,
+                    description = if (product.description.isBlank()) null else product.description,
+                    price = product.price,
+                    typeCode = product.typeCode,
+                    shootingTime = product.shootingTime,
+                    shootingLocation = product.shootingLocation.ifBlank { null },
+                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
+                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
+                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                    images = product.images,
+                )
             // 도메인에 이미 시간이 있다면, 여기서 엔티티에 반영
             entity.createdDate = product.createdAt
             entity.updateDate = product.updatedAt
