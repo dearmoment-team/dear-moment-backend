@@ -51,16 +51,18 @@ data class UpdateProductRequest(
 ) {
     companion object {
         fun toDomain(request: UpdateProductRequest): Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                kr.kro.dearmoment.product.domain.model.PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link,
-                )
-            }
-            val productOptionList = request.options.map { optionRequest ->
-                // 옵션 변환 시, productId를 UpdateProductRequest의 productId로 전달
-                UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    kr.kro.dearmoment.product.domain.model.PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
+            val productOptionList =
+                request.options.map { optionRequest ->
+                    // 옵션 변환 시, productId를 UpdateProductRequest의 productId로 전달
+                    UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
+                }
             return Product(
                 productId = request.productId,
                 userId = request.userId,

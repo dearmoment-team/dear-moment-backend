@@ -51,12 +51,13 @@ data class CreateProductRequest(
 ) {
     companion object {
         fun toDomain(request: CreateProductRequest): Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link,
-                )
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
             return Product(
                 userId = request.userId,
                 title = request.title,
