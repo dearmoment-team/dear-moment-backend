@@ -85,42 +85,36 @@ open class ProductEntity(
     @Column(name = "IMAGE_URL")
     var images: List<String> = mutableListOf(),
 
-    ) : BaseTime() { // BaseTime 상속
+    ) : BaseTime() {  // BaseTime 상속
 
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            // BaseTime(즉, createdDate, updateDate)은 Audit에 의해 자동 지정되지만
-            // 도메인에서 넘어온 값을 유지해야 한다면 아래처럼 수동 세팅 가능
-            val productEntity =
-                ProductEntity(
-                    productId = if (product.productId == 0L) null else product.productId,
-                    userId = product.userId,
-                    title = product.title,
-                    description = if (product.description.isBlank()) null else product.description,
-                    price = product.price,
-                    typeCode = product.typeCode,
-                    shootingTime = product.shootingTime,
-                    shootingLocation = product.shootingLocation.ifBlank { null },
-                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
-                    images = product.images,
-                )
-
-            // 필요하다면, 도메인에서 넘어온 생성·수정 일자를 엔티티의 BaseTime 필드에 직접 할당
-            productEntity.createdDate = product.createdAt
-            productEntity.updateDate = product.updatedAt
+            val entity = ProductEntity(
+                productId = if (product.productId == 0L) null else product.productId,
+                userId = product.userId,
+                title = product.title,
+                description = if (product.description.isBlank()) null else product.description,
+                price = product.price,
+                typeCode = product.typeCode,
+                shootingTime = product.shootingTime,
+                shootingLocation = product.shootingLocation.ifBlank { null },
+                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
+                warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
+                contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                images = product.images,
+            )
+            // 도메인에 이미 시간이 있다면, 여기서 엔티티에 반영
+            entity.createdDate = product.createdAt
+            entity.updateDate = product.updatedAt
 
             // 옵션 설정
-            productEntity.options.clear()
             product.options.forEach { optionDomain ->
-                val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
-                productEntity.options.add(optionEntity)
+                val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
+                entity.options.add(optionEntity)
             }
-
-            return productEntity
+            return entity
         }
     }
 

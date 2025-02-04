@@ -48,17 +48,20 @@ data class Product(
         val existingOptionsMap = options.associateBy { it.optionId }
         val newOptionsMap = newOptions.associateBy { it.optionId }
 
-        val toDelete: Set<Long> = (existingOptionsMap.keys - newOptionsMap.keys)
-            .filterNotNull()
-            .toSet()
+        val toDelete: Set<Long> =
+            (existingOptionsMap.keys - newOptionsMap.keys)
+                .filterNotNull()
+                .toSet()
 
-        val toUpdate = newOptions.filter {
-            it.optionId != 0L && existingOptionsMap.containsKey(it.optionId)
-        }.map { it.copy(productId = productId) }
+        val toUpdate =
+            newOptions.filter {
+                it.optionId != 0L && existingOptionsMap.containsKey(it.optionId)
+            }.map { it.copy(productId = productId) }
 
-        val toInsert = newOptions.filter {
-            it.optionId == 0L
-        }.map { it.copy(productId = productId) }
+        val toInsert =
+            newOptions.filter {
+                it.optionId == 0L
+            }.map { it.copy(productId = productId) }
 
         val updatedOptions = toUpdate + toInsert
         return ProductOptionUpdateResult(updatedOptions, toDelete)

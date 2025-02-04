@@ -15,12 +15,12 @@ abstract class BaseTime {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    var createdDate: LocalDateTime = LocalDateTime.MIN
+    var createdDate: LocalDateTime? = null
         protected set
 
     @LastModifiedDate
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    var updateDate: LocalDateTime = LocalDateTime.MIN
+    var updateDate: LocalDateTime? = null
         protected set
 }
