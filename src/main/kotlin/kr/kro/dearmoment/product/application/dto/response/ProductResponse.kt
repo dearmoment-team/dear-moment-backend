@@ -1,8 +1,10 @@
 package kr.kro.dearmoment.product.application.dto.response
 
+import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import java.time.LocalDateTime
 
 data class ProductResponse(
@@ -12,9 +14,13 @@ data class ProductResponse(
     val description: String?,
     val price: Long,
     val typeCode: Int,
+    val concept: ConceptType,
+    val provideOriginal: Boolean,
     val shootingTime: LocalDateTime?,
     val shootingLocation: String?,
     val numberOfCostumes: Int?,
+    val seasonYear: Int?,
+    val seasonHalf: SeasonHalf?,
     val partnerShops: List<PartnerShopResponse>,
     val detailedInfo: String?,
     val warrantyInfo: String?,
@@ -33,9 +39,13 @@ data class ProductResponse(
                 description = product.description.takeIf { it.isNotBlank() },
                 price = product.price,
                 typeCode = product.typeCode,
+                concept = product.concept,
+                provideOriginal = product.provideOriginal,
                 shootingTime = product.shootingTime,
                 shootingLocation = product.shootingLocation.takeIf { it.isNotBlank() },
                 numberOfCostumes = product.numberOfCostumes.takeIf { it != 0 },
+                seasonYear = product.seasonYear,
+                seasonHalf = product.seasonHalf,
                 partnerShops = product.partnerShops.map { PartnerShopResponse.fromDomain(it) },
                 detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() },
                 warrantyInfo = product.warrantyInfo.takeIf { it.isNotBlank() },
