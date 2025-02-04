@@ -19,8 +19,10 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import java.time.LocalDateTime
 
 class ProductUseCaseTest : BehaviorSpec({
@@ -45,21 +47,25 @@ class ProductUseCaseTest : BehaviorSpec({
             CreateProductRequest(
                 userId = 1L,
                 title = "New Product",
+                description = "Product description",
                 price = 10000,
                 typeCode = 0,
-                images = listOf("image1.jpg"),
-                options = listOf(CreateProductOptionRequest(name = "Option1", additionalPrice = 2000)),
-                contactInfo = "contact@example.com",
-                description = "Product description",
-                detailedInfo = "Detailed product information",
+                concept = ConceptType.ELEGANT,
+                provideOriginal = false,
+                shootingTime = fixedDateTime,
+                shootingLocation = "Location1",
                 numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
                 partnerShops =
                     listOf(
                         CreatePartnerShopRequest(name = "Partner", link = "http://naver.com"),
                     ),
-                shootingLocation = "Location1",
-                shootingTime = fixedDateTime,
+                detailedInfo = "Detailed product information",
                 warrantyInfo = "blabla",
+                contactInfo = "contact@example.com",
+                options = listOf(CreateProductOptionRequest(name = "Option1", additionalPrice = 2000)),
+                images = listOf("image1.jpg"),
             )
         // toDomain()에서는 createdAt, updatedAt은 null로 처리됨
         val validProduct = CreateProductRequest.toDomain(createProduct)
@@ -133,15 +139,19 @@ class ProductUseCaseTest : BehaviorSpec({
 
         val updateRequest =
             UpdateProductRequest(
-                userId = 1L,
                 productId = 1L,
+                userId = 1L,
                 title = "Updated Product",
                 description = "Updated description",
                 price = 15000,
                 typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                provideOriginal = false,
                 shootingTime = null,
                 shootingLocation = null,
                 numberOfCostumes = null,
+                seasonYear = null,
+                seasonHalf = null,
                 partnerShops =
                     listOf(
                         UpdatePartnerShopRequest(name = "Shop1", link = "http://shop1.com"),
@@ -177,12 +187,19 @@ class ProductUseCaseTest : BehaviorSpec({
                     description = "Original Description",
                     price = 10000,
                     typeCode = 0,
-                    images = listOf("image1.jpg"),
-                    options = existingOptions,
+                    concept = ConceptType.ELEGANT,
+                    provideOriginal = false,
+                    shootingTime = null,
+                    shootingLocation = "",
+                    numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
                     partnerShops = emptyList(),
                     detailedInfo = "",
                     warrantyInfo = "",
                     contactInfo = "",
+                    options = existingOptions,
+                    images = listOf("image1.jpg"),
                 )
             every { productPersistencePort.save(any()) } returns updatedProduct.copy(productId = 1L, userId = 1L)
             every { productOptionPersistencePort.findByProductId(1L) } returns
@@ -268,9 +285,13 @@ class ProductUseCaseTest : BehaviorSpec({
                     description = "Sample Description",
                     price = 10000,
                     typeCode = 0,
+                    concept = ConceptType.ELEGANT,
+                    provideOriginal = false,
                     shootingTime = null,
                     shootingLocation = "",
                     numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
                     partnerShops = emptyList(),
                     detailedInfo = "",
                     warrantyInfo = "",
@@ -327,9 +348,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "Description1",
                         price = 10000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -353,9 +378,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "Description2",
                         price = 20000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -379,9 +408,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "Description3",
                         price = 30000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -421,7 +454,9 @@ class ProductUseCaseTest : BehaviorSpec({
                 val results = productUseCase.searchProducts("test", 10000, 30000, sortBy = "likes")
                 results.content shouldHaveSize 3
 
-                val expectedOrder = mockProductsWithLikes.sortedByDescending { it.second }.map { it.first.title }
+                val expectedOrder =
+                    mockProductsWithLikes.sortedByDescending { it.second }
+                        .map { it.first.title }
                 results.content.map { it.title } shouldContainExactly expectedOrder
             }
         }
@@ -448,9 +483,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "DescriptionA",
                         price = 10000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -474,9 +513,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "DescriptionB",
                         price = 20000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -500,9 +543,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "DescriptionC",
                         price = 30000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -549,9 +596,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "DescriptionA",
                         price = 10000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -575,9 +626,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "DescriptionB",
                         price = 20000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
@@ -601,9 +656,13 @@ class ProductUseCaseTest : BehaviorSpec({
                         description = "DescriptionC",
                         price = 30000,
                         typeCode = 0,
+                        concept = ConceptType.ELEGANT,
+                        provideOriginal = false,
                         shootingTime = null,
                         shootingLocation = "",
                         numberOfCostumes = 0,
+                        seasonYear = null,
+                        seasonHalf = null,
                         partnerShops = emptyList(),
                         detailedInfo = "",
                         warrantyInfo = "",
