@@ -6,11 +6,11 @@ import java.time.LocalDateTime
  * 콘셉트(우아한, 빈티지, 모던, 클래식, 럭셔리 등)를 관리하기 위한 enum
  */
 enum class ConceptType {
-    ELEGANT, // 우아한
-    VINTAGE, // 빈티지
-    MODERN, // 모던
-    CLASSIC, // 클래식
-    LUXURY, // 고급스러운
+    ELEGANT,
+    VINTAGE,
+    MODERN,
+    CLASSIC,
+    LUXURY,
 }
 
 /**
@@ -37,7 +37,7 @@ data class Product(
     /**
      * 우아한, 빈티지 등 여러 콘셉트
      */
-    val concept: ConceptType,
+    val concept: ConceptType = ConceptType.CLASSIC,
     /**
      * 원본 제공 여부
      */
