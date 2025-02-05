@@ -59,15 +59,17 @@ data class UpdateProductRequest(
 ) {
     companion object {
         fun toDomain(request: UpdateProductRequest): Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                kr.kro.dearmoment.product.domain.model.PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link,
-                )
-            }
-            val productOptionList = request.options.map { optionRequest ->
-                UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    kr.kro.dearmoment.product.domain.model.PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
+            val productOptionList =
+                request.options.map { optionRequest ->
+                    UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
+                }
             return Product(
                 productId = request.productId,
                 userId = request.userId,

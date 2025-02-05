@@ -17,7 +17,7 @@ enum class ConceptType {
  * 연도별 상/하반기를 표현하기 위한 enum
  */
 enum class SeasonHalf {
-    FIRST_HALF,  // 상반기
+    FIRST_HALF, // 상반기
     SECOND_HALF, // 하반기
 }
 
@@ -25,7 +25,7 @@ enum class SeasonHalf {
  * 원본 제공 방식을 표현하기 위한 enum
  */
 enum class OriginalProvideType {
-    FULL,    // 원본 전체 제공
+    FULL, // 원본 전체 제공
     PARTIAL, // 원본 일부(몇 장만) 제공
 }
 
@@ -42,23 +42,19 @@ data class Product(
      * 0=일반, 1=패키지 등
      */
     val typeCode: Int,
-
     /**
      * 우아한, 빈티지 등 여러 콘셉트
      */
     val concept: ConceptType = ConceptType.CLASSIC,
-
     /**
      * 원본 제공 타입 (FULL / PARTIAL)
      */
     val originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
-
     /**
      * PARTIAL 일 때 제공할 원본 장수
      * (FULL일 경우 null 또는 0)
      */
     val partialOriginalCount: Int? = null,
-
     val shootingTime: LocalDateTime? = null,
     val shootingLocation: String = "",
     /**
