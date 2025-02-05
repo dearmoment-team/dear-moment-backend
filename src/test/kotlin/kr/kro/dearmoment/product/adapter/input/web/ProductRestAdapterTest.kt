@@ -32,16 +32,126 @@ import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-/**
- * RestApiTestBase를 상속받아 RestDocs & MockMvc 설정을 재사용합니다.
- * 여기서는 @WebMvcTest에 ProductRestAdapter를 테스트 대상으로 지정하고,
- * 필요한 의존성(ProductUseCase 등)은 @Import로 주입받습니다.
- */
 @WebMvcTest(controllers = [ProductRestAdapter::class])
 @Import(ProductRestAdapterTestConfig::class)
 class ProductRestAdapterTest : RestApiTestBase() {
     @Autowired
     lateinit var productUseCase: ProductUseCase
+
+    // --- 헬퍼: 공통 응답 문서 정의 ---
+    private fun commonResponsePrefix() =
+        arrayOf(
+            "success" type BOOLEAN means "응답 성공 여부",
+            "code" type NUMBER means "HTTP 상태 코드",
+        )
+
+    private fun productResponseDoc(prefix: String = "data") =
+        arrayOf(
+            "$prefix.productId" type NUMBER means "상품 ID",
+            "$prefix.userId" type NUMBER means "사용자 ID",
+            "$prefix.title" type STRING means "상품명",
+            "$prefix.description" type STRING means "상품 설명",
+            "$prefix.price" type NUMBER means "가격",
+            "$prefix.typeCode" type NUMBER means "상품 타입 코드",
+            "$prefix.concept" type STRING means "상품 콘셉트",
+            "$prefix.originalProvideType" type STRING means "원본 제공 타입 (FULL/PARTIAL)",
+            "$prefix.partialOriginalCount" type NUMBER means "PARTIAL 제공 시 제공할 원본 장수",
+            "$prefix.shootingTime" type OBJECT means "촬영 시간",
+            "$prefix.shootingLocation" type STRING means "촬영 장소",
+            "$prefix.numberOfCostumes" type NUMBER means "의상 수",
+            "$prefix.seasonYear" type NUMBER means "시즌 연도",
+            "$prefix.seasonHalf" type STRING means "시즌 반(상/하반기)",
+            "$prefix.partnerShops" type ARRAY means "협력업체 목록",
+            "$prefix.detailedInfo" type STRING means "상세 정보",
+            "$prefix.warrantyInfo" type STRING means "보증 정보",
+            "$prefix.contactInfo" type STRING means "연락처",
+            "$prefix.createdAt" type OBJECT means "생성 시간",
+            "$prefix.updatedAt" type OBJECT means "수정 시간",
+            "$prefix.images" type ARRAY means "상품 이미지 리스트",
+        )
+
+    private fun productOptionDoc(prefix: String = "data.options") =
+        arrayOf(
+            "$prefix[].optionId" type NUMBER means "옵션 ID",
+            "$prefix[].productId" type NUMBER means "옵션에 소속된 상품 ID",
+            "$prefix[].name" type STRING means "옵션명",
+            "$prefix[].additionalPrice" type NUMBER means "추가 가격",
+            "$prefix[].description" type STRING means "옵션 설명",
+            "$prefix[].createdAt" type OBJECT means "옵션 생성 시간",
+            "$prefix[].updatedAt" type OBJECT means "옵션 수정 시간",
+        )
+
+    private fun partnerShopDoc(prefix: String = "data.partnerShops") =
+        arrayOf(
+            "$prefix[].name" type STRING means "협력업체명",
+            "$prefix[].link" type STRING means "협력업체 링크",
+        )
+
+    private fun paginationDoc(prefix: String = "data") =
+        arrayOf(
+            "$prefix.page" type NUMBER means "현재 페이지 번호",
+            "$prefix.size" type NUMBER means "페이지 크기",
+            "$prefix.totalElements" type NUMBER means "전체 상품 수",
+            "$prefix.totalPages" type NUMBER means "전체 페이지 수",
+        )
+
+    // --- 헬퍼: 샘플 데이터 생성 ---
+    private fun createSampleProductResponse(
+        productId: Long = 1L,
+        partnerShops: List<PartnerShopResponse> =
+            listOf(
+                PartnerShopResponse("Shop A", "http://shopA.com"),
+                PartnerShopResponse("Shop B", "http://shopB.com"),
+            ),
+        options: List<ProductOptionResponse> =
+            listOf(
+                ProductOptionResponse(
+                    optionId = 1L,
+                    productId = 1L,
+                    name = "Option 1",
+                    additionalPrice = 1000,
+                    description = "Extra option",
+                    createdAt = null,
+                    updatedAt = null,
+                ),
+            ),
+    ): ProductResponse =
+        ProductResponse(
+            productId = productId,
+            userId = 1L,
+            title = if (productId == 1L) "New Product" else "Updated Product",
+            description = if (productId == 1L) "Product description" else "Updated description",
+            price = if (productId == 1L) 10000 else 15000,
+            typeCode = 0,
+            concept = ConceptType.ELEGANT,
+            originalProvideType = OriginalProvideType.FULL,
+            partialOriginalCount = null,
+            shootingTime = null,
+            shootingLocation = "Location1",
+            numberOfCostumes = 3,
+            seasonYear = 2023,
+            seasonHalf = SeasonHalf.FIRST_HALF,
+            partnerShops = partnerShops,
+            detailedInfo = if (productId == 1L) "Detailed product information" else "Updated detailed information",
+            warrantyInfo = if (productId == 1L) "blabla" else "Updated warranty",
+            contactInfo = if (productId == 1L) "contact@example.com" else "updated@example.com",
+            images = listOf("image1.jpg"),
+            options = options,
+            createdAt = null,
+            updatedAt = null,
+        )
+
+    private fun createSamplePagedResponse(): PagedResponse<ProductResponse> {
+        return PagedResponse(
+            content = listOf(createSampleProductResponse()),
+            page = 0,
+            size = 10,
+            totalElements = 1,
+            totalPages = 1,
+        )
+    }
+
+    // --- 테스트 케이스 ---
 
     @Test
     fun `상품 생성 API 테스트`() {
@@ -53,7 +163,6 @@ class ProductRestAdapterTest : RestApiTestBase() {
                 price = 10000,
                 typeCode = 0,
                 concept = ConceptType.ELEGANT,
-                // 기존의 provideOriginal 대신 originalProvideType와 partialOriginalCount 사용
                 originalProvideType = OriginalProvideType.FULL,
                 partialOriginalCount = null,
                 shootingTime = null,
@@ -82,47 +191,7 @@ class ProductRestAdapterTest : RestApiTestBase() {
                 warrantyInfo = "Warranty Description",
             )
 
-        val productResponse =
-            ProductResponse(
-                productId = 1L,
-                userId = 1L,
-                title = "New Product",
-                description = "Product description",
-                price = 10000,
-                typeCode = 0,
-                concept = ConceptType.ELEGANT,
-                // 응답에서는 provideOriginal 필드 대신 originalProvideType와 partialOriginalCount 사용
-                originalProvideType = OriginalProvideType.FULL,
-                partialOriginalCount = null,
-                shootingTime = null,
-                shootingLocation = "Location1",
-                numberOfCostumes = 3,
-                seasonYear = 2023,
-                seasonHalf = SeasonHalf.FIRST_HALF,
-                partnerShops =
-                    listOf(
-                        PartnerShopResponse("Shop A", "http://shopA.com"),
-                        PartnerShopResponse("Shop B", "http://shopB.com"),
-                    ),
-                detailedInfo = "Detailed product information",
-                warrantyInfo = "blabla",
-                contactInfo = "contact@example.com",
-                images = listOf("image1.jpg"),
-                options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = 1L,
-                            name = "Option 1",
-                            additionalPrice = 1000,
-                            description = "Extra option",
-                            createdAt = null,
-                            updatedAt = null,
-                        ),
-                    ),
-                createdAt = null,
-                updatedAt = null,
-            )
+        val productResponse = createSampleProductResponse()
 
         given(productUseCase.saveProduct(request)).willReturn(productResponse)
 
@@ -138,41 +207,10 @@ class ProductRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "create-product",
                 responseBody(
-                    "success" type BOOLEAN means "응답 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "상품 데이터",
-                    "data.productId" type NUMBER means "상품 ID",
-                    "data.userId" type NUMBER means "사용자 ID",
-                    "data.title" type STRING means "상품명",
-                    "data.description" type STRING means "상품 설명",
-                    "data.price" type NUMBER means "가격",
-                    "data.typeCode" type NUMBER means "상품 타입 코드",
-                    "data.concept" type STRING means "상품 콘셉트",
-                    // 변경된 원본 제공 관련 필드
-                    "data.originalProvideType" type STRING means "원본 제공 타입 (FULL/PARTIAL)",
-                    "data.partialOriginalCount" type NUMBER means "PARTIAL 제공 시 제공할 원본 장수",
-                    "data.shootingTime" type OBJECT means "촬영 시간",
-                    "data.shootingLocation" type STRING means "촬영 장소",
-                    "data.numberOfCostumes" type NUMBER means "의상 수",
-                    "data.seasonYear" type NUMBER means "시즌 연도",
-                    "data.seasonHalf" type STRING means "시즌 반(상/하반기)",
-                    "data.partnerShops" type ARRAY means "협력업체 목록",
-                    "data.partnerShops[].name" type STRING means "협력업체명",
-                    "data.partnerShops[].link" type STRING means "협력업체 링크",
-                    "data.detailedInfo" type STRING means "상세 정보",
-                    "data.warrantyInfo" type STRING means "보증 정보",
-                    "data.contactInfo" type STRING means "연락처",
-                    "data.createdAt" type OBJECT means "생성 시간",
-                    "data.updatedAt" type OBJECT means "수정 시간",
-                    "data.options" type ARRAY means "옵션 목록",
-                    "data.options[].optionId" type NUMBER means "옵션 ID",
-                    "data.options[].productId" type NUMBER means "옵션에 소속된 상품 ID",
-                    "data.options[].name" type STRING means "옵션명",
-                    "data.options[].additionalPrice" type NUMBER means "추가 가격",
-                    "data.options[].description" type STRING means "옵션 설명",
-                    "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
-                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
-                    "data.images" type ARRAY means "상품 이미지 리스트",
+                    *commonResponsePrefix(),
+                    *productResponseDoc("data"),
+                    *partnerShopDoc("data.partnerShops"),
+                    *productOptionDoc("data.options"),
                 ),
             )
     }
@@ -180,55 +218,7 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `메인페이지 상품 조회 API 테스트`() {
         // given
-        val productResponse =
-            ProductResponse(
-                productId = 1L,
-                userId = 1L,
-                title = "New Product",
-                description = "Product description",
-                price = 10000,
-                typeCode = 0,
-                concept = ConceptType.ELEGANT,
-                originalProvideType = OriginalProvideType.FULL,
-                partialOriginalCount = null,
-                shootingTime = null,
-                shootingLocation = "Location1",
-                numberOfCostumes = 3,
-                seasonYear = 2023,
-                seasonHalf = SeasonHalf.FIRST_HALF,
-                partnerShops =
-                    listOf(
-                        PartnerShopResponse("Shop A", "http://shopA.com"),
-                        PartnerShopResponse("Shop B", "http://shopB.com"),
-                    ),
-                detailedInfo = "Detailed product information",
-                warrantyInfo = "blabla",
-                contactInfo = "contact@example.com",
-                images = listOf("image1.jpg"),
-                options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = 1L,
-                            name = "Option 1",
-                            additionalPrice = 1000,
-                            description = "Extra option",
-                            createdAt = null,
-                            updatedAt = null,
-                        ),
-                    ),
-                createdAt = null,
-                updatedAt = null,
-            )
-
-        val pagedResponse =
-            PagedResponse(
-                content = listOf(productResponse),
-                page = 0,
-                size = 10,
-                totalElements = 1,
-                totalPages = 1,
-            )
+        val pagedResponse = createSamplePagedResponse()
         given(productUseCase.getMainPageProducts(0, 10)).willReturn(pagedResponse)
 
         val request =
@@ -243,46 +233,14 @@ class ProductRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "get-main-page-products",
                 responseBody(
-                    "success" type BOOLEAN means "응답 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "상품 데이터 (페이징 구조)",
+                    *commonResponsePrefix(),
+                    // 페이징 구조 내에 content 항목으로 상품 목록 정의
                     "data.content[]" type ARRAY means "상품 목록",
-                    "data.content[].productId" type NUMBER means "상품 ID",
-                    "data.content[].userId" type NUMBER means "사용자 ID",
-                    "data.content[].title" type STRING means "상품명",
-                    "data.content[].description" type STRING means "상품 설명",
-                    "data.content[].price" type NUMBER means "가격",
-                    "data.content[].typeCode" type NUMBER means "상품 타입 코드",
-                    "data.content[].concept" type STRING means "상품 콘셉트",
-                    // 변경된 원본 제공 관련 필드
-                    "data.content[].originalProvideType" type STRING means "원본 제공 타입 (FULL/PARTIAL)",
-                    "data.content[].partialOriginalCount" type NUMBER means "PARTIAL 제공 시 제공할 원본 장수",
-                    "data.content[].shootingTime" type OBJECT means "촬영 시간",
-                    "data.content[].shootingLocation" type STRING means "촬영 장소",
-                    "data.content[].numberOfCostumes" type NUMBER means "의상 수",
-                    "data.content[].seasonYear" type NUMBER means "시즌 연도",
-                    "data.content[].seasonHalf" type STRING means "시즌 반(상/하반기)",
-                    "data.content[].partnerShops[]" type ARRAY means "협력업체 목록",
-                    "data.content[].partnerShops[].name" type STRING means "협력업체명",
-                    "data.content[].partnerShops[].link" type STRING means "협력업체 링크",
-                    "data.content[].detailedInfo" type STRING means "상세 정보",
-                    "data.content[].warrantyInfo" type STRING means "보증 정보",
-                    "data.content[].contactInfo" type STRING means "연락처",
-                    "data.content[].createdAt" type OBJECT means "생성 시간",
-                    "data.content[].updatedAt" type OBJECT means "수정 시간",
-                    "data.content[].options[]" type ARRAY means "옵션 목록",
-                    "data.content[].options[].optionId" type NUMBER means "옵션 ID",
-                    "data.content[].options[].productId" type NUMBER means "옵션에 소속된 상품 ID",
-                    "data.content[].options[].name" type STRING means "옵션명",
-                    "data.content[].options[].additionalPrice" type NUMBER means "추가 가격",
-                    "data.content[].options[].description" type STRING means "옵션 설명",
-                    "data.content[].options[].createdAt" type OBJECT means "옵션 생성 시간",
-                    "data.content[].options[].updatedAt" type OBJECT means "옵션 수정 시간",
-                    "data.content[].images" type ARRAY means "상품 이미지 리스트",
-                    "data.page" type NUMBER means "현재 페이지 번호",
-                    "data.size" type NUMBER means "페이지 크기",
-                    "data.totalElements" type NUMBER means "전체 상품 수",
-                    "data.totalPages" type NUMBER means "전체 페이지 수",
+                    *productResponseDoc("data.content[]"),
+                    *partnerShopDoc("data.content[].partnerShops"),
+                    *productOptionDoc("data.content[].options"),
+                    // 페이징 관련 필드
+                    *paginationDoc("data"),
                 ),
             )
     }
@@ -299,7 +257,6 @@ class ProductRestAdapterTest : RestApiTestBase() {
                 price = 15000,
                 typeCode = 0,
                 concept = ConceptType.ELEGANT,
-                // 변경: originalProvideType와 partialOriginalCount 사용 (여기서는 FULL로 가정)
                 originalProvideType = OriginalProvideType.FULL,
                 partialOriginalCount = null,
                 shootingTime = null,
@@ -332,26 +289,9 @@ class ProductRestAdapterTest : RestApiTestBase() {
             )
 
         val updatedProductResponse =
-            ProductResponse(
+            createSampleProductResponse(
                 productId = 1L,
-                userId = 1L,
-                title = "Updated Product",
-                description = "Updated description",
-                price = 15000,
-                typeCode = 0,
-                concept = ConceptType.ELEGANT,
-                originalProvideType = OriginalProvideType.FULL,
-                partialOriginalCount = null,
-                shootingTime = null,
-                shootingLocation = "Location1",
-                numberOfCostumes = 3,
-                seasonYear = 2023,
-                seasonHalf = SeasonHalf.FIRST_HALF,
                 partnerShops = emptyList(),
-                detailedInfo = "Updated detailed information",
-                warrantyInfo = "Updated warranty",
-                contactInfo = "updated@example.com",
-                images = listOf("image1.jpg"),
                 options =
                     listOf(
                         ProductOptionResponse(
@@ -373,8 +313,6 @@ class ProductRestAdapterTest : RestApiTestBase() {
                             updatedAt = null,
                         ),
                     ),
-                createdAt = null,
-                updatedAt = null,
             )
 
         given(productUseCase.updateProduct(updateRequest.copy(productId = 1L)))
@@ -392,39 +330,10 @@ class ProductRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "update-product",
                 responseBody(
-                    "success" type BOOLEAN means "응답 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "업데이트된 상품 데이터",
-                    "data.productId" type NUMBER means "상품 ID",
-                    "data.userId" type NUMBER means "사용자 ID",
-                    "data.title" type STRING means "상품명",
-                    "data.description" type STRING means "상품 설명",
-                    "data.price" type NUMBER means "가격",
-                    "data.typeCode" type NUMBER means "상품 타입 코드",
-                    "data.concept" type STRING means "상품 콘셉트",
-                    // 변경된 원본 제공 관련 필드
-                    "data.originalProvideType" type STRING means "원본 제공 타입 (FULL/PARTIAL)",
-                    "data.partialOriginalCount" type NUMBER means "PARTIAL 제공 시 제공할 원본 장수",
-                    "data.shootingTime" type OBJECT means "촬영 시간",
-                    "data.shootingLocation" type STRING means "촬영 장소",
-                    "data.numberOfCostumes" type NUMBER means "의상 수",
-                    "data.seasonYear" type NUMBER means "시즌 연도",
-                    "data.seasonHalf" type STRING means "시즌 반(상/하반기)",
-                    "data.partnerShops" type ARRAY means "협력업체 목록",
-                    "data.detailedInfo" type STRING means "상세 정보",
-                    "data.warrantyInfo" type STRING means "보증 정보",
-                    "data.contactInfo" type STRING means "연락처",
-                    "data.createdAt" type OBJECT means "생성 시간",
-                    "data.updatedAt" type OBJECT means "수정 시간",
-                    "data.options" type ARRAY means "옵션 목록",
-                    "data.options[].optionId" type NUMBER means "옵션 ID",
-                    "data.options[].productId" type NUMBER means "옵션에 소속된 상품 ID",
-                    "data.options[].name" type STRING means "옵션명",
-                    "data.options[].additionalPrice" type NUMBER means "추가 가격",
-                    "data.options[].description" type STRING means "옵션 설명",
-                    "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
-                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
-                    "data.images" type ARRAY means "상품 이미지 리스트",
+                    *commonResponsePrefix(),
+                    *productResponseDoc("data"),
+                    *partnerShopDoc("data.partnerShops"),
+                    *productOptionDoc("data.options"),
                 ),
             )
     }
@@ -488,8 +397,7 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 삭제 API 테스트 - 존재하지 않는 상품`() {
         // given
-        org.mockito.Mockito
-            .doThrow(IllegalArgumentException("The product to delete does not exist: 999."))
+        org.mockito.Mockito.doThrow(IllegalArgumentException("The product to delete does not exist: 999."))
             .`when`(productUseCase)
             .deleteProduct(999L)
 
@@ -506,31 +414,7 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
-        val productResponse =
-            ProductResponse(
-                productId = 1L,
-                userId = 1L,
-                title = "New Product",
-                description = "Product description",
-                price = 10000,
-                typeCode = 0,
-                concept = ConceptType.ELEGANT,
-                originalProvideType = OriginalProvideType.FULL,
-                partialOriginalCount = null,
-                shootingTime = null,
-                shootingLocation = "Location1",
-                numberOfCostumes = 3,
-                seasonYear = 2023,
-                seasonHalf = SeasonHalf.FIRST_HALF,
-                partnerShops = emptyList(),
-                detailedInfo = "Detailed product information",
-                warrantyInfo = "blabla",
-                contactInfo = "contact@example.com",
-                images = listOf("image1.jpg"),
-                options = emptyList(),
-                createdAt = null,
-                updatedAt = null,
-            )
+        val productResponse = createSampleProductResponse()
         given(productUseCase.getProductById(1L)).willReturn(productResponse)
 
         val requestBuilder =
@@ -543,32 +427,11 @@ class ProductRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "get-product",
                 responseBody(
-                    "success" type BOOLEAN means "응답 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "상품 데이터",
-                    "data.productId" type NUMBER means "상품 ID",
-                    "data.userId" type NUMBER means "사용자 ID",
-                    "data.title" type STRING means "상품명",
-                    "data.description" type STRING means "상품 설명",
-                    "data.price" type NUMBER means "가격",
-                    "data.typeCode" type NUMBER means "상품 타입 코드",
-                    "data.concept" type STRING means "상품 콘셉트",
-                    // 변경된 원본 제공 관련 필드
-                    "data.originalProvideType" type STRING means "원본 제공 타입 (FULL/PARTIAL)",
-                    "data.partialOriginalCount" type NUMBER means "PARTIAL 제공 시 제공할 원본 장수",
-                    "data.shootingTime" type OBJECT means "촬영 시간",
-                    "data.shootingLocation" type STRING means "촬영 장소",
-                    "data.numberOfCostumes" type NUMBER means "의상 수",
-                    "data.seasonYear" type NUMBER means "시즌 연도",
-                    "data.seasonHalf" type STRING means "시즌 반(상/하반기)",
-                    "data.partnerShops" type ARRAY means "협력업체 목록",
-                    "data.detailedInfo" type STRING means "상세 정보",
-                    "data.warrantyInfo" type STRING means "보증 정보",
-                    "data.contactInfo" type STRING means "연락처",
-                    "data.createdAt" type OBJECT means "생성 시간",
-                    "data.updatedAt" type OBJECT means "수정 시간",
-                    "data.options" type ARRAY means "옵션 목록",
-                    "data.images" type ARRAY means "상품 이미지 리스트",
+                    *commonResponsePrefix(),
+                    *productResponseDoc("data"),
+                    *partnerShopDoc("data.partnerShops"),
+                    // options가 단순 배열일 경우엔 아래와 같이 문서화
+                    *productOptionDoc("data.options"),
                 ),
             )
     }
@@ -589,8 +452,7 @@ class ProductRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "get-product-not-found",
                 responseBody(
-                    "success" type BOOLEAN means "응답 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
+                    *commonResponsePrefix(),
                     "data" type OBJECT means "에러 데이터 (null)",
                 ),
             )
