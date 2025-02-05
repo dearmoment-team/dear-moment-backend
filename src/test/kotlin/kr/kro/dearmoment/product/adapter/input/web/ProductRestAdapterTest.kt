@@ -46,84 +46,91 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 생성 API 테스트`() {
         // given
-        val request = CreateProductRequest(
-            userId = 1L,
-            title = "New Product",
-            price = 10000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            // 기존의 provideOriginal 대신 originalProvideType와 partialOriginalCount 사용
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = "Location1",
-            numberOfCostumes = 3,
-            seasonYear = 2023,
-            seasonHalf = SeasonHalf.FIRST_HALF,
-            images = listOf("image1.jpg"),
-            options = listOf(
-                CreateProductOptionRequest(
-                    optionId = 1L,
-                    name = "Option 1",
-                    additionalPrice = 1000,
-                    description = "Extra option",
-                ),
-            ),
-            contactInfo = "contact@example.com",
-            description = "Product description",
-            detailedInfo = "Detailed product information",
-            partnerShops = listOf(
-                CreatePartnerShopRequest("Shop A", "http://shopA.com"),
-                CreatePartnerShopRequest("Shop B", "http://shopB.com"),
-            ),
-            warrantyInfo = "Warranty Description",
-        )
+        val request =
+            CreateProductRequest(
+                userId = 1L,
+                title = "New Product",
+                price = 10000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                // 기존의 provideOriginal 대신 originalProvideType와 partialOriginalCount 사용
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = "Location1",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                images = listOf("image1.jpg"),
+                options =
+                    listOf(
+                        CreateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option",
+                        ),
+                    ),
+                contactInfo = "contact@example.com",
+                description = "Product description",
+                detailedInfo = "Detailed product information",
+                partnerShops =
+                    listOf(
+                        CreatePartnerShopRequest("Shop A", "http://shopA.com"),
+                        CreatePartnerShopRequest("Shop B", "http://shopB.com"),
+                    ),
+                warrantyInfo = "Warranty Description",
+            )
 
-        val productResponse = ProductResponse(
-            productId = 1L,
-            userId = 1L,
-            title = "New Product",
-            description = "Product description",
-            price = 10000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            // 응답에서는 provideOriginal 필드 대신 originalProvideType와 partialOriginalCount 사용
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = "Location1",
-            numberOfCostumes = 3,
-            seasonYear = 2023,
-            seasonHalf = SeasonHalf.FIRST_HALF,
-            partnerShops = listOf(
-                PartnerShopResponse("Shop A", "http://shopA.com"),
-                PartnerShopResponse("Shop B", "http://shopB.com"),
-            ),
-            detailedInfo = "Detailed product information",
-            warrantyInfo = "blabla",
-            contactInfo = "contact@example.com",
-            images = listOf("image1.jpg"),
-            options = listOf(
-                ProductOptionResponse(
-                    optionId = 1L,
-                    productId = 1L,
-                    name = "Option 1",
-                    additionalPrice = 1000,
-                    description = "Extra option",
-                    createdAt = null,
-                    updatedAt = null,
-                ),
-            ),
-            createdAt = null,
-            updatedAt = null,
-        )
+        val productResponse =
+            ProductResponse(
+                productId = 1L,
+                userId = 1L,
+                title = "New Product",
+                description = "Product description",
+                price = 10000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                // 응답에서는 provideOriginal 필드 대신 originalProvideType와 partialOriginalCount 사용
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = "Location1",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                partnerShops =
+                    listOf(
+                        PartnerShopResponse("Shop A", "http://shopA.com"),
+                        PartnerShopResponse("Shop B", "http://shopB.com"),
+                    ),
+                detailedInfo = "Detailed product information",
+                warrantyInfo = "blabla",
+                contactInfo = "contact@example.com",
+                images = listOf("image1.jpg"),
+                options =
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
+                createdAt = null,
+                updatedAt = null,
+            )
 
         given(productUseCase.saveProduct(request)).willReturn(productResponse)
 
-        val requestBuilder = RestDocumentationRequestBuilders
-            .post("/api/products")
-            .content(request.toJsonString())
-            .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .post("/api/products")
+                .content(request.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
 
         // when/then
         mockMvc.perform(requestBuilder)
@@ -173,57 +180,62 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `메인페이지 상품 조회 API 테스트`() {
         // given
-        val productResponse = ProductResponse(
-            productId = 1L,
-            userId = 1L,
-            title = "New Product",
-            description = "Product description",
-            price = 10000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = "Location1",
-            numberOfCostumes = 3,
-            seasonYear = 2023,
-            seasonHalf = SeasonHalf.FIRST_HALF,
-            partnerShops = listOf(
-                PartnerShopResponse("Shop A", "http://shopA.com"),
-                PartnerShopResponse("Shop B", "http://shopB.com"),
-            ),
-            detailedInfo = "Detailed product information",
-            warrantyInfo = "blabla",
-            contactInfo = "contact@example.com",
-            images = listOf("image1.jpg"),
-            options = listOf(
-                ProductOptionResponse(
-                    optionId = 1L,
-                    productId = 1L,
-                    name = "Option 1",
-                    additionalPrice = 1000,
-                    description = "Extra option",
-                    createdAt = null,
-                    updatedAt = null,
-                ),
-            ),
-            createdAt = null,
-            updatedAt = null,
-        )
+        val productResponse =
+            ProductResponse(
+                productId = 1L,
+                userId = 1L,
+                title = "New Product",
+                description = "Product description",
+                price = 10000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = "Location1",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                partnerShops =
+                    listOf(
+                        PartnerShopResponse("Shop A", "http://shopA.com"),
+                        PartnerShopResponse("Shop B", "http://shopB.com"),
+                    ),
+                detailedInfo = "Detailed product information",
+                warrantyInfo = "blabla",
+                contactInfo = "contact@example.com",
+                images = listOf("image1.jpg"),
+                options =
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
+                createdAt = null,
+                updatedAt = null,
+            )
 
-        val pagedResponse = PagedResponse(
-            content = listOf(productResponse),
-            page = 0,
-            size = 10,
-            totalElements = 1,
-            totalPages = 1,
-        )
+        val pagedResponse =
+            PagedResponse(
+                content = listOf(productResponse),
+                page = 0,
+                size = 10,
+                totalElements = 1,
+                totalPages = 1,
+            )
         given(productUseCase.getMainPageProducts(0, 10)).willReturn(pagedResponse)
 
-        val request = RestDocumentationRequestBuilders
-            .get("/api/products/main")
-            .param("page", "0")
-            .param("size", "10")
+        val request =
+            RestDocumentationRequestBuilders
+                .get("/api/products/main")
+                .param("page", "0")
+                .param("size", "10")
 
         // when/then
         mockMvc.perform(request)
@@ -278,96 +290,101 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 수정 API 테스트 - 정상 수정 (옵션 삭제 포함)`() {
         // given
-        val updateRequest = UpdateProductRequest(
-            userId = 1L,
-            productId = 1L,
-            title = "Updated Product",
-            description = "Updated description",
-            price = 15000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            // 변경: originalProvideType와 partialOriginalCount 사용 (여기서는 FULL로 가정)
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = "Location1",
-            numberOfCostumes = 3,
-            seasonYear = 2023,
-            seasonHalf = SeasonHalf.FIRST_HALF,
-            partnerShops = emptyList(),
-            detailedInfo = "Updated detailed information",
-            warrantyInfo = "Updated warranty",
-            contactInfo = "updated@example.com",
-            options = listOf(
-                // 기존 옵션 업데이트
-                UpdateProductOptionRequest(
-                    optionId = 1L,
-                    name = "Option 1 Updated",
-                    additionalPrice = 1200,
-                    description = "Extra option updated",
-                ),
-                // 신규 옵션 추가
-                UpdateProductOptionRequest(
-                    optionId = null,
-                    name = "New Option",
-                    additionalPrice = 500,
-                    description = "Additional new option",
-                ),
-            ),
-            images = listOf("image1.jpg"),
-        )
+        val updateRequest =
+            UpdateProductRequest(
+                userId = 1L,
+                productId = 1L,
+                title = "Updated Product",
+                description = "Updated description",
+                price = 15000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                // 변경: originalProvideType와 partialOriginalCount 사용 (여기서는 FULL로 가정)
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = "Location1",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                partnerShops = emptyList(),
+                detailedInfo = "Updated detailed information",
+                warrantyInfo = "Updated warranty",
+                contactInfo = "updated@example.com",
+                options =
+                    listOf(
+                        // 기존 옵션 업데이트
+                        UpdateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Option 1 Updated",
+                            additionalPrice = 1200,
+                            description = "Extra option updated",
+                        ),
+                        // 신규 옵션 추가
+                        UpdateProductOptionRequest(
+                            optionId = null,
+                            name = "New Option",
+                            additionalPrice = 500,
+                            description = "Additional new option",
+                        ),
+                    ),
+                images = listOf("image1.jpg"),
+            )
 
-        val updatedProductResponse = ProductResponse(
-            productId = 1L,
-            userId = 1L,
-            title = "Updated Product",
-            description = "Updated description",
-            price = 15000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = "Location1",
-            numberOfCostumes = 3,
-            seasonYear = 2023,
-            seasonHalf = SeasonHalf.FIRST_HALF,
-            partnerShops = emptyList(),
-            detailedInfo = "Updated detailed information",
-            warrantyInfo = "Updated warranty",
-            contactInfo = "updated@example.com",
-            images = listOf("image1.jpg"),
-            options = listOf(
-                ProductOptionResponse(
-                    optionId = 1L,
-                    productId = 1L,
-                    name = "Option 1 Updated",
-                    additionalPrice = 1200,
-                    description = "Extra option updated",
-                    createdAt = null,
-                    updatedAt = null,
-                ),
-                ProductOptionResponse(
-                    optionId = 4L,
-                    productId = 1L,
-                    name = "New Option",
-                    additionalPrice = 500,
-                    description = "Additional new option",
-                    createdAt = null,
-                    updatedAt = null,
-                ),
-            ),
-            createdAt = null,
-            updatedAt = null,
-        )
+        val updatedProductResponse =
+            ProductResponse(
+                productId = 1L,
+                userId = 1L,
+                title = "Updated Product",
+                description = "Updated description",
+                price = 15000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = "Location1",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                partnerShops = emptyList(),
+                detailedInfo = "Updated detailed information",
+                warrantyInfo = "Updated warranty",
+                contactInfo = "updated@example.com",
+                images = listOf("image1.jpg"),
+                options =
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1 Updated",
+                            additionalPrice = 1200,
+                            description = "Extra option updated",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                        ProductOptionResponse(
+                            optionId = 4L,
+                            productId = 1L,
+                            name = "New Option",
+                            additionalPrice = 500,
+                            description = "Additional new option",
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
+                createdAt = null,
+                updatedAt = null,
+            )
 
         given(productUseCase.updateProduct(updateRequest.copy(productId = 1L)))
             .willReturn(updatedProductResponse)
 
-        val requestBuilder = RestDocumentationRequestBuilders
-            .put("/api/products/{id}", 1L)
-            .content(updateRequest.toJsonString())
-            .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .put("/api/products/{id}", 1L)
+                .content(updateRequest.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
 
         // when/then
         mockMvc.perform(requestBuilder)
@@ -415,35 +432,37 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 수정 API 테스트 - 존재하지 않는 상품`() {
         // given
-        val updateRequest = UpdateProductRequest(
-            userId = 1L,
-            productId = 999L,
-            title = "Updated Product",
-            description = "Updated description",
-            price = 15000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = "Location1",
-            numberOfCostumes = 3,
-            seasonYear = 2023,
-            seasonHalf = SeasonHalf.FIRST_HALF,
-            partnerShops = emptyList(),
-            detailedInfo = "Updated detailed information",
-            warrantyInfo = "Updated warranty",
-            contactInfo = "updated@example.com",
-            options = emptyList(),
-            images = listOf("image1.jpg"),
-        )
+        val updateRequest =
+            UpdateProductRequest(
+                userId = 1L,
+                productId = 999L,
+                title = "Updated Product",
+                description = "Updated description",
+                price = 15000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = "Location1",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                partnerShops = emptyList(),
+                detailedInfo = "Updated detailed information",
+                warrantyInfo = "Updated warranty",
+                contactInfo = "updated@example.com",
+                options = emptyList(),
+                images = listOf("image1.jpg"),
+            )
         given(productUseCase.updateProduct(updateRequest))
             .willThrow(IllegalArgumentException("Product not found: 999"))
 
-        val requestBuilder = RestDocumentationRequestBuilders
-            .put("/api/products/{id}", 999L)
-            .content(updateRequest.toJsonString())
-            .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .put("/api/products/{id}", 999L)
+                .content(updateRequest.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
 
         // when/then
         mockMvc.perform(requestBuilder)
@@ -456,8 +475,9 @@ class ProductRestAdapterTest : RestApiTestBase() {
         // given
         org.mockito.Mockito.doNothing().`when`(productUseCase).deleteProduct(1L)
 
-        val requestBuilder = RestDocumentationRequestBuilders
-            .delete("/api/products/{id}", 1L)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .delete("/api/products/{id}", 1L)
 
         // when/then
         mockMvc.perform(requestBuilder)
@@ -473,8 +493,9 @@ class ProductRestAdapterTest : RestApiTestBase() {
             .`when`(productUseCase)
             .deleteProduct(999L)
 
-        val requestBuilder = RestDocumentationRequestBuilders
-            .delete("/api/products/{id}", 999L)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .delete("/api/products/{id}", 999L)
 
         // when/then
         mockMvc.perform(requestBuilder)
@@ -485,34 +506,36 @@ class ProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
-        val productResponse = ProductResponse(
-            productId = 1L,
-            userId = 1L,
-            title = "New Product",
-            description = "Product description",
-            price = 10000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = "Location1",
-            numberOfCostumes = 3,
-            seasonYear = 2023,
-            seasonHalf = SeasonHalf.FIRST_HALF,
-            partnerShops = emptyList(),
-            detailedInfo = "Detailed product information",
-            warrantyInfo = "blabla",
-            contactInfo = "contact@example.com",
-            images = listOf("image1.jpg"),
-            options = emptyList(),
-            createdAt = null,
-            updatedAt = null,
-        )
+        val productResponse =
+            ProductResponse(
+                productId = 1L,
+                userId = 1L,
+                title = "New Product",
+                description = "Product description",
+                price = 10000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = "Location1",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                partnerShops = emptyList(),
+                detailedInfo = "Detailed product information",
+                warrantyInfo = "blabla",
+                contactInfo = "contact@example.com",
+                images = listOf("image1.jpg"),
+                options = emptyList(),
+                createdAt = null,
+                updatedAt = null,
+            )
         given(productUseCase.getProductById(1L)).willReturn(productResponse)
 
-        val requestBuilder = RestDocumentationRequestBuilders
-            .get("/api/products/{id}", 1L)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .get("/api/products/{id}", 1L)
 
         // when/then
         mockMvc.perform(requestBuilder)
@@ -556,8 +579,9 @@ class ProductRestAdapterTest : RestApiTestBase() {
         given(productUseCase.getProductById(999L))
             .willThrow(IllegalArgumentException("Product with ID 999 not found."))
 
-        val requestBuilder = RestDocumentationRequestBuilders
-            .get("/api/products/{id}", 999L)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .get("/api/products/{id}", 999L)
 
         // when/then
         mockMvc.perform(requestBuilder)

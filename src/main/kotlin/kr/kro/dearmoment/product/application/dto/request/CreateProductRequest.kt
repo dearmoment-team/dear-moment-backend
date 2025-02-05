@@ -59,12 +59,13 @@ data class CreateProductRequest(
 ) {
     companion object {
         fun toDomain(request: CreateProductRequest): Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link,
-                )
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
             return Product(
                 userId = request.userId,
                 title = request.title,
@@ -83,7 +84,7 @@ data class CreateProductRequest(
                 detailedInfo = request.detailedInfo ?: "",
                 warrantyInfo = request.warrantyInfo ?: "",
                 contactInfo = request.contactInfo ?: "",
-                options = emptyList(), // 옵션은 별도 로직에서 처리할 수 있습니다.
+                options = emptyList(),
                 images = request.images,
             )
         }

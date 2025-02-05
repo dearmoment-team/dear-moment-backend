@@ -14,36 +14,38 @@ class ProductEntityTest : StringSpec({
 
     "ProductEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops = listOf(
-            PartnerShop("상점1", "http://shop1.com"),
-            PartnerShop("상점2", "http://shop2.com"),
-        )
+        val partnerShops =
+            listOf(
+                PartnerShop("상점1", "http://shop1.com"),
+                PartnerShop("상점2", "http://shop2.com"),
+            )
 
         // FULL 제공인 경우: partialOriginalCount는 null 또는 0 (여기서는 null로 지정)
-        val product = Product(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = fixedDateTime,
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            seasonYear = 2023,
-            seasonHalf = null,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            createdAt = fixedDateTime,
-            updatedAt = fixedDateTime,
-            options = emptyList(),
-            images = listOf("image1.jpg", "image2.jpg"),
-        )
+        val product =
+            Product(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = fixedDateTime,
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                seasonYear = 2023,
+                seasonHalf = null,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                createdAt = fixedDateTime,
+                updatedAt = fixedDateTime,
+                options = emptyList(),
+                images = listOf("image1.jpg", "image2.jpg"),
+            )
 
         val productEntity = ProductEntity.fromDomain(product)
         productEntity.productId shouldBe product.productId
@@ -76,33 +78,35 @@ class ProductEntityTest : StringSpec({
 
     "ProductEntity는 도메인 모델로 올바르게 변환되어야 한다" {
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops = listOf(
-            PartnerShopEmbeddable("상점1", "http://shop1.com"),
-            PartnerShopEmbeddable("상점2", "http://shop2.com"),
-        )
+        val partnerShops =
+            listOf(
+                PartnerShopEmbeddable("상점1", "http://shop1.com"),
+                PartnerShopEmbeddable("상점2", "http://shop2.com"),
+            )
 
         // PARTIAL 제공인 경우: partialOriginalCount는 3 (예시)
-        val productEntity = ProductEntity(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.PARTIAL,
-            partialOriginalCount = 3,
-            shootingTime = fixedDateTime,
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            seasonYear = 2023,
-            seasonHalf = null,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            images = listOf("image1.jpg", "image2.jpg"),
-        )
+        val productEntity =
+            ProductEntity(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.PARTIAL,
+                partialOriginalCount = 3,
+                shootingTime = fixedDateTime,
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                seasonYear = 2023,
+                seasonHalf = null,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                images = listOf("image1.jpg", "image2.jpg"),
+            )
 
         // DB 저장 전이므로 createdDate / updateDate가 null일 수 있음
         productEntity.createdDate shouldBe null
