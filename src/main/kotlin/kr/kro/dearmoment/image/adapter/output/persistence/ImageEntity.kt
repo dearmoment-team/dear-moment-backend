@@ -1,12 +1,12 @@
 package kr.kro.dearmoment.image.adapter.output.persistence
 
+import Auditable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import kr.kro.dearmoment.common.persistence.BaseTime
 import kr.kro.dearmoment.image.domain.Image
 
 @Entity
@@ -20,7 +20,7 @@ class ImageEntity(
     val userId: Long,
     @Column
     val fileName: String,
-) : BaseTime() {
+) : Auditable() {
     companion object {
         fun from(domain: Image) =
             ImageEntity(
