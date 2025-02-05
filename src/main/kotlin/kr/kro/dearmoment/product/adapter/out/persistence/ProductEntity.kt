@@ -1,5 +1,3 @@
-// 예시: kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity.kt
-
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.CascadeType
@@ -19,6 +17,7 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.BaseTime
 import kr.kro.dearmoment.product.domain.model.ConceptType
+import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.SeasonHalf
@@ -39,64 +38,89 @@ open class ProductEntity(
     )
     @Column(name = "PRODUCT_ID")
     var productId: Long? = null,
+
     @Column(name = "USER_ID")
     var userId: Long? = null,
+
     @Column(name = "TITLE", nullable = false)
     var title: String = "",
+
     @Column(name = "DESCRIPTION")
     var description: String? = null,
+
     @Column(name = "PRICE", nullable = false)
     var price: Long = 0L,
+
     /**
      * 0=일반, 1=패키지 등 구분
      */
     @Column(name = "TYPE_CODE", nullable = false)
     var typeCode: Int = 0,
+
     @Column(name = "SHOOTING_TIME")
     var shootingTime: LocalDateTime? = null,
+
     @Column(name = "SHOOTING_LOCATION")
     var shootingLocation: String? = null,
+
     /**
      * 최대 의상 벌 수
      */
     @Column(name = "NUMBER_OF_COSTUMES")
     var numberOfCostumes: Int? = null,
+
     /**
      * 우아한/빈티지 등 콘셉트
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "CONCEPT", nullable = false)
     var concept: ConceptType = ConceptType.ELEGANT,
+
     /**
-     * 원본 제공 여부
+     * 원본 제공 방식 (전체 / 일부)
      */
-    @Column(name = "PROVIDE_ORIGINAL", nullable = false)
-    var provideOriginal: Boolean = false,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ORIGINAL_PROVIDE_TYPE", nullable = false)
+    var originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
+
+    /**
+     * PARTIAL일 때 제공할 원본 장수
+     */
+    @Column(name = "PARTIAL_ORIGINAL_COUNT")
+    var partialOriginalCount: Int? = null,
+
     /**
      * 25년 등 연도
      */
     @Column(name = "SEASON_YEAR")
     var seasonYear: Int? = null,
+
     /**
      * 상반기/하반기
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "SEASON_HALF")
     var seasonHalf: SeasonHalf? = null,
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
         joinColumns = [JoinColumn(name = "PRODUCT_ID")],
     )
     var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
+
     @Column(name = "DETAILED_INFO")
     var detailedInfo: String? = null,
+
     @Column(name = "WARRANTY_INFO")
     var warrantyInfo: String? = null,
+
     @Column(name = "CONTACT_INFO")
     var contactInfo: String? = null,
+
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_IMAGES",
@@ -105,29 +129,31 @@ open class ProductEntity(
     @Column(name = "IMAGE_URL")
     var images: List<String> = mutableListOf(),
 ) : BaseTime() {
+
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val entity =
-                ProductEntity(
-                    productId = if (product.productId == 0L) null else product.productId,
-                    userId = product.userId,
-                    title = product.title,
-                    description = if (product.description.isBlank()) null else product.description,
-                    price = product.price,
-                    typeCode = product.typeCode,
-                    shootingTime = product.shootingTime,
-                    shootingLocation = product.shootingLocation.ifBlank { null },
-                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                    concept = product.concept,
-                    provideOriginal = product.provideOriginal,
-                    seasonYear = product.seasonYear,
-                    seasonHalf = product.seasonHalf,
-                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
-                    images = product.images,
-                )
+            val entity = ProductEntity(
+                productId = if (product.productId == 0L) null else product.productId,
+                userId = product.userId,
+                title = product.title,
+                description = if (product.description.isBlank()) null else product.description,
+                price = product.price,
+                typeCode = product.typeCode,
+                shootingTime = product.shootingTime,
+                shootingLocation = product.shootingLocation.ifBlank { null },
+                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                concept = product.concept,
+                originalProvideType = product.originalProvideType,
+                partialOriginalCount = product.partialOriginalCount,
+                seasonYear = product.seasonYear,
+                seasonHalf = product.seasonHalf,
+                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
+                warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
+                contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                images = product.images,
+            )
+
             // BaseTime 상속 필드 (createdDate, updateDate)에 도메인 값 반영
             entity.createdDate = product.createdAt
             entity.updateDate = product.updatedAt
@@ -137,6 +163,7 @@ open class ProductEntity(
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
             }
+
             return entity
         }
     }
@@ -149,11 +176,12 @@ open class ProductEntity(
             description = description ?: "",
             price = price,
             typeCode = typeCode,
+            concept = concept,
+            originalProvideType = originalProvideType,
+            partialOriginalCount = partialOriginalCount,
             shootingTime = shootingTime,
             shootingLocation = shootingLocation ?: "",
             numberOfCostumes = numberOfCostumes ?: 0,
-            concept = concept,
-            provideOriginal = provideOriginal,
             seasonYear = seasonYear,
             seasonHalf = seasonHalf,
             partnerShops = partnerShops.map { PartnerShop(it.name, it.link) },

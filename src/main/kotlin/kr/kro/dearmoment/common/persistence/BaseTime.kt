@@ -13,13 +13,13 @@ import java.time.LocalDateTime
 @EntityListeners(AuditingEntityListener::class)
 abstract class BaseTime {
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(name = "CREATED_DATE", nullable = false, updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     var createdDate: LocalDateTime? = null
         protected set
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(name = "UPDATE_DATE", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     var updateDate: LocalDateTime? = null
         protected set
