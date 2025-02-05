@@ -3,6 +3,7 @@ package kr.kro.dearmoment.product.application.dto.request
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
 import kr.kro.dearmoment.product.domain.model.ConceptType
+import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.SeasonHalf
@@ -25,9 +26,16 @@ data class UpdateProductRequest(
      */
     val concept: ConceptType,
     /**
-     * 원본 제공 여부
+     * 원본 제공 타입
+     * - FULL: 원본 전체 제공
+     * - PARTIAL: 원본 일부(몇 장만) 제공
      */
-    val provideOriginal: Boolean,
+    val originalProvideType: OriginalProvideType,
+    /**
+     * PARTIAL인 경우 제공할 원본 장수 (1 이상)
+     * FULL일 경우는 null 또는 0이어야 합니다.
+     */
+    val partialOriginalCount: Int? = null,
     val shootingTime: LocalDateTime?,
     val shootingLocation: String?,
     /**
@@ -51,18 +59,15 @@ data class UpdateProductRequest(
 ) {
     companion object {
         fun toDomain(request: UpdateProductRequest): Product {
-            val partnerShopList =
-                request.partnerShops.map { partnerShopRequest ->
-                    kr.kro.dearmoment.product.domain.model.PartnerShop(
-                        name = partnerShopRequest.name,
-                        link = partnerShopRequest.link,
-                    )
-                }
-            val productOptionList =
-                request.options.map { optionRequest ->
-                    // 옵션 변환 시, productId를 UpdateProductRequest의 productId로 전달
-                    UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
-                }
+            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
+                kr.kro.dearmoment.product.domain.model.PartnerShop(
+                    name = partnerShopRequest.name,
+                    link = partnerShopRequest.link,
+                )
+            }
+            val productOptionList = request.options.map { optionRequest ->
+                UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
+            }
             return Product(
                 productId = request.productId,
                 userId = request.userId,
@@ -71,7 +76,8 @@ data class UpdateProductRequest(
                 price = request.price,
                 typeCode = request.typeCode,
                 concept = request.concept,
-                provideOriginal = request.provideOriginal,
+                originalProvideType = request.originalProvideType,
+                partialOriginalCount = request.partialOriginalCount,
                 shootingTime = request.shootingTime,
                 shootingLocation = request.shootingLocation ?: "",
                 numberOfCostumes = request.numberOfCostumes ?: 0,

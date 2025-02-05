@@ -17,8 +17,16 @@ enum class ConceptType {
  * 연도별 상/하반기를 표현하기 위한 enum
  */
 enum class SeasonHalf {
-    FIRST_HALF, // 상반기
+    FIRST_HALF,  // 상반기
     SECOND_HALF, // 하반기
+}
+
+/**
+ * 원본 제공 방식을 표현하기 위한 enum
+ */
+enum class OriginalProvideType {
+    FULL,    // 원본 전체 제공
+    PARTIAL, // 원본 일부(몇 장만) 제공
 }
 
 /**
@@ -34,14 +42,23 @@ data class Product(
      * 0=일반, 1=패키지 등
      */
     val typeCode: Int,
+
     /**
      * 우아한, 빈티지 등 여러 콘셉트
      */
     val concept: ConceptType = ConceptType.CLASSIC,
+
     /**
-     * 원본 제공 여부
+     * 원본 제공 타입 (FULL / PARTIAL)
      */
-    val provideOriginal: Boolean = false,
+    val originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
+
+    /**
+     * PARTIAL 일 때 제공할 원본 장수
+     * (FULL일 경우 null 또는 0)
+     */
+    val partialOriginalCount: Int? = null,
+
     val shootingTime: LocalDateTime? = null,
     val shootingLocation: String = "",
     /**
@@ -80,6 +97,22 @@ data class Product(
                 require(it.link.isNotBlank()) { "파트너샵 링크는 비어 있을 수 없습니다." }
             }
         }
+
+        // 원본 제공 방식 검증
+        when (originalProvideType) {
+            OriginalProvideType.FULL -> {
+                // FULL이면 partialOriginalCount가 null 또는 0이 되어야 한다고 가정
+                require(partialOriginalCount == null || partialOriginalCount == 0) {
+                    "FULL 제공 시 partialOriginalCount는 null 또는 0이어야 합니다."
+                }
+            }
+            OriginalProvideType.PARTIAL -> {
+                // PARTIAL이면 partialOriginalCount가 반드시 1 이상이어야 함
+                require(partialOriginalCount != null && partialOriginalCount > 0) {
+                    "PARTIAL 제공 시 partialOriginalCount는 1 이상이어야 합니다."
+                }
+            }
+        }
     }
 
     val hasPackage: Boolean
@@ -94,8 +127,7 @@ data class Product(
         val newOptionsMap = newOptions.associateBy { it.optionId }
 
         val toDelete: Set<Long> =
-            (existingOptionsMap.keys - newOptionsMap.keys)
-                .filterNotNull()
+            (existingOptionsMap.keys - newOptionsMap.keys).toList()
                 .toSet()
 
         val toUpdate =

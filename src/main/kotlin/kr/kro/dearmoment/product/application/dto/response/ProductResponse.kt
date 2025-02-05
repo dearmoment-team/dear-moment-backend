@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.application.dto.response
 
 import kr.kro.dearmoment.product.domain.model.ConceptType
+import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
@@ -15,7 +16,11 @@ data class ProductResponse(
     val price: Long,
     val typeCode: Int,
     val concept: ConceptType,
-    val provideOriginal: Boolean,
+    val originalProvideType: OriginalProvideType,
+    /**
+     * PARTIAL인 경우 제공할 원본 장수 (FULL이면 null 또는 0)
+     */
+    val partialOriginalCount: Int?,
     val shootingTime: LocalDateTime?,
     val shootingLocation: String?,
     val numberOfCostumes: Int?,
@@ -40,7 +45,8 @@ data class ProductResponse(
                 price = product.price,
                 typeCode = product.typeCode,
                 concept = product.concept,
-                provideOriginal = product.provideOriginal,
+                originalProvideType = product.originalProvideType,
+                partialOriginalCount = product.partialOriginalCount,
                 shootingTime = product.shootingTime,
                 shootingLocation = product.shootingLocation.takeIf { it.isNotBlank() },
                 numberOfCostumes = product.numberOfCostumes.takeIf { it != 0 },

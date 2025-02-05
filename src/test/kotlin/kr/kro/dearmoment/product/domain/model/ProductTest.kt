@@ -34,7 +34,9 @@ internal class ProductTest : StringSpec({
         images: List<String> = defaultImages,
         partnerShops: List<PartnerShop> = if (typeCode == 1) defaultPartnerShops else emptyList(),
         concept: ConceptType = ConceptType.ELEGANT,
-        provideOriginal: Boolean = false,
+        // 기존의 provideOriginal 대신 originalProvideType와 partialOriginalCount 사용
+        originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
+        partialOriginalCount: Int? = null,
         shootingTime: LocalDateTime? = null,
         shootingLocation: String = "",
         numberOfCostumes: Int = 0,
@@ -53,7 +55,8 @@ internal class ProductTest : StringSpec({
         price = price,
         typeCode = typeCode,
         concept = concept,
-        provideOriginal = provideOriginal,
+        originalProvideType = originalProvideType,
+        partialOriginalCount = partialOriginalCount,
         shootingTime = shootingTime,
         shootingLocation = shootingLocation,
         numberOfCostumes = numberOfCostumes,
@@ -200,23 +203,22 @@ internal class ProductTest : StringSpec({
         // when
         val (updatedOptions, toDelete) = product.updateOptions(newOptions)
         // then
-        updatedOptions shouldContainExactly
-            listOf(
-                ProductOption(
-                    optionId = 1L,
-                    productId = 5L,
-                    name = "기존 옵션1",
-                    additionalPrice = 15000,
-                    description = "업데이트 설명1",
-                ),
-                ProductOption(
-                    optionId = 0L,
-                    productId = 5L,
-                    name = "새 옵션",
-                    additionalPrice = 30000,
-                    description = "새 설명",
-                ),
-            )
+        updatedOptions shouldContainExactly listOf(
+            ProductOption(
+                optionId = 1L,
+                productId = 5L,
+                name = "기존 옵션1",
+                additionalPrice = 15000,
+                description = "업데이트 설명1",
+            ),
+            ProductOption(
+                optionId = 0L,
+                productId = 5L,
+                name = "새 옵션",
+                additionalPrice = 30000,
+                description = "새 설명",
+            ),
+        )
         toDelete shouldContainExactly setOf(2L)
     }
 
@@ -250,13 +252,28 @@ internal class ProductTest : StringSpec({
                     typeCode = 1,
                     images = defaultImages,
                     partnerShops = emptyList(),
+                    // 새로운 필드 추가
+                    concept = ConceptType.ELEGANT,
+                    originalProvideType = OriginalProvideType.FULL,
+                    partialOriginalCount = null,
+                    shootingTime = null,
+                    shootingLocation = "",
+                    numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
+                    detailedInfo = "",
+                    warrantyInfo = "",
+                    contactInfo = "",
+                    options = emptyList(),
+                    createdAt = null,
+                    updatedAt = null,
                 )
             }
         exception.message shouldBe "패키지 상품은 하나 이상의 협력업체 정보가 필요합니다."
     }
 
     "typeCode가 1인 상품에서 partnerShops에 빈 이름 또는 링크가 있으면 예외가 발생해야 한다" {
-        // given & when & then
+        // 빈 이름인 경우
         val exception1 =
             shouldThrow<IllegalArgumentException> {
                 Product(
@@ -267,17 +284,31 @@ internal class ProductTest : StringSpec({
                     price = 130000,
                     typeCode = 1,
                     images = defaultImages,
-                    partnerShops =
-                        listOf(
-                            PartnerShop(
-                                name = "",
-                                link = "http://validlink.com",
-                            ),
-                        ),
+                    partnerShops = listOf(
+                        PartnerShop(
+                            name = "",
+                            link = "http://validlink.com",
+                        )
+                    ),
+                    concept = ConceptType.ELEGANT,
+                    originalProvideType = OriginalProvideType.FULL,
+                    partialOriginalCount = null,
+                    shootingTime = null,
+                    shootingLocation = "",
+                    numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
+                    detailedInfo = "",
+                    warrantyInfo = "",
+                    contactInfo = "",
+                    options = emptyList(),
+                    createdAt = null,
+                    updatedAt = null,
                 )
             }
         exception1.message shouldBe "파트너샵 이름은 비어 있을 수 없습니다."
 
+        // 빈 링크인 경우
         val exception2 =
             shouldThrow<IllegalArgumentException> {
                 Product(
@@ -288,13 +319,26 @@ internal class ProductTest : StringSpec({
                     price = 140000,
                     typeCode = 1,
                     images = defaultImages,
-                    partnerShops =
-                        listOf(
-                            PartnerShop(
-                                name = "Valid Name",
-                                link = "",
-                            ),
-                        ),
+                    partnerShops = listOf(
+                        PartnerShop(
+                            name = "Valid Name",
+                            link = "",
+                        )
+                    ),
+                    concept = ConceptType.ELEGANT,
+                    originalProvideType = OriginalProvideType.FULL,
+                    partialOriginalCount = null,
+                    shootingTime = null,
+                    shootingLocation = "",
+                    numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
+                    detailedInfo = "",
+                    warrantyInfo = "",
+                    contactInfo = "",
+                    options = emptyList(),
+                    createdAt = null,
+                    updatedAt = null,
                 )
             }
         exception2.message shouldBe "파트너샵 링크는 비어 있을 수 없습니다."
@@ -314,7 +358,9 @@ internal class ProductTest : StringSpec({
                 images = defaultImages,
                 partnerShops = emptyList(),
                 concept = ConceptType.MODERN,
-                provideOriginal = true,
+                // 여기서는 원본 제공을 PARTIAL로 하고, 제공 장수를 5로 지정
+                originalProvideType = OriginalProvideType.PARTIAL,
+                partialOriginalCount = 5,
                 shootingTime = fixedTime,
                 shootingLocation = "테스트 스튜디오",
                 numberOfCostumes = 3,
@@ -328,7 +374,8 @@ internal class ProductTest : StringSpec({
             )
         // when & then
         product.concept shouldBe ConceptType.MODERN
-        product.provideOriginal shouldBe true
+        product.originalProvideType shouldBe OriginalProvideType.PARTIAL
+        product.partialOriginalCount shouldBe 5
         product.shootingTime shouldBe fixedTime
         product.shootingLocation shouldBe "테스트 스튜디오"
         product.numberOfCostumes shouldBe 3
