@@ -1,6 +1,5 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
-import Auditable
 import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
@@ -16,6 +15,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import jakarta.persistence.Version
+import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -113,6 +114,10 @@ open class ProductEntity(
     )
     @Column(name = "IMAGE_URL")
     open var images: List<String> = mutableListOf(),
+    // 낙관적 잠금을 위한 버전 필드 (기본값 0, non-nullable)
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    open var version: Long = 0L,
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
@@ -132,10 +137,7 @@ open class ProductEntity(
                     partialOriginalCount = product.partialOriginalCount,
                     seasonYear = product.seasonYear,
                     seasonHalf = product.seasonHalf,
-                    partnerShops =
-                        product.partnerShops.map {
-                            PartnerShopEmbeddable(it.name, it.link)
-                        },
+                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
                     detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
                     warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
                     contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,

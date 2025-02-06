@@ -174,7 +174,6 @@ class ProductRestAdapterTest : RestApiTestBase() {
                 options =
                     listOf(
                         CreateProductOptionRequest(
-                            optionId = 1L,
                             name = "Option 1",
                             additionalPrice = 1000,
                             description = "Extra option",
