@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import Auditable
 import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
@@ -15,7 +16,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import kr.kro.dearmoment.common.persistence.BaseTime
 import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -109,7 +109,7 @@ open class ProductEntity(
     )
     @Column(name = "IMAGE_URL")
     var images: List<String> = mutableListOf(),
-) : BaseTime() {
+) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
             val entity =

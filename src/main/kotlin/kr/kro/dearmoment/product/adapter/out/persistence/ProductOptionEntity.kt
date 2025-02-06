@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import Auditable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -10,7 +11,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import kr.kro.dearmoment.common.persistence.BaseTime
 import kr.kro.dearmoment.product.domain.model.ProductOption
 
 @Entity
@@ -37,7 +37,7 @@ open class ProductOptionEntity(
     var additionalPrice: Long = 0L,
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-) : BaseTime() {
+) : Auditable() {
     companion object {
         fun fromDomain(
             option: ProductOption,
