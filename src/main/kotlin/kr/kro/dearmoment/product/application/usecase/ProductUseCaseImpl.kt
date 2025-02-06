@@ -61,10 +61,18 @@ class ProductUseCaseImpl(
         // 삭제 대상 옵션 처리
         handleDeletedOptions(toDelete)
 
-        // 업데이트 요청에 포함된 각 옵션 처리 (UpdateProductOptionRequest.toDomain(productId) 사용)
+        // 업데이트 요청에 포함된 각 옵션 처리
         request.options.forEach { dto ->
             val domainOption = UpdateProductOptionRequest.toDomain(dto, product.productId)
-            productOptionPersistencePort.save(domainOption, product)
+            if (domainOption.optionId != 0L) {
+                val existingOptionEntity = productOptionPersistencePort.findById(domainOption.optionId)
+                existingOptionEntity.name = domainOption.name
+                existingOptionEntity.additionalPrice = domainOption.additionalPrice
+                existingOptionEntity.description = domainOption.description
+                productOptionPersistencePort.save(existingOptionEntity, product)
+            } else {
+                productOptionPersistencePort.save(domainOption, product)
+            }
         }
 
         val updatedProduct = productPersistencePort.save(product)

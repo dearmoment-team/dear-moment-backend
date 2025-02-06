@@ -1,3 +1,5 @@
+package kr.kro.dearmoment.common.persistence
+
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
@@ -13,12 +15,12 @@ abstract class Auditable {
     @CreatedDate
     @Column(name = "CREATED_DATE", updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    var createdDate: LocalDateTime? = null
+    open var createdDate: LocalDateTime? = null
         protected set
 
     @LastModifiedDate
     @Column(name = "UPDATE_DATE")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    var updateDate: LocalDateTime? = null
+    open var updateDate: LocalDateTime? = null
         protected set
 }

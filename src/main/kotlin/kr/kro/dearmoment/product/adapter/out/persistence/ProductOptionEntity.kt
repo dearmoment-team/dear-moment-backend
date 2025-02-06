@@ -1,6 +1,5 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
-import Auditable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -11,6 +10,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import jakarta.persistence.Version
+import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.product.domain.model.ProductOption
 
 @Entity
@@ -27,16 +28,20 @@ open class ProductOptionEntity(
         allocationSize = 1,
     )
     @Column(name = "OPTION_ID")
-    var optionId: Long? = null,
+    open var optionId: Long? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID")
-    var product: ProductEntity? = null,
+    open var product: ProductEntity? = null,
     @Column(name = "NAME", nullable = false)
-    var name: String = "",
+    open var name: String = "",
     @Column(name = "ADDITIONAL_PRICE", nullable = false)
-    var additionalPrice: Long = 0L,
+    open var additionalPrice: Long = 0L,
     @Column(name = "DESCRIPTION")
-    var description: String? = null,
+    open var description: String? = null,
+    // 낙관적 잠금을 위한 버전 필드 (기본값 0, non-nullable)
+    @Version
+    @Column(name = "VERSION", nullable = false)
+    open var version: Long = 0L,
 ) : Auditable() {
     companion object {
         fun fromDomain(
