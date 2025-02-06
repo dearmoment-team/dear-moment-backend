@@ -17,16 +17,22 @@ enum class ConceptType {
  * 연도별 상/하반기를 표현하기 위한 enum
  */
 enum class SeasonHalf {
-    FIRST_HALF, // 상반기
-    SECOND_HALF, // 하반기
+    // 상반기
+    FIRST_HALF,
+
+    // 하반기
+    SECOND_HALF,
 }
 
 /**
  * 원본 제공 방식을 표현하기 위한 enum
  */
 enum class OriginalProvideType {
-    FULL, // 원본 전체 제공
-    PARTIAL, // 원본 일부(몇 장만) 제공
+    // 원본 전체 제공
+    FULL,
+
+    // 원본 일부(몇 장만) 제공
+    PARTIAL,
 }
 
 /**
