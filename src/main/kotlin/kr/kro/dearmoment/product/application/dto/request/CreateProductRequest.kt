@@ -54,8 +54,7 @@ data class CreateProductRequest(
     val detailedInfo: String?,
     val warrantyInfo: String?,
     val contactInfo: String?,
-    val options: List<CreateProductOptionRequest>,
-    // images 필드는 제거합니다.
+    val options: List<CreateProductOptionRequest>
 ) {
     companion object {
         fun toDomain(request: CreateProductRequest, images: List<String>): Product {

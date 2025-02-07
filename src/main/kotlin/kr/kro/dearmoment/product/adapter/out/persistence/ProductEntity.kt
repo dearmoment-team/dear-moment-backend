@@ -25,23 +25,12 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import java.time.LocalDateTime
 
-/**
- * Kotlin + Hibernate 환경에서 지연 로딩(proxy) 시 문제가 생기지 않도록
- * 클래스와 프로퍼티에 직접 open을 명시하는 예시.
- */
 @Entity
 @Table(name = "PRODUCTS")
 open class ProductEntity(
     @Id
-    @GeneratedValue(
-        strategy = GenerationType.SEQUENCE,
-        generator = "products_seq",
-    )
-    @SequenceGenerator(
-        name = "products_seq",
-        sequenceName = "PRODUCTS_SEQ",
-        allocationSize = 1,
-    )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "products_seq")
+    @SequenceGenerator(name = "products_seq", sequenceName = "PRODUCTS_SEQ", allocationSize = 1)
     @Column(name = "PRODUCT_ID")
     open var productId: Long? = null,
     @Column(name = "USER_ID")
@@ -52,52 +41,31 @@ open class ProductEntity(
     open var description: String? = null,
     @Column(name = "PRICE", nullable = false)
     open var price: Long = 0L,
-    /**
-     * 0=일반, 1=패키지 등 구분
-     */
     @Column(name = "TYPE_CODE", nullable = false)
     open var typeCode: Int = 0,
     @Column(name = "SHOOTING_TIME")
     open var shootingTime: LocalDateTime? = null,
     @Column(name = "SHOOTING_LOCATION")
     open var shootingLocation: String? = null,
-    /**
-     * 최대 의상 벌 수
-     */
     @Column(name = "NUMBER_OF_COSTUMES")
     open var numberOfCostumes: Int? = null,
-    /**
-     * 우아한/빈티지 등 콘셉트
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "CONCEPT", nullable = false)
     open var concept: ConceptType = ConceptType.ELEGANT,
-    /**
-     * 원본 제공 방식 (전체 / 일부)
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "ORIGINAL_PROVIDE_TYPE", nullable = false)
     open var originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
-    /**
-     * PARTIAL일 때 제공할 원본 장수
-     */
     @Column(name = "PARTIAL_ORIGINAL_COUNT")
     open var partialOriginalCount: Int? = null,
-    /**
-     * 25년 등 연도
-     */
     @Column(name = "SEASON_YEAR")
     open var seasonYear: Int? = null,
-    /**
-     * 상반기/하반기
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "SEASON_HALF")
     open var seasonHalf: SeasonHalf? = null,
     @ElementCollection(fetch = FetchType.EAGER)
     @jakarta.persistence.CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")]
     )
     open var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
     @Column(name = "DETAILED_INFO")
@@ -110,57 +78,47 @@ open class ProductEntity(
     open var options: MutableList<ProductOptionEntity> = mutableListOf(),
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     open var images: MutableList<ImageEntity> = mutableListOf(),
-    // 낙관적 잠금을 위한 버전 필드 (기본값 0, non-nullable)
     @Version
     @Column(name = "VERSION", nullable = false)
     open var version: Long = 0L,
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val entity =
-                ProductEntity(
-                    productId = if (product.productId == 0L) null else product.productId,
-                    userId = product.userId,
-                    title = product.title,
-                    description = if (product.description.isBlank()) null else product.description,
-                    price = product.price,
-                    typeCode = product.typeCode,
-                    shootingTime = product.shootingTime,
-                    shootingLocation = product.shootingLocation.ifBlank { null },
-                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                    concept = product.concept,
-                    originalProvideType = product.originalProvideType,
-                    partialOriginalCount = product.partialOriginalCount,
-                    seasonYear = product.seasonYear,
-                    seasonHalf = product.seasonHalf,
-                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
-                    images = mutableListOf(),
-                )
-
-            // Auditable 필드(생성/수정일자) 반영
+            val entity = ProductEntity(
+                productId = if (product.productId == 0L) null else product.productId,
+                userId = product.userId,
+                title = product.title,
+                description = if (product.description.isBlank()) null else product.description,
+                price = product.price,
+                typeCode = product.typeCode,
+                shootingTime = product.shootingTime,
+                shootingLocation = product.shootingLocation.ifBlank { null },
+                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                concept = product.concept,
+                originalProvideType = product.originalProvideType,
+                partialOriginalCount = product.partialOriginalCount,
+                seasonYear = product.seasonYear,
+                seasonHalf = product.seasonHalf,
+                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
+                warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
+                contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                images = mutableListOf()
+            )
             entity.createdDate = product.createdAt
             entity.updateDate = product.updatedAt
-
-            // 옵션 매핑
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
             }
-
-            // 이미지 매핑: 도메인의 이미지 URL(String)들을 ImageEntity로 변환하여 설정
-            entity.images =
-                product.images.map { fileName ->
-                    ImageEntity.from(
-                        Image(
-                            userId = product.userId,
-                            fileName = fileName,
-                        ),
-                    ).apply { this.product = entity }
-                }.toMutableList()
-
+            entity.images = product.images.map { fileName ->
+                ImageEntity.from(
+                    Image(
+                        userId = product.userId,
+                        fileName = fileName
+                    )
+                ).apply { this.product = entity }
+            }.toMutableList()
             return entity
         }
     }
@@ -188,7 +146,7 @@ open class ProductEntity(
             createdAt = createdDate,
             updatedAt = updateDate,
             options = options.map { it.toDomain() },
-            images = images.map { it.fileName },
+            images = images.map { it.fileName }
         )
     }
 }
