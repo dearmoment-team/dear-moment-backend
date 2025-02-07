@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.CascadeType
-import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
@@ -96,7 +95,7 @@ open class ProductEntity(
     @Column(name = "SEASON_HALF")
     open var seasonHalf: SeasonHalf? = null,
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
+    @jakarta.persistence.CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
         joinColumns = [JoinColumn(name = "PRODUCT_ID")],
     )
@@ -109,11 +108,6 @@ open class ProductEntity(
     open var contactInfo: String? = null,
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     open var options: MutableList<ProductOptionEntity> = mutableListOf(),
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "PRODUCT_IMAGES",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
-    )
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     open var images: MutableList<ImageEntity> = mutableListOf(),
     // 낙관적 잠금을 위한 버전 필드 (기본값 0, non-nullable)
@@ -123,27 +117,28 @@ open class ProductEntity(
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val entity = ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                title = product.title,
-                description = if (product.description.isBlank()) null else product.description,
-                price = product.price,
-                typeCode = product.typeCode,
-                shootingTime = product.shootingTime,
-                shootingLocation = product.shootingLocation.ifBlank { null },
-                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                concept = product.concept,
-                originalProvideType = product.originalProvideType,
-                partialOriginalCount = product.partialOriginalCount,
-                seasonYear = product.seasonYear,
-                seasonHalf = product.seasonHalf,
-                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
-                images = mutableListOf()
-            )
+            val entity =
+                ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    title = product.title,
+                    description = if (product.description.isBlank()) null else product.description,
+                    price = product.price,
+                    typeCode = product.typeCode,
+                    shootingTime = product.shootingTime,
+                    shootingLocation = product.shootingLocation.ifBlank { null },
+                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                    concept = product.concept,
+                    originalProvideType = product.originalProvideType,
+                    partialOriginalCount = product.partialOriginalCount,
+                    seasonYear = product.seasonYear,
+                    seasonHalf = product.seasonHalf,
+                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
+                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
+                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                    images = mutableListOf(),
+                )
 
             // Auditable 필드(생성/수정일자) 반영
             entity.createdDate = product.createdAt
@@ -156,15 +151,15 @@ open class ProductEntity(
             }
 
             // 이미지 매핑: 도메인의 이미지 URL(String)들을 ImageEntity로 변환하여 설정
-            entity.images = product.images.map { imageUrl ->
-                ImageEntity.from(
-                    Image(
-                        userId = product.userId,
-                        fileName = imageUrl
-                    )
-                )
-            }.toMutableList()
-
+            entity.images =
+                product.images.map { fileName ->
+                    ImageEntity.from(
+                        Image(
+                            userId = product.userId,
+                            fileName = fileName,
+                        ),
+                    ).apply { this.product = entity }
+                }.toMutableList()
 
             return entity
         }
@@ -196,5 +191,4 @@ open class ProductEntity(
             images = images.map { it.fileName },
         )
     }
-
 }
