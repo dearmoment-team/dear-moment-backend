@@ -65,7 +65,7 @@ open class ProductEntity(
     @ElementCollection(fetch = FetchType.EAGER)
     @jakarta.persistence.CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")]
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
     )
     open var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
     @Column(name = "DETAILED_INFO")
@@ -84,41 +84,43 @@ open class ProductEntity(
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val entity = ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                title = product.title,
-                description = if (product.description.isBlank()) null else product.description,
-                price = product.price,
-                typeCode = product.typeCode,
-                shootingTime = product.shootingTime,
-                shootingLocation = product.shootingLocation.ifBlank { null },
-                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                concept = product.concept,
-                originalProvideType = product.originalProvideType,
-                partialOriginalCount = product.partialOriginalCount,
-                seasonYear = product.seasonYear,
-                seasonHalf = product.seasonHalf,
-                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
-                images = mutableListOf()
-            )
+            val entity =
+                ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    title = product.title,
+                    description = if (product.description.isBlank()) null else product.description,
+                    price = product.price,
+                    typeCode = product.typeCode,
+                    shootingTime = product.shootingTime,
+                    shootingLocation = product.shootingLocation.ifBlank { null },
+                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                    concept = product.concept,
+                    originalProvideType = product.originalProvideType,
+                    partialOriginalCount = product.partialOriginalCount,
+                    seasonYear = product.seasonYear,
+                    seasonHalf = product.seasonHalf,
+                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
+                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
+                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                    images = mutableListOf(),
+                )
             entity.createdDate = product.createdAt
             entity.updateDate = product.updatedAt
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
             }
-            entity.images = product.images.map { fileName ->
-                ImageEntity.from(
-                    Image(
-                        userId = product.userId,
-                        fileName = fileName
-                    )
-                ).apply { this.product = entity }
-            }.toMutableList()
+            entity.images =
+                product.images.map { fileName ->
+                    ImageEntity.from(
+                        Image(
+                            userId = product.userId,
+                            fileName = fileName,
+                        ),
+                    ).apply { this.product = entity }
+                }.toMutableList()
             return entity
         }
     }
@@ -146,7 +148,7 @@ open class ProductEntity(
             createdAt = createdDate,
             updatedAt = updateDate,
             options = options.map { it.toDomain() },
-            images = images.map { it.fileName }
+            images = images.map { it.fileName },
         )
     }
 }

@@ -22,14 +22,13 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/products")
 class ProductRestAdapter(
-    private val productUseCase: ProductUseCase
+    private val productUseCase: ProductUseCase,
 ) {
-
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     fun createProduct(
         @RequestPart("request") request: CreateProductRequest,
-        @RequestPart("images") images: List<MultipartFile>
+        @RequestPart("images") images: List<MultipartFile>,
     ): ProductResponse {
         return productUseCase.saveProduct(request, images)
     }
@@ -38,7 +37,7 @@ class ProductRestAdapter(
     fun updateProduct(
         @PathVariable id: Long,
         @RequestPart("request") request: UpdateProductRequest,
-        @RequestPart("images", required = false) images: List<MultipartFile>?
+        @RequestPart("images", required = false) images: List<MultipartFile>?,
     ): ProductResponse {
         return productUseCase.updateProduct(request, images)
     }
@@ -46,14 +45,14 @@ class ProductRestAdapter(
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteProduct(
-        @PathVariable id: Long
+        @PathVariable id: Long,
     ) {
         productUseCase.deleteProduct(id)
     }
 
     @GetMapping("/{id}")
     fun getProduct(
-        @PathVariable id: Long
+        @PathVariable id: Long,
     ): ProductResponse {
         return productUseCase.getProductById(id)
     }
@@ -61,7 +60,7 @@ class ProductRestAdapter(
     @GetMapping("/main")
     fun getMainPageProducts(
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
     ): PagedResponse<ProductResponse> {
         return productUseCase.getMainPageProducts(page, size)
     }

@@ -54,10 +54,13 @@ data class CreateProductRequest(
     val detailedInfo: String?,
     val warrantyInfo: String?,
     val contactInfo: String?,
-    val options: List<CreateProductOptionRequest>
+    val options: List<CreateProductOptionRequest>,
 ) {
     companion object {
-        fun toDomain(request: CreateProductRequest, images: List<String>): Product {
+        fun toDomain(
+            request: CreateProductRequest,
+            images: List<String>,
+        ): Product {
             val partnerShopList =
                 request.partnerShops.map { partnerShopRequest ->
                     PartnerShop(
@@ -84,12 +87,11 @@ data class CreateProductRequest(
                 warrantyInfo = request.warrantyInfo ?: "",
                 contactInfo = request.contactInfo ?: "",
                 options = emptyList(),
-                images = images
+                images = images,
             )
         }
     }
 }
-
 
 data class CreatePartnerShopRequest(
     val name: String,

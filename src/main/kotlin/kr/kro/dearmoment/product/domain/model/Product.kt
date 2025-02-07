@@ -82,7 +82,7 @@ data class Product(
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val options: List<ProductOption> = emptyList(),
-    val images: List<String>,
+    val images: List<String> = emptyList(),
 ) {
     init {
         require(images.isNotEmpty()) { "최소 1개 이상의 이미지가 필요합니다" }

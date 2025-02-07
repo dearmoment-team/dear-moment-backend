@@ -32,19 +32,24 @@ data class UpdateProductRequest(
     val warrantyInfo: String?,
     val contactInfo: String?,
     val options: List<UpdateProductOptionRequest>,
-    val images: List<String>
+    val images: List<String>,
 ) {
     companion object {
-        fun toDomain(request: UpdateProductRequest, images: List<String>): Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                kr.kro.dearmoment.product.domain.model.PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link
-                )
-            }
-            val productOptionList = request.options.map { optionRequest ->
-                UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
-            }
+        fun toDomain(
+            request: UpdateProductRequest,
+            images: List<String>,
+        ): Product {
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    kr.kro.dearmoment.product.domain.model.PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
+            val productOptionList =
+                request.options.map { optionRequest ->
+                    UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
+                }
             return Product(
                 productId = request.productId,
                 userId = request.userId,
@@ -65,7 +70,7 @@ data class UpdateProductRequest(
                 warrantyInfo = request.warrantyInfo ?: "",
                 contactInfo = request.contactInfo ?: "",
                 options = productOptionList,
-                images = images
+                images = images,
             )
         }
     }
@@ -73,7 +78,7 @@ data class UpdateProductRequest(
 
 data class UpdatePartnerShopRequest(
     val name: String,
-    val link: String
+    val link: String,
 ) {
     fun toDomain(): PartnerShop {
         return PartnerShop(name, link)
@@ -86,16 +91,19 @@ data class UpdateProductOptionRequest(
     val name: String,
     @field:PositiveOrZero(message = "추가 가격은 0 이상이어야 합니다.")
     val additionalPrice: Long,
-    val description: String?
+    val description: String?,
 ) {
     companion object {
-        fun toDomain(request: UpdateProductOptionRequest, productId: Long): ProductOption {
+        fun toDomain(
+            request: UpdateProductOptionRequest,
+            productId: Long,
+        ): ProductOption {
             return ProductOption(
                 optionId = request.optionId ?: 0L,
                 productId = productId,
                 name = request.name,
                 additionalPrice = request.additionalPrice,
-                description = request.description ?: ""
+                description = request.description ?: "",
             )
         }
     }
