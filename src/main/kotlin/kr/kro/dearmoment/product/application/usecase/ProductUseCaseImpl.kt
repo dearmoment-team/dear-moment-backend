@@ -19,7 +19,6 @@ class ProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val productOptionPersistencePort: ProductOptionPersistencePort,
 ) : ProductUseCase {
-
     @Transactional
     override fun saveProduct(request: CreateProductRequest): ProductResponse {
         // 도메인 모델 생성 시 옵션은 빈 리스트로 초기화
@@ -40,14 +39,16 @@ class ProductUseCaseImpl(
         val product = UpdateProductRequest.toDomain(request).copy(options = emptyList())
         product.validateForUpdate()
 
-        val existingProduct = productPersistencePort.findById(product.productId)
-            ?: throw IllegalArgumentException("Product not found: ${product.productId}")
+        val existingProduct =
+            productPersistencePort.findById(product.productId)
+                ?: throw IllegalArgumentException("Product not found: ${product.productId}")
 
         // 기존 옵션의 식별자 집합과 업데이트 요청에 포함된 옵션 식별자 집합 계산
         val existingOptionIds: Set<Long> = existingProduct.options.map { it.optionId }.toSet()
-        val incomingOptionIds: Set<Long> = request.options.mapNotNull { it.optionId }
-            .filter { it != 0L }
-            .toSet()
+        val incomingOptionIds: Set<Long> =
+            request.options.mapNotNull { it.optionId }
+                .filter { it != 0L }
+                .toSet()
 
         // 기존 옵션 중 업데이트 요청에 없는 옵션은 삭제 대상
         val toDelete = existingOptionIds subtract incomingOptionIds
@@ -73,8 +74,9 @@ class ProductUseCaseImpl(
     }
 
     override fun getProductById(productId: Long): ProductResponse {
-        val product = productPersistencePort.findById(productId)
-            ?: throw IllegalArgumentException("Product with ID $productId not found.")
+        val product =
+            productPersistencePort.findById(productId)
+                ?: throw IllegalArgumentException("Product with ID $productId not found.")
         val completeProduct = enrichProduct(product)
         return ProductResponse.fromDomain(completeProduct)
     }
@@ -90,21 +92,23 @@ class ProductUseCaseImpl(
     ): PagedResponse<ProductResponse> {
         validatePriceRange(minPrice, maxPrice)
 
-        val result = productPersistencePort.searchByCriteria(
-            title = title,
-            priceRange = minPrice?.let { Pair(it, maxPrice) },
-            typeCode = typeCode,
-            sortBy = sortBy,
-        )
+        val result =
+            productPersistencePort.searchByCriteria(
+                title = title,
+                priceRange = minPrice?.let { Pair(it, maxPrice) },
+                typeCode = typeCode,
+                sortBy = sortBy,
+            )
 
         // 예시로 index를 활용한 모의 정렬 데이터 생성
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
-        val sortedProducts = when (sortBy) {
-            "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
-            "price-asc" -> mockData.sortedBy { it.first.price }.map { it.first }
-            "price-desc" -> mockData.sortedByDescending { it.first.price }.map { it.first }
-            else -> mockData.map { it.first }
-        }
+        val sortedProducts =
+            when (sortBy) {
+                "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
+                "price-asc" -> mockData.sortedBy { it.first.price }.map { it.first }
+                "price-desc" -> mockData.sortedByDescending { it.first.price }.map { it.first }
+                else -> mockData.map { it.first }
+            }
 
         // 페이징 처리
         val totalElements = sortedProducts.size.toLong()
@@ -118,7 +122,7 @@ class ProductUseCaseImpl(
             page = page,
             size = size,
             totalElements = totalElements,
-            totalPages = totalPages
+            totalPages = totalPages,
         )
     }
 
@@ -127,18 +131,20 @@ class ProductUseCaseImpl(
         page: Int,
         size: Int,
     ): PagedResponse<ProductResponse> {
-        val result = productPersistencePort.searchByCriteria(
-            title = null,
-            priceRange = null,
-            typeCode = null,
-            sortBy = null,
-        )
+        val result =
+            productPersistencePort.searchByCriteria(
+                title = null,
+                priceRange = null,
+                typeCode = null,
+                sortBy = null,
+            )
 
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
-        val sortedProducts = mockData.sortedWith(
-            compareByDescending<Pair<Product, Int>> { it.second }
-                .thenByDescending { it.first.createdAt },
-        ).map { it.first }
+        val sortedProducts =
+            mockData.sortedWith(
+                compareByDescending<Pair<Product, Int>> { it.second }
+                    .thenByDescending { it.first.createdAt },
+            ).map { it.first }
 
         val totalElements = sortedProducts.size.toLong()
         val totalPages = ceil(sortedProducts.size.toDouble() / size).toInt()
@@ -168,7 +174,10 @@ class ProductUseCaseImpl(
     /**
      * 업데이트 요청에 포함된 옵션 DTO를 기반으로 옵션을 업데이트하거나 신규 등록합니다.
      */
-    private fun processProductOption(dto: UpdateProductOptionRequest, product: Product) {
+    private fun processProductOption(
+        dto: UpdateProductOptionRequest,
+        product: Product,
+    ) {
         val domainOption = UpdateProductOptionRequest.toDomain(dto, product.productId)
         if (domainOption.optionId != 0L) {
             val existingOptionEntity = productOptionPersistencePort.findById(domainOption.optionId)
@@ -199,7 +208,10 @@ class ProductUseCaseImpl(
     /**
      * 가격 범위가 올바른지 검증합니다.
      */
-    private fun validatePriceRange(min: Long?, max: Long?) {
+    private fun validatePriceRange(
+        min: Long?,
+        max: Long?,
+    ) {
         require(!(min != null && min < 0 || max != null && max < 0)) {
             "Price range must be greater than or equal to 0."
         }
