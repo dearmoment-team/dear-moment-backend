@@ -7,9 +7,15 @@ import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.springframework.web.multipart.MultipartFile
 
 interface ProductUseCase {
-    fun saveProduct(request: CreateProductRequest, images: List<MultipartFile>): ProductResponse
+    fun saveProduct(
+        request: CreateProductRequest,
+        images: List<MultipartFile>,
+    ): ProductResponse
 
-    fun updateProduct(request: UpdateProductRequest, images: List<MultipartFile>? = null): ProductResponse
+    fun updateProduct(
+        request: UpdateProductRequest,
+        images: List<MultipartFile>? = null,
+    ): ProductResponse
 
     fun deleteProduct(productId: Long)
 
@@ -22,13 +28,16 @@ interface ProductUseCase {
         typeCode: Int? = null,
         sortBy: String? = null,
         page: Int = 0,
-        size: Int = 10
+        size: Int = 10,
     ): PagedResponse<ProductResponse>
 
     fun getMainPageProducts(
         page: Int = 0,
-        size: Int = 10
+        size: Int = 10,
     ): PagedResponse<ProductResponse>
 
-    fun uploadImages(images: List<MultipartFile>, userId: Long): List<String>
+    fun uploadImages(
+        images: List<MultipartFile>,
+        userId: Long,
+    ): List<String>
 }
