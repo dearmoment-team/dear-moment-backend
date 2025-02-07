@@ -17,6 +17,8 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.persistence.Version
 import kr.kro.dearmoment.common.persistence.Auditable
+import kr.kro.dearmoment.image.adapter.output.persistence.ImageEntity
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -112,8 +114,8 @@ open class ProductEntity(
         name = "PRODUCT_IMAGES",
         joinColumns = [JoinColumn(name = "PRODUCT_ID")],
     )
-    @Column(name = "IMAGE_URL")
-    open var images: List<String> = mutableListOf(),
+    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
+    open var images: MutableList<ImageEntity> = mutableListOf(),
     // 낙관적 잠금을 위한 버전 필드 (기본값 0, non-nullable)
     @Version
     @Column(name = "VERSION", nullable = false)
@@ -121,28 +123,27 @@ open class ProductEntity(
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val entity =
-                ProductEntity(
-                    productId = if (product.productId == 0L) null else product.productId,
-                    userId = product.userId,
-                    title = product.title,
-                    description = if (product.description.isBlank()) null else product.description,
-                    price = product.price,
-                    typeCode = product.typeCode,
-                    shootingTime = product.shootingTime,
-                    shootingLocation = product.shootingLocation.ifBlank { null },
-                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                    concept = product.concept,
-                    originalProvideType = product.originalProvideType,
-                    partialOriginalCount = product.partialOriginalCount,
-                    seasonYear = product.seasonYear,
-                    seasonHalf = product.seasonHalf,
-                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
-                    images = product.images,
-                )
+            val entity = ProductEntity(
+                productId = if (product.productId == 0L) null else product.productId,
+                userId = product.userId,
+                title = product.title,
+                description = if (product.description.isBlank()) null else product.description,
+                price = product.price,
+                typeCode = product.typeCode,
+                shootingTime = product.shootingTime,
+                shootingLocation = product.shootingLocation.ifBlank { null },
+                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                concept = product.concept,
+                originalProvideType = product.originalProvideType,
+                partialOriginalCount = product.partialOriginalCount,
+                seasonYear = product.seasonYear,
+                seasonHalf = product.seasonHalf,
+                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
+                warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
+                contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                images = mutableListOf()
+            )
 
             // Auditable 필드(생성/수정일자) 반영
             entity.createdDate = product.createdAt
@@ -153,6 +154,17 @@ open class ProductEntity(
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
             }
+
+            // 이미지 매핑: 도메인의 이미지 URL(String)들을 ImageEntity로 변환하여 설정
+            entity.images = product.images.map { imageUrl ->
+                ImageEntity.from(
+                    Image(
+                        userId = product.userId,
+                        fileName = imageUrl
+                    )
+                )
+            }.toMutableList()
+
 
             return entity
         }
@@ -181,7 +193,8 @@ open class ProductEntity(
             createdAt = createdDate,
             updatedAt = updateDate,
             options = options.map { it.toDomain() },
-            images = images,
+            images = images.map { it.fileName },
         )
     }
+
 }
