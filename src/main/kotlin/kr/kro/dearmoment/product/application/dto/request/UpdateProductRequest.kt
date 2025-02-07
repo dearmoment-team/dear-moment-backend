@@ -55,10 +55,10 @@ data class UpdateProductRequest(
     val warrantyInfo: String?,
     val contactInfo: String?,
     val options: List<UpdateProductOptionRequest>,
-    val images: List<String>,
+    // images 필드는 제거합니다.
 ) {
     companion object {
-        fun toDomain(request: UpdateProductRequest): Product {
+        fun toDomain(request: UpdateProductRequest, images: List<String>): Product {
             val partnerShopList =
                 request.partnerShops.map { partnerShopRequest ->
                     kr.kro.dearmoment.product.domain.model.PartnerShop(
@@ -90,7 +90,7 @@ data class UpdateProductRequest(
                 warrantyInfo = request.warrantyInfo ?: "",
                 contactInfo = request.contactInfo ?: "",
                 options = productOptionList,
-                images = request.images,
+                images = images
             )
         }
     }

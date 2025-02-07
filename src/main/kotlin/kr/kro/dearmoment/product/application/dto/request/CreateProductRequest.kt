@@ -55,10 +55,10 @@ data class CreateProductRequest(
     val warrantyInfo: String?,
     val contactInfo: String?,
     val options: List<CreateProductOptionRequest>,
-    val images: List<String>,
+    // images 필드는 제거합니다.
 ) {
     companion object {
-        fun toDomain(request: CreateProductRequest): Product {
+        fun toDomain(request: CreateProductRequest, images: List<String>): Product {
             val partnerShopList =
                 request.partnerShops.map { partnerShopRequest ->
                     PartnerShop(
@@ -85,11 +85,12 @@ data class CreateProductRequest(
                 warrantyInfo = request.warrantyInfo ?: "",
                 contactInfo = request.contactInfo ?: "",
                 options = emptyList(),
-                images = request.images,
+                images = images
             )
         }
     }
 }
+
 
 data class CreatePartnerShopRequest(
     val name: String,
