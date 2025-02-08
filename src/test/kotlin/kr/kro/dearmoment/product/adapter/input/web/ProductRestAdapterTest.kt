@@ -12,6 +12,7 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.ImageReference
 import kr.kro.dearmoment.product.application.dto.request.UpdatePartnerShopRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
@@ -74,22 +75,22 @@ class ProductRestAdapterTest {
                 seasonYear = 2025,
                 seasonHalf = SeasonHalf.FIRST_HALF,
                 partnerShops =
-                    listOf(
-                        CreatePartnerShopRequest(name = "Shop A", link = "http://shopA.com"),
-                        CreatePartnerShopRequest(name = "Shop B", link = "http://shopB.com"),
-                    ),
+                listOf(
+                    CreatePartnerShopRequest(name = "Shop A", link = "http://shopA.com"),
+                    CreatePartnerShopRequest(name = "Shop B", link = "http://shopB.com"),
+                ),
                 detailedInfo = "Detailed product information",
                 warrantyInfo = "Warranty Description",
                 contactInfo = "contact@example.com",
                 options =
-                    listOf(
-                        CreateProductOptionRequest(
-                            optionId = 1L,
-                            name = "Option 1",
-                            additionalPrice = 1000,
-                            description = "Extra option details",
-                        ),
+                listOf(
+                    CreateProductOptionRequest(
+                        optionId = 1L,
+                        name = "Option 1",
+                        additionalPrice = 1000,
+                        description = "Extra option details",
                     ),
+                ),
             )
 
         // given: 응답 객체 생성 (요청과 연관된 모든 필드를 채움)
@@ -110,28 +111,29 @@ class ProductRestAdapterTest {
                 seasonYear = request.seasonYear,
                 seasonHalf = request.seasonHalf,
                 partnerShops =
-                    listOf(
-                        PartnerShopResponse(name = "Shop A", link = "http://shopA.com"),
-                        PartnerShopResponse(name = "Shop B", link = "http://shopB.com"),
-                    ),
+                listOf(
+                    PartnerShopResponse(name = "Shop A", link = "http://shopA.com"),
+                    PartnerShopResponse(name = "Shop B", link = "http://shopB.com"),
+                ),
                 detailedInfo = request.detailedInfo,
                 warrantyInfo = request.warrantyInfo,
                 contactInfo = request.contactInfo,
                 createdAt = now,
                 updatedAt = now,
                 options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = 1L,
-                            name = "Option 1",
-                            additionalPrice = 1000,
-                            description = "Extra option details",
-                            createdAt = now,
-                            updatedAt = now,
-                        ),
+                listOf(
+                    ProductOptionResponse(
+                        optionId = 1L,
+                        productId = 1L,
+                        name = "Option 1",
+                        additionalPrice = 1000,
+                        description = "Extra option details",
+                        createdAt = now,
+                        updatedAt = now,
                     ),
-                images = listOf("image1.jpg"),
+                ),
+                // API 응답에서는 이미지 목록은 fileName 문자열 리스트로 전달합니다.
+                images = listOf("image1.jpg")
             )
 
         // given: 실제 이미지 파일 객체 생성
@@ -145,7 +147,6 @@ class ProductRestAdapterTest {
         val imagesList: List<MultipartFile> = listOf(imageFile)
 
         // given: productUseCase.saveProduct를 실제 객체와 함께 stubbing
-        // 컨트롤러는 JSON 파트로 전달된 CreateProductRequest와 multipart 이미지 파일 리스트를 인자로 받는다고 가정합니다.
         given(productUseCase.saveProduct(request, imagesList)).willReturn(productResponse)
 
         // 요청 JSON 파트 생성: objectMapper를 사용하여 request 객체를 JSON 문자열로 변환합니다.
@@ -233,23 +234,24 @@ class ProductRestAdapterTest {
                 seasonYear = 2025,
                 seasonHalf = SeasonHalf.SECOND_HALF,
                 partnerShops =
-                    listOf(
-                        UpdatePartnerShopRequest(name = "Shop A Updated", link = "http://shopA-updated.com"),
-                        UpdatePartnerShopRequest(name = "Shop B Updated", link = "http://shopB-updated.com"),
-                    ),
+                listOf(
+                    UpdatePartnerShopRequest(name = "Shop A Updated", link = "http://shopA-updated.com"),
+                    UpdatePartnerShopRequest(name = "Shop B Updated", link = "http://shopB-updated.com"),
+                ),
                 detailedInfo = "Updated detailed product information",
                 warrantyInfo = "Updated Warranty Description",
                 contactInfo = "updated_contact@example.com",
                 options =
-                    listOf(
-                        UpdateProductOptionRequest(
-                            optionId = 1L,
-                            name = "Updated Option 1",
-                            additionalPrice = 2000,
-                            description = "Updated extra option details",
-                        ),
+                listOf(
+                    UpdateProductOptionRequest(
+                        optionId = 1L,
+                        name = "Updated Option 1",
+                        additionalPrice = 2000,
+                        description = "Updated extra option details",
                     ),
-                images = listOf("updated_image1.jpg"),
+                ),
+                // images는 이제 List<ImageReference> 타입입니다.
+                images = listOf(ImageReference("updated_image1.jpg"))
             )
 
         // given: 수정 후 반환될 응답 객체 생성 (updateRequest의 필드를 반영)
@@ -270,28 +272,28 @@ class ProductRestAdapterTest {
                 seasonYear = updateRequest.seasonYear,
                 seasonHalf = updateRequest.seasonHalf,
                 partnerShops =
-                    listOf(
-                        PartnerShopResponse(name = "Shop A Updated", link = "http://shopA-updated.com"),
-                        PartnerShopResponse(name = "Shop B Updated", link = "http://shopB-updated.com"),
-                    ),
+                listOf(
+                    PartnerShopResponse(name = "Shop A Updated", link = "http://shopA-updated.com"),
+                    PartnerShopResponse(name = "Shop B Updated", link = "http://shopB-updated.com"),
+                ),
                 detailedInfo = updateRequest.detailedInfo,
                 warrantyInfo = updateRequest.warrantyInfo,
                 contactInfo = updateRequest.contactInfo,
                 createdAt = now,
                 updatedAt = now,
                 options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = updateRequest.productId,
-                            name = "Updated Option 1",
-                            additionalPrice = 2000,
-                            description = "Updated extra option details",
-                            createdAt = now,
-                            updatedAt = now,
-                        ),
+                listOf(
+                    ProductOptionResponse(
+                        optionId = 1L,
+                        productId = updateRequest.productId,
+                        name = "Updated Option 1",
+                        additionalPrice = 2000,
+                        description = "Updated extra option details",
+                        createdAt = now,
+                        updatedAt = now,
                     ),
-                images = listOf("updated_image1.jpg"),
+                ),
+                images = listOf("updated_image1.jpg")
             )
 
         // given: 실제 이미지 파일 객체 생성
@@ -306,12 +308,9 @@ class ProductRestAdapterTest {
         val imagesList: List<MultipartFile> = listOf(imageFile)
 
         // given: productUseCase.updateProduct를 실제 객체와 함께 stubbing
-        // 컨트롤러는 JSON 파트로 전달된 UpdateProductRequest와 multipart 이미지 파일 리스트를 인자로 받는다고 가정합니다.
-        // Mockito-Kotlin 확장 함수를 사용하여 null 문제 없이 처리합니다.
         given(productUseCase.updateProduct(updateRequest, imagesList)).willReturn(productResponse)
 
         // 수정 요청 JSON 파트 생성: objectMapper를 사용하여 updateRequest 객체를 JSON 문자열로 변환합니다.
-        // 컨트롤러에서 @RequestPart("request")로 받음
         val requestJson = objectMapper.writeValueAsString(updateRequest)
         val requestPart =
             MockMultipartFile(
@@ -357,7 +356,7 @@ class ProductRestAdapterTest {
                     "data.seasonYear" type NUMBER means "시즌 연도",
                     "data.seasonHalf" type STRING means "상반기/하반기 (FIRST_HALF, SECOND_HALF)",
                     "data.partnerShops" type ARRAY means "협력업체 목록",
-                    "data.partnerShops[].name" type STRING means "협력업체 이름",
+                    "data.partnerShops[].name" type STRING means "협력업체명",
                     "data.partnerShops[].link" type STRING means "협력업체 링크",
                     "data.detailedInfo" type STRING means "상세 정보",
                     "data.warrantyInfo" type STRING means "보증 정보",
@@ -416,17 +415,17 @@ class ProductRestAdapterTest {
                 createdAt = now,
                 updatedAt = now,
                 options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = productId,
-                            name = "Option1",
-                            additionalPrice = 100L,
-                            description = "Option description",
-                            createdAt = now,
-                            updatedAt = now,
-                        ),
+                listOf(
+                    ProductOptionResponse(
+                        optionId = 1L,
+                        productId = productId,
+                        name = "Option1",
+                        additionalPrice = 100L,
+                        description = "Option description",
+                        createdAt = now,
+                        updatedAt = now,
                     ),
+                ),
                 images = listOf("image1.png", "image2.png"),
             )
 
@@ -471,7 +470,7 @@ class ProductRestAdapterTest {
                     "data.options[].description" type STRING means "옵션 설명",
                     "data.options[].createdAt" type STRING means "옵션 생성 시간 (ISO 포맷)",
                     "data.options[].updatedAt" type STRING means "옵션 수정 시간 (ISO 포맷)",
-                    "data.images" type ARRAY means "이미지 목록",
+                    "data.images" type ARRAY means "상품 이미지 리스트",
                     "success" type BOOLEAN means "성공 여부",
                     "code" type NUMBER means "HTTP 상태 코드",
                 ),
@@ -504,17 +503,17 @@ class ProductRestAdapterTest {
                 createdAt = now,
                 updatedAt = now,
                 options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = 1L,
-                            name = "Option1",
-                            additionalPrice = 100L,
-                            description = "Option description",
-                            createdAt = now,
-                            updatedAt = now,
-                        ),
+                listOf(
+                    ProductOptionResponse(
+                        optionId = 1L,
+                        productId = 1L,
+                        name = "Option1",
+                        additionalPrice = 100L,
+                        description = "Option description",
+                        createdAt = now,
+                        updatedAt = now,
                     ),
+                ),
                 images = listOf("image1.png", "image2.png"),
             )
         val pagedResponse =
@@ -569,7 +568,7 @@ class ProductRestAdapterTest {
                     "data.content[].options[].description" type STRING means "옵션 설명",
                     "data.content[].options[].createdAt" type STRING means "옵션 생성 시간 (ISO 포맷)",
                     "data.content[].options[].updatedAt" type STRING means "옵션 수정 시간 (ISO 포맷)",
-                    "data.content[].images" type ARRAY means "이미지 목록",
+                    "data.content[].images" type ARRAY means "상품 이미지 리스트",
                     "data.page" type NUMBER means "현재 페이지",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.totalElements" type NUMBER means "전체 상품 수",

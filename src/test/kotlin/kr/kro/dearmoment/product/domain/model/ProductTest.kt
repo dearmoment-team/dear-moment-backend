@@ -1,10 +1,10 @@
-// ProductTest.kt
 package kr.kro.dearmoment.product.domain.model
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
 
 /**
@@ -12,8 +12,11 @@ import java.time.LocalDateTime
  */
 internal class ProductTest : StringSpec({
 
-    // 공통 이미지 리스트
-    val defaultImages = listOf("default_image.jpg")
+    // 공통 Image 객체를 포함하는 기본 이미지 리스트
+    val defaultImages: List<Image> =
+        listOf(
+            Image(imageId = 0L, userId = 1L, fileName = "default_image.jpg", url = "http://example.com/default_image.jpg"),
+        )
 
     // 공통 PartnerShops 리스트
     val defaultPartnerShops =
@@ -31,7 +34,12 @@ internal class ProductTest : StringSpec({
         price: Long = 100000,
         typeCode: Int = 1,
         options: List<ProductOption> = emptyList(),
-        images: List<String> = defaultImages,
+        // 기존에는 문자열 리스트였으나 이제 Image 객체 리스트로 전달해야 합니다.
+        images: List<Image> =
+            listOf(
+                Image(imageId = 0L, userId = userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                Image(imageId = 0L, userId = userId, fileName = "image2.jpg", url = "http://example.com/image2.jpg"),
+            ),
         partnerShops: List<PartnerShop> = if (typeCode == 1) defaultPartnerShops else emptyList(),
         concept: ConceptType = ConceptType.ELEGANT,
         // 기존의 provideOriginal 대신 originalProvideType와 partialOriginalCount 사용
@@ -251,9 +259,11 @@ internal class ProductTest : StringSpec({
                     description = "파트너 없음 설명",
                     price = 120000,
                     typeCode = 1,
-                    images = defaultImages,
+                    images =
+                        listOf(
+                            Image(imageId = 0L, userId = 7L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
+                        ),
                     partnerShops = emptyList(),
-                    // 새로운 필드 추가
                     concept = ConceptType.ELEGANT,
                     originalProvideType = OriginalProvideType.FULL,
                     partialOriginalCount = null,
@@ -284,7 +294,10 @@ internal class ProductTest : StringSpec({
                     description = "파트너 이름 빈 경우",
                     price = 130000,
                     typeCode = 1,
-                    images = defaultImages,
+                    images =
+                        listOf(
+                            Image(imageId = 0L, userId = 8L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
+                        ),
                     partnerShops =
                         listOf(
                             PartnerShop(
@@ -320,7 +333,10 @@ internal class ProductTest : StringSpec({
                     description = "파트너 링크 빈 경우",
                     price = 140000,
                     typeCode = 1,
-                    images = defaultImages,
+                    images =
+                        listOf(
+                            Image(imageId = 0L, userId = 9L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
+                        ),
                     partnerShops =
                         listOf(
                             PartnerShop(
@@ -358,10 +374,12 @@ internal class ProductTest : StringSpec({
                 description = "새로운 필드 테스트 설명",
                 price = 200000,
                 typeCode = 0,
-                images = defaultImages,
+                images =
+                    listOf(
+                        Image(imageId = 0L, userId = 10L, fileName = "test_image.jpg", url = "http://example.com/test_image.jpg"),
+                    ),
                 partnerShops = emptyList(),
                 concept = ConceptType.MODERN,
-                // 여기서는 원본 제공을 PARTIAL로 하고, 제공 장수를 5로 지정
                 originalProvideType = OriginalProvideType.PARTIAL,
                 partialOriginalCount = 5,
                 shootingTime = fixedTime,

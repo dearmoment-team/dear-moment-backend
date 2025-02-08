@@ -46,6 +46,7 @@ class ProductOptionRepositoryAdapterTest(
                                             imageId = 0L,
                                             userId = 1L,
                                             fileName = "image.jpg",
+                                            url = "http://example.com/image.jpg",
                                         ),
                                     ).apply { this.product = null },
                                 ),

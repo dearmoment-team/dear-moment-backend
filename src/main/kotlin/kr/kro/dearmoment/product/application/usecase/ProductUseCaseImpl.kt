@@ -69,7 +69,8 @@ class ProductUseCaseImpl(
         // 프론트엔드에서 전달된 이미지 식별자는 ImageReference 타입이므로, 이를 문자열(identifier) 리스트로 변환한다.
         val requestedImageIdentifiers: List<String> = request.images.map { it.identifier }
         // 전달받은 식별자 리스트를 바탕으로 최종 Image 도메인 객체 리스트를 구성한다.
-        // 만약 식별자가 newImageMappings에 존재하면 실제 업로드된 Image로 대체하고, 그렇지 않으면 해당 식별자를 기반으로 내부에서 Image 객체를 생성한다.
+        // 만약 식별자가 newImageMappings에 존재하면 실제 업로드된 Image로 대체하고,
+        // 그렇지 않으면 identifier를 URL로 간주하여 URL에서 fileName을 추출한 후 Image 객체를 생성한다.
         val finalImageOrder: List<Image> = resolveFinalImageOrder(requestedImageIdentifiers, newImageMappings, request.userId)
         // 업데이트 요청 데이터를 통해 제품 도메인 모델을 생성 및 검증한다.
         val productFromRequest: Product =
@@ -203,8 +204,8 @@ class ProductUseCaseImpl(
     // (1) 이미지 업로드
     // - 전달받은 MultipartFile 리스트를 SaveImageCommand 리스트로 변환하고 imageService.saveAll()로 업로드하여 이미지 ID 리스트를 획득한다.
     // - 각 이미지 ID마다 imageService.getOne()을 호출하여 GetImageResponse를 받고,
-    //   generateNanoId()를 통해 고유한 식별자(nanoid)를 생성하여 내부 fileName으로 사용, 그리고 Image 도메인 객체를 생성한다.
-    // - 내부에는 고유 fileName과 URL이 보존되어 업데이트 시 이미지 매핑 및 동기화에 활용된다.
+    //   이미지 서비스에서 반환한 url에서 파일명을 추출하여 Image 도메인 객체를 생성한다.
+    // - 내부에는 fileName과 URL이 보존되어 업데이트 시 이미지 매핑 및 동기화에 활용된다.
     override fun uploadImages(
         images: List<MultipartFile>,
         userId: Long,
@@ -213,11 +214,12 @@ class ProductUseCaseImpl(
         val imageIds: List<Long> = imageService.saveAll(commands)
         return imageIds.map { id ->
             val response = imageService.getOne(id)
-            val nanoId = generateNanoId()
+            // GetImageResponse에는 fileName 대신 url만 있으므로, url에서 fileName을 추출
+            val fileName = extractFileNameFromUrl(response.url)
             Image(
                 imageId = response.imageId,
                 userId = userId,
-                fileName = nanoId,
+                fileName = fileName,
                 url = response.url,
             )
         }
@@ -239,14 +241,21 @@ class ProductUseCaseImpl(
     // - 프론트엔드에서는 UpdateProductRequest의 images 필드로 ImageReference 타입의 리스트를 전달한다.
     // - 이를 문자열(identifier) 리스트로 변환한 후,
     //   만약 해당 identifier가 newImageMappings에 존재하면 실제 업로드된 Image로 대체하고,
-    //   그렇지 않으면 identifier를 내부 고유 fileName으로 간주하여 URL은 빈 문자열로 Image 객체를 생성한다.
+    //   그렇지 않으면 identifier를 URL로 간주하여, URL에서 파일명을 추출한 후 Image 객체를 생성한다.
     private fun resolveFinalImageOrder(
         requestedImageIdentifiers: List<String>,
         newImageMappings: Map<String, Image>,
         userId: Long,
     ): List<Image> {
         return requestedImageIdentifiers.map { identifier ->
-            newImageMappings[identifier] ?: Image(userId = userId, fileName = identifier, url = "")
+            if (identifier.contains("://")) {
+                // identifier가 URL이면, URL에서 fileName 추출
+                val fileName = extractFileNameFromUrl(identifier)
+                Image(userId = userId, fileName = fileName, url = identifier)
+            } else {
+                // placeholder 등의 경우 처리
+                newImageMappings[identifier] ?: Image(userId = userId, fileName = identifier, url = "")
+            }
         }
     }
 
@@ -375,8 +384,8 @@ class ProductUseCaseImpl(
         return product.copy(options = productOptionPersistencePort.findByProductId(product.productId))
     }
 
-    // nanoid 생성 함수: 실제 nanoid 라이브러리 대신 UUID의 일부(8자리)를 사용하여 고유 식별자를 생성한다.
-    private fun generateNanoId(): String {
-        return java.util.UUID.randomUUID().toString().substring(0, 8)
+    // 헬퍼 메소드: URL에서 마지막 슬래시 뒤의 문자열을 추출하여 fileName으로 사용한다.
+    private fun extractFileNameFromUrl(url: String): String {
+        return url.substringAfterLast('/')
     }
 }

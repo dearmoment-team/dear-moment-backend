@@ -8,6 +8,7 @@ import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
@@ -39,7 +40,11 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             detailedInfo = "Test Info",
             warrantyInfo = "Test Warranty",
             contactInfo = "Test Contact",
-            images = listOf("image1.jpg"),
+            // images를 문자열 대신 Image 객체로 전달 (최소 1개)
+            images =
+                listOf(
+                    Image(imageId = 0L, userId = 1L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                ),
             options = emptyList(),
         )
 
