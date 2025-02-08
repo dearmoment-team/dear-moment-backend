@@ -135,15 +135,17 @@ class ProductUseCaseTest : BehaviorSpec({
                 numberOfCostumes = 3,
                 seasonYear = 2023,
                 seasonHalf = SeasonHalf.FIRST_HALF,
-                partnerShops = listOf(
-                    CreatePartnerShopRequest(name = "Partner", link = "http://naver.com")
-                ),
+                partnerShops =
+                    listOf(
+                        CreatePartnerShopRequest(name = "Partner", link = "http://naver.com"),
+                    ),
                 detailedInfo = "Detailed product information",
                 warrantyInfo = "blabla",
                 contactInfo = "contact@example.com",
-                options = listOf(
-                    CreateProductOptionRequest(name = "Option1", additionalPrice = 2000)
-                ),
+                options =
+                    listOf(
+                        CreateProductOptionRequest(name = "Option1", additionalPrice = 2000),
+                    ),
             )
         val imageFile: MultipartFile =
             MockMultipartFile(
@@ -158,7 +160,7 @@ class ProductUseCaseTest : BehaviorSpec({
         val validProduct =
             CreateProductRequest.toDomain(
                 createProductRequest,
-                listOf(Image(userId = createProductRequest.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"))
+                listOf(Image(userId = createProductRequest.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg")),
             )
 
         `when`("유효한 상품 생성 요청이 오면") {
@@ -167,9 +169,10 @@ class ProductUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.save(any(), any()) } answers {
                 firstArg<ProductOption>().copy(optionId = 1L, productId = 1L)
             }
-            every { productOptionPersistencePort.findByProductId(1L) } returns listOf(
-                createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000)
-            )
+            every { productOptionPersistencePort.findByProductId(1L) } returns
+                listOf(
+                    createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000),
+                )
 
             then("상품과 옵션이 저장되어야 함") {
                 val result = productUseCase.saveProduct(createProductRequest, listOf(imageFile))
@@ -202,66 +205,73 @@ class ProductUseCaseTest : BehaviorSpec({
     // --- updateProduct 테스트 ---
     given("updateProduct 메소드") {
         // 기존 옵션: "Old Option"과 "To Delete"
-        val existingOptions = listOf(
-            createProductOption(optionId = 1L, productId = 1L, name = "Old Option", additionalPrice = 1000),
-            createProductOption(optionId = 2L, productId = 1L, name = "To Delete", additionalPrice = 2000)
-        )
+        val existingOptions =
+            listOf(
+                createProductOption(optionId = 1L, productId = 1L, name = "Old Option", additionalPrice = 1000),
+                createProductOption(optionId = 2L, productId = 1L, name = "To Delete", additionalPrice = 2000),
+            )
         // 업데이트 요청 시, 옵션 목록은 옵션 id 1은 업데이트되고, 새로운 옵션이 추가되어야 함
         // **중요:** 기존 이미지는 프론트엔드에서 URL로 전달하고, 신규 이미지는 placeholder "new_0"로 전달
-        val updateProductRequest = UpdateProductRequest(
-            productId = 1L,
-            userId = 1L,
-            title = "Updated Product",
-            description = "Updated description",
-            price = 15000,
-            typeCode = 0,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = null,
-            shootingLocation = null,
-            numberOfCostumes = null,
-            seasonYear = null,
-            seasonHalf = null,
-            partnerShops = listOf(
-                UpdatePartnerShopRequest(name = "Shop1", link = "http://shop1.com")
-            ),
-            detailedInfo = "Updated detailed info",
-            warrantyInfo = "Updated warranty info",
-            contactInfo = "Updated contact info",
-            options = listOf(
-                UpdateProductOptionRequest(
-                    optionId = 1L,
-                    name = "Updated Option1",
-                    additionalPrice = 1500,
-                    description = "Updated option1 description"
-                ),
-                UpdateProductOptionRequest(
-                    optionId = null,
-                    name = "New Option",
-                    additionalPrice = 3000,
-                    description = "New option description"
-                )
-            ),
-            // 기존 이미지는 URL 형태, 신규 이미지는 placeholder "new_0" (업로드된 신규 이미지의 매핑 키)
-            images = listOf(
-                ImageReference("http://example.com/image1.jpg"),
-                ImageReference("new_0")
+        val updateProductRequest =
+            UpdateProductRequest(
+                productId = 1L,
+                userId = 1L,
+                title = "Updated Product",
+                description = "Updated description",
+                price = 15000,
+                typeCode = 0,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = null,
+                shootingLocation = null,
+                numberOfCostumes = null,
+                seasonYear = null,
+                seasonHalf = null,
+                partnerShops =
+                    listOf(
+                        UpdatePartnerShopRequest(name = "Shop1", link = "http://shop1.com"),
+                    ),
+                detailedInfo = "Updated detailed info",
+                warrantyInfo = "Updated warranty info",
+                contactInfo = "Updated contact info",
+                options =
+                    listOf(
+                        UpdateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Updated Option1",
+                            additionalPrice = 1500,
+                            description = "Updated option1 description",
+                        ),
+                        UpdateProductOptionRequest(
+                            optionId = null,
+                            name = "New Option",
+                            additionalPrice = 3000,
+                            description = "New option description",
+                        ),
+                    ),
+                // 기존 이미지는 URL 형태, 신규 이미지는 placeholder "new_0" (업로드된 신규 이미지의 매핑 키)
+                images =
+                    listOf(
+                        ImageReference("http://example.com/image1.jpg"),
+                        ImageReference("new_0"),
+                    ),
             )
-        )
         // 기존 제품 도메인 (업데이트 전): 기존 이미지는 "image1.jpg"와 "image2.jpg" (각 Image 객체)
-        val existingProductDomain = createProduct(
-            productId = 1L,
-            userId = 1L,
-            title = "Original Product",
-            description = "Original Description",
-            price = 10000,
-            options = existingOptions,
-            images = listOf(
-                Image(imageId = 1L, userId = 1L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
-                Image(imageId = 1L, userId = 1L, fileName = "image2.jpg", url = "http://example.com/image2.jpg")
+        val existingProductDomain =
+            createProduct(
+                productId = 1L,
+                userId = 1L,
+                title = "Original Product",
+                description = "Original Description",
+                price = 10000,
+                options = existingOptions,
+                images =
+                    listOf(
+                        Image(imageId = 1L, userId = 1L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                        Image(imageId = 1L, userId = 1L, fileName = "image2.jpg", url = "http://example.com/image2.jpg"),
+                    ),
             )
-        )
 
         // 신규 이미지를 위한 Mock MultipartFile
         val newImage: MultipartFile = mockk(relaxed = true)
@@ -271,21 +281,23 @@ class ProductUseCaseTest : BehaviorSpec({
 
         `when`("유효한 업데이트 요청이 오면") {
             every { productPersistencePort.findById(1L) } returns existingProductDomain
-            every { productPersistencePort.save(any()) } returns updateProductRequest.let {
-                // toDomain()의 두 번째 인자는 List<Image>여야 하므로, 테스트용으로 변환하여 전달합니다.
-                UpdateProductRequest.toDomain(
-                    it,
-                    listOf(
-                        Image(userId = it.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
-                        Image(userId = it.userId, fileName = "new_image.jpg", url = "new_image.jpg")
-                    )
-                ).copy(productId = 1L, userId = 1L)
-            }
+            every { productPersistencePort.save(any()) } returns
+                updateProductRequest.let {
+                    // toDomain()의 두 번째 인자는 List<Image>여야 하므로, 테스트용으로 변환하여 전달합니다.
+                    UpdateProductRequest.toDomain(
+                        it,
+                        listOf(
+                            Image(userId = it.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                            Image(userId = it.userId, fileName = "new_image.jpg", url = "new_image.jpg"),
+                        ),
+                    ).copy(productId = 1L, userId = 1L)
+                }
             // 기존 옵션 목록은 먼저 업데이트 전 옵션(existingOptions)을 반환한 후, 업데이트 후 옵션(updatedOptions)을 반환하도록 설정
-            val updatedOptions = listOf(
-                createProductOption(optionId = 1L, productId = 1L, name = "Updated Option1", additionalPrice = 1500),
-                createProductOption(optionId = 3L, productId = 1L, name = "New Option", additionalPrice = 3000)
-            )
+            val updatedOptions =
+                listOf(
+                    createProductOption(optionId = 1L, productId = 1L, name = "Updated Option1", additionalPrice = 1500),
+                    createProductOption(optionId = 3L, productId = 1L, name = "New Option", additionalPrice = 3000),
+                )
             every { productOptionPersistencePort.findByProductId(1L) } returnsMany listOf(existingOptions, updatedOptions)
             every { productOptionPersistencePort.deleteById(2L) } just Runs
             every { productOptionPersistencePort.save(any(), any()) } answers {
@@ -359,16 +371,18 @@ class ProductUseCaseTest : BehaviorSpec({
     // --- getProductById 테스트 ---
     given("getProductById 메소드") {
         `when`("존재하는 상품 조회 요청이 오면") {
-            val sampleProduct = createProduct(
-                productId = 1L,
-                userId = 1L,
-                title = "Sample Product",
-                description = "Sample Description",
-                price = 10000,
-                options = listOf(
-                    createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000)
+            val sampleProduct =
+                createProduct(
+                    productId = 1L,
+                    userId = 1L,
+                    title = "Sample Product",
+                    description = "Sample Description",
+                    price = 10000,
+                    options =
+                        listOf(
+                            createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000),
+                        ),
                 )
-            )
             every { productPersistencePort.findById(1L) } returns sampleProduct
             every { productOptionPersistencePort.findByProductId(1L) } returns sampleProduct.options
 
@@ -400,40 +414,42 @@ class ProductUseCaseTest : BehaviorSpec({
     // --- searchProducts 테스트 ---
     given("searchProducts 메소드") {
         `when`("정렬 기준이 'likes'인 경우") {
-            val sampleProducts = listOf(
-                createProduct(
-                    productId = 1L,
-                    userId = 1L,
-                    title = "Product1",
-                    price = 10000,
-                    options = listOf(createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000))
-                ),
-                createProduct(
-                    productId = 2L,
-                    userId = 1L,
-                    title = "Product2",
-                    price = 20000,
-                    options = listOf(createProductOption(optionId = 2L, productId = 2L, name = "Option2", additionalPrice = 3000))
-                ),
-                createProduct(
-                    productId = 3L,
-                    userId = 1L,
-                    title = "Product3",
-                    price = 30000,
-                    options = listOf(createProductOption(optionId = 3L, productId = 3L, name = "Option3", additionalPrice = 4000))
+            val sampleProducts =
+                listOf(
+                    createProduct(
+                        productId = 1L,
+                        userId = 1L,
+                        title = "Product1",
+                        price = 10000,
+                        options = listOf(createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000)),
+                    ),
+                    createProduct(
+                        productId = 2L,
+                        userId = 1L,
+                        title = "Product2",
+                        price = 20000,
+                        options = listOf(createProductOption(optionId = 2L, productId = 2L, name = "Option2", additionalPrice = 3000)),
+                    ),
+                    createProduct(
+                        productId = 3L,
+                        userId = 1L,
+                        title = "Product3",
+                        price = 30000,
+                        options = listOf(createProductOption(optionId = 3L, productId = 3L, name = "Option3", additionalPrice = 4000)),
+                    ),
                 )
-            )
-            val mockProductsWithLikes = listOf(
-                sampleProducts[0] to 1,
-                sampleProducts[1] to 2,
-                sampleProducts[2] to 3
-            )
+            val mockProductsWithLikes =
+                listOf(
+                    sampleProducts[0] to 1,
+                    sampleProducts[1] to 2,
+                    sampleProducts[2] to 3,
+                )
             every {
                 productPersistencePort.searchByCriteria(
                     title = "test",
                     priceRange = Pair(10000L, 30000L),
                     typeCode = null,
-                    sortBy = "likes"
+                    sortBy = "likes",
                 )
             } returns sampleProducts
 
@@ -459,35 +475,36 @@ class ProductUseCaseTest : BehaviorSpec({
         }
 
         `when`("정렬 기준이 'price-asc'인 경우") {
-            val sampleProducts = listOf(
-                createProduct(
-                    productId = 1L,
-                    userId = 1L,
-                    title = "ProductA",
-                    price = 10000,
-                    options = listOf(createProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000))
-                ),
-                createProduct(
-                    productId = 2L,
-                    userId = 1L,
-                    title = "ProductB",
-                    price = 20000,
-                    options = listOf(createProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000))
-                ),
-                createProduct(
-                    productId = 3L,
-                    userId = 1L,
-                    title = "ProductC",
-                    price = 30000,
-                    options = listOf(createProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000))
+            val sampleProducts =
+                listOf(
+                    createProduct(
+                        productId = 1L,
+                        userId = 1L,
+                        title = "ProductA",
+                        price = 10000,
+                        options = listOf(createProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000)),
+                    ),
+                    createProduct(
+                        productId = 2L,
+                        userId = 1L,
+                        title = "ProductB",
+                        price = 20000,
+                        options = listOf(createProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000)),
+                    ),
+                    createProduct(
+                        productId = 3L,
+                        userId = 1L,
+                        title = "ProductC",
+                        price = 30000,
+                        options = listOf(createProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000)),
+                    ),
                 )
-            )
             every {
                 productPersistencePort.searchByCriteria(
                     title = "test",
                     priceRange = Pair(10000L, 30000L),
                     typeCode = null,
-                    sortBy = "price-asc"
+                    sortBy = "price-asc",
                 )
             } returns sampleProducts
 
@@ -501,35 +518,36 @@ class ProductUseCaseTest : BehaviorSpec({
         }
 
         `when`("정렬 기준이 'price-desc'인 경우") {
-            val sampleProducts = listOf(
-                createProduct(
-                    productId = 1L,
-                    userId = 1L,
-                    title = "ProductA",
-                    price = 10000,
-                    options = listOf(createProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000))
-                ),
-                createProduct(
-                    productId = 2L,
-                    userId = 1L,
-                    title = "ProductB",
-                    price = 20000,
-                    options = listOf(createProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000))
-                ),
-                createProduct(
-                    productId = 3L,
-                    userId = 1L,
-                    title = "ProductC",
-                    price = 30000,
-                    options = listOf(createProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000))
+            val sampleProducts =
+                listOf(
+                    createProduct(
+                        productId = 1L,
+                        userId = 1L,
+                        title = "ProductA",
+                        price = 10000,
+                        options = listOf(createProductOption(optionId = 1L, productId = 1L, name = "OptionA", additionalPrice = 2000)),
+                    ),
+                    createProduct(
+                        productId = 2L,
+                        userId = 1L,
+                        title = "ProductB",
+                        price = 20000,
+                        options = listOf(createProductOption(optionId = 2L, productId = 2L, name = "OptionB", additionalPrice = 3000)),
+                    ),
+                    createProduct(
+                        productId = 3L,
+                        userId = 1L,
+                        title = "ProductC",
+                        price = 30000,
+                        options = listOf(createProductOption(optionId = 3L, productId = 3L, name = "OptionC", additionalPrice = 4000)),
+                    ),
                 )
-            )
             every {
                 productPersistencePort.searchByCriteria(
                     title = "test",
                     priceRange = Pair(10000L, 30000L),
                     typeCode = null,
-                    sortBy = "price-desc"
+                    sortBy = "price-desc",
                 )
             } returns sampleProducts
 
