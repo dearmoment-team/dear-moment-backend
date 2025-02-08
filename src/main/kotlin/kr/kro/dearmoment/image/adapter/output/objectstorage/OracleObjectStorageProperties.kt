@@ -1,14 +1,14 @@
 package kr.kro.dearmoment.image.adapter.output.objectstorage
 
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 
-@Configuration
+@Component
 data class OracleObjectStorageProperties(
-    @Value("\$object-storage.bucket-name")
-    val namespaceName: String,
-    @Value("\$object-storage.namespace-name")
+    @Value("\${object-storage.bucket-name:}")
     val bucketName: String,
-    @Value("\$object-storage.photo-image-dir")
+    @Value("\${object-storage.namespace-name:}")
+    val namespaceName: String,
+    @Value("\${object-storage.photo-image-dir:}")
     val photoImageDir: String,
 )
