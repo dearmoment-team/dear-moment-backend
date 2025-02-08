@@ -1,9 +1,9 @@
 package kr.kro.dearmoment.like.application.port.input
 
-import kr.kro.dearmoment.like.application.command.CreateLikeCommand
+import kr.kro.dearmoment.like.application.command.LikeCommand
 
 interface LikeUseCase {
-    fun like(command: CreateLikeCommand): Long
+    fun like(command: LikeCommand): Long
 
     fun unlike(likeId: Long): Long
 }
