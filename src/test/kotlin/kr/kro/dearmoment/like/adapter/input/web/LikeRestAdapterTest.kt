@@ -79,7 +79,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
         mockMvc.perform(request)
             .andExpect(status().isNoContent)
             .andDocument(
-                "create-like",
+                "delete-like",
                 pathParameters(
                     "id" means "삭제할 좋아요 ID",
                 ),
