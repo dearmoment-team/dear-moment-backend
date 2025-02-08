@@ -75,22 +75,22 @@ class ProductRestAdapterTest {
                 seasonYear = 2025,
                 seasonHalf = SeasonHalf.FIRST_HALF,
                 partnerShops =
-                listOf(
-                    CreatePartnerShopRequest(name = "Shop A", link = "http://shopA.com"),
-                    CreatePartnerShopRequest(name = "Shop B", link = "http://shopB.com"),
-                ),
+                    listOf(
+                        CreatePartnerShopRequest(name = "Shop A", link = "http://shopA.com"),
+                        CreatePartnerShopRequest(name = "Shop B", link = "http://shopB.com"),
+                    ),
                 detailedInfo = "Detailed product information",
                 warrantyInfo = "Warranty Description",
                 contactInfo = "contact@example.com",
                 options =
-                listOf(
-                    CreateProductOptionRequest(
-                        optionId = 1L,
-                        name = "Option 1",
-                        additionalPrice = 1000,
-                        description = "Extra option details",
+                    listOf(
+                        CreateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option details",
+                        ),
                     ),
-                ),
             )
 
         // given: 응답 객체 생성 (요청과 연관된 모든 필드를 채움)
@@ -111,29 +111,29 @@ class ProductRestAdapterTest {
                 seasonYear = request.seasonYear,
                 seasonHalf = request.seasonHalf,
                 partnerShops =
-                listOf(
-                    PartnerShopResponse(name = "Shop A", link = "http://shopA.com"),
-                    PartnerShopResponse(name = "Shop B", link = "http://shopB.com"),
-                ),
+                    listOf(
+                        PartnerShopResponse(name = "Shop A", link = "http://shopA.com"),
+                        PartnerShopResponse(name = "Shop B", link = "http://shopB.com"),
+                    ),
                 detailedInfo = request.detailedInfo,
                 warrantyInfo = request.warrantyInfo,
                 contactInfo = request.contactInfo,
                 createdAt = now,
                 updatedAt = now,
                 options =
-                listOf(
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = 1L,
-                        name = "Option 1",
-                        additionalPrice = 1000,
-                        description = "Extra option details",
-                        createdAt = now,
-                        updatedAt = now,
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option 1",
+                            additionalPrice = 1000,
+                            description = "Extra option details",
+                            createdAt = now,
+                            updatedAt = now,
+                        ),
                     ),
-                ),
                 // API 응답에서는 이미지 목록은 fileName 문자열 리스트로 전달합니다.
-                images = listOf("image1.jpg")
+                images = listOf("image1.jpg"),
             )
 
         // given: 실제 이미지 파일 객체 생성
@@ -234,24 +234,24 @@ class ProductRestAdapterTest {
                 seasonYear = 2025,
                 seasonHalf = SeasonHalf.SECOND_HALF,
                 partnerShops =
-                listOf(
-                    UpdatePartnerShopRequest(name = "Shop A Updated", link = "http://shopA-updated.com"),
-                    UpdatePartnerShopRequest(name = "Shop B Updated", link = "http://shopB-updated.com"),
-                ),
+                    listOf(
+                        UpdatePartnerShopRequest(name = "Shop A Updated", link = "http://shopA-updated.com"),
+                        UpdatePartnerShopRequest(name = "Shop B Updated", link = "http://shopB-updated.com"),
+                    ),
                 detailedInfo = "Updated detailed product information",
                 warrantyInfo = "Updated Warranty Description",
                 contactInfo = "updated_contact@example.com",
                 options =
-                listOf(
-                    UpdateProductOptionRequest(
-                        optionId = 1L,
-                        name = "Updated Option 1",
-                        additionalPrice = 2000,
-                        description = "Updated extra option details",
+                    listOf(
+                        UpdateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Updated Option 1",
+                            additionalPrice = 2000,
+                            description = "Updated extra option details",
+                        ),
                     ),
-                ),
                 // images는 이제 List<ImageReference> 타입입니다.
-                images = listOf(ImageReference("updated_image1.jpg"))
+                images = listOf(ImageReference("updated_image1.jpg")),
             )
 
         // given: 수정 후 반환될 응답 객체 생성 (updateRequest의 필드를 반영)
@@ -272,28 +272,28 @@ class ProductRestAdapterTest {
                 seasonYear = updateRequest.seasonYear,
                 seasonHalf = updateRequest.seasonHalf,
                 partnerShops =
-                listOf(
-                    PartnerShopResponse(name = "Shop A Updated", link = "http://shopA-updated.com"),
-                    PartnerShopResponse(name = "Shop B Updated", link = "http://shopB-updated.com"),
-                ),
+                    listOf(
+                        PartnerShopResponse(name = "Shop A Updated", link = "http://shopA-updated.com"),
+                        PartnerShopResponse(name = "Shop B Updated", link = "http://shopB-updated.com"),
+                    ),
                 detailedInfo = updateRequest.detailedInfo,
                 warrantyInfo = updateRequest.warrantyInfo,
                 contactInfo = updateRequest.contactInfo,
                 createdAt = now,
                 updatedAt = now,
                 options =
-                listOf(
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = updateRequest.productId,
-                        name = "Updated Option 1",
-                        additionalPrice = 2000,
-                        description = "Updated extra option details",
-                        createdAt = now,
-                        updatedAt = now,
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = updateRequest.productId,
+                            name = "Updated Option 1",
+                            additionalPrice = 2000,
+                            description = "Updated extra option details",
+                            createdAt = now,
+                            updatedAt = now,
+                        ),
                     ),
-                ),
-                images = listOf("updated_image1.jpg")
+                images = listOf("updated_image1.jpg"),
             )
 
         // given: 실제 이미지 파일 객체 생성
@@ -415,17 +415,17 @@ class ProductRestAdapterTest {
                 createdAt = now,
                 updatedAt = now,
                 options =
-                listOf(
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = productId,
-                        name = "Option1",
-                        additionalPrice = 100L,
-                        description = "Option description",
-                        createdAt = now,
-                        updatedAt = now,
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = productId,
+                            name = "Option1",
+                            additionalPrice = 100L,
+                            description = "Option description",
+                            createdAt = now,
+                            updatedAt = now,
+                        ),
                     ),
-                ),
                 images = listOf("image1.png", "image2.png"),
             )
 
@@ -503,17 +503,17 @@ class ProductRestAdapterTest {
                 createdAt = now,
                 updatedAt = now,
                 options =
-                listOf(
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = 1L,
-                        name = "Option1",
-                        additionalPrice = 100L,
-                        description = "Option description",
-                        createdAt = now,
-                        updatedAt = now,
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "Option1",
+                            additionalPrice = 100L,
+                            description = "Option description",
+                            createdAt = now,
+                            updatedAt = now,
+                        ),
                     ),
-                ),
                 images = listOf("image1.png", "image2.png"),
             )
         val pagedResponse =
