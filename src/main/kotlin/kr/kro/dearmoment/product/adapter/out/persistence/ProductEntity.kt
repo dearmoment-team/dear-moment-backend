@@ -17,7 +17,6 @@ import jakarta.persistence.Table
 import jakarta.persistence.Version
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.image.adapter.output.persistence.ImageEntity
-import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -31,36 +30,36 @@ open class ProductEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "products_seq")
     @SequenceGenerator(name = "products_seq", sequenceName = "PRODUCTS_SEQ", allocationSize = 1)
-    @Column(name = "PRODUCT_ID")
+    @Column
     open var productId: Long? = null,
-    @Column(name = "USER_ID")
+    @Column
     open var userId: Long? = null,
-    @Column(name = "TITLE", nullable = false)
+    @Column(nullable = false)
     open var title: String = "",
-    @Column(name = "DESCRIPTION")
+    @Column
     open var description: String? = null,
-    @Column(name = "PRICE", nullable = false)
+    @Column(nullable = false)
     open var price: Long = 0L,
-    @Column(name = "TYPE_CODE", nullable = false)
+    @Column(nullable = false)
     open var typeCode: Int = 0,
-    @Column(name = "SHOOTING_TIME")
+    @Column
     open var shootingTime: LocalDateTime? = null,
-    @Column(name = "SHOOTING_LOCATION")
+    @Column
     open var shootingLocation: String? = null,
-    @Column(name = "NUMBER_OF_COSTUMES")
+    @Column
     open var numberOfCostumes: Int? = null,
     @Enumerated(EnumType.STRING)
-    @Column(name = "CONCEPT", nullable = false)
+    @Column(nullable = false)
     open var concept: ConceptType = ConceptType.ELEGANT,
     @Enumerated(EnumType.STRING)
-    @Column(name = "ORIGINAL_PROVIDE_TYPE", nullable = false)
+    @Column(nullable = false)
     open var originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
-    @Column(name = "PARTIAL_ORIGINAL_COUNT")
+    @Column
     open var partialOriginalCount: Int? = null,
-    @Column(name = "SEASON_YEAR")
+    @Column
     open var seasonYear: Int? = null,
     @Enumerated(EnumType.STRING)
-    @Column(name = "SEASON_HALF")
+    @Column
     open var seasonHalf: SeasonHalf? = null,
     @ElementCollection(fetch = FetchType.EAGER)
     @jakarta.persistence.CollectionTable(
@@ -68,18 +67,18 @@ open class ProductEntity(
         joinColumns = [JoinColumn(name = "PRODUCT_ID")],
     )
     open var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
-    @Column(name = "DETAILED_INFO")
+    @Column
     open var detailedInfo: String? = null,
-    @Column(name = "WARRANTY_INFO")
+    @Column
     open var warrantyInfo: String? = null,
-    @Column(name = "CONTACT_INFO")
+    @Column
     open var contactInfo: String? = null,
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     open var options: MutableList<ProductOptionEntity> = mutableListOf(),
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     open var images: MutableList<ImageEntity> = mutableListOf(),
     @Version
-    @Column(name = "VERSION", nullable = false)
+    @Column(nullable = false)
     open var version: Long = 0L,
 ) : Auditable() {
     companion object {
@@ -101,9 +100,9 @@ open class ProductEntity(
                     seasonYear = product.seasonYear,
                     seasonHalf = product.seasonHalf,
                     partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                    detailedInfo = product.detailedInfo.ifBlank { null },
+                    warrantyInfo = product.warrantyInfo.ifBlank { null },
+                    contactInfo = product.contactInfo.ifBlank { null },
                     images = mutableListOf(),
                 )
             entity.createdDate = product.createdAt
@@ -112,14 +111,10 @@ open class ProductEntity(
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
             }
+            // 이제 product.images는 List<Image>이므로, 바로 ImageEntity.from(image)를 호출합니다.
             entity.images =
-                product.images.map { fileName ->
-                    ImageEntity.from(
-                        Image(
-                            userId = product.userId,
-                            fileName = fileName,
-                        ),
-                    ).apply { this.product = entity }
+                product.images.map { image ->
+                    ImageEntity.from(image).apply { this.product = entity }
                 }.toMutableList()
             return entity
         }
@@ -148,7 +143,7 @@ open class ProductEntity(
             createdAt = createdDate,
             updatedAt = updateDate,
             options = options.map { it.toDomain() },
-            images = images.map { it.fileName },
+            images = images.map { it.toDomain() },
         )
     }
 }

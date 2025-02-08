@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -59,7 +60,7 @@ data class CreateProductRequest(
     companion object {
         fun toDomain(
             request: CreateProductRequest,
-            images: List<String>,
+            images: List<Image>,
         ): Product {
             val partnerShopList =
                 request.partnerShops.map { partnerShopRequest ->
