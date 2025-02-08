@@ -83,6 +83,7 @@ data class Product(
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val options: List<ProductOption> = emptyList(),
+    // images는 Image 도메인 객체 목록이어야 하며, 최소 1개 이상의 이미지가 필요합니다.
     val images: List<Image> = emptyList(),
 ) {
     init {

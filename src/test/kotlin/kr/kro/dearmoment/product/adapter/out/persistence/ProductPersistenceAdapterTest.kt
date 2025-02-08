@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.throwable.shouldHaveMessage
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
@@ -48,7 +49,11 @@ class ProductPersistenceAdapterTest(
                                 title = "프로 패키지",
                                 price = 500_000L,
                                 typeCode = 1,
-                                images = listOf("main.jpg"),
+                                // images: 문자열 리스트 대신 Image 객체 리스트 전달
+                                images =
+                                    listOf(
+                                        Image(imageId = 0L, userId = 1L, fileName = "main.jpg", url = "main.jpg"),
+                                    ),
                                 partnerShops = emptyList(),
                             )
                         }
@@ -90,7 +95,13 @@ class ProductPersistenceAdapterTest(
                             shootingLocation = "서울 강남 스튜디오",
                             numberOfCostumes = 3,
                             partnerShops = partnerShops,
-                            images = listOf("main.jpg", "studio.jpg", "sample1.jpg"),
+                            // images는 문자열 리스트 대신 Image 객체 리스트로 전달합니다.
+                            images =
+                                listOf(
+                                    Image(imageId = 0L, userId = 1L, fileName = "main.jpg", url = "main.jpg"),
+                                    Image(imageId = 0L, userId = 1L, fileName = "studio.jpg", url = "studio.jpg"),
+                                    Image(imageId = 0L, userId = 1L, fileName = "sample1.jpg", url = "sample1.jpg"),
+                                ),
                             detailedInfo = "",
                             warrantyInfo = "",
                             contactInfo = "",
@@ -108,7 +119,8 @@ class ProductPersistenceAdapterTest(
                         shootingLocation shouldBe "서울 강남 스튜디오"
                         numberOfCostumes shouldBe 3
                         partnerShops shouldContainExactlyInAnyOrder partnerShops
-                        images shouldContainExactlyInAnyOrder listOf("main.jpg", "studio.jpg", "sample1.jpg")
+                        // images는 저장된 후에도 동일한 URL 값을 유지해야 합니다.
+                        images.map { it.url } shouldContainExactlyInAnyOrder listOf("main.jpg", "studio.jpg", "sample1.jpg")
                         createdAt shouldNotBe null
                         updatedAt shouldNotBe null
                     }
@@ -229,7 +241,11 @@ class ProductPersistenceAdapterTest(
                 price = price,
                 typeCode = typeCode,
                 partnerShops = partnerShops,
-                images = images,
+                // images 문자열을 Image 객체로 변환: 여기서 fileName과 url은 동일하게 설정합니다.
+                images =
+                    images.map { fileName ->
+                        Image(imageId = 0L, userId = userId, fileName = fileName, url = fileName)
+                    },
                 shootingLocation = "기본 촬영장소",
                 numberOfCostumes = 1,
                 contactInfo = "contact@example.com",
