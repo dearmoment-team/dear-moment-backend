@@ -19,12 +19,15 @@ class ImageEntity(
     @Column
     val userId: Long,
     @Column
+    val url: String,
+    @Column
     val fileName: String,
 ) : Auditable() {
     companion object {
         fun from(domain: Image) =
             ImageEntity(
                 userId = domain.userId,
+                url = domain.url,
                 fileName = domain.fileName,
             )
 
@@ -32,6 +35,7 @@ class ImageEntity(
             return Image(
                 imageId = entity.id,
                 userId = entity.userId,
+                url = entity.url,
                 fileName = entity.fileName,
             )
         }

@@ -18,6 +18,7 @@ class ImagePersistenceAdapterTest(
             val image =
                 Image(
                     userId = 123L,
+                    url = "localhost:8080/image",
                     fileName = "image.jpg",
                 )
 
@@ -33,6 +34,7 @@ class ImagePersistenceAdapterTest(
             val image =
                 Image(
                     userId = 123L,
+                    url = "localhost:8080/image",
                     fileName = "image.jpg",
                 )
 
@@ -63,10 +65,12 @@ class ImagePersistenceAdapterTest(
                 listOf(
                     Image(
                         userId = userId,
+                        url = "localhost:8080/image",
                         fileName = "image.jpg",
                     ),
                     Image(
                         userId = userId,
+                        url = "localhost:8080/image",
                         fileName = "image22.jpg",
                     ),
                 )
