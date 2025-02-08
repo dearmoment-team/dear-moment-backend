@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.application.usecase
 
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.PagedResponse
@@ -39,5 +40,5 @@ interface ProductUseCase {
     fun uploadImages(
         images: List<MultipartFile>,
         userId: Long,
-    ): List<String>
+    ): List<Image>
 }

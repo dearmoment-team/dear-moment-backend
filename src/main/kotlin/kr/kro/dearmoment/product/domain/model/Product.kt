@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.domain.model
 
+import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
 
 /**
@@ -82,7 +83,7 @@ data class Product(
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val options: List<ProductOption> = emptyList(),
-    val images: List<String> = emptyList(),
+    val images: List<Image> = emptyList(),
 ) {
     init {
         require(images.isNotEmpty()) { "최소 1개 이상의 이미지가 필요합니다" }
@@ -103,13 +104,11 @@ data class Product(
         // 원본 제공 방식 검증
         when (originalProvideType) {
             OriginalProvideType.FULL -> {
-                // FULL이면 partialOriginalCount가 null 또는 0이 되어야 한다고 가정
                 require(partialOriginalCount == null || partialOriginalCount == 0) {
                     "FULL 제공 시 partialOriginalCount는 null 또는 0이어야 합니다."
                 }
             }
             OriginalProvideType.PARTIAL -> {
-                // PARTIAL이면 partialOriginalCount가 반드시 1 이상이어야 함
                 require(partialOriginalCount != null && partialOriginalCount > 0) {
                     "PARTIAL 제공 시 partialOriginalCount는 1 이상이어야 합니다."
                 }
@@ -128,9 +127,7 @@ data class Product(
         val existingOptionsMap = options.associateBy { it.optionId }
         val newOptionsMap = newOptions.associateBy { it.optionId }
 
-        val toDelete: Set<Long> =
-            (existingOptionsMap.keys - newOptionsMap.keys).toList()
-                .toSet()
+        val toDelete: Set<Long> = (existingOptionsMap.keys - newOptionsMap.keys).toSet()
 
         val toUpdate =
             newOptions.filter {

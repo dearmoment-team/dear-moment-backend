@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -10,6 +11,15 @@ import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import java.time.LocalDateTime
 
+// 이미지 식별 정보를 나타내는 값 객체입니다.
+// 내부적으로는 고유 fileName이나 플레이스홀더("new_0", "new_1", …) 값을 담습니다.
+data class ImageReference(
+    val identifier: String,
+) {
+    override fun toString(): String = identifier
+}
+
+// 프론트엔드에서는 업데이트 시 이미지 관련 정보를 ImageReference 타입의 리스트로 전달합니다.
 data class UpdateProductRequest(
     val productId: Long,
     val userId: Long,
@@ -32,16 +42,19 @@ data class UpdateProductRequest(
     val warrantyInfo: String?,
     val contactInfo: String?,
     val options: List<UpdateProductOptionRequest>,
-    val images: List<String>,
+    // 업데이트 시 프론트엔드에서 이미지 식별자들을 전달합니다.
+    // ex) 기존 이미지의 고유 fileName 또는 신규 이미지의 플레이스홀더("new_0", "new_1", …)
+    val images: List<ImageReference>,
 ) {
     companion object {
+        // 백엔드 내부에서 최종 Image 도메인 객체 리스트가 구성되면 이를 Product 도메인 모델에 주입합니다.
         fun toDomain(
             request: UpdateProductRequest,
-            images: List<String>,
+            images: List<Image>,
         ): Product {
             val partnerShopList =
                 request.partnerShops.map { partnerShopRequest ->
-                    kr.kro.dearmoment.product.domain.model.PartnerShop(
+                    PartnerShop(
                         name = partnerShopRequest.name,
                         link = partnerShopRequest.link,
                     )

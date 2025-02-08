@@ -59,7 +59,7 @@ data class ProductResponse(
                 createdAt = product.createdAt,
                 updatedAt = product.updatedAt,
                 options = product.options.map { ProductOptionResponse.fromDomain(it) },
-                images = product.images,
+                images = product.images.map { it.url },
             )
         }
     }

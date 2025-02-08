@@ -30,21 +30,23 @@ class ImageEntity(
     @JoinColumn(name = "PRODUCT_ID")
     var product: ProductEntity? = null,
 ) : Auditable() {
+    // 인스턴스 메서드로 toDomain()을 구현하여 Image 객체를 반환하도록 함
+    fun toDomain(): Image {
+        return Image(
+            imageId = id,
+            userId = userId,
+            url = url,
+            fileName = fileName,
+        )
+    }
+
     companion object {
-        fun from(domain: Image) =
+        // from() 메서드의 시그니처를 수정하여 ImageEntity를 반환하도록 함
+        fun from(domain: Image): ImageEntity =
             ImageEntity(
                 userId = domain.userId,
                 url = domain.url,
                 fileName = domain.fileName,
             )
-
-        fun toDomain(entity: ImageEntity): Image {
-            return Image(
-                imageId = entity.id,
-                userId = entity.userId,
-                url = entity.url,
-                fileName = entity.fileName,
-            )
-        }
     }
 }
