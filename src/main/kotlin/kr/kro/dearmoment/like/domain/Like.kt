@@ -7,7 +7,6 @@ class Like(
     val type: LikeType,
 ) {
     init {
-        require(id > 0) { "좋아요 ID는 양수이어야 합니다." }
         require(userId > 0) { "유저 ID는 양수이어야 합니다." }
         require(targetId > 0) { "좋아요 대상 ID는 양수이어야 합니다." }
     }
