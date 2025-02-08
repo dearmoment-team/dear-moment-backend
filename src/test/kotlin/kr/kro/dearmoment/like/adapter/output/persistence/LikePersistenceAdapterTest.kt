@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.like.adapter.out.persistence
+package kr.kro.dearmoment.like.adapter.output.persistence
 
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.core.spec.style.DescribeSpec
