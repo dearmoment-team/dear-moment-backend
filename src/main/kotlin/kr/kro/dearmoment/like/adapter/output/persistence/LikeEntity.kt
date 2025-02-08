@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.like.adapter.out.persistence
+package kr.kro.dearmoment.like.adapter.output.persistence
 
 import Auditable
 import jakarta.persistence.Column

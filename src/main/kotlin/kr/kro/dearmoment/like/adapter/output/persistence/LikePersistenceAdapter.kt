@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.like.adapter.out.persistence
+package kr.kro.dearmoment.like.adapter.output.persistence
 
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
@@ -14,8 +14,7 @@ class LikePersistenceAdapter(
         return likeRepository.save(entity).id
     }
 
-    override fun delete(likeId: Long): Long {
+    override fun delete(likeId: Long) {
         likeRepository.deleteById(likeId)
-        return likeId
     }
 }
