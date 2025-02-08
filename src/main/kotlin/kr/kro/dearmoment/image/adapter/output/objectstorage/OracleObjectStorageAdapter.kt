@@ -4,6 +4,7 @@ import com.oracle.bmc.Region
 import com.oracle.bmc.objectstorage.requests.DeleteObjectRequest
 import com.oracle.bmc.objectstorage.requests.PutObjectRequest
 import com.oracle.bmc.objectstorage.transfer.UploadManager.UploadRequest
+import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
@@ -48,6 +49,10 @@ class OracleObjectStorageAdapter(
         val url = "$baseUrl/$fileName"
 
         return toDomain(userId, url, fileName)
+    }
+
+    override fun uploadAll(commands: List<SaveImageCommand>): List<Image> {
+        return commands.map { upload(it.file, it.userId) }
     }
 
     override fun delete(fileName: String) {
