@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.image.adapter.output.objectstorage
 
+import com.oracle.bmc.Region
 import com.oracle.bmc.objectstorage.requests.DeleteObjectRequest
 import com.oracle.bmc.objectstorage.requests.PutObjectRequest
 import com.oracle.bmc.objectstorage.transfer.UploadManager.UploadRequest
@@ -14,6 +15,10 @@ import java.util.UUID
 class OracleObjectStorageAdapter(
     private val objectStorageProperties: OracleObjectStorageProperties,
 ) : UploadImagePort, DeleteImageFromObjectStoragePort {
+    private val baseUrl =
+        "https://" + objectStorageProperties.namespaceName +
+            ".objectstorage." + Region.AP_CHUNCHEON_1.regionId + ".oci.customer-oci.com"
+
     override fun upload(
         file: MultipartFile,
         userId: Long,
@@ -40,7 +45,9 @@ class OracleObjectStorageAdapter(
 
         OracleObjectStorageUtil().uploadManager.upload(uploadRequest)
 
-        return toDomain(userId, fileName)
+        val url = "$baseUrl/$fileName"
+
+        return toDomain(userId, url, fileName)
     }
 
     override fun delete(fileName: String) {
@@ -58,10 +65,12 @@ class OracleObjectStorageAdapter(
     companion object {
         fun toDomain(
             userId: Long,
+            url: String,
             fileName: String,
         ): Image {
             return Image(
                 userId = userId,
+                url = url,
                 fileName = fileName,
             )
         }

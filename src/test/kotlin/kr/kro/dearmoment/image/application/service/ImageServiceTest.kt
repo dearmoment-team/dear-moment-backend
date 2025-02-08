@@ -41,6 +41,7 @@ class ImageServiceTest : BehaviorSpec({
             Image(
                 imageId = 1L,
                 userId = userId,
+                url = "localhost:8080/image",
                 fileName = "image.jpg",
             )
         val expectedImageId = 456L
@@ -65,6 +66,7 @@ class ImageServiceTest : BehaviorSpec({
             Image(
                 userId = 123L,
                 imageId = 1L,
+                url = "localhost:8080/image",
                 fileName = "image.jpg",
             )
 
@@ -75,7 +77,7 @@ class ImageServiceTest : BehaviorSpec({
 
             Then("이미지 정보에 대한 응답을 반환한다.") {
                 result.imageId shouldBe image.imageId
-                result.fileName shouldBe image.fileName
+                result.url shouldBe image.url
                 verify(exactly = 1) { getImagePort.findOne(imageId) }
             }
         }
@@ -97,11 +99,13 @@ class ImageServiceTest : BehaviorSpec({
                 Image(
                     userId = 123L,
                     imageId = 1L,
+                    url = "localhost:8080/image",
                     fileName = "image.jpg",
                 ),
                 Image(
                     userId = 123L,
                     imageId = 2L,
+                    url = "localhost:8080/image",
                     fileName = "image22.jpg",
                 ),
             )
