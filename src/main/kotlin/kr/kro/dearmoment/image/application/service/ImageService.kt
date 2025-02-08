@@ -28,6 +28,12 @@ class ImageService(
         return saveImagePort.save(image)
     }
 
+    @Transactional
+    override fun saveAll(commands: List<SaveImageCommand>): List<Long> {
+        val images = uploadImagePort.uploadAll(commands)
+        return saveImagePort.saveAll(images)
+    }
+
     @Transactional(readOnly = true)
     override fun getOne(imageId: Long): GetImageResponse {
         val image = getImagePort.findOne(imageId)
