@@ -54,9 +54,9 @@ class LikeRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "create-like",
                 requestBody(
-                    "userId" type NUMBER means "유저 ID" isOptional false,
-                    "targetId" type NUMBER means "좋아요할 대상 ID(상품, 작가)" isOptional false,
-                    "type" type STRING means "좋아요 타입" isOptional false example "AUTHOR" example "PRODUCT",
+                    "userId" type NUMBER means "유저 ID",
+                    "targetId" type NUMBER means "좋아요할 대상 ID(상품, 작가)",
+                    "type" type STRING means "좋아요 타입(\"AUTHOR\", \"PRODUCT\"",
                 ),
                 responseBody(
                     "data" type OBJECT means "데이터",
