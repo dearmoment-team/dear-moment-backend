@@ -18,6 +18,7 @@ class ImagePersistenceAdapterTest(
             val image =
                 Image(
                     userId = 123L,
+                    url = "localhost:8080/image",
                     fileName = "image.jpg",
                 )
 
@@ -29,10 +30,36 @@ class ImagePersistenceAdapterTest(
             }
         }
 
+        Given("복수개의 이미지 파라미터로 제공했을 때") {
+            val userId = 123L
+            val images =
+                listOf(
+                    Image(
+                        userId = userId,
+                        url = "localhost:8080/image",
+                        fileName = "image.jpg",
+                    ),
+                    Image(
+                        userId = userId,
+                        url = "localhost:8080/image",
+                        fileName = "image22.jpg",
+                    ),
+                )
+
+            When("DB 저장을 하게 되면") {
+                Then("이미지의 ID를 반환한다.") {
+                    val result = adapter.saveAll(images)
+                    result.shouldNotBeNull()
+                    result.size shouldBe images.size
+                }
+            }
+        }
+
         Given("이미지 ID를 파라미터로 제공했을 때") {
             val image =
                 Image(
                     userId = 123L,
+                    url = "localhost:8080/image",
                     fileName = "image.jpg",
                 )
 
@@ -63,10 +90,12 @@ class ImagePersistenceAdapterTest(
                 listOf(
                     Image(
                         userId = userId,
+                        url = "localhost:8080/image",
                         fileName = "image.jpg",
                     ),
                     Image(
                         userId = userId,
+                        url = "localhost:8080/image",
                         fileName = "image22.jpg",
                     ),
                 )
