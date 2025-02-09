@@ -1,7 +1,7 @@
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.common.dto.BaseResponse
 import kr.kro.dearmoment.common.dto.ResponseWrapper
+import kr.kro.dearmoment.common.dto.SuccessResponse
 import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -48,7 +48,7 @@ class ResponseWrapperTest : StringSpec({
                     ServletServerHttpResponse(mockResponse),
                 )
 
-        wrappedResponse shouldBe BaseResponse.success(data = body)
+        wrappedResponse shouldBe SuccessResponse(data = body)
     }
 
     "API 호출 시 응답 상태가 2xx 아니라면 BaseResponse.error()를 반환한다." {
@@ -80,6 +80,6 @@ class ResponseWrapperTest : StringSpec({
                     ServletServerHttpResponse(mockResponse),
                 )
 
-        wrappedResponse shouldBe BaseResponse.error(code = mockResponse.status, data = null)
+        wrappedResponse shouldBe body
     }
 })
