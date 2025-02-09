@@ -11,8 +11,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kr.kro.dearmoment.image.adapter.input.web.dto.GetImageResponse
-import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
@@ -23,6 +21,7 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.product.application.service.ProductImageService
 import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -35,22 +34,23 @@ import java.time.LocalDateTime
 
 class ProductUseCaseTest : BehaviorSpec({
 
-    // Mocking persistence ports and image service
+    // Mocking persistence ports 및 이미지 관련 서비스(ProductImageService)
     val productPersistencePort = mockk<ProductPersistencePort>(relaxed = true)
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>(relaxed = true)
-    val imageService = mockk<ImageService>(relaxed = true)
+    val productImageService = mockk<ProductImageService>(relaxed = true)
     lateinit var productUseCase: ProductUseCase
 
     beforeEach {
-        productUseCase = ProductUseCaseImpl(productPersistencePort, productOptionPersistencePort, imageService)
-        // 공통 모킹: 이미지 업로드 시, saveAll 호출 시 [100L] 반환, getOne 호출 시 해당 이미지 응답 반환
-        every { imageService.saveAll(any()) } returns listOf(100L)
-        // 기본적으로 saveProduct 테스트에서는 URL "http://example.com/image1.jpg" 반환
-        every { imageService.getOne(100L) } returns GetImageResponse(100L, "http://example.com/image1.jpg")
+        productUseCase =
+            ProductUseCaseImpl(
+                productPersistencePort,
+                productOptionPersistencePort,
+                productImageService,
+            )
     }
 
     afterEach {
-        clearMocks(productPersistencePort, productOptionPersistencePort, imageService)
+        clearMocks(productPersistencePort, productOptionPersistencePort, productImageService)
     }
 
     // Helper function: Create a ProductOption instance
@@ -154,9 +154,13 @@ class ProductUseCaseTest : BehaviorSpec({
                 "image/jpeg",
                 "fakeImageContent".toByteArray(),
             )
-        // validProduct는 imageService 모킹 덕분에, uploadImages()에서 imageService.saveAll -> [100L] 반환,
-        // 그리고 getOne(100L) -> GetImageResponse(100L, "http://example.com/image1.jpg") 반환하므로,
-        // CreateProductRequest.toDomain()가 올바른 이미지 리스트를 생성하게 됨.
+        // 모킹: ProductImageService.uploadImages()가 올바른 Image 리스트를 반환하도록 설정
+        every { productImageService.uploadImages(listOf(imageFile), createProductRequest.userId) } returns
+            listOf(
+                Image(userId = createProductRequest.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+            )
+
+        // validProduct는 uploadImages()를 통해 전달받은 Image 리스트를 포함
         val validProduct =
             CreateProductRequest.toDomain(
                 createProductRequest,
@@ -186,10 +190,15 @@ class ProductUseCaseTest : BehaviorSpec({
                 verify(exactly = 1) { productPersistencePort.save(any()) }
                 verify(exactly = 1) { productOptionPersistencePort.save(any(), any()) }
                 verify(exactly = 1) { productOptionPersistencePort.findByProductId(1L) }
+                verify(exactly = 1) { productImageService.uploadImages(listOf(imageFile), createProductRequest.userId) }
             }
         }
 
         `when`("중복된 제목으로 생성 요청이 오면") {
+            every { productImageService.uploadImages(listOf(imageFile), createProductRequest.userId) } returns
+                listOf(
+                    Image(userId = createProductRequest.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                )
             every { productPersistencePort.existsByUserIdAndTitle(1L, "New Product") } returns true
 
             then("IllegalArgumentException 발생") {
@@ -257,7 +266,7 @@ class ProductUseCaseTest : BehaviorSpec({
                         ImageReference("new_0"),
                     ),
             )
-        // 기존 제품 도메인 (업데이트 전): 기존 이미지는 "image1.jpg"와 "image2.jpg" (각 Image 객체)
+        // 기존 제품 도메인 (업데이트 전): 기존 이미지는 "image1.jpg"와 "image2.jpg"
         val existingProductDomain =
             createProduct(
                 productId = 1L,
@@ -273,17 +282,23 @@ class ProductUseCaseTest : BehaviorSpec({
                     ),
             )
 
-        // 신규 이미지를 위한 Mock MultipartFile
-        val newImage: MultipartFile = mockk(relaxed = true)
-        // updateProduct 테스트에서는 새 이미지 업로드에 대해 별도로 stubbing
-        every { imageService.saveAll(any()) } returns listOf(100L)
-        every { imageService.getOne(100L) } returns GetImageResponse(100L, "new_image.jpg")
+        // 신규 이미지를 위한 Mock MultipartFile (실제 업로드는 ProductImageService에서 모킹)
+        val newImage: MultipartFile = MockMultipartFile("images", "new_image.jpg", "image/jpeg", "newImageContent".toByteArray())
+
+        // 모킹: 신규 이미지 업로드 관련 처리
+        every { productImageService.uploadNewImagesWithPlaceholders(listOf(newImage), updateProductRequest.userId) } returns
+            mapOf("new_0" to Image(userId = updateProductRequest.userId, fileName = "new_image.jpg", url = "new_image.jpg"))
+        every { productImageService.resolveFinalImageOrder(any(), any(), updateProductRequest.userId) } returns
+            listOf(
+                Image(userId = updateProductRequest.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                Image(userId = updateProductRequest.userId, fileName = "new_image.jpg", url = "new_image.jpg"),
+            )
+        every { productImageService.synchronizeProductImages(any(), any(), any(), updateProductRequest.userId) } just Runs
 
         `when`("유효한 업데이트 요청이 오면") {
             every { productPersistencePort.findById(1L) } returns existingProductDomain
             every { productPersistencePort.save(any()) } returns
                 updateProductRequest.let {
-                    // toDomain()의 두 번째 인자는 List<Image>여야 하므로, 테스트용으로 변환하여 전달합니다.
                     UpdateProductRequest.toDomain(
                         it,
                         listOf(
@@ -315,7 +330,7 @@ class ProductUseCaseTest : BehaviorSpec({
                 result.options[1].optionId shouldBe 3L
 
                 // 최종 이미지 처리 확인:
-                // 기존 이미지의 URL는 그대로 재사용("http://example.com/image1.jpg")하고,
+                // 기존 이미지의 URL은 그대로 재사용("http://example.com/image1.jpg")하고,
                 // 신규 이미지는 "new_image.jpg"로 처리되어야 합니다.
                 result.images shouldContainExactly listOf("http://example.com/image1.jpg", "new_image.jpg")
 
@@ -324,10 +339,21 @@ class ProductUseCaseTest : BehaviorSpec({
                 verify(exactly = 2) { productOptionPersistencePort.findByProductId(1L) }
                 verify(exactly = 1) { productOptionPersistencePort.deleteById(2L) }
                 verify(exactly = 2) { productOptionPersistencePort.save(any(), any()) }
+                verify(exactly = 1) { productImageService.uploadNewImagesWithPlaceholders(listOf(newImage), updateProductRequest.userId) }
+                verify(exactly = 1) { productImageService.resolveFinalImageOrder(any(), any(), updateProductRequest.userId) }
+                verify(exactly = 1) { productImageService.synchronizeProductImages(any(), any(), any(), updateProductRequest.userId) }
             }
         }
 
         `when`("존재하지 않는 상품 업데이트 요청이 오면") {
+            // ★ 이미지 관련 모킹 추가: 이미지 관련 비즈니스 규칙(최소 1개 이상의 이미지 필요)을 만족시키기 위해
+            every { productImageService.uploadNewImagesWithPlaceholders(listOf(newImage), updateProductRequest.userId) } returns
+                mapOf("new_0" to Image(userId = updateProductRequest.userId, fileName = "new_image.jpg", url = "new_image.jpg"))
+            every { productImageService.resolveFinalImageOrder(any(), any(), updateProductRequest.userId) } returns
+                listOf(
+                    Image(userId = updateProductRequest.userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                    Image(userId = updateProductRequest.userId, fileName = "new_image.jpg", url = "new_image.jpg"),
+                )
             every { productPersistencePort.findById(999L) } returns null
 
             then("IllegalArgumentException 발생") {
