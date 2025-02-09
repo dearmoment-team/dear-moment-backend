@@ -1,0 +1,36 @@
+name: Opened Issue Webhook
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  create-issue:
+    name: Discord notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Issue
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: DEAR_MOMENT_BOT
+          DISCORD_EMBEDS: |
+            [
+                { 
+                  "title": "== ISSUE OPENED ==\n${{ github.event.issue.title }}",
+                  "color": 10478271,
+                  "description": "${{ github.event.issue.html_url }}",
+                  "fields": [
+                    {
+                      "name": "Issue Number",
+                      "value": "#${{ github.event.issue.number }}",
+                      "inline": true
+                    },
+                    {
+                      "name": "Author",
+                      "value": "${{ github.event.issue.user.login }}",
+                      "inline": true
+                    }
+                  ]
+                }
+              ]
