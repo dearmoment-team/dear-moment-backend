@@ -11,13 +11,6 @@ import java.time.LocalDateTime
  * Product 클래스 테스트
  */
 internal class ProductTest : StringSpec({
-
-    // 공통 Image 객체를 포함하는 기본 이미지 리스트
-    val defaultImages: List<Image> =
-        listOf(
-            Image(imageId = 0L, userId = 1L, fileName = "default_image.jpg", url = "http://example.com/default_image.jpg"),
-        )
-
     // 공통 PartnerShops 리스트
     val defaultPartnerShops =
         listOf(
