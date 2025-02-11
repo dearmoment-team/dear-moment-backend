@@ -548,9 +548,7 @@ class ProductRestAdapterTest {
             .andDocument(
                 "get-product-not-found",
                 responseBody(
-                    "success" type BOOLEAN means "응답 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "에러 데이터 (null)",
+                    "message" type STRING means "에러 메시지",
                 ),
             )
     }

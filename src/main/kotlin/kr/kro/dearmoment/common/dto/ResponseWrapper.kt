@@ -33,10 +33,9 @@ class ResponseWrapper : ResponseBodyAdvice<Any> {
         val resolvedStatus = HttpStatus.resolve(status)
 
         return if (resolvedStatus?.is2xxSuccessful == true) {
-            BaseResponse.success(data = body)
+            SuccessResponse(data = body)
         } else {
-            print("Not wrapping response due to non-2xx status\n")
-            BaseResponse.error(code = status)
+            body
         }
     }
 }
