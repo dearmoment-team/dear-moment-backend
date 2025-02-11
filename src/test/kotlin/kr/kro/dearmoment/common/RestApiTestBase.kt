@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.common
 
 import kr.kro.dearmoment.TestEnvironment
-import kr.kro.dearmoment.image.adapter.input.web.HealthCheckController
+import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
@@ -23,7 +23,7 @@ import org.springframework.web.filter.CharacterEncodingFilter
 // Controller 여기에 나열 ..
 @WebMvcTest(
     controllers = [
-        HealthCheckController::class,
+        LikeRestAdapter::class,
     ],
 )
 abstract class RestApiTestBase {

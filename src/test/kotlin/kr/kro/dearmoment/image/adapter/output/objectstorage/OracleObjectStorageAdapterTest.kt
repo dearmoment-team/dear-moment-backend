@@ -1,6 +1,7 @@
 import io.kotest.core.spec.style.FunSpec
 import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageAdapter
 import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageProperties
+import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageUtil
 import org.springframework.mock.web.MockMultipartFile
 import java.io.File
 import java.nio.file.Files
@@ -17,7 +18,8 @@ class OracleObjectStorageAdapterTest : FunSpec({
                 namespaceName = "axi7ktcb95py",
                 photoImageDir = "photo/",
             )
-        adapter = OracleObjectStorageAdapter(objectStorageProperties)
+        val objectStorageUtil = OracleObjectStorageUtil()
+        adapter = OracleObjectStorageAdapter(objectStorageProperties, objectStorageUtil)
     }
 
     test("upload, delete 테스트") {
@@ -36,6 +38,6 @@ class OracleObjectStorageAdapterTest : FunSpec({
         val result = adapter.upload(multipartFile, memberId)
 
         // Then
-        adapter.delete(result.fileName)
+        adapter.delete(result)
     }
 })

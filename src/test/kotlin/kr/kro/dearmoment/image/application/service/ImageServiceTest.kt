@@ -12,10 +12,12 @@ import io.mockk.verify
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
+import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImagePort
 import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
+import java.time.LocalDateTime
 
 class ImageServiceTest : BehaviorSpec({
 
@@ -24,12 +26,14 @@ class ImageServiceTest : BehaviorSpec({
     val getImagePort = mockk<GetImagePort>()
     val deleteImageFromDbPort = mockk<DeleteImageFromDBPort>()
     val deleteImageFromObjectStoragePort = mockk<DeleteImageFromObjectStoragePort>()
+    val getImageFromObjectStoragePort = mockk<GetImageFromObjectStoragePort>()
     val imageService =
         ImageService(
             uploadImagePort,
             saveImagePort,
             getImagePort,
             deleteImageFromDbPort,
+            getImageFromObjectStoragePort,
             deleteImageFromObjectStoragePort,
         )
 
@@ -72,6 +76,7 @@ class ImageServiceTest : BehaviorSpec({
 
         When("이미지를 조회하면") {
             every { getImagePort.findOne(imageId) } returns image
+            every { getImageFromObjectStoragePort.getImage(image) } returns image
 
             val result = imageService.getOne(imageId)
 
@@ -84,7 +89,7 @@ class ImageServiceTest : BehaviorSpec({
 
         When("이미지를 삭제하면") {
             every { deleteImageFromDbPort.delete(imageId) } just Runs
-            every { deleteImageFromObjectStoragePort.delete(image.fileName) } just Runs
+            every { deleteImageFromObjectStoragePort.delete(image) } just Runs
             Then("해당 이미지를 객체 스토리지와 DB에서 삭제한다.") {
                 shouldNotThrow<Throwable> { imageService.delete(imageId) }
             }
@@ -101,15 +106,18 @@ class ImageServiceTest : BehaviorSpec({
                     imageId = 1L,
                     url = "localhost:8080/image",
                     fileName = "image.jpg",
+                    urlExpireTime = LocalDateTime.now().plusDays(1L),
                 ),
                 Image(
                     userId = 123L,
                     imageId = 2L,
                     url = "localhost:8080/image",
                     fileName = "image22.jpg",
+                    urlExpireTime = LocalDateTime.now().plusDays(1L),
                 ),
             )
         every { getImagePort.findAll(userId) } returns images
+        every { getImageFromObjectStoragePort.getImage(any()) } returns Image(userId = 1, fileName = "")
 
         When("이미지를 조회하면") {
             val result = imageService.getAll(userId)
