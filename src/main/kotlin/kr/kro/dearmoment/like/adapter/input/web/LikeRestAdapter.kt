@@ -38,4 +38,19 @@ class LikeRestAdapter(
     ) {
         likeUseCase.unlike(id)
     }
+
+    /***
+     * 좋아요 페이지 api
+     * @TODO 작가 및 상품 도메인 확인 후 개발
+     *
+     @GetMapping("/{userId}/{type}")
+     fun getLikes(
+     @PathVariable userId: Long,
+     @PathVariable type: String,
+     ): List<GetLikeResponse> {
+     val query = GetLikesQuery(userId, type)
+     val response = likeUseCase.getLikes(query)
+
+     }
+     */
 }
