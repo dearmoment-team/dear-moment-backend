@@ -84,7 +84,7 @@ class OracleObjectStorageAdapter(
     override fun getImage(image: Image): Image {
         deletePreAuth(image.parId)
 
-        val expireTime = Date(System.currentTimeMillis() + TWO_HOURS_FOR_SECONDS)
+        val expireTime = Date(System.currentTimeMillis() + ONE_YEAR_FOR_SECONDS)
 
         val details =
             CreatePreauthenticatedRequestDetails.builder()
@@ -131,6 +131,6 @@ class OracleObjectStorageAdapter(
     }
 
     companion object {
-        private const val TWO_HOURS_FOR_SECONDS = 2 * 60 * 60 * 1000
+        private const val ONE_YEAR_FOR_SECONDS = 24L * 60L * 60L * 1000L * 365L
     }
 }
