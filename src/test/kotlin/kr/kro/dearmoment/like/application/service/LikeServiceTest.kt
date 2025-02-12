@@ -8,7 +8,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kr.kro.dearmoment.like.application.command.LikeCommand
+import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
 import kr.kro.dearmoment.like.application.port.output.GetLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
@@ -26,12 +26,19 @@ class LikeServiceTest : DescribeSpec({
 
     describe("like()는") {
         context("유효한 command를 전달 받으면") {
-            val command = LikeCommand(userId = 1L, targetId = 2L, type = LikeType.AUTHOR.value)
+            val command = SaveLikeCommand(userId = 1L, targetId = 2L, type = LikeType.AUTHOR.value)
+            val like =
+                Like(
+                    id = 1L,
+                    userId = command.userId,
+                    targetId = command.targetId,
+                    type = LikeType.from(command.type),
+                )
 
-            every { saveLikePort.save(any()) } returns 1L
-            it("like를 저장하고 ID를 반환한다.") {
+            every { saveLikePort.save(any()) } returns like.id
+            it("likeEntity를 저장하고 like를 반환한다.") {
                 val response = likeService.like(command)
-                response.likeId shouldBe 1L
+                response.likeId shouldBe like.id
                 verify(exactly = 1) { saveLikePort.save(any()) }
             }
         }

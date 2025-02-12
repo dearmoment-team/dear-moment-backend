@@ -18,8 +18,9 @@ import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeRequest
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeResponse
-import kr.kro.dearmoment.like.application.command.LikeCommand
+import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
+import kr.kro.dearmoment.like.domain.LikeType
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
@@ -35,10 +36,10 @@ class LikeRestAdapterTest : RestApiTestBase() {
             LikeRequest(
                 userId = 1L,
                 targetId = 1L,
-                type = "AUTHOR",
+                type = LikeType.AUTHOR.value,
             )
 
-        val command = LikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
+        val command = SaveLikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
         val expectedResponse = LikeResponse(likeId = 1L)
 
         every { likeUseCase.like(command) } returns expectedResponse

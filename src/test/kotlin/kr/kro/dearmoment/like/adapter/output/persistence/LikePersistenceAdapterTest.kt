@@ -16,11 +16,11 @@ class LikePersistenceAdapterTest(
 
         describe("LikePersistenceAdapter는") {
             val like = Like(userId = 1L, targetId = 2L, type = LikeType.AUTHOR)
-            val result = adapter.save(like)
+            val likeId = adapter.save(like)
 
             context("like 도메인이 전달되면") {
                 it("도메인을 엔티티로 변환하여 DB에 저장한다.") {
-                    result.shouldNotBeNull()
+                    likeId.shouldNotBeNull()
                 }
             }
 
@@ -32,7 +32,7 @@ class LikePersistenceAdapterTest(
 
             context("like ID가 전달되면") {
                 it("like ID에 해당하는 데이터를 db에서 삭제한다. ") {
-                    shouldNotThrow<Throwable> { adapter.delete(result) }
+                    shouldNotThrow<Throwable> { adapter.delete(likeId) }
                 }
             }
 
