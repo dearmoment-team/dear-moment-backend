@@ -27,7 +27,6 @@ class ImageEntity(
     @Column
     val fileName: String,
 ) : Auditable() {
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     var product: ProductEntity? = null

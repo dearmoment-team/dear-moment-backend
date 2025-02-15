@@ -10,11 +10,11 @@ import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import java.time.LocalDateTime
-import java.time.Duration as JavaDuration
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlin.time.toKotlinDuration
+import java.time.Duration as JavaDuration
 
 class ProductEntityTest : StringSpec({
 
@@ -23,39 +23,42 @@ class ProductEntityTest : StringSpec({
         // shootingTime: 도메인에서는 kotlin.time.Duration 타입
         val shootingDuration: Duration = 10.toDuration(DurationUnit.MINUTES)
 
-        val partnerShops = listOf(
-            PartnerShop("상점1", "http://shop1.com"),
-            PartnerShop("상점2", "http://shop2.com")
-        )
+        val partnerShops =
+            listOf(
+                PartnerShop("상점1", "http://shop1.com"),
+                PartnerShop("상점2", "http://shop2.com"),
+            )
 
         // FULL 제공인 경우: partialOriginalCount는 null
-        val product = Product(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = shootingDuration,
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            seasonYear = 2023,
-            seasonHalf = null,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            createdAt = createdAt,
-            updatedAt = createdAt,
-            options = emptyList(),
-            images = listOf(
-                Image(imageId = 0L, userId = 123L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
-                Image(imageId = 0L, userId = 123L, fileName = "image2.jpg", url = "http://example.com/image2.jpg")
+        val product =
+            Product(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = shootingDuration,
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                seasonYear = 2023,
+                seasonHalf = null,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                createdAt = createdAt,
+                updatedAt = createdAt,
+                options = emptyList(),
+                images =
+                    listOf(
+                        Image(imageId = 0L, userId = 123L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                        Image(imageId = 0L, userId = 123L, fileName = "image2.jpg", url = "http://example.com/image2.jpg"),
+                    ),
             )
-        )
 
         val productEntity = ProductEntity.fromDomain(product)
         productEntity.productId shouldBe product.productId
@@ -95,52 +98,56 @@ class ProductEntityTest : StringSpec({
         val shootingDurationEntity: JavaDuration = JavaDuration.ofMinutes(10)
 
         // PartnerShopEmbeddable은 엔티티 변환 시 사용한 값 타입입니다.
-        val partnerShops = listOf(
-            PartnerShopEmbeddable("상점1", "http://shop1.com"),
-            PartnerShopEmbeddable("상점2", "http://shop2.com")
-        )
+        val partnerShops =
+            listOf(
+                PartnerShopEmbeddable("상점1", "http://shop1.com"),
+                PartnerShopEmbeddable("상점2", "http://shop2.com"),
+            )
 
         // PARTIAL 제공인 경우: partialOriginalCount는 3
         // 이미지 필드는 ImageEntity 객체로 생성 (인스턴스 메서드 toDomain() 사용)
-        val imageEntity1 = ImageEntity.from(
-            Image(
-                imageId = 0L,
-                userId = 123L,
-                fileName = "image1.jpg",
-                url = "http://example.com/image1.jpg"
+        val imageEntity1 =
+            ImageEntity.from(
+                Image(
+                    imageId = 0L,
+                    userId = 123L,
+                    fileName = "image1.jpg",
+                    url = "http://example.com/image1.jpg",
+                ),
             )
-        )
-        val imageEntity2 = ImageEntity.from(
-            Image(
-                imageId = 0L,
-                userId = 123L,
-                fileName = "image2.jpg",
-                url = "http://example.com/image2.jpg"
+        val imageEntity2 =
+            ImageEntity.from(
+                Image(
+                    imageId = 0L,
+                    userId = 123L,
+                    fileName = "image2.jpg",
+                    url = "http://example.com/image2.jpg",
+                ),
             )
-        )
         // DB 저장 전이므로 createdDate와 updateDate는 null일 수 있음.
-        val productEntity = ProductEntity(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.PARTIAL,
-            partialOriginalCount = 3,
-            shootingTime = shootingDurationEntity,
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            seasonYear = 2023,
-            seasonHalf = null,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            images = mutableListOf(imageEntity1, imageEntity2),
-            version = 0L,
-        )
+        val productEntity =
+            ProductEntity(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.PARTIAL,
+                partialOriginalCount = 3,
+                shootingTime = shootingDurationEntity,
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                seasonYear = 2023,
+                seasonHalf = null,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                images = mutableListOf(imageEntity1, imageEntity2),
+                version = 0L,
+            )
 
         productEntity.createdDate shouldBe null
         productEntity.updateDate shouldBe null

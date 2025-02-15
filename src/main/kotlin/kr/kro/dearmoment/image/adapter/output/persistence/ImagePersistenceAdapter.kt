@@ -28,8 +28,9 @@ class ImagePersistenceAdapter(
     }
 
     override fun findOne(imageId: Long): Image {
-        val entity = imageRepository.findByIdOrNull(imageId)
-            ?: throw IllegalArgumentException("Invalid imageId: $imageId")
+        val entity =
+            imageRepository.findByIdOrNull(imageId)
+                ?: throw IllegalArgumentException("Invalid imageId: $imageId")
         return entity.toDomain()
     }
 

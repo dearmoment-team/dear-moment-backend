@@ -31,8 +31,6 @@ import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.web.multipart.MultipartFile
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 class ProductUseCaseTest : BehaviorSpec({
 
@@ -81,7 +79,7 @@ class ProductUseCaseTest : BehaviorSpec({
         concept: ConceptType = ConceptType.ELEGANT,
         originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
         partialOriginalCount: Int? = null,
-        shootingTime: Duration? = null,  // Domain uses Duration
+        shootingTime: Duration? = null,
         shootingLocation: String = "",
         numberOfCostumes: Int = 0,
         seasonYear: Int? = null,
@@ -133,22 +131,22 @@ class ProductUseCaseTest : BehaviorSpec({
                 concept = ConceptType.ELEGANT,
                 originalProvideType = OriginalProvideType.FULL,
                 partialOriginalCount = null,
-                shootingTimeMinutes = shootingMinutes, // DTO는 분 단위
+                shootingTimeMinutes = shootingMinutes,
                 shootingLocation = "Location1",
                 numberOfCostumes = 3,
                 seasonYear = 2023,
                 seasonHalf = SeasonHalf.FIRST_HALF,
                 partnerShops =
-                listOf(
-                    CreatePartnerShopRequest(name = "Partner", link = "http://naver.com"),
-                ),
+                    listOf(
+                        CreatePartnerShopRequest(name = "Partner", link = "http://naver.com"),
+                    ),
                 detailedInfo = "Detailed product information",
                 warrantyInfo = "blabla",
                 contactInfo = "contact@example.com",
                 options =
-                listOf(
-                    CreateProductOptionRequest(name = "Option1", additionalPrice = 2000),
-                ),
+                    listOf(
+                        CreateProductOptionRequest(name = "Option1", additionalPrice = 2000),
+                    ),
             )
         val imageFile: MultipartFile =
             MockMultipartFile(
@@ -162,22 +160,23 @@ class ProductUseCaseTest : BehaviorSpec({
         every {
             productImageService.uploadImages(listOf(imageFile), createProductRequest.userId)
         } returns
-                listOf(
-                    Image(
-                        userId = createProductRequest.userId,
-                        fileName = "image1.jpg",
-                        url = "http://example.com/image1.jpg"
-                    ),
-                )
+            listOf(
+                Image(
+                    userId = createProductRequest.userId,
+                    fileName = "image1.jpg",
+                    url = "http://example.com/image1.jpg",
+                ),
+            )
 
         // ShootingTime in Domain is still a Duration if we want (10 minutes)
-        val domainImages = listOf(
-            Image(
-                userId = createProductRequest.userId,
-                fileName = "image1.jpg",
-                url = "http://example.com/image1.jpg"
+        val domainImages =
+            listOf(
+                Image(
+                    userId = createProductRequest.userId,
+                    fileName = "image1.jpg",
+                    url = "http://example.com/image1.jpg",
+                ),
             )
-        )
         val validProduct = CreateProductRequest.toDomain(createProductRequest, domainImages)
 
         `when`("유효한 상품 생성 요청이 오면") {
@@ -189,9 +188,9 @@ class ProductUseCaseTest : BehaviorSpec({
                 firstArg<ProductOption>().copy(optionId = 1L, productId = 1L)
             }
             every { productOptionPersistencePort.findByProductId(1L) } returns
-                    listOf(
-                        createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000),
-                    )
+                listOf(
+                    createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000),
+                )
 
             then("상품과 옵션이 저장되어야 함") {
                 val result = productUseCase.saveProduct(createProductRequest, listOf(imageFile))
@@ -253,38 +252,38 @@ class ProductUseCaseTest : BehaviorSpec({
                 concept = ConceptType.ELEGANT,
                 originalProvideType = OriginalProvideType.FULL,
                 partialOriginalCount = null,
-                shootingTimeMinutes = null, // DTO: no update to shooting time
+                shootingTimeMinutes = null,
                 shootingLocation = null,
                 numberOfCostumes = null,
                 seasonYear = null,
                 seasonHalf = null,
                 partnerShops =
-                listOf(
-                    UpdatePartnerShopRequest(name = "Shop1", link = "http://shop1.com"),
-                ),
+                    listOf(
+                        UpdatePartnerShopRequest(name = "Shop1", link = "http://shop1.com"),
+                    ),
                 detailedInfo = "Updated detailed info",
                 warrantyInfo = "Updated warranty info",
                 contactInfo = "Updated contact info",
                 options =
-                listOf(
-                    UpdateProductOptionRequest(
-                        optionId = 1L,
-                        name = "Updated Option1",
-                        additionalPrice = 1500,
-                        description = "Updated option1 description",
+                    listOf(
+                        UpdateProductOptionRequest(
+                            optionId = 1L,
+                            name = "Updated Option1",
+                            additionalPrice = 1500,
+                            description = "Updated option1 description",
+                        ),
+                        UpdateProductOptionRequest(
+                            optionId = null,
+                            name = "New Option",
+                            additionalPrice = 3000,
+                            description = "New option description",
+                        ),
                     ),
-                    UpdateProductOptionRequest(
-                        optionId = null,
-                        name = "New Option",
-                        additionalPrice = 3000,
-                        description = "New option description",
-                    ),
-                ),
                 images =
-                listOf(
-                    ImageReference("http://example.com/image1.jpg"),
-                    ImageReference("new_0"),
-                ),
+                    listOf(
+                        ImageReference("http://example.com/image1.jpg"),
+                        ImageReference("new_0"),
+                    ),
             )
         // 기존 제품 (업데이트 전)
         val existingProductDomain =
@@ -296,20 +295,20 @@ class ProductUseCaseTest : BehaviorSpec({
                 price = 10000,
                 options = existingOptions,
                 images =
-                listOf(
-                    Image(
-                        imageId = 1L,
-                        userId = 1L,
-                        fileName = "image1.jpg",
-                        url = "http://example.com/image1.jpg"
+                    listOf(
+                        Image(
+                            imageId = 1L,
+                            userId = 1L,
+                            fileName = "image1.jpg",
+                            url = "http://example.com/image1.jpg",
+                        ),
+                        Image(
+                            imageId = 1L,
+                            userId = 1L,
+                            fileName = "image2.jpg",
+                            url = "http://example.com/image2.jpg",
+                        ),
                     ),
-                    Image(
-                        imageId = 1L,
-                        userId = 1L,
-                        fileName = "image2.jpg",
-                        url = "http://example.com/image2.jpg"
-                    ),
-                ),
             )
 
         val newImage: MultipartFile =
@@ -317,35 +316,36 @@ class ProductUseCaseTest : BehaviorSpec({
                 "images",
                 "new_image.jpg",
                 "image/jpeg",
-                "newImageContent".toByteArray()
+                "newImageContent".toByteArray(),
             )
 
         // 모킹: 신규 이미지 업로드 처리
         every {
             productImageService.uploadNewImagesWithPlaceholders(listOf(newImage), updateProductRequest.userId)
         } returns
-                mapOf(
-                    "new_0" to Image(
+            mapOf(
+                "new_0" to
+                    Image(
                         userId = updateProductRequest.userId,
                         fileName = "new_image.jpg",
-                        url = "new_image.jpg"
-                    )
-                )
+                        url = "new_image.jpg",
+                    ),
+            )
         every {
             productImageService.resolveFinalImageOrder(any(), any(), updateProductRequest.userId)
         } returns
-                listOf(
-                    Image(
-                        userId = updateProductRequest.userId,
-                        fileName = "image1.jpg",
-                        url = "http://example.com/image1.jpg"
-                    ),
-                    Image(
-                        userId = updateProductRequest.userId,
-                        fileName = "new_image.jpg",
-                        url = "new_image.jpg"
-                    ),
-                )
+            listOf(
+                Image(
+                    userId = updateProductRequest.userId,
+                    fileName = "image1.jpg",
+                    url = "http://example.com/image1.jpg",
+                ),
+                Image(
+                    userId = updateProductRequest.userId,
+                    fileName = "new_image.jpg",
+                    url = "new_image.jpg",
+                ),
+            )
         every {
             productImageService.synchronizeProductImages(any(), any(), any(), updateProductRequest.userId)
         } just Runs
@@ -353,21 +353,21 @@ class ProductUseCaseTest : BehaviorSpec({
         `when`("유효한 업데이트 요청이 오면") {
             every { productPersistencePort.findById(1L) } returns existingProductDomain
             every { productPersistencePort.save(any()) } returns
-                    UpdateProductRequest.toDomain(
-                        updateProductRequest,
-                        listOf(
-                            Image(
-                                userId = updateProductRequest.userId,
-                                fileName = "image1.jpg",
-                                url = "http://example.com/image1.jpg"
-                            ),
-                            Image(
-                                userId = updateProductRequest.userId,
-                                fileName = "new_image.jpg",
-                                url = "new_image.jpg"
-                            ),
+                UpdateProductRequest.toDomain(
+                    updateProductRequest,
+                    listOf(
+                        Image(
+                            userId = updateProductRequest.userId,
+                            fileName = "image1.jpg",
+                            url = "http://example.com/image1.jpg",
                         ),
-                    ).copy(productId = 1L, userId = 1L)
+                        Image(
+                            userId = updateProductRequest.userId,
+                            fileName = "new_image.jpg",
+                            url = "new_image.jpg",
+                        ),
+                    ),
+                ).copy(productId = 1L, userId = 1L)
 
             // 기존 옵션 목록 -> 업데이트 전(existingOptions) → 업데이트 후(updatedOptions)
             val updatedOptions =
@@ -416,28 +416,29 @@ class ProductUseCaseTest : BehaviorSpec({
             every {
                 productImageService.uploadNewImagesWithPlaceholders(listOf(newImage), updateProductRequest.userId)
             } returns
-                    mapOf(
-                        "new_0" to Image(
+                mapOf(
+                    "new_0" to
+                        Image(
                             userId = updateProductRequest.userId,
                             fileName = "new_image.jpg",
-                            url = "new_image.jpg"
-                        )
-                    )
+                            url = "new_image.jpg",
+                        ),
+                )
             every {
                 productImageService.resolveFinalImageOrder(any(), any(), updateProductRequest.userId)
             } returns
-                    listOf(
-                        Image(
-                            userId = updateProductRequest.userId,
-                            fileName = "image1.jpg",
-                            url = "http://example.com/image1.jpg"
-                        ),
-                        Image(
-                            userId = updateProductRequest.userId,
-                            fileName = "new_image.jpg",
-                            url = "new_image.jpg"
-                        ),
-                    )
+                listOf(
+                    Image(
+                        userId = updateProductRequest.userId,
+                        fileName = "image1.jpg",
+                        url = "http://example.com/image1.jpg",
+                    ),
+                    Image(
+                        userId = updateProductRequest.userId,
+                        fileName = "new_image.jpg",
+                        url = "new_image.jpg",
+                    ),
+                )
             every { productPersistencePort.findById(999L) } returns null
 
             then("IllegalArgumentException 발생") {
@@ -489,9 +490,9 @@ class ProductUseCaseTest : BehaviorSpec({
                     description = "Sample Description",
                     price = 10000,
                     options =
-                    listOf(
-                        createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000),
-                    ),
+                        listOf(
+                            createProductOption(optionId = 1L, productId = 1L, name = "Option1", additionalPrice = 2000),
+                        ),
                 )
             every { productPersistencePort.findById(1L) } returns sampleProduct
             every { productOptionPersistencePort.findByProductId(1L) } returns sampleProduct.options

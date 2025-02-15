@@ -59,20 +59,23 @@ data class UpdateProductRequest(
             request: UpdateProductRequest,
             images: List<Image>,
         ): Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link,
-                )
-            }
-            val productOptionList = request.options.map { optionRequest ->
-                UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
+            val productOptionList =
+                request.options.map { optionRequest ->
+                    UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
+                }
 
             // shootingTimeMinutes -> Duration 변환
-            val duration: Duration? = request.shootingTimeMinutes
-                ?.takeIf { it > 0 }
-                ?.toDuration(DurationUnit.MINUTES)
+            val duration: Duration? =
+                request.shootingTimeMinutes
+                    ?.takeIf { it > 0 }
+                    ?.toDuration(DurationUnit.MINUTES)
 
             return Product(
                 productId = request.productId,

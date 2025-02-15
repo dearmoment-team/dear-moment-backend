@@ -6,7 +6,10 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 class DurationDeserializer : JsonDeserializer<Duration>() {
-    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Duration {
+    override fun deserialize(
+        p: JsonParser,
+        ctxt: DeserializationContext,
+    ): Duration {
         return p.longValue.toDuration(DurationUnit.MILLISECONDS)
     }
 }

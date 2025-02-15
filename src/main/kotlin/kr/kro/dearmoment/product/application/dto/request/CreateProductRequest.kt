@@ -74,17 +74,19 @@ data class CreateProductRequest(
             request: CreateProductRequest,
             images: List<Image>,
         ): Product {
-            val partnerShopList = request.partnerShops.map { partnerShopRequest ->
-                PartnerShop(
-                    name = partnerShopRequest.name,
-                    link = partnerShopRequest.link,
-                )
-            }
+            val partnerShopList =
+                request.partnerShops.map { partnerShopRequest ->
+                    PartnerShop(
+                        name = partnerShopRequest.name,
+                        link = partnerShopRequest.link,
+                    )
+                }
 
             // shootingTimeMinutes -> Duration 변환
-            val duration: Duration? = request.shootingTimeMinutes
-                ?.takeIf { it > 0 }
-                ?.toDuration(DurationUnit.MINUTES)
+            val duration: Duration? =
+                request.shootingTimeMinutes
+                    ?.takeIf { it > 0 }
+                    ?.toDuration(DurationUnit.MINUTES)
 
             return Product(
                 userId = request.userId,

@@ -205,22 +205,22 @@ internal class ProductTest : StringSpec({
         val (updatedOptions, toDelete) = product.updateOptions(newOptions)
         // then
         updatedOptions shouldContainExactly
-                listOf(
-                    ProductOption(
-                        optionId = 1L,
-                        productId = 5L,
-                        name = "기존 옵션1",
-                        additionalPrice = 15000,
-                        description = "업데이트 설명1",
-                    ),
-                    ProductOption(
-                        optionId = 0L,
-                        productId = 5L,
-                        name = "새 옵션",
-                        additionalPrice = 30000,
-                        description = "새 설명",
-                    ),
-                )
+            listOf(
+                ProductOption(
+                    optionId = 1L,
+                    productId = 5L,
+                    name = "기존 옵션1",
+                    additionalPrice = 15000,
+                    description = "업데이트 설명1",
+                ),
+                ProductOption(
+                    optionId = 0L,
+                    productId = 5L,
+                    name = "새 옵션",
+                    additionalPrice = 30000,
+                    description = "새 설명",
+                ),
+            )
         toDelete shouldContainExactly setOf(2L)
     }
 
@@ -253,9 +253,9 @@ internal class ProductTest : StringSpec({
                     price = 120000,
                     typeCode = 1,
                     images =
-                    listOf(
-                        Image(imageId = 0L, userId = 7L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
-                    ),
+                        listOf(
+                            Image(imageId = 0L, userId = 7L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
+                        ),
                     partnerShops = emptyList(),
                     concept = ConceptType.ELEGANT,
                     originalProvideType = OriginalProvideType.FULL,
@@ -288,16 +288,16 @@ internal class ProductTest : StringSpec({
                     price = 130000,
                     typeCode = 1,
                     images =
-                    listOf(
-                        Image(imageId = 0L, userId = 8L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
-                    ),
-                    partnerShops =
-                    listOf(
-                        PartnerShop(
-                            name = "",
-                            link = "http://validlink.com",
+                        listOf(
+                            Image(imageId = 0L, userId = 8L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
                         ),
-                    ),
+                    partnerShops =
+                        listOf(
+                            PartnerShop(
+                                name = "",
+                                link = "http://validlink.com",
+                            ),
+                        ),
                     concept = ConceptType.ELEGANT,
                     originalProvideType = OriginalProvideType.FULL,
                     partialOriginalCount = null,
@@ -327,16 +327,16 @@ internal class ProductTest : StringSpec({
                     price = 140000,
                     typeCode = 1,
                     images =
-                    listOf(
-                        Image(imageId = 0L, userId = 9L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
-                    ),
-                    partnerShops =
-                    listOf(
-                        PartnerShop(
-                            name = "Valid Name",
-                            link = "",
+                        listOf(
+                            Image(imageId = 0L, userId = 9L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
                         ),
-                    ),
+                    partnerShops =
+                        listOf(
+                            PartnerShop(
+                                name = "Valid Name",
+                                link = "",
+                            ),
+                        ),
                     concept = ConceptType.ELEGANT,
                     originalProvideType = OriginalProvideType.FULL,
                     partialOriginalCount = null,
@@ -369,9 +369,9 @@ internal class ProductTest : StringSpec({
                 price = 200000,
                 typeCode = 0,
                 images =
-                listOf(
-                    Image(imageId = 0L, userId = 10L, fileName = "test_image.jpg", url = "http://example.com/test_image.jpg"),
-                ),
+                    listOf(
+                        Image(imageId = 0L, userId = 10L, fileName = "test_image.jpg", url = "http://example.com/test_image.jpg"),
+                    ),
                 partnerShops = emptyList(),
                 concept = ConceptType.MODERN,
                 originalProvideType = OriginalProvideType.PARTIAL,

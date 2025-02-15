@@ -9,10 +9,10 @@ import kr.kro.dearmoment.product.domain.model.ConceptType
 import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
+import java.time.LocalDateTime
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
-import java.time.LocalDateTime
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
@@ -23,40 +23,43 @@ class ProductOptionEntityTest : StringSpec({
         val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
         // shootingTime은 이제 Duration 타입 (예: 10분)
         val shootingDuration: Duration = 10.toDuration(DurationUnit.MINUTES)
-        val partnerShops = listOf(
-            PartnerShop("상점1", "http://shop1.com"),
-            PartnerShop("상점2", "http://shop2.com"),
-        )
+        val partnerShops =
+            listOf(
+                PartnerShop("상점1", "http://shop1.com"),
+                PartnerShop("상점2", "http://shop2.com"),
+            )
 
         // FULL 제공인 경우: partialOriginalCount는 null
-        val productDomain = Product(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.FULL,
-            partialOriginalCount = null,
-            shootingTime = shootingDuration,
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            seasonYear = 2023,
-            seasonHalf = null,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            createdAt = fixedDateTime,
-            updatedAt = fixedDateTime,
-            options = emptyList(),
-            // images를 List<Image>로 전달
-            images = listOf(
-                Image(imageId = 0L, userId = 123L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
-                Image(imageId = 0L, userId = 123L, fileName = "image2.jpg", url = "http://example.com/image2.jpg"),
-            ),
-        )
+        val productDomain =
+            Product(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.FULL,
+                partialOriginalCount = null,
+                shootingTime = shootingDuration,
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                seasonYear = 2023,
+                seasonHalf = null,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                createdAt = fixedDateTime,
+                updatedAt = fixedDateTime,
+                options = emptyList(),
+                // images를 List<Image>로 전달
+                images =
+                    listOf(
+                        Image(imageId = 0L, userId = 123L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                        Image(imageId = 0L, userId = 123L, fileName = "image2.jpg", url = "http://example.com/image2.jpg"),
+                    ),
+            )
 
         val productEntity = ProductEntity.fromDomain(productDomain)
         productEntity.productId shouldBe productDomain.productId
@@ -90,55 +93,59 @@ class ProductOptionEntityTest : StringSpec({
 
     "ProductOptionEntity는 도메인 모델로 올바르게 변환되어야 한다" {
         // partnerShops의 엔티티용 값 타입
-        val partnerShops = listOf(
-            PartnerShopEmbeddable("상점1", "http://shop1.com"),
-            PartnerShopEmbeddable("상점2", "http://shop2.com"),
-        )
+        val partnerShops =
+            listOf(
+                PartnerShopEmbeddable("상점1", "http://shop1.com"),
+                PartnerShopEmbeddable("상점2", "http://shop2.com"),
+            )
         // shootingTime은 Duration 타입 (예: 10분)
         val shootingDuration: Duration = 10.toDuration(DurationUnit.MINUTES)
 
         // PARTIAL 제공인 경우: partialOriginalCount는 3
         // 이미지 필드는 미리 생성된 ImageEntity 객체로 구성 (url 포함)
-        val imageEntity1 = ImageEntity.from(
-            Image(
-                imageId = 0L,
-                userId = 123L,
-                fileName = "image1.jpg",
-                url = "http://example.com/image1.jpg",
-            )
-        ).apply { this.product = null }
-        val imageEntity2 = ImageEntity.from(
-            Image(
-                imageId = 0L,
-                userId = 123L,
-                fileName = "image2.jpg",
-                url = "http://example.com/image2.jpg",
-            )
-        ).apply { this.product = null }
+        val imageEntity1 =
+            ImageEntity.from(
+                Image(
+                    imageId = 0L,
+                    userId = 123L,
+                    fileName = "image1.jpg",
+                    url = "http://example.com/image1.jpg",
+                ),
+            ).apply { this.product = null }
+        val imageEntity2 =
+            ImageEntity.from(
+                Image(
+                    imageId = 0L,
+                    userId = 123L,
+                    fileName = "image2.jpg",
+                    url = "http://example.com/image2.jpg",
+                ),
+            ).apply { this.product = null }
 
-        val productEntity = ProductEntity(
-            productId = 1L,
-            userId = 123L,
-            title = "테스트 제품",
-            description = "이것은 테스트 제품입니다",
-            price = 1000L,
-            typeCode = 1,
-            concept = ConceptType.ELEGANT,
-            originalProvideType = OriginalProvideType.PARTIAL,
-            partialOriginalCount = 3,
-            // 엔티티에서는 shootingTime이 java.time.Duration 타입이므로, 도메인의 Duration을 toJavaDuration()으로 변환하여 할당
-            shootingTime = shootingDuration.toJavaDuration(),
-            shootingLocation = "테스트 장소",
-            numberOfCostumes = 5,
-            seasonYear = 2023,
-            seasonHalf = null,
-            partnerShops = partnerShops,
-            detailedInfo = "상세 정보",
-            warrantyInfo = "1년 보증",
-            contactInfo = "test@example.com",
-            images = mutableListOf(imageEntity1, imageEntity2),
-            version = 0L,
-        )
+        val productEntity =
+            ProductEntity(
+                productId = 1L,
+                userId = 123L,
+                title = "테스트 제품",
+                description = "이것은 테스트 제품입니다",
+                price = 1000L,
+                typeCode = 1,
+                concept = ConceptType.ELEGANT,
+                originalProvideType = OriginalProvideType.PARTIAL,
+                partialOriginalCount = 3,
+                // 엔티티에서는 shootingTime이 java.time.Duration 타입이므로, 도메인의 Duration을 toJavaDuration()으로 변환하여 할당
+                shootingTime = shootingDuration.toJavaDuration(),
+                shootingLocation = "테스트 장소",
+                numberOfCostumes = 5,
+                seasonYear = 2023,
+                seasonHalf = null,
+                partnerShops = partnerShops,
+                detailedInfo = "상세 정보",
+                warrantyInfo = "1년 보증",
+                contactInfo = "test@example.com",
+                images = mutableListOf(imageEntity1, imageEntity2),
+                version = 0L,
+            )
 
         // DB 저장 전이므로 createdDate와 updateDate는 null일 수 있음
         productEntity.createdDate shouldBe null

@@ -41,10 +41,10 @@ class ProductImageServiceTest : BehaviorSpec({
 
             // 2) Mock the imageService.getOne(...) response
             every { imageService.getOne(100L) } returns
-                    GetImageResponse(
-                        imageId = 100L,
-                        url = "http://example.com/test.jpg",
-                    )
+                GetImageResponse(
+                    imageId = 100L,
+                    url = "http://example.com/test.jpg",
+                )
 
             val images = productImageService.uploadImages(multipartFiles, userId)
 
@@ -83,12 +83,13 @@ class ProductImageServiceTest : BehaviorSpec({
             val newImages: List<MultipartFile> = listOf(file)
 
             // We mock the internal call to uploadImages(...)
-            val uploadedImage = Image(
-                imageId = 101L,
-                userId = userId,
-                fileName = "new.jpg",
-                url = "http://example.com/new.jpg"
-            )
+            val uploadedImage =
+                Image(
+                    imageId = 101L,
+                    userId = userId,
+                    fileName = "new.jpg",
+                    url = "http://example.com/new.jpg",
+                )
 
             every { productImageService.uploadImages(newImages, userId) } returns listOf(uploadedImage)
 
@@ -116,12 +117,13 @@ class ProductImageServiceTest : BehaviorSpec({
 
         `when`("identifier가 placeholder인 경우") {
             val placeholder = "new_0"
-            val newImage = Image(
-                imageId = 102L,
-                userId = userId,
-                fileName = "placeholder.jpg",
-                url = "http://example.com/placeholder.jpg"
-            )
+            val newImage =
+                Image(
+                    imageId = 102L,
+                    userId = userId,
+                    fileName = "placeholder.jpg",
+                    url = "http://example.com/placeholder.jpg",
+                )
             val mapping = mapOf(placeholder to newImage)
             val result = productImageService.resolveFinalImageOrder(listOf(placeholder), mapping, userId)
 
@@ -135,30 +137,32 @@ class ProductImageServiceTest : BehaviorSpec({
 
     given("synchronizeProductImages 메소드") {
         `when`("기존 ProductEntity의 이미지와 최종 Image 리스트가 주어지면") {
-            val productEntity = ProductEntity().apply {
-                images.addAll(
-                    listOf(
-                        ImageEntity(
-                            id = 1L,
-                            userId = userId,
-                            fileName = "old.jpg",
-                            url = "http://example.com/old.jpg",
-                        ),
-                        ImageEntity(
-                            id = 2L,
-                            userId = userId,
-                            fileName = "toDelete.jpg",
-                            url = "http://example.com/toDelete.jpg",
+            val productEntity =
+                ProductEntity().apply {
+                    images.addAll(
+                        listOf(
+                            ImageEntity(
+                                id = 1L,
+                                userId = userId,
+                                fileName = "old.jpg",
+                                url = "http://example.com/old.jpg",
+                            ),
+                            ImageEntity(
+                                id = 2L,
+                                userId = userId,
+                                fileName = "toDelete.jpg",
+                                url = "http://example.com/toDelete.jpg",
+                            ),
                         ),
                     )
-                )
-            }
+                }
 
             // 최종 이미지 리스트: "old.jpg"와 신규 이미지 "new.jpg"
-            val finalImages = listOf(
-                Image(imageId = 1L, userId = userId, fileName = "old.jpg", url = "http://example.com/old.jpg"),
-                Image(imageId = 0L, userId = userId, fileName = "new.jpg", url = "http://example.com/new.jpg"),
-            )
+            val finalImages =
+                listOf(
+                    Image(imageId = 1L, userId = userId, fileName = "old.jpg", url = "http://example.com/old.jpg"),
+                    Image(imageId = 0L, userId = userId, fileName = "new.jpg", url = "http://example.com/new.jpg"),
+                )
 
             // 신규 이미지 매핑
             val newImageMapping = mapOf("new_0" to finalImages[1])

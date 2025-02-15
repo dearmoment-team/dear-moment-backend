@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import kotlin.math.ceil
 import kotlin.math.min
-import kotlin.time.toJavaDuration
 
 @Service
 class ProductUseCaseImpl(
@@ -198,23 +197,23 @@ class ProductUseCaseImpl(
             originalProvideType = domain.originalProvideType
             partialOriginalCount = domain.partialOriginalCount
             // shootingTimeMinutes -> java.time.Duration 변환
-            shootingTime = domain.shootingTimeMinutes
-                ?.let { java.time.Duration.ofMinutes(it.toLong()) }
+            shootingTime =
+                domain.shootingTimeMinutes
+                    ?.let { java.time.Duration.ofMinutes(it.toLong()) }
 
             shootingLocation = domain.shootingLocation
             numberOfCostumes = domain.numberOfCostumes
             seasonYear = domain.seasonYear
             seasonHalf = domain.seasonHalf
-            partnerShops = domain.partnerShops.map { ps ->
-                PartnerShopEmbeddable(ps.name, ps.link)
-            }
+            partnerShops =
+                domain.partnerShops.map { ps ->
+                    PartnerShopEmbeddable(ps.name, ps.link)
+                }
             detailedInfo = domain.detailedInfo
             warrantyInfo = domain.warrantyInfo
             contactInfo = domain.contactInfo
         }
     }
-
-
 
     private fun processProductOption(
         dto: UpdateProductOptionRequest,
@@ -223,17 +222,17 @@ class ProductUseCaseImpl(
         val domainOption = UpdateProductOptionRequest.toDomain(dto, product.productId)
         if (domainOption.optionId != 0L) {
             val existingOption = productOptionPersistencePort.findById(domainOption.optionId)
-            val updatedOption = existingOption.copy(
-                name = domainOption.name,
-                additionalPrice = domainOption.additionalPrice,
-                description = domainOption.description
-            )
+            val updatedOption =
+                existingOption.copy(
+                    name = domainOption.name,
+                    additionalPrice = domainOption.additionalPrice,
+                    description = domainOption.description,
+                )
             productOptionPersistencePort.save(updatedOption, product)
         } else {
             productOptionPersistencePort.save(domainOption, product)
         }
     }
-
 
     private fun saveProductOptions(
         product: Product,
