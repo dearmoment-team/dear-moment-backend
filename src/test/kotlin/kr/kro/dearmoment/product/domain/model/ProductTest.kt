@@ -4,15 +4,15 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kr.kro.dearmoment.image.domain.Image
+import java.time.LocalDateTime
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Product 클래스 테스트
  */
 internal class ProductTest : StringSpec({
-
-    // 공통 이미지 리스트
-    val defaultImages = listOf("default_image.jpg")
-
     // 공통 PartnerShops 리스트
     val defaultPartnerShops =
         listOf(
@@ -20,7 +20,7 @@ internal class ProductTest : StringSpec({
             PartnerShop(name = "상점2", link = "http://shop2.com"),
         )
 
-    // 테스트 데이터 팩토리 함수
+    // 테스트 데이터 팩토리 함수 (새로운 필드들도 기본값 설정)
     fun createProduct(
         productId: Long = 1L,
         userId: Long = 1L,
@@ -29,8 +29,25 @@ internal class ProductTest : StringSpec({
         price: Long = 100000,
         typeCode: Int = 1,
         options: List<ProductOption> = emptyList(),
-        images: List<String> = defaultImages,
+        images: List<Image> =
+            listOf(
+                Image(imageId = 0L, userId = userId, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+                Image(imageId = 0L, userId = userId, fileName = "image2.jpg", url = "http://example.com/image2.jpg"),
+            ),
         partnerShops: List<PartnerShop> = if (typeCode == 1) defaultPartnerShops else emptyList(),
+        concept: ConceptType = ConceptType.ELEGANT,
+        originalProvideType: OriginalProvideType = OriginalProvideType.FULL,
+        partialOriginalCount: Int? = null,
+        shootingTime: Duration? = null,
+        shootingLocation: String = "",
+        numberOfCostumes: Int = 0,
+        seasonYear: Int? = null,
+        seasonHalf: SeasonHalf? = null,
+        detailedInfo: String = "",
+        warrantyInfo: String = "",
+        contactInfo: String = "",
+        createdAt: LocalDateTime? = null,
+        updatedAt: LocalDateTime? = null,
     ) = Product(
         productId = productId,
         userId = userId,
@@ -38,14 +55,27 @@ internal class ProductTest : StringSpec({
         description = description,
         price = price,
         typeCode = typeCode,
+        concept = concept,
+        originalProvideType = originalProvideType,
+        partialOriginalCount = partialOriginalCount,
+        shootingTime = shootingTime,
+        shootingLocation = shootingLocation,
+        numberOfCostumes = numberOfCostumes,
+        seasonYear = seasonYear,
+        seasonHalf = seasonHalf,
+        partnerShops = partnerShops,
+        detailedInfo = detailedInfo,
+        warrantyInfo = warrantyInfo,
+        contactInfo = contactInfo,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
         options = options,
         images = images,
-        partnerShops = partnerShops,
     )
 
     "상품 생성 시 hasPackage가 true여야 한다" {
         // given
-        val product = createProduct()
+        val product = createProduct(typeCode = 1)
         // when
         val result = product.hasPackage
         // then
@@ -62,6 +92,7 @@ internal class ProductTest : StringSpec({
                 description = "일반 설명",
                 price = 50000,
                 typeCode = 0,
+                partnerShops = emptyList(),
             )
         // when
         val result = product.hasPackage
@@ -174,22 +205,22 @@ internal class ProductTest : StringSpec({
         val (updatedOptions, toDelete) = product.updateOptions(newOptions)
         // then
         updatedOptions shouldContainExactly
-            listOf(
-                ProductOption(
-                    optionId = 1L,
-                    productId = 5L,
-                    name = "기존 옵션1",
-                    additionalPrice = 15000,
-                    description = "업데이트 설명1",
-                ),
-                ProductOption(
-                    optionId = 0L,
-                    productId = 5L,
-                    name = "새 옵션",
-                    additionalPrice = 30000,
-                    description = "새 설명",
-                ),
-            )
+                listOf(
+                    ProductOption(
+                        optionId = 1L,
+                        productId = 5L,
+                        name = "기존 옵션1",
+                        additionalPrice = 15000,
+                        description = "업데이트 설명1",
+                    ),
+                    ProductOption(
+                        optionId = 0L,
+                        productId = 5L,
+                        name = "새 옵션",
+                        additionalPrice = 30000,
+                        description = "새 설명",
+                    ),
+                )
         toDelete shouldContainExactly setOf(2L)
     }
 
@@ -221,15 +252,32 @@ internal class ProductTest : StringSpec({
                     description = "파트너 없음 설명",
                     price = 120000,
                     typeCode = 1,
-                    images = defaultImages,
+                    images =
+                    listOf(
+                        Image(imageId = 0L, userId = 7L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
+                    ),
                     partnerShops = emptyList(),
+                    concept = ConceptType.ELEGANT,
+                    originalProvideType = OriginalProvideType.FULL,
+                    partialOriginalCount = null,
+                    shootingTime = null,
+                    shootingLocation = "",
+                    numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
+                    detailedInfo = "",
+                    warrantyInfo = "",
+                    contactInfo = "",
+                    options = emptyList(),
+                    createdAt = null,
+                    updatedAt = null,
                 )
             }
         exception.message shouldBe "패키지 상품은 하나 이상의 협력업체 정보가 필요합니다."
     }
 
     "typeCode가 1인 상품에서 partnerShops에 빈 이름 또는 링크가 있으면 예외가 발생해야 한다" {
-        // given & when & then
+        // 빈 이름인 경우
         val exception1 =
             shouldThrow<IllegalArgumentException> {
                 Product(
@@ -239,18 +287,36 @@ internal class ProductTest : StringSpec({
                     description = "파트너 이름 빈 경우",
                     price = 130000,
                     typeCode = 1,
-                    images = defaultImages,
+                    images =
+                    listOf(
+                        Image(imageId = 0L, userId = 8L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
+                    ),
                     partnerShops =
-                        listOf(
-                            PartnerShop(
-                                name = "",
-                                link = "http://validlink.com",
-                            ),
+                    listOf(
+                        PartnerShop(
+                            name = "",
+                            link = "http://validlink.com",
                         ),
+                    ),
+                    concept = ConceptType.ELEGANT,
+                    originalProvideType = OriginalProvideType.FULL,
+                    partialOriginalCount = null,
+                    shootingTime = null,
+                    shootingLocation = "",
+                    numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
+                    detailedInfo = "",
+                    warrantyInfo = "",
+                    contactInfo = "",
+                    options = emptyList(),
+                    createdAt = null,
+                    updatedAt = null,
                 )
             }
         exception1.message shouldBe "파트너샵 이름은 비어 있을 수 없습니다."
 
+        // 빈 링크인 경우
         val exception2 =
             shouldThrow<IllegalArgumentException> {
                 Product(
@@ -260,16 +326,80 @@ internal class ProductTest : StringSpec({
                     description = "파트너 링크 빈 경우",
                     price = 140000,
                     typeCode = 1,
-                    images = defaultImages,
+                    images =
+                    listOf(
+                        Image(imageId = 0L, userId = 9L, fileName = "default.jpg", url = "http://example.com/default.jpg"),
+                    ),
                     partnerShops =
-                        listOf(
-                            PartnerShop(
-                                name = "Valid Name",
-                                link = "",
-                            ),
+                    listOf(
+                        PartnerShop(
+                            name = "Valid Name",
+                            link = "",
                         ),
+                    ),
+                    concept = ConceptType.ELEGANT,
+                    originalProvideType = OriginalProvideType.FULL,
+                    partialOriginalCount = null,
+                    shootingTime = null,
+                    shootingLocation = "",
+                    numberOfCostumes = 0,
+                    seasonYear = null,
+                    seasonHalf = null,
+                    detailedInfo = "",
+                    warrantyInfo = "",
+                    contactInfo = "",
+                    options = emptyList(),
+                    createdAt = null,
+                    updatedAt = null,
                 )
             }
         exception2.message shouldBe "파트너샵 링크는 비어 있을 수 없습니다."
+    }
+
+    "새로운 필드들이 올바르게 설정되어야 한다" {
+        // given
+        val fixedTime = LocalDateTime.of(2023, 1, 1, 10, 0)
+        val shootingTime: Duration = 180.minutes
+        val product =
+            createProduct(
+                productId = 10L,
+                userId = 10L,
+                title = "새로운 필드 테스트 상품",
+                description = "새로운 필드 테스트 설명",
+                price = 200000,
+                typeCode = 0,
+                images =
+                listOf(
+                    Image(imageId = 0L, userId = 10L, fileName = "test_image.jpg", url = "http://example.com/test_image.jpg"),
+                ),
+                partnerShops = emptyList(),
+                concept = ConceptType.MODERN,
+                originalProvideType = OriginalProvideType.PARTIAL,
+                partialOriginalCount = 5,
+                shootingTime = shootingTime,
+                shootingLocation = "테스트 스튜디오",
+                numberOfCostumes = 3,
+                seasonYear = 2023,
+                seasonHalf = SeasonHalf.FIRST_HALF,
+                detailedInfo = "자세한 정보",
+                warrantyInfo = "2년 보증",
+                contactInfo = "contact@test.com",
+                createdAt = fixedTime,
+                updatedAt = fixedTime,
+            )
+        // when & then
+        product.concept shouldBe ConceptType.MODERN
+        product.originalProvideType shouldBe OriginalProvideType.PARTIAL
+        product.partialOriginalCount shouldBe 5
+        product.shootingTime shouldBe shootingTime
+        product.shootingLocation shouldBe "테스트 스튜디오"
+        product.numberOfCostumes shouldBe 3
+        product.seasonYear shouldBe 2023
+        product.seasonHalf shouldBe SeasonHalf.FIRST_HALF
+        product.detailedInfo shouldBe "자세한 정보"
+        product.warrantyInfo shouldBe "2년 보증"
+        product.contactInfo shouldBe "contact@test.com"
+        product.createdAt shouldBe fixedTime
+        product.updatedAt shouldBe fixedTime
     }
 })

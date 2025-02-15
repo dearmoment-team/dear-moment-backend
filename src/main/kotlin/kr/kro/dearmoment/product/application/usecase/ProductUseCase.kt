@@ -4,11 +4,18 @@ import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import org.springframework.web.multipart.MultipartFile
 
 interface ProductUseCase {
-    fun saveProduct(request: CreateProductRequest): ProductResponse
+    fun saveProduct(
+        request: CreateProductRequest,
+        images: List<MultipartFile>,
+    ): ProductResponse
 
-    fun updateProduct(request: UpdateProductRequest): ProductResponse
+    fun updateProduct(
+        request: UpdateProductRequest,
+        images: List<MultipartFile>? = null,
+    ): ProductResponse
 
     fun deleteProduct(productId: Long)
 

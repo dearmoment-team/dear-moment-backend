@@ -1,9 +1,13 @@
 package kr.kro.dearmoment.product.application.dto.response
 
+import kr.kro.dearmoment.product.domain.model.ConceptType
+import kr.kro.dearmoment.product.domain.model.OriginalProvideType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import java.time.LocalDateTime
+import kotlin.time.Duration
 
 data class ProductResponse(
     val productId: Long,
@@ -12,9 +16,17 @@ data class ProductResponse(
     val description: String?,
     val price: Long,
     val typeCode: Int,
-    val shootingTime: LocalDateTime?,
+    val concept: ConceptType,
+    val originalProvideType: OriginalProvideType,
+    /**
+     * PARTIAL인 경우 제공할 원본 장수 (FULL이면 null 또는 0)
+     */
+    val partialOriginalCount: Int?,
+    val shootingTime: Duration?,
     val shootingLocation: String?,
     val numberOfCostumes: Int?,
+    val seasonYear: Int?,
+    val seasonHalf: SeasonHalf?,
     val partnerShops: List<PartnerShopResponse>,
     val detailedInfo: String?,
     val warrantyInfo: String?,
@@ -33,9 +45,14 @@ data class ProductResponse(
                 description = product.description.takeIf { it.isNotBlank() },
                 price = product.price,
                 typeCode = product.typeCode,
+                concept = product.concept,
+                originalProvideType = product.originalProvideType,
+                partialOriginalCount = product.partialOriginalCount,
                 shootingTime = product.shootingTime,
                 shootingLocation = product.shootingLocation.takeIf { it.isNotBlank() },
                 numberOfCostumes = product.numberOfCostumes.takeIf { it != 0 },
+                seasonYear = product.seasonYear,
+                seasonHalf = product.seasonHalf,
                 partnerShops = product.partnerShops.map { PartnerShopResponse.fromDomain(it) },
                 detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() },
                 warrantyInfo = product.warrantyInfo.takeIf { it.isNotBlank() },
@@ -43,7 +60,7 @@ data class ProductResponse(
                 createdAt = product.createdAt,
                 updatedAt = product.updatedAt,
                 options = product.options.map { ProductOptionResponse.fromDomain(it) },
-                images = product.images,
+                images = product.images.map { it.url },
             )
         }
     }
