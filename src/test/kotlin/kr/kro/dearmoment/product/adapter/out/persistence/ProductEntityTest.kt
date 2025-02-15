@@ -91,7 +91,6 @@ class ProductEntityTest : StringSpec({
     }
 
     "ProductEntity는 도메인 모델로 올바르게 변환되어야 한다" {
-        val createdAt = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
         // 엔티티에서는 shootingTime은 java.time.Duration 타입
         val shootingDurationEntity: JavaDuration = JavaDuration.ofMinutes(10)
 

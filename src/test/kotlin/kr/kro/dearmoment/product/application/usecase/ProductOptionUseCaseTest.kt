@@ -8,6 +8,7 @@ import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
@@ -16,6 +17,8 @@ import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import java.time.LocalDateTime
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class ProductOptionUseCaseTest : BehaviorSpec({
 
@@ -32,14 +35,17 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             description = "Test Description",
             price = 10000,
             typeCode = 1,
-            shootingTime = LocalDateTime.now(),
+            shootingTime = 10.toDuration(DurationUnit.MINUTES),
             shootingLocation = "Test Location",
             numberOfCostumes = 1,
             partnerShops = listOf(PartnerShop(name = "Partner1", link = "http://partner1.com")),
             detailedInfo = "Test Info",
             warrantyInfo = "Test Warranty",
             contactInfo = "Test Contact",
-            images = listOf("image1.jpg"),
+            images =
+            listOf(
+                Image(imageId = 0L, userId = 1L, fileName = "image1.jpg", url = "http://example.com/image1.jpg"),
+            ),
             options = emptyList(),
         )
 

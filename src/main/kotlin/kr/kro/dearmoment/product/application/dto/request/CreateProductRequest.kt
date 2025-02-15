@@ -10,7 +10,15 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
+/**
+ * [CreateProductRequest]
+ * - 프론트엔드에서 촬영 시간을 "분" 단위(30, 60 등)로 받아옴.
+ * - shootingTimeMinutes: null 가능, 0 이상의 정수
+ * - toDomain에서 shootingTimeMinutes를 Duration으로 변환하여 도메인 모델에 주입
+ */
 data class CreateProductRequest(
     val userId: Long,
     @field:NotBlank(message = "상품명은 필수입니다.")
@@ -38,9 +46,10 @@ data class CreateProductRequest(
      */
     val partialOriginalCount: Int? = null,
     /**
-     * 촬영 시간 (예: 10분)
+     * 촬영 시간(분 단위) (예: 30, 60 등)
      */
-    val shootingTime: Duration?,
+    @field:PositiveOrZero(message = "촬영 시간은 0분 이상이어야 합니다.")
+    val shootingTimeMinutes: Int?,
     val shootingLocation: String?,
     /**
      * 최대 의상 벌 수
@@ -71,6 +80,12 @@ data class CreateProductRequest(
                     link = partnerShopRequest.link,
                 )
             }
+
+            // shootingTimeMinutes -> Duration 변환
+            val duration: Duration? = request.shootingTimeMinutes
+                ?.takeIf { it > 0 }
+                ?.toDuration(DurationUnit.MINUTES)
+
             return Product(
                 userId = request.userId,
                 title = request.title,
@@ -80,7 +95,7 @@ data class CreateProductRequest(
                 concept = request.concept,
                 originalProvideType = request.originalProvideType,
                 partialOriginalCount = request.partialOriginalCount,
-                shootingTime = request.shootingTime,
+                shootingTime = duration,
                 shootingLocation = request.shootingLocation ?: "",
                 numberOfCostumes = request.numberOfCostumes ?: 0,
                 seasonYear = request.seasonYear,

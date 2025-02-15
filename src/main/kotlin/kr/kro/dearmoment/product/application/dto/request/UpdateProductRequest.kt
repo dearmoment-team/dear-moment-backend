@@ -10,16 +10,21 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
-// 이미지 식별 정보를 나타내는 값 객체입니다.
-// 내부적으로는 고유 fileName이나 플레이스홀더("new_0", "new_1", …) 값을 담습니다.
 data class ImageReference(
     val identifier: String,
 ) {
     override fun toString(): String = identifier
 }
 
-// 프론트엔드에서는 업데이트 시 이미지 관련 정보를 ImageReference 타입의 리스트로 전달합니다.
+/**
+ * [UpdateProductRequest]
+ * - 프론트엔드에서 30, 60 등의 "분 단위"로 촬영시간을 보냄
+ * - shootingTimeMinutes 필드 사용
+ * - toDomain에서 shootingTimeMinutes를 Duration으로 변환
+ */
 data class UpdateProductRequest(
     val productId: Long,
     val userId: Long,
@@ -32,8 +37,11 @@ data class UpdateProductRequest(
     val concept: ConceptType,
     val originalProvideType: OriginalProvideType,
     val partialOriginalCount: Int? = null,
-    // shootingTime: 기존 LocalDateTime?에서 Duration? 타입으로 변경
-    val shootingTime: Duration?,
+    /**
+     * shootingTimeMinutes(분 단위)
+     */
+    @field:PositiveOrZero(message = "촬영 시간은 0분 이상이어야 합니다.")
+    val shootingTimeMinutes: Int?,
     val shootingLocation: String?,
     val numberOfCostumes: Int?,
     val seasonYear: Int?,
@@ -43,12 +51,10 @@ data class UpdateProductRequest(
     val warrantyInfo: String?,
     val contactInfo: String?,
     val options: List<UpdateProductOptionRequest>,
-    // 업데이트 시 프론트엔드에서 이미지 식별자들을 전달합니다.
-    // ex) 기존 이미지의 고유 fileName 또는 신규 이미지의 플레이스홀더("new_0", "new_1", …)
+    // 이미지 식별자 리스트 (기존 이미지 파일명, 새 파일은 "new_x" 등)
     val images: List<ImageReference>,
 ) {
     companion object {
-        // 백엔드 내부에서 최종 Image 도메인 객체 리스트가 구성되면 이를 Product 도메인 모델에 주입합니다.
         fun toDomain(
             request: UpdateProductRequest,
             images: List<Image>,
@@ -62,6 +68,12 @@ data class UpdateProductRequest(
             val productOptionList = request.options.map { optionRequest ->
                 UpdateProductOptionRequest.toDomain(optionRequest, request.productId)
             }
+
+            // shootingTimeMinutes -> Duration 변환
+            val duration: Duration? = request.shootingTimeMinutes
+                ?.takeIf { it > 0 }
+                ?.toDuration(DurationUnit.MINUTES)
+
             return Product(
                 productId = request.productId,
                 userId = request.userId,
@@ -72,7 +84,7 @@ data class UpdateProductRequest(
                 concept = request.concept,
                 originalProvideType = request.originalProvideType,
                 partialOriginalCount = request.partialOriginalCount,
-                shootingTime = request.shootingTime,
+                shootingTime = duration,
                 shootingLocation = request.shootingLocation ?: "",
                 numberOfCostumes = request.numberOfCostumes ?: 0,
                 seasonYear = request.seasonYear,

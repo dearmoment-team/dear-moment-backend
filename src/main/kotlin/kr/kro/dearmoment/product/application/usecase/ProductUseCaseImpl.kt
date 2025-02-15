@@ -197,17 +197,23 @@ class ProductUseCaseImpl(
             concept = domain.concept
             originalProvideType = domain.originalProvideType
             partialOriginalCount = domain.partialOriginalCount
-            shootingTime = domain.shootingTime?.toJavaDuration()
+            // shootingTimeMinutes -> java.time.Duration 변환
+            shootingTime = domain.shootingTimeMinutes
+                ?.let { java.time.Duration.ofMinutes(it.toLong()) }
+
             shootingLocation = domain.shootingLocation
             numberOfCostumes = domain.numberOfCostumes
             seasonYear = domain.seasonYear
             seasonHalf = domain.seasonHalf
-            partnerShops = domain.partnerShops.map { ps -> PartnerShopEmbeddable(ps.name, ps.link) }
+            partnerShops = domain.partnerShops.map { ps ->
+                PartnerShopEmbeddable(ps.name, ps.link)
+            }
             detailedInfo = domain.detailedInfo
             warrantyInfo = domain.warrantyInfo
             contactInfo = domain.contactInfo
         }
     }
+
 
 
     private fun processProductOption(

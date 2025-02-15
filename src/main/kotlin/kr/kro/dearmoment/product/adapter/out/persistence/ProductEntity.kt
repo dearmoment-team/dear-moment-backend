@@ -23,7 +23,6 @@ import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.SeasonHalf
 import java.time.Duration
-import java.time.LocalDateTime
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
@@ -86,38 +85,36 @@ open class ProductEntity(
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val entity =
-                ProductEntity(
-                    productId = if (product.productId == 0L) null else product.productId,
-                    userId = product.userId,
-                    title = product.title,
-                    description = if (product.description.isBlank()) null else product.description,
-                    price = product.price,
-                    typeCode = product.typeCode,
-                    shootingTime = product.shootingTime?.toJavaDuration(),
-                    shootingLocation = product.shootingLocation.ifBlank { null },
-                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                    concept = product.concept,
-                    originalProvideType = product.originalProvideType,
-                    partialOriginalCount = product.partialOriginalCount,
-                    seasonYear = product.seasonYear,
-                    seasonHalf = product.seasonHalf,
-                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                    detailedInfo = product.detailedInfo.ifBlank { null },
-                    warrantyInfo = product.warrantyInfo.ifBlank { null },
-                    contactInfo = product.contactInfo.ifBlank { null },
-                    images = mutableListOf(),
-                )
+            val entity = ProductEntity(
+                productId = if (product.productId == 0L) null else product.productId,
+                userId = product.userId,
+                title = product.title,
+                description = if (product.description.isBlank()) null else product.description,
+                price = product.price,
+                typeCode = product.typeCode,
+                shootingTime = product.shootingTime?.toJavaDuration(),
+                shootingLocation = product.shootingLocation.ifBlank { null },
+                numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
+                concept = product.concept,
+                originalProvideType = product.originalProvideType,
+                partialOriginalCount = product.partialOriginalCount,
+                seasonYear = product.seasonYear,
+                seasonHalf = product.seasonHalf,
+                partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
+                detailedInfo = product.detailedInfo.ifBlank { null },
+                warrantyInfo = product.warrantyInfo.ifBlank { null },
+                contactInfo = product.contactInfo.ifBlank { null },
+                images = mutableListOf(),
+            )
             entity.createdDate = product.createdAt
             entity.updateDate = product.updatedAt
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
             }
-            entity.images =
-                product.images.map { image ->
-                    ImageEntity.from(image).apply { this.product = entity }
-                }.toMutableList()
+            entity.images = product.images.map { image ->
+                ImageEntity.from(image).apply { this.product = entity }
+            }.toMutableList()
             return entity
         }
     }
