@@ -27,8 +27,8 @@ class InquiryServiceTest : DescribeSpec({
             val expectedId = 1L
             every { savePort.saveAuthorInquiry(any()) } returns expectedId
             it("문의를 저장하고 ID를 반환한다.") {
-                val resultId = service.createAuthorInquiry(command)
-                resultId shouldBe expectedId
+                val result = service.createAuthorInquiry(command)
+                result.inquiryId shouldBe expectedId
                 verify(exactly = 1) { savePort.saveAuthorInquiry(any()) }
             }
         }
@@ -40,8 +40,8 @@ class InquiryServiceTest : DescribeSpec({
             val expectedId = 1L
             every { savePort.saveProductInquiry(any()) } returns expectedId
             it("문의를 저장하고 ID를 반환한다.") {
-                val resultId = service.createProductInquiry(command)
-                resultId shouldBe expectedId
+                val result = service.createProductInquiry(command)
+                result.inquiryId shouldBe expectedId
                 verify(exactly = 1) { savePort.saveProductInquiry(any()) }
             }
         }
@@ -58,8 +58,8 @@ class InquiryServiceTest : DescribeSpec({
             val expectedId = 1L
             every { savePort.saveServiceInquiry(any()) } returns expectedId
             it("문의를 저장하고 ID를 반환한다.") {
-                val resultId = service.createServiceInquiry(command)
-                resultId shouldBe expectedId
+                val result = service.createServiceInquiry(command)
+                result.inquiryId shouldBe expectedId
                 verify(exactly = 1) { savePort.saveServiceInquiry(any()) }
             }
         }

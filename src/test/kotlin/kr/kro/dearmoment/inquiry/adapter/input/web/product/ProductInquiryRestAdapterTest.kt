@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.like.adapter.input.web
+package kr.kro.dearmoment.inquiry.adapter.input.web.product
 
 import andDocument
 import io.mockk.Runs
@@ -8,54 +8,49 @@ import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
-import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
 import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.like.adapter.input.web.dto.LikeRequest
-import kr.kro.dearmoment.like.adapter.input.web.dto.LikeResponse
-import kr.kro.dearmoment.like.application.command.LikeCommand
+import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
+import kr.kro.dearmoment.inquiry.adapter.input.web.product.dto.CreateProductInquiryRequest
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-class LikeRestAdapterTest : RestApiTestBase() {
+class ProductInquiryRestAdapterTest : RestApiTestBase() {
     @Test
-    fun `좋아요 생성 API`() {
+    fun `상품 문의 생성 API`() {
         val requestBody =
-            LikeRequest(
-                userId = 1L,
-                targetId = 1L,
-                type = "AUTHOR",
+            CreateProductInquiryRequest(
+                userId = 123L,
+                productId = 11L,
             )
 
-        val command = LikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
-        val expectedResponse = LikeResponse(likeId = 1L)
+        val expected = CreateInquiryResponse(1L)
 
-        every { likeUseCase.like(command) } returns expectedResponse
+        every { createInquiryUseCase.createProductInquiry(any()) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
-                .post("/api/likes")
+                .post("/api/inquiries/products")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
-                "create-like",
+                "create-product_inquiry",
                 requestBody(
                     "userId" type NUMBER means "유저 ID",
-                    "targetId" type NUMBER means "좋아요할 대상 ID(상품, 작가)",
-                    "type" type STRING means "좋아요 타입(\"AUTHOR\", \"PRODUCT\")",
+                    "productId" type NUMBER means "상품 ID",
                 ),
                 responseBody(
                     "data" type OBJECT means "데이터",
-                    "data.likeId" type NUMBER means "좋아요 ID",
+                    "data.inquiryId" type NUMBER means "상품 문의 ID",
                     "success" type BOOLEAN means "성공여부",
                     "code" type NUMBER means "HTTP 코드",
                 ),
@@ -63,20 +58,21 @@ class LikeRestAdapterTest : RestApiTestBase() {
     }
 
     @Test
-    fun `좋아요 삭제 API`() {
-        val likeId = 1L
-        every { likeUseCase.unlike(likeId) } just Runs
+    fun `상품 문의 삭제 API`() {
+        val inquiryId = 1L
+
+        every { removeInquiryUseCase.removeProductInquiry(inquiryId) } just Runs
 
         val request =
             RestDocumentationRequestBuilders
-                .delete("/api/likes/{id}", likeId)
+                .delete("/api/inquiries/products/{inquiryId}", inquiryId)
 
         mockMvc.perform(request)
             .andExpect(status().isNoContent)
             .andDocument(
-                "delete-like",
+                "delete-product-inquiry",
                 pathParameters(
-                    "id" means "삭제할 좋아요 ID",
+                    "inquiryId" means "삭제할 상품 문의 ID",
                 ),
             )
     }
