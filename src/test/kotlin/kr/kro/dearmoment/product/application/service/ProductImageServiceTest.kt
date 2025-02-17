@@ -37,12 +37,13 @@ class ProductImageServiceTest : BehaviorSpec({
 
         `when`("identifier가 placeholder인 경우") {
             val placeholder = "new_0"
-            val newImage = Image(
-                imageId = 102L,
-                userId = userId,
-                fileName = "placeholder.jpg",
-                url = "http://example.com/placeholder.jpg"
-            )
+            val newImage =
+                Image(
+                    imageId = 102L,
+                    userId = userId,
+                    fileName = "placeholder.jpg",
+                    url = "http://example.com/placeholder.jpg",
+                )
             val mapping = mapOf(placeholder to newImage)
             val result = productImageService.resolveFinalImageOrder(listOf(placeholder), mapping, userId)
             then("매핑된 Image 객체를 반환한다") {
@@ -54,19 +55,21 @@ class ProductImageServiceTest : BehaviorSpec({
 
     given("synchronizeProductImages 메소드") {
         `when`("기존 ProductEntity의 이미지와 최종 Image 리스트가 주어지면") {
-            val productEntity = ProductEntity().apply {
-                images.addAll(
-                    listOf(
-                        ImageEntity(id = 1L, userId = userId, fileName = "old.jpg", url = "http://example.com/old.jpg"),
-                        ImageEntity(id = 2L, userId = userId, fileName = "toDelete.jpg", url = "http://example.com/toDelete.jpg")
+            val productEntity =
+                ProductEntity().apply {
+                    images.addAll(
+                        listOf(
+                            ImageEntity(id = 1L, userId = userId, fileName = "old.jpg", url = "http://example.com/old.jpg"),
+                            ImageEntity(id = 2L, userId = userId, fileName = "toDelete.jpg", url = "http://example.com/toDelete.jpg"),
+                        ),
                     )
-                )
-            }
+                }
             // 최종 이미지 리스트에는 "old.jpg"와 신규 이미지 "new.jpg"가 포함된다.
-            val finalImages = listOf(
-                Image(imageId = 1L, userId = userId, fileName = "old.jpg", url = "http://example.com/old.jpg"),
-                Image(imageId = 0L, userId = userId, fileName = "new.jpg", url = "http://example.com/new.jpg")
-            )
+            val finalImages =
+                listOf(
+                    Image(imageId = 1L, userId = userId, fileName = "old.jpg", url = "http://example.com/old.jpg"),
+                    Image(imageId = 0L, userId = userId, fileName = "new.jpg", url = "http://example.com/new.jpg"),
+                )
             // 신규 이미지 매핑 (예: placeholder "new_0" → 해당 Image)
             val newImageMapping = mapOf("new_0" to finalImages[1])
             // "toDelete.jpg"가 최종 목록에 없으므로 삭제되어야 함을 모킹

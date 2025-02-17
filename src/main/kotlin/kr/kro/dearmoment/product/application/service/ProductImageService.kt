@@ -4,7 +4,6 @@ import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 
 interface ProductImageService {
-
     fun resolveFinalImageOrder(
         requestedImageIdentifiers: List<String>,
         newImageMappings: Map<String, Image>,

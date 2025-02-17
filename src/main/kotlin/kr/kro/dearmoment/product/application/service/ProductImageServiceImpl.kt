@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 class ProductImageServiceImpl(
     private val imageService: ImageService,
 ) : ProductImageService {
-
     override fun resolveFinalImageOrder(
         requestedImageIdentifiers: List<String>,
         newImageMappings: Map<String, Image>,
