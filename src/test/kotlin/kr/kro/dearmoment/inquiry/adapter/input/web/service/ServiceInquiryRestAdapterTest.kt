@@ -1,16 +1,12 @@
 package kr.kro.dearmoment.inquiry.adapter.input.web.service
 
 import andDocument
-import io.mockk.Runs
 import io.mockk.every
-import io.mockk.just
 import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
-import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
@@ -60,26 +56,6 @@ class ServiceInquiryRestAdapterTest : RestApiTestBase() {
                     "data.inquiryId" type NUMBER means "상품 문의 ID",
                     "success" type BOOLEAN means "성공여부",
                     "code" type NUMBER means "HTTP 코드",
-                ),
-            )
-    }
-
-    @Test
-    fun `서비스 문의 삭제 API`() {
-        val inquiryId = 1L
-
-        every { removeInquiryUseCase.removeServiceInquiry(inquiryId) } just Runs
-
-        val request =
-            RestDocumentationRequestBuilders
-                .delete("/api/inquiries/services/{inquiryId}", inquiryId)
-
-        mockMvc.perform(request)
-            .andExpect(status().isNoContent)
-            .andDocument(
-                "delete-service-inquiry",
-                pathParameters(
-                    "inquiryId" means "삭제할 상품 문의 ID",
                 ),
             )
     }

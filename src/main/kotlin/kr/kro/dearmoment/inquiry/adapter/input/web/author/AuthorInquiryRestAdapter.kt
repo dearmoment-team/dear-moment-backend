@@ -5,13 +5,9 @@ import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.command.CreateAuthorInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
-import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -33,10 +29,4 @@ class AuthorInquiryRestAdapter(
 
         return createInquiryUseCase.createAuthorInquiry(command)
     }
-
-    @DeleteMapping("/{inquiryId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun removeAuthorInquiry(
-        @PathVariable inquiryId: Long,
-    ): Unit = removeInquiryUseCase.removeAuthorInquiry(inquiryId)
 }

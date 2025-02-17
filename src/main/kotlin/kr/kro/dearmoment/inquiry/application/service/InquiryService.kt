@@ -31,8 +31,4 @@ class InquiryService(
     }
 
     override fun removeProductInquiry(inquiryId: Long): Unit = deleteInquiryPort.deleteProductInquiry(inquiryId)
-
-    override fun removeAuthorInquiry(inquiryId: Long): Unit = deleteInquiryPort.deleteAuthorInquiry(inquiryId)
-
-    override fun removeServiceInquiry(inquiryId: Long): Unit = deleteInquiryPort.deleteServiceInquiry(inquiryId)
 }

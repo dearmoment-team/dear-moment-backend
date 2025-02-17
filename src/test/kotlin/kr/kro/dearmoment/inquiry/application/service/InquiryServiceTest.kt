@@ -72,16 +72,12 @@ class InquiryServiceTest : DescribeSpec({
         }
     }
 
-    describe("removeXXXXInquiry()는") {
+    describe("removeProductInquiry()는") {
         context("문의 id를 전달받으면") {
             val inquiryId = 1L
-            every { deletePort.deleteServiceInquiry(inquiryId) } just Runs
-            every { deletePort.deleteAuthorInquiry(inquiryId) } just Runs
             every { deletePort.deleteProductInquiry(inquiryId) } just Runs
             it("해당 문의를 삭제한다") {
-                shouldNotThrow<Throwable> { service.removeAuthorInquiry(inquiryId) }
                 shouldNotThrow<Throwable> { service.removeProductInquiry(inquiryId) }
-                shouldNotThrow<Throwable> { service.removeServiceInquiry(inquiryId) }
             }
         }
     }

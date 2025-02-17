@@ -35,8 +35,4 @@ class InquiryPersistenceAdapter(
     }
 
     override fun deleteProductInquiry(inquiryId: Long): Unit = productInquiryJpaRepository.deleteById(inquiryId)
-
-    override fun deleteAuthorInquiry(inquiryId: Long): Unit = authorInquiryJpaRepository.deleteById(inquiryId)
-
-    override fun deleteServiceInquiry(inquiryId: Long): Unit = serviceInquiryJpaRepository.deleteById(inquiryId)
 }

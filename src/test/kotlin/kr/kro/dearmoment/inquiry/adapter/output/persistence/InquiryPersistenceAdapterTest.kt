@@ -51,11 +51,9 @@ class InquiryPersistenceAdapterTest(
             }
         }
 
-        describe("deleteXXXXInquiry()는") {
+        describe("deleteProductInquiry()는") {
             context("inquiryId가 전될되면") {
                 it("DB의 종류별 문의 테이블에서 해당 PK를 가진 데이터를 삭제한다.") {
-                    shouldNotThrow<Throwable> { adapter.deleteProductInquiry(1L) }
-                    shouldNotThrow<Throwable> { adapter.deleteServiceInquiry(1L) }
                     shouldNotThrow<Throwable> { adapter.deleteProductInquiry(1L) }
                 }
             }
