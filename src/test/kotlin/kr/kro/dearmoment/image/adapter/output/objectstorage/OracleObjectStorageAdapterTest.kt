@@ -32,7 +32,7 @@ class OracleObjectStorageAdapterTest : FunSpec({
                 Files.probeContentType(imageFile.toPath()),
                 Files.readAllBytes(imageFile.toPath()),
             )
-        val memberId = 123L // 테스트용 회원 ID
+        val memberId = 123L
 
         // When
         val result = adapter.upload(multipartFile, memberId)

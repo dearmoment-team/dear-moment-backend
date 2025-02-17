@@ -113,6 +113,7 @@ open class ProductEntity(
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, entity)
                 entity.options.add(optionEntity)
             }
+            // val로 유지해볼 수 있으면 해보기
             entity.images =
                 product.images.map { image ->
                     ImageEntity.from(image).apply { this.product = entity }

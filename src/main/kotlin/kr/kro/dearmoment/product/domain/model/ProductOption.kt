@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.domain.model
 
 import java.time.LocalDateTime
 
+// 기본 컨벤션이 val이 맞다.
 data class ProductOption(
     var optionId: Long = 0L,
     var productId: Long,

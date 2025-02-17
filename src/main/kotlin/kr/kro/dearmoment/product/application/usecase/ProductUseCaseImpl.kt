@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.product.application.usecase
 
+import kr.kro.dearmoment.image.application.command.SaveImageCommand
+import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
@@ -23,21 +25,35 @@ import kotlin.math.min
 class ProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val productOptionPersistencePort: ProductOptionPersistencePort,
+    // ProductImageService는 이미지 순서 결정 및 동기화만 수행
     private val productImageService: ProductImageService,
+    // 실제 이미지 업로드 및 저장은 ImageService에서 수행
+    private val imageService: ImageService,
 ) : ProductUseCase {
+
     // 제품 생성 유스케이스
-    // 1. 전달받은 MultipartFile 목록을 ProductImageService.uploadImages()를 이용해 업로드한 후 Image 도메인 객체 리스트를 생성
-    // 2. 생성된 Image 리스트를 포함해 CreateProductRequest를 통해 제품 도메인 모델을 구성
-    // 3. 제품 도메인을 저장하고 옵션을 별도 저장한 후 최종 제품 정보를 응답 DTO로 반환한다.
     @Transactional
     override fun saveProduct(
         request: CreateProductRequest,
         images: List<MultipartFile>,
     ): ProductResponse {
-        val uploadedImages: List<Image> = productImageService.uploadImages(images, request.userId)
-        val product: Product =
-            CreateProductRequest.toDomain(request, uploadedImages)
-                .copy(options = emptyList())
+        // 이미지 업로드: ImageService를 이용하여 이미지 저장 후 Image 도메인 객체 생성
+        val commands = images.map { file -> SaveImageCommand(file, request.userId) }
+        val imageIds: List<Long> = imageService.saveAll(commands)
+        val uploadedImages: List<Image> = imageIds.map { id ->
+            val response = imageService.getOne(id)
+            val fileName = response.url.substringAfterLast('/')
+            Image(
+                imageId = response.imageId,
+                userId = request.userId,
+                fileName = fileName,
+                url = response.url,
+            )
+        }
+
+        // 생성 요청을 도메인 모델로 변환
+        val product: Product = CreateProductRequest.toDomain(request, uploadedImages)
+            .copy(options = emptyList())
         validateForCreation(product)
         val savedProduct: Product = productPersistencePort.save(product)
         saveProductOptions(savedProduct, request.options)
@@ -46,70 +62,100 @@ class ProductUseCaseImpl(
     }
 
     // 제품 업데이트 유스케이스
-    // 1. 신규 MultipartFile 목록이 있다면, ProductImageService.uploadNewImagesWithPlaceholders()를 통해 업로드 및 플레이스홀더 매핑 수행
-    // 2. 프론트엔드에서 전달된 이미지 식별자 목록을 ProductImageService.resolveFinalImageOrder()로 최종 Image 도메인 객체 리스트로 구성
-    // 3. UpdateProductRequest를 통해 제품 도메인 모델을 생성 및 검증하고, 기존 제품을 조회하여 엔티티로 변환
-    // 4. 기존 엔티티의 이미지 컬렉션을 ProductImageService.synchronizeProductImages()를 통해 최종 이미지 목록과 동기화한 후,
-    //    나머지 필드와 옵션을 업데이트하고 저장하여 응답 DTO로 반환한다.
     @Transactional
     override fun updateProduct(
         request: UpdateProductRequest,
         images: List<MultipartFile>?,
     ): ProductResponse {
-        val newImageMappings: Map<String, Image> = productImageService.uploadNewImagesWithPlaceholders(images, request.userId)
+        // 신규 이미지 업로드 처리: images가 존재하면 ImageService를 통해 업로드 후,
+        // "new_0", "new_1", ... 형태의 매핑 Map을 생성한다.
+        val newImageMappings: Map<String, Image> = if (!images.isNullOrEmpty()) {
+            val commands = images.map { file -> SaveImageCommand(file, request.userId) }
+            val imageIds = imageService.saveAll(commands)
+            imageIds.mapIndexed { idx, id ->
+                val response = imageService.getOne(id)
+                val fileName = response.url.substringAfterLast('/')
+                "new_$idx" to Image(
+                    imageId = response.imageId,
+                    userId = request.userId,
+                    fileName = fileName,
+                    url = response.url,
+                )
+            }.toMap()
+        } else {
+            emptyMap()
+        }
+
+        // 프론트엔드에서 전달받은 이미지 식별자 목록과 업로드된 신규 이미지 매핑을 이용해 최종 이미지 순서를 결정
         val requestedImageIdentifiers: List<String> = request.images.map { it.identifier }
-        val finalImageOrder: List<Image> =
-            productImageService.resolveFinalImageOrder(
-                requestedImageIdentifiers,
-                newImageMappings,
-                request.userId,
-            )
-        val productFromRequest: Product =
-            UpdateProductRequest.toDomain(request, finalImageOrder)
-                .copy(options = emptyList())
+        val finalImageOrder: List<Image> = productImageService.resolveFinalImageOrder(
+            requestedImageIdentifiers,
+            newImageMappings,
+            request.userId,
+        )
+
+        // UpdateProductRequest를 도메인 모델로 변환 (옵션은 빈 리스트로 초기화)
+        val productFromRequest: Product = UpdateProductRequest.toDomain(request, finalImageOrder)
+            .copy(options = emptyList())
         productFromRequest.validateForUpdate()
-        val existingProductDomain: Product =
-            productPersistencePort.findById(productFromRequest.productId)
-                ?: throw IllegalArgumentException("Product not found: ${productFromRequest.productId}")
+
+        // 기존 상품 조회 및 엔티티 변환
+        val existingProductDomain: Product = productPersistencePort.findById(productFromRequest.productId)
+            ?: throw IllegalArgumentException("Product not found: ${productFromRequest.productId}")
         val existingProductEntity: ProductEntity = ProductEntity.fromDomain(existingProductDomain)
-        productImageService.synchronizeProductImages(existingProductEntity, finalImageOrder, newImageMappings, request.userId)
+
+        // 이미지 동기화: 기존 상품 엔티티의 이미지 목록과 최종 이미지 목록을 동기화
+        productImageService.synchronizeProductImages(
+            existingProductEntity,
+            finalImageOrder,
+            newImageMappings,
+            request.userId,
+        )
+
+        // 상품 엔티티의 나머지 필드 업데이트
         updateProductEntity(existingProductEntity, request)
+
+        // 옵션 처리: 기존 옵션 중 업데이트 대상이 아닌 옵션 삭제, 신규/수정 옵션 처리
         val existingOptions = productOptionPersistencePort.findByProductId(productFromRequest.productId)
-        val updateOptionIds =
-            request.options
-                .filter { it.optionId != null && it.optionId != 0L }
-                .map { it.optionId!! }
-                .toSet()
+        val updateOptionIds = request.options
+            .filter { it.optionId != null && it.optionId != 0L }
+            .map { it.optionId }
+            .toSet()
         existingOptions.filter { it.optionId !in updateOptionIds }
             .forEach { productOptionPersistencePort.deleteById(it.optionId) }
         request.options.forEach { dto ->
             processProductOption(dto, productFromRequest)
         }
+
+        // 변경된 엔티티 저장 후 enrich 처리하여 최종 응답 DTO 생성
         val updatedDomain: Product = productPersistencePort.save(existingProductEntity.toDomain())
         val completeProduct: Product = enrichProduct(updatedDomain)
         return ProductResponse.fromDomain(completeProduct)
     }
 
-    // 제품 삭제 유스케이스: 제품 존재 여부를 확인한 후, 관련 옵션과 엔티티를 삭제한다.
     @Transactional
     override fun deleteProduct(productId: Long) {
-        require(productPersistencePort.existsById(productId)) {
-            "The product to delete does not exist: $productId."
+        // 제품 전체 정보를 조회해서 이미지 리스트를 가져옵니다.
+        val product: Product = productPersistencePort.findById(productId)
+            ?: throw IllegalArgumentException("The product to delete does not exist: $productId.")
+
+        // 제품에 연결된 모든 이미지 삭제 (ImageService를 통해)
+        product.images.forEach { image ->
+            imageService.delete(image.imageId)
         }
+
+        // 관련 옵션 삭제 후, 제품 삭제
         productOptionPersistencePort.deleteAllByProductId(productId)
         productPersistencePort.deleteById(productId)
     }
 
-    // 제품 ID로 조회 후, 응답 DTO(ProductResponse)로 반환한다.
     override fun getProductById(productId: Long): ProductResponse {
-        val product: Product =
-            productPersistencePort.findById(productId)
-                ?: throw IllegalArgumentException("Product with ID $productId not found.")
+        val product: Product = productPersistencePort.findById(productId)
+            ?: throw IllegalArgumentException("Product with ID $productId not found.")
         val completeProduct: Product = enrichProduct(product)
         return ProductResponse.fromDomain(completeProduct)
     }
 
-    // 조건에 따른 제품 검색 후, 페이지네이션된 응답 DTO를 반환한다.
     override fun searchProducts(
         title: String?,
         minPrice: Long?,
@@ -120,21 +166,19 @@ class ProductUseCaseImpl(
         size: Int,
     ): PagedResponse<ProductResponse> {
         validatePriceRange(minPrice, maxPrice)
-        val result: List<Product> =
-            productPersistencePort.searchByCriteria(
-                title = title,
-                priceRange = minPrice?.let { Pair(it, maxPrice) },
-                typeCode = typeCode,
-                sortBy = sortBy,
-            )
+        val result: List<Product> = productPersistencePort.searchByCriteria(
+            title = title,
+            priceRange = minPrice?.let { Pair(it, maxPrice) },
+            typeCode = typeCode,
+            sortBy = sortBy,
+        )
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
-        val sortedProducts =
-            when (sortBy) {
-                "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
-                "price-asc" -> mockData.sortedBy { it.first.price }.map { it.first }
-                "price-desc" -> mockData.sortedByDescending { it.first.price }.map { it.first }
-                else -> mockData.map { it.first }
-            }
+        val sortedProducts = when (sortBy) {
+            "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
+            "price-asc" -> mockData.sortedBy { it.first.price }.map { it.first }
+            "price-desc" -> mockData.sortedByDescending { it.first.price }.map { it.first }
+            else -> mockData.map { it.first }
+        }
         val totalElements = sortedProducts.size.toLong()
         val totalPages = if (size > 0) ((sortedProducts.size + size - 1) / size) else 0
         val fromIndex = page * size
@@ -149,24 +193,21 @@ class ProductUseCaseImpl(
         )
     }
 
-    // 메인 페이지 제품 목록 검색 후, 페이지네이션된 응답 DTO를 반환한다.
     override fun getMainPageProducts(
         page: Int,
         size: Int,
     ): PagedResponse<ProductResponse> {
-        val result: List<Product> =
-            productPersistencePort.searchByCriteria(
-                title = null,
-                priceRange = null,
-                typeCode = null,
-                sortBy = null,
-            )
+        val result: List<Product> = productPersistencePort.searchByCriteria(
+            title = null,
+            priceRange = null,
+            typeCode = null,
+            sortBy = null,
+        )
         val mockData = result.mapIndexed { index, product -> Pair(product, index + 1) }
-        val sortedProducts =
-            mockData.sortedWith(
-                compareByDescending<Pair<Product, Int>> { it.second }
-                    .thenByDescending { it.first.createdAt },
-            ).map { it.first }
+        val sortedProducts = mockData.sortedWith(
+            compareByDescending<Pair<Product, Int>> { it.second }
+                .thenByDescending { it.first.createdAt },
+        ).map { it.first }
         val totalElements = sortedProducts.size.toLong()
         val totalPages = ceil(sortedProducts.size.toDouble() / size).toInt()
         val fromIndex = page * size
@@ -182,7 +223,7 @@ class ProductUseCaseImpl(
     }
 
     // ──────────────────────────────────────────────
-    // 제품 도메인 모델 업데이트, 옵션 처리 및 검증 관련 헬퍼 메소드들
+    // 헬퍼 메소드들: 상품 엔티티 업데이트, 옵션 처리 및 검증
 
     private fun updateProductEntity(
         entity: ProductEntity,
@@ -196,19 +237,14 @@ class ProductUseCaseImpl(
             concept = domain.concept
             originalProvideType = domain.originalProvideType
             partialOriginalCount = domain.partialOriginalCount
-            // shootingTimeMinutes -> java.time.Duration 변환
-            shootingTime =
-                domain.shootingTimeMinutes
-                    ?.let { java.time.Duration.ofMinutes(it.toLong()) }
-
+            shootingTime = domain.shootingTimeMinutes?.let { java.time.Duration.ofMinutes(it.toLong()) }
             shootingLocation = domain.shootingLocation
             numberOfCostumes = domain.numberOfCostumes
             seasonYear = domain.seasonYear
             seasonHalf = domain.seasonHalf
-            partnerShops =
-                domain.partnerShops.map { ps ->
-                    PartnerShopEmbeddable(ps.name, ps.link)
-                }
+            partnerShops = domain.partnerShops.map { ps ->
+                PartnerShopEmbeddable(ps.name, ps.link)
+            }
             detailedInfo = domain.detailedInfo
             warrantyInfo = domain.warrantyInfo
             contactInfo = domain.contactInfo
@@ -222,12 +258,11 @@ class ProductUseCaseImpl(
         val domainOption = UpdateProductOptionRequest.toDomain(dto, product.productId)
         if (domainOption.optionId != 0L) {
             val existingOption = productOptionPersistencePort.findById(domainOption.optionId)
-            val updatedOption =
-                existingOption.copy(
-                    name = domainOption.name,
-                    additionalPrice = domainOption.additionalPrice,
-                    description = domainOption.description,
-                )
+            val updatedOption = existingOption.copy(
+                name = domainOption.name,
+                additionalPrice = domainOption.additionalPrice,
+                description = domainOption.description,
+            )
             productOptionPersistencePort.save(updatedOption, product)
         } else {
             productOptionPersistencePort.save(domainOption, product)
@@ -259,12 +294,6 @@ class ProductUseCaseImpl(
     private fun validateForCreation(product: Product) {
         require(!productPersistencePort.existsByUserIdAndTitle(product.userId, product.title)) {
             "A product with the same title already exists: ${product.title}."
-        }
-    }
-
-    private fun handleDeletedOptions(toDelete: Set<Long>) {
-        toDelete.forEach { optionId ->
-            productOptionPersistencePort.deleteById(optionId)
         }
     }
 
