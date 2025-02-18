@@ -30,7 +30,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
             LikeRequest(
                 userId = 1L,
                 targetId = 1L,
-                type = LikeType.AUTHOR.value,
+                type = "AUTHOR",
             )
 
         val command = SaveLikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
