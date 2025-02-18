@@ -26,6 +26,7 @@ class ImageEntity(
     companion object {
         fun from(domain: Image) =
             ImageEntity(
+                id = domain.imageId,
                 userId = domain.userId,
                 url = domain.url,
                 fileName = domain.fileName,

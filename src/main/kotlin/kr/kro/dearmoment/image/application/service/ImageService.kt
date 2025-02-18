@@ -6,6 +6,7 @@ import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.input.DeleteImageUseCase
 import kr.kro.dearmoment.image.application.port.input.GetImageUseCase
 import kr.kro.dearmoment.image.application.port.input.SaveImageUseCase
+import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
@@ -20,6 +21,7 @@ class ImageService(
     private val uploadImagePort: UploadImagePort,
     private val saveImagePort: SaveImagePort,
     private val getImagePort: GetImagePort,
+    private val updateImagePort: UpdateImagePort,
     private val deleteImageFromDBPort: DeleteImageFromDBPort,
     private val getImageFromObjectStorage: GetImageFromObjectStoragePort,
     private val deleteImageFromObjectStorage: DeleteImageFromObjectStoragePort,
@@ -41,7 +43,11 @@ class ImageService(
         val image = getImagePort.findOne(imageId)
 
         if (image.isUrlExpired()) {
-            return GetImageResponse.from(getImageFromObjectStorage.getImage(image))
+            val renewedImage = getImageFromObjectStorage.getImage(image)
+
+            check(updateImagePort.update(renewedImage) > 0) { "fail update" }
+
+            return GetImageResponse.from(renewedImage)
         }
 
         return GetImageResponse.from(image)

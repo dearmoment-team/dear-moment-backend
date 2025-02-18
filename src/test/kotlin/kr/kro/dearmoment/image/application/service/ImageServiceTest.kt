@@ -10,6 +10,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
+import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
@@ -24,6 +25,7 @@ class ImageServiceTest : BehaviorSpec({
     val uploadImagePort = mockk<UploadImagePort>()
     val saveImagePort = mockk<SaveImagePort>()
     val getImagePort = mockk<GetImagePort>()
+    val updateImagePort = mockk<UpdateImagePort>()
     val deleteImageFromDbPort = mockk<DeleteImageFromDBPort>()
     val deleteImageFromObjectStoragePort = mockk<DeleteImageFromObjectStoragePort>()
     val getImageFromObjectStoragePort = mockk<GetImageFromObjectStoragePort>()
@@ -32,6 +34,7 @@ class ImageServiceTest : BehaviorSpec({
             uploadImagePort,
             saveImagePort,
             getImagePort,
+            updateImagePort,
             deleteImageFromDbPort,
             getImageFromObjectStoragePort,
             deleteImageFromObjectStoragePort,
@@ -77,6 +80,7 @@ class ImageServiceTest : BehaviorSpec({
         When("이미지를 조회하면") {
             every { getImagePort.findOne(imageId) } returns image
             every { getImageFromObjectStoragePort.getImage(image) } returns image
+            every { updateImagePort.update(any()) } returns 1
 
             val result = imageService.getOne(imageId)
 
