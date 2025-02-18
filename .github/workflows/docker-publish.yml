@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
     steps:
       # 1) 소스코드 체크아웃
       - name: Check out source code
@@ -21,7 +23,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      # 3) OCI Object Storage Config 설정 (🔹 Docker Build 전)
+      # 3-0) OCI Object Storage Config 설정 (🔹 Docker Build 전)
       - name: Create OCI Config File
         run: |
           mkdir -p ~/.oci
@@ -33,23 +35,29 @@ jobs:
           echo "${{ secrets.OBJECT_STORAGE_PRIVATE_KEY }}" > ~/.oci/private_key.pem
           chmod 600 ~/.oci/private_key.pem
 
-      # 4) Gradle 빌드
+      # 3) Gradle 빌드
       - name: Build using Gradle
         run: ./gradlew build
 
-      # 5) GHCR 로그인
-      - name: Docker login to GHCR
-        run: |
-          echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+      # 4) GHCR 로그인 (공식 액션 사용)
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PAT }}
 
-      # 6) Docker 이미지 빌드 (🔹 OCI Config 적용 후)
-      - name: Build Docker image
-        run: |
-          docker build \
-            -t ghcr.io/${{ github.repository }}/dear-moment-backend:latest \
-            .
+      # 5) Docker Buildx 설정 (공식 액션 사용)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      # 7) Docker 이미지 푸시
-      - name: Push Docker image
-        run: |
-          docker push ghcr.io/${{ github.repository }}/dear-moment-backend:latest
+      # 6) Docker 이미지 빌드 및 푸시 (Buildx 및 캐시 사용)
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/dear-moment-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
