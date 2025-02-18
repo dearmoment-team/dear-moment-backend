@@ -77,7 +77,7 @@ class OracleObjectStorageAdapter(
 
         deletePreAuth(image.parId)
 
-        val client = OracleObjectStorageUtil().client
+        val client = objectStorageUtil.client
         client.deleteObject(request)
     }
 

@@ -17,8 +17,9 @@ class OracleObjectStorageAdapterTest : FunSpec({
                 bucketName = "dear-moment-local",
                 namespaceName = "axi7ktcb95py",
                 photoImageDir = "photo/",
+                configPath = "~/.oci/config",
             )
-        val objectStorageUtil = OracleObjectStorageUtil()
+        val objectStorageUtil = OracleObjectStorageUtil(objectStorageProperties)
         adapter = OracleObjectStorageAdapter(objectStorageProperties, objectStorageUtil)
     }
 
