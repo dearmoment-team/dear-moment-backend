@@ -102,7 +102,7 @@ class OracleObjectStorageAdapter(
                 .build()
 
         val response = objectStorageUtil.client.createPreauthenticatedRequest(request)
-        val url = "$baseUrl/${response.preauthenticatedRequest.accessUri}"
+        val url = "$baseUrl${response.preauthenticatedRequest.accessUri}"
 
         return Image(
             imageId = image.imageId,
