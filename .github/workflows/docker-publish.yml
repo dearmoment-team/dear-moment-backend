@@ -1,0 +1,55 @@
+name: Docker Publish
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      # 1) 소스코드 체크아웃
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      # 2) JDK 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3) OCI Object Storage Config 설정 (🔹 Docker Build 전)
+      - name: Create OCI Config File
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OBJECT_STORAGE_CONFIG }}" > ~/.oci/config
+          chmod 600 ~/.oci/config
+
+      - name: Create Private Key File
+        run: |
+          echo "${{ secrets.OBJECT_STORAGE_PRIVATE_KEY }}" > ~/.oci/private_key.pem
+          chmod 600 ~/.oci/private_key.pem
+
+      # 4) Gradle 빌드
+      - name: Build using Gradle
+        run: ./gradlew build
+
+      # 5) GHCR 로그인
+      - name: Docker login to GHCR
+        run: |
+          echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+
+      # 6) Docker 이미지 빌드 (🔹 OCI Config 적용 후)
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository }}/dear-moment-backend:latest \
+            .
+
+      # 7) Docker 이미지 푸시
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/dear-moment-backend:latest
