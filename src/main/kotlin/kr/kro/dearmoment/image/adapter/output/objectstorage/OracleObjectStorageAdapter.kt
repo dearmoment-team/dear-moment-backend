@@ -60,7 +60,7 @@ class OracleObjectStorageAdapter(
                 fileName = fileName,
             )
 
-        return getImage(image)
+        return getImageWithUrl(image)
     }
 
     override fun uploadAll(commands: List<SaveImageCommand>): List<Image> {
@@ -81,7 +81,7 @@ class OracleObjectStorageAdapter(
         client.deleteObject(request)
     }
 
-    override fun getImage(image: Image): Image {
+    override fun getImageWithUrl(image: Image): Image {
         deletePreAuth(image.parId)
 
         val expireTime = Date(System.currentTimeMillis() + ONE_YEAR_FOR_SECONDS)

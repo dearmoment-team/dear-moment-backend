@@ -79,7 +79,7 @@ class ImageServiceTest : BehaviorSpec({
 
         When("이미지를 조회하면") {
             every { getImagePort.findOne(imageId) } returns image
-            every { getImageFromObjectStoragePort.getImage(image) } returns image
+            every { getImageFromObjectStoragePort.getImageWithUrl(image) } returns image
             every { updateImagePort.update(any()) } returns 1
 
             val result = imageService.getOne(imageId)
@@ -121,7 +121,7 @@ class ImageServiceTest : BehaviorSpec({
                 ),
             )
         every { getImagePort.findAll(userId) } returns images
-        every { getImageFromObjectStoragePort.getImage(any()) } returns Image(userId = 1, fileName = "")
+        every { getImageFromObjectStoragePort.getImageWithUrl(any()) } returns Image(userId = 1, fileName = "")
 
         When("이미지를 조회하면") {
             val result = imageService.getAll(userId)

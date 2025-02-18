@@ -43,7 +43,7 @@ class ImageService(
         val image = getImagePort.findOne(imageId)
 
         if (image.isUrlExpired()) {
-            val renewedImage = getImageFromObjectStorage.getImage(image)
+            val renewedImage = getImageFromObjectStorage.getImageWithUrl(image)
 
             check(updateImagePort.update(renewedImage) > 0) { "fail update" }
 
@@ -60,7 +60,7 @@ class ImageService(
         val finalResult =
             images.map { image ->
                 if (image.isUrlExpired()) {
-                    getImageFromObjectStorage.getImage(image)
+                    getImageFromObjectStorage.getImageWithUrl(image)
                 } else {
                     image
                 }
