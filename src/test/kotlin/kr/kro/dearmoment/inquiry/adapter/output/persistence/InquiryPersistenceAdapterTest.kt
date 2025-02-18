@@ -2,6 +2,7 @@ package kr.kro.dearmoment.inquiry.adapter.output.persistence
 
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryJpaRepository
@@ -23,7 +24,7 @@ class InquiryPersistenceAdapterTest(
 
         describe("saveProductInquiry()는") {
             context("productInquiry 가 전달되면") {
-                val inquiry = ProductInquiry(userId = 1L, productId = 1L)
+                val inquiry = ProductInquiry(userId = 1L, productId = 1L, thumbnailUrl = "")
                 it("엔티티로 변환하여 DB에 저장한다.") {
                     val resultId = adapter.saveProductInquiry(inquiry)
                     resultId shouldNotBe 0L
@@ -43,10 +44,59 @@ class InquiryPersistenceAdapterTest(
 
         describe("saveServiceInquiry()는") {
             context("serviceInquiry 가 전달되면") {
-                val inquiry = ServiceInquiry(userId = 1L, type = ServiceInquiryType.SYSTEM_ERROR_REPORT, content = "디어모먼트 상품이 안열립니다.")
+                val inquiry =
+                    ServiceInquiry(userId = 1L, type = ServiceInquiryType.SYSTEM_ERROR_REPORT, content = "디어모먼트 상품이 안열립니다.")
                 it("엔티티로 변환하여 DB에 저장한다.") {
                     val resultId = adapter.saveServiceInquiry(inquiry)
                     resultId shouldNotBe 0L
+                }
+            }
+        }
+
+        describe("getAuthorInquiries()는") {
+            val userId = 1L
+            val inquiries =
+                listOf(
+                    AuthorInquiry(
+                        userId = userId,
+                        title = "문의1 제목",
+                        content = "문의1 내용",
+                    ),
+                    AuthorInquiry(
+                        userId = userId,
+                        title = "문의2 제목",
+                        content = "문의2 내용",
+                    ),
+                )
+            inquiries.forEach { adapter.saveAuthorInquiry(it) }
+            context("userId가 전달되면") {
+                it("DB 에서 유저가 작성한 모든 작가 문의를 반환한다.") {
+                    val result = adapter.getAuthorInquiries(userId)
+                    result.size shouldBe inquiries.size
+                }
+            }
+        }
+
+        describe("getProductInquiries()는") {
+            val userId = 1L
+            val inquiries =
+                listOf(
+                    ProductInquiry(
+                        userId = userId,
+                        productId = 1L,
+                        thumbnailUrl = "url1",
+                    ),
+                    ProductInquiry(
+                        userId = userId,
+                        productId = 2L,
+                        thumbnailUrl = "url2",
+                    ),
+                )
+            inquiries.forEach { adapter.saveProductInquiry(it) }
+            context("userId가 전달되면") {
+                it("DB 에서 유저가 작성한 모든 상품 문의를 반환한다.") {
+                    val result = adapter.getProductInquiries(userId)
+                    result.size shouldBe inquiries.size
                 }
             }
         }

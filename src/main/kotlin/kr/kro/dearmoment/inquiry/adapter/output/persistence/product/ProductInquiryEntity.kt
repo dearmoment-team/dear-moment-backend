@@ -16,12 +16,24 @@ class ProductInquiryEntity(
     @Column(name = "inquiry_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
+    @Column
+    val userId: Long,
     @Column(nullable = false)
     val productId: Long,
 ) : Auditable() {
     companion object {
+        fun toDomain(entity: ProductInquiryEntity) =
+            ProductInquiry(
+                id = entity.id,
+                userId = entity.userId,
+                productId = entity.productId,
+                thumbnailUrl = "",
+                createdDate = entity.createdDate ?: throw IllegalStateException("createdDate is null"),
+            )
+
         fun from(inquiry: ProductInquiry) =
             ProductInquiryEntity(
+                userId = inquiry.userId,
                 productId = inquiry.productId,
             )
     }

@@ -6,6 +6,7 @@ import kr.kro.dearmoment.inquiry.adapter.input.web.author.AuthorInquiryRestAdapt
 import kr.kro.dearmoment.inquiry.adapter.input.web.product.ProductInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.adapter.input.web.service.ServiceInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
+import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
 import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
@@ -47,6 +48,9 @@ abstract class RestApiTestBase {
 
     @MockkBean
     protected lateinit var removeInquiryUseCase: RemoveInquiryUseCase
+
+    @MockkBean
+    protected lateinit var getInquiryUseCase: GetInquiryUseCase
 
     /**
      * RestDocs 문서화를 위한 `MockMvc` 객체를 설정하는 함수입니다.

@@ -7,6 +7,7 @@ import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductInqui
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInquiryEntity
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
+import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
@@ -18,7 +19,7 @@ class InquiryPersistenceAdapter(
     private val authorInquiryJpaRepository: AuthorInquiryJpaRepository,
     private val productInquiryJpaRepository: ProductInquiryJpaRepository,
     private val serviceInquiryJpaRepository: ServiceInquiryJpaRepository,
-) : SaveInquiryPort, DeleteInquiryPort {
+) : SaveInquiryPort, GetInquiryPort, DeleteInquiryPort {
     override fun saveProductInquiry(inquiry: ProductInquiry): Long {
         val entity = ProductInquiryEntity.from(inquiry)
         return productInquiryJpaRepository.save(entity).id
@@ -32,6 +33,16 @@ class InquiryPersistenceAdapter(
     override fun saveServiceInquiry(inquiry: ServiceInquiry): Long {
         val entity = ServiceInquiryEntity.from(inquiry)
         return serviceInquiryJpaRepository.save(entity).id
+    }
+
+    override fun getAuthorInquiries(userId: Long): List<AuthorInquiry> {
+        val entities = authorInquiryJpaRepository.findByUserId(userId)
+        return entities.map { AuthorInquiryEntity.toDomain(it) }
+    }
+
+    override fun getProductInquiries(userId: Long): List<ProductInquiry> {
+        val entities = productInquiryJpaRepository.findByUserId(userId)
+        return entities.map { ProductInquiryEntity.toDomain(it) }
     }
 
     override fun deleteProductInquiry(inquiryId: Long): Unit = productInquiryJpaRepository.deleteById(inquiryId)

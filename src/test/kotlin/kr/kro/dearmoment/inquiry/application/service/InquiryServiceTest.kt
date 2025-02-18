@@ -13,13 +13,17 @@ import kr.kro.dearmoment.inquiry.application.command.CreateAuthorInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
+import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
+import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
+import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
 
 class InquiryServiceTest : DescribeSpec({
     val savePort = mockk<SaveInquiryPort>()
     val deletePort = mockk<DeleteInquiryPort>()
-    val service = InquiryService(savePort, deletePort)
+    val getPort = mockk<GetInquiryPort>()
+    val service = InquiryService(savePort, getPort, deletePort)
 
     describe("createAuthorInquiry()는") {
         context("작가 문의 생성 명령을 전달 받으면") {
@@ -68,6 +72,62 @@ class InquiryServiceTest : DescribeSpec({
             val command = CreateServiceInquiryCommand(userId = 1L, type = "invalid type", content = "홈페이지에 접속이 안됩니다..")
             it("에러를 반환한다.") {
                 shouldThrow<IllegalArgumentException> { service.createServiceInquiry(command) }
+            }
+        }
+    }
+
+    describe("getAuthorInquiries()는") {
+        context("userId가 전달되면") {
+            val userId = 1L
+            val inquiries =
+                listOf(
+                    AuthorInquiry(
+                        id = 1L,
+                        userId = userId,
+                        title = "문의1 제목",
+                        content = "문의1 내용",
+                    ),
+                    AuthorInquiry(
+                        id = 2L,
+                        userId = userId,
+                        title = "문의2 제목",
+                        content = "문의2 내용",
+                    ),
+                )
+
+            every { getPort.getAuthorInquiries(userId) } returns inquiries
+            it("유저의 작가 문의를 모두 반환한다.") {
+                val result = service.getAuthorInquiries(userId)
+                result.inquiries.size shouldBe inquiries.size
+                verify(exactly = 1) { getPort.getAuthorInquiries(userId) }
+            }
+        }
+    }
+
+    describe("getProductInquiries()는") {
+        context("userId가 전달되면") {
+            val userId = 1L
+            val inquiries =
+                listOf(
+                    ProductInquiry(
+                        id = 1L,
+                        userId = userId,
+                        productId = 1L,
+                        thumbnailUrl = "썸네일 url1",
+                    ),
+                    ProductInquiry(
+                        id = 2L,
+                        userId = userId,
+                        productId = 2L,
+                        thumbnailUrl = "썸네일 url2",
+                    ),
+                )
+
+            every { getPort.getProductInquiries(userId) } returns inquiries
+            it("유저의 작가 문의를 모두 반환한다.") {
+                val result = service.getProductInquiries(userId)
+                result.inquiries.size shouldBe inquiries.size
+                verify(exactly = 1) { getPort.getProductInquiries(userId) }
             }
         }
     }
