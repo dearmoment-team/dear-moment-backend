@@ -18,6 +18,8 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.CreateAuthorInquiryRequest
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiriesResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
+import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.WriteAnswerRequest
+import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.WriteAnswerResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -57,6 +59,33 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
                 responseBody(
                     "data" type OBJECT means "데이터",
                     "data.inquiryId" type NUMBER means "문의 ID",
+                    "success" type BOOLEAN means "성공여부",
+                    "code" type NUMBER means "HTTP 코드",
+                ),
+            )
+    }
+
+    @Test
+    fun `문의 답변 수정 API`() {
+        val inquiryId = 1L
+        val requestBody = WriteAnswerRequest(answer = "답변 완료입니다.")
+
+        every { updateInquiryUseCase.writeAuthorInquiryAnswer(any()) } returns WriteAnswerResponse(inquiryId)
+
+        val request =
+            RestDocumentationRequestBuilders
+                .put("/api/inquiries/authors/{inquiryId}", inquiryId)
+                .content(requestBody.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
+
+        mockMvc.perform(request)
+            .andExpect(status().isOk)
+            .andDocument(
+                "write-author_inquiry-answer",
+                pathParameters("inquiryId" means "답변할 문의 id"),
+                responseBody(
+                    "data" type OBJECT means "데이터",
+                    "data.inquiryId" type NUMBER means "답변이 작성된 문의 id",
                     "success" type BOOLEAN means "성공여부",
                     "code" type NUMBER means "HTTP 코드",
                 ),

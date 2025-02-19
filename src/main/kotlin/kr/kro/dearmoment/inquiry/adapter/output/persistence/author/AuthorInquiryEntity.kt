@@ -22,9 +22,15 @@ class AuthorInquiryEntity(
     val title: String,
     @Column(nullable = false)
     val content: String,
-    @Column(nullable = false)
-    val answer: String = "",
 ) : Auditable() {
+    @Column(nullable = false)
+    var answer: String = ""
+        protected set
+
+    fun modifyAnswer(answer: String) {
+        this.answer = answer
+    }
+
     fun toDomain() =
         AuthorInquiry(
             id = id,

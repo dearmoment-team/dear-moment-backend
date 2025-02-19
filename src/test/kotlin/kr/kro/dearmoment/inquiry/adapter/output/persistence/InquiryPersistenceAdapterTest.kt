@@ -101,6 +101,22 @@ class InquiryPersistenceAdapterTest(
             }
         }
 
+        describe("updateAuthorInquiryAnswer()는") {
+            val inquiry = AuthorInquiry(userId = 1L, title = "작가의 상풍 정보 문의", content = "작가 상풍 정보가 잘못되었습니다.")
+            val savedId = adapter.saveAuthorInquiry(inquiry)
+
+            context("inquiryId와 answer가 전될되면") {
+                it("DB에서 해당 문의의 답변을 업데이트 한다.") {
+                    val answer = "답변 입니다."
+                    val updatedId = adapter.updateAuthorInquiryAnswer(savedId, answer)
+                    val results = adapter.getAuthorInquiries(inquiry.userId)
+
+                    updatedId shouldBe savedId
+                    results[0].answer.length shouldNotBe 0
+                }
+            }
+        }
+
         describe("deleteProductInquiry()는") {
             context("inquiryId가 전될되면") {
                 it("DB의 종류별 문의 테이블에서 해당 PK를 가진 데이터를 삭제한다.") {
