@@ -8,12 +8,10 @@ data class CreateServiceInquiryCommand(
     val type: String,
     val content: String,
 ) {
-    companion object {
-        fun toDomain(command: CreateServiceInquiryCommand) =
-            ServiceInquiry(
-                userId = command.userId,
-                type = ServiceInquiryType.from(command.type),
-                content = command.content,
-            )
-    }
+    fun toDomain() =
+        ServiceInquiry(
+            userId = userId,
+            type = ServiceInquiryType.from(type),
+            content = content,
+        )
 }

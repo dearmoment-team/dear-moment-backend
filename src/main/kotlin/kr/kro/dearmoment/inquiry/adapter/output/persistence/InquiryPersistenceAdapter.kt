@@ -37,12 +37,12 @@ class InquiryPersistenceAdapter(
 
     override fun getAuthorInquiries(userId: Long): List<AuthorInquiry> {
         val entities = authorInquiryJpaRepository.findByUserId(userId)
-        return entities.map { AuthorInquiryEntity.toDomain(it) }
+        return entities.map { it.toDomain() }
     }
 
     override fun getProductInquiries(userId: Long): List<ProductInquiry> {
         val entities = productInquiryJpaRepository.findByUserId(userId)
-        return entities.map { ProductInquiryEntity.toDomain(it) }
+        return entities.map { it.toDomain() }
     }
 
     override fun deleteProductInquiry(inquiryId: Long): Unit = productInquiryJpaRepository.deleteById(inquiryId)

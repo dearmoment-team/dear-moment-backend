@@ -25,17 +25,17 @@ class AuthorInquiryEntity(
     @Column(nullable = false)
     val answer: String = "",
 ) : Auditable() {
-    companion object {
-        fun toDomain(entity: AuthorInquiryEntity) =
-            AuthorInquiry(
-                id = entity.id,
-                userId = entity.userId,
-                title = entity.title,
-                content = entity.content,
-                answer = entity.answer,
-                createdDate = entity.createdDate ?: throw IllegalStateException("createdDate is null"),
-            )
+    fun toDomain() =
+        AuthorInquiry(
+            id = id,
+            userId = userId,
+            title = title,
+            content = content,
+            answer = answer,
+            createdDate = createdDate ?: throw IllegalStateException("createdDate is null"),
+        )
 
+    companion object {
         fun from(inquiry: AuthorInquiry) =
             AuthorInquiryEntity(
                 userId = inquiry.userId,

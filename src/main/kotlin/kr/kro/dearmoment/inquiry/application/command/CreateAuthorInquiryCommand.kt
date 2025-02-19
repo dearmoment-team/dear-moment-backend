@@ -7,12 +7,10 @@ data class CreateAuthorInquiryCommand(
     val title: String,
     val content: String,
 ) {
-    companion object {
-        fun toDomain(command: CreateAuthorInquiryCommand) =
-            AuthorInquiry(
-                userId = command.userId,
-                title = command.title,
-                content = command.content,
-            )
-    }
+    fun toDomain() =
+        AuthorInquiry(
+            userId = userId,
+            title = title,
+            content = content,
+        )
 }

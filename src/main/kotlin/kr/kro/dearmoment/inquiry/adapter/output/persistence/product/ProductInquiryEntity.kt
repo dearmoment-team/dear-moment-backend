@@ -21,16 +21,16 @@ class ProductInquiryEntity(
     @Column(nullable = false)
     val productId: Long,
 ) : Auditable() {
-    companion object {
-        fun toDomain(entity: ProductInquiryEntity) =
-            ProductInquiry(
-                id = entity.id,
-                userId = entity.userId,
-                productId = entity.productId,
-                thumbnailUrl = "",
-                createdDate = entity.createdDate ?: throw IllegalStateException("createdDate is null"),
-            )
+    fun toDomain() =
+        ProductInquiry(
+            id = id,
+            userId = userId,
+            productId = productId,
+            thumbnailUrl = "",
+            createdDate = createdDate ?: throw IllegalStateException("createdDate is null"),
+        )
 
+    companion object {
         fun from(inquiry: ProductInquiry) =
             ProductInquiryEntity(
                 userId = inquiry.userId,

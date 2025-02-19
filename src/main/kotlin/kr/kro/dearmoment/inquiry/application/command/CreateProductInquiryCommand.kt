@@ -6,11 +6,9 @@ data class CreateProductInquiryCommand(
     val userId: Long,
     val productId: Long,
 ) {
-    companion object {
-        fun toDomain(command: CreateProductInquiryCommand) =
-            ProductInquiry(
-                userId = command.userId,
-                productId = command.productId,
-            )
-    }
+    fun toDomain() =
+        ProductInquiry(
+            userId = userId,
+            productId = productId,
+        )
 }

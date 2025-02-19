@@ -25,19 +25,19 @@ class InquiryService(
 ) : CreateInquiryUseCase, GetInquiryUseCase, RemoveInquiryUseCase {
     @Transactional
     override fun createAuthorInquiry(command: CreateAuthorInquiryCommand): CreateInquiryResponse {
-        val inquiry = CreateAuthorInquiryCommand.toDomain(command)
+        val inquiry = command.toDomain()
         return CreateInquiryResponse(saveInquiryPort.saveAuthorInquiry(inquiry))
     }
 
     @Transactional
     override fun createProductInquiry(command: CreateProductInquiryCommand): CreateInquiryResponse {
-        val inquiry = CreateProductInquiryCommand.toDomain(command)
+        val inquiry = command.toDomain()
         return CreateInquiryResponse(saveInquiryPort.saveProductInquiry(inquiry))
     }
 
     @Transactional
     override fun createServiceInquiry(command: CreateServiceInquiryCommand): CreateInquiryResponse {
-        val inquiry = CreateServiceInquiryCommand.toDomain(command)
+        val inquiry = command.toDomain()
         return CreateInquiryResponse(saveInquiryPort.saveServiceInquiry(inquiry))
     }
 
