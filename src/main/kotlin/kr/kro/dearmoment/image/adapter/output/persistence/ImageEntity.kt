@@ -23,6 +23,15 @@ class ImageEntity(
     @Column
     val fileName: String,
 ) : Auditable() {
+    fun toDomain(): Image {
+        return Image(
+            imageId = id,
+            userId = userId,
+            url = url,
+            fileName = fileName,
+        )
+    }
+
     companion object {
         fun from(domain: Image) =
             ImageEntity(
@@ -31,14 +40,5 @@ class ImageEntity(
                 url = domain.url,
                 fileName = domain.fileName,
             )
-
-        fun toDomain(entity: ImageEntity): Image {
-            return Image(
-                imageId = entity.id,
-                userId = entity.userId,
-                url = entity.url,
-                fileName = entity.fileName,
-            )
-        }
     }
 }
