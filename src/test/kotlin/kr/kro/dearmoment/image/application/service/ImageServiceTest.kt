@@ -68,25 +68,36 @@ class ImageServiceTest : BehaviorSpec({
     }
 
     Given("이미지 ID를 제공했을 때") {
+        val userId = 123L
         val imageId = 1L
         val image =
             Image(
-                userId = 123L,
-                imageId = 1L,
+                userId = userId,
+                imageId = imageId,
                 url = "localhost:8080/image",
+                parId = "parId",
+                fileName = "image.jpg",
+            )
+
+        val updatedImage =
+            Image(
+                userId = userId,
+                imageId = imageId,
+                url = "localhost:8080/image/change",
+                parId = "changedParId",
                 fileName = "image.jpg",
             )
 
         When("이미지를 조회하면") {
             every { getImagePort.findOne(imageId) } returns image
-            every { getImageFromObjectStoragePort.getImageWithUrl(image) } returns image
-            every { updateImagePort.update(any()) } returns 1
+            every { getImageFromObjectStoragePort.getImageWithUrl(image) } returns updatedImage
+            every { updateImagePort.updateUrlInfo(updatedImage) } returns updatedImage
 
             val result = imageService.getOne(imageId)
 
             Then("이미지 정보에 대한 응답을 반환한다.") {
                 result.imageId shouldBe image.imageId
-                result.url shouldBe image.url
+                result.url shouldBe updatedImage.url
                 verify(exactly = 1) { getImagePort.findOne(imageId) }
             }
         }
@@ -120,7 +131,7 @@ class ImageServiceTest : BehaviorSpec({
                     urlExpireTime = LocalDateTime.now().plusDays(1L),
                 ),
             )
-        every { getImagePort.findAll(userId) } returns images
+        every { getImagePort.findUserImages(userId) } returns images
         every { getImageFromObjectStoragePort.getImageWithUrl(any()) } returns Image(userId = 1, fileName = "")
 
         When("이미지를 조회하면") {
@@ -128,7 +139,7 @@ class ImageServiceTest : BehaviorSpec({
 
             Then("해당 유저의 모든 이미지 정보에 대한 응답을 반환한다.") {
                 result.images.size shouldBe images.size
-                verify(exactly = 1) { getImagePort.findAll(userId) }
+                verify(exactly = 1) { getImagePort.findUserImages(userId) }
             }
         }
     }

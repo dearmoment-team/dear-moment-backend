@@ -42,20 +42,20 @@ class ImageService(
     override fun getOne(imageId: Long): GetImageResponse {
         val image = getImagePort.findOne(imageId)
 
-        if (image.isUrlExpired()) {
-            val renewedImage = getImageFromObjectStorage.getImageWithUrl(image)
+        val updatedImage =
+            if (image.isUrlExpired()) {
+                val renewedImage = getImageFromObjectStorage.getImageWithUrl(image)
+                updateImagePort.updateUrlInfo(renewedImage)
+            } else {
+                image
+            }
 
-            check(updateImagePort.update(renewedImage) > 0) { "fail update" }
-
-            return GetImageResponse.from(renewedImage)
-        }
-
-        return GetImageResponse.from(image)
+        return GetImageResponse.from(updatedImage)
     }
 
     @Transactional(readOnly = true)
     override fun getAll(userId: Long): GetImagesResponse {
-        val images = getImagePort.findAll(userId)
+        val images = getImagePort.findUserImages(userId)
 
         val finalResult =
             images.map { image ->

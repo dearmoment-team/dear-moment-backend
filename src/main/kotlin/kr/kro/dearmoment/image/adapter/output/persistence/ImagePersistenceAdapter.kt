@@ -23,10 +23,9 @@ class ImagePersistenceAdapter(
             .map { it.id }
     }
 
-    override fun findAll(userId: Long): List<Image> {
-        val entities = imageRepository.findAllByUserId(userId)
-        return entities.map { it.toDomain() }
-    }
+    override fun findUserImages(userId: Long): List<Image> =
+        imageRepository.findAllByUserId(userId)
+            .map { it.toDomain() }
 
     override fun findOne(imageId: Long): Image {
         val entity =
@@ -34,9 +33,10 @@ class ImagePersistenceAdapter(
         return entity.toDomain()
     }
 
-    override fun update(image: Image): Int {
-        val entity = ImageEntity.from(image)
-        return imageRepository.updateImageUrl(entity.id, entity.url)
+    override fun updateUrlInfo(image: Image): Image {
+        val entity = imageRepository.findByIdOrNull(image.imageId) ?: throw IllegalArgumentException("Invalid imageId: ${image.imageId}")
+        entity.modifyUrlInfo(image.url, image.parId)
+        return entity.toDomain()
     }
 
     override fun delete(imageId: Long) {

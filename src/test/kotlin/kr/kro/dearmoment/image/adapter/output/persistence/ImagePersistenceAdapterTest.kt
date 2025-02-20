@@ -35,6 +35,7 @@ class ImagePersistenceAdapterTest(
                 Image(
                     userId = 123L,
                     url = "localhost:8080/image",
+                    parId = "parId",
                     fileName = "image.jpg",
                 )
             val savedId = adapter.save(image)
@@ -44,11 +45,13 @@ class ImagePersistenceAdapterTest(
                         imageId = savedId,
                         userId = 123L,
                         url = "localhost:8080/image/update",
+                        parId = "updatedParId",
                         fileName = "image.jpg",
                     )
                 Then("변경된 row(행) 수를 반환한다.") {
-                    val result = adapter.update(renewedImage)
-                    result shouldBe 1
+                    val result = adapter.updateUrlInfo(renewedImage)
+                    result.parId shouldBe renewedImage.parId
+                    result.url shouldBe renewedImage.url
                 }
             }
         }
@@ -126,7 +129,7 @@ class ImagePersistenceAdapterTest(
             When("이미지를 조회하면") {
                 Then("유저의 모든 이미지를 조회 및 반환한다.") {
                     images.forEach { adapter.save(it) }
-                    val result = adapter.findAll(123L)
+                    val result = adapter.findUserImages(123L)
                     result.size shouldBe images.size
                 }
             }
