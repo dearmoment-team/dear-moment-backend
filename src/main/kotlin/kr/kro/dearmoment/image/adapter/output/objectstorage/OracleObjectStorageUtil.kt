@@ -11,12 +11,14 @@ import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Component
 
 @Component
-class OracleObjectStorageUtil {
+class OracleObjectStorageUtil(
+    private val objectStorageProperties: OracleObjectStorageProperties,
+) {
     val client: ObjectStorage by lazy { initializeClient() }
     val uploadManager: UploadManager by lazy { initializeUploadManager(client) }
 
     private fun initializeClient(): ObjectStorage {
-        val config = ConfigFileReader.parseDefault()
+        val config = ConfigFileReader.parse(objectStorageProperties.configPath, "DEFAULT")
         val provider = ConfigFileAuthenticationDetailsProvider(config)
 
         return ObjectStorageClient.builder()
