@@ -2,7 +2,7 @@ package kr.kro.dearmoment.like.adapter.input.web
 
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeRequest
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeResponse
-import kr.kro.dearmoment.like.application.command.LikeCommand
+import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,7 +23,7 @@ class LikeRestAdapter(
         @RequestBody request: LikeRequest,
     ): LikeResponse {
         val command =
-            LikeCommand(
+            SaveLikeCommand(
                 userId = request.userId,
                 targetId = request.targetId,
                 type = request.type,
