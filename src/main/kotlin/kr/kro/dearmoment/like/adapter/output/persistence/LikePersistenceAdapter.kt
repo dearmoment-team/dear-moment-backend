@@ -21,7 +21,7 @@ class LikePersistenceAdapter(
 
     override fun loadLikes(userId: Long): List<Like> =
         likeRepository.findByUserId(userId)
-            .map { LikeEntity.toDomain(it) }
+            .map { it.toDomain() }
 
     override fun existLike(
         userId: Long,
