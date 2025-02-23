@@ -1,11 +1,14 @@
 package kr.kro.dearmoment.like.adapter.input.web
 
+import kr.kro.dearmoment.like.adapter.input.web.dto.GetLikeResponse
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeRequest
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeResponse
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
+import kr.kro.dearmoment.like.application.query.GetLikesQuery
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -31,6 +34,12 @@ class LikeRestAdapter(
         return likeUseCase.like(command)
     }
 
+    @GetMapping("/{userId}/{type}")
+    fun getLikes(
+        @PathVariable userId: Long,
+        @PathVariable type: String,
+    ): List<GetLikeResponse> = likeUseCase.getLikes(GetLikesQuery(userId, type))
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun unlike(
@@ -38,19 +47,4 @@ class LikeRestAdapter(
     ) {
         likeUseCase.unlike(id)
     }
-
-    /***
-     * 좋아요 페이지 api
-     * @TODO 작가 및 상품 도메인 확인 후 개발
-     *
-     @GetMapping("/{userId}/{type}")
-     fun getLikes(
-     @PathVariable userId: Long,
-     @PathVariable type: String,
-     ): List<GetLikeResponse> {
-     val query = GetLikesQuery(userId, type)
-     val response = likeUseCase.getLikes(query)
-
-     }
-     */
 }
