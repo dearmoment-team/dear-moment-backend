@@ -5,5 +5,5 @@ package kr.kro.dearmoment.product.domain.model
  */
 data class ProductOptionUpdateResult(
     val updatedOptions: List<ProductOption>,
-    val deletedOptionIds: Set<Long>
+    val deletedOptionIds: Set<Long>,
 )

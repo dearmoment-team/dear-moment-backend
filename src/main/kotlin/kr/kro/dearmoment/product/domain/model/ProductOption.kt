@@ -6,8 +6,8 @@ import java.time.LocalDateTime
  * 옵션의 타입(단품 or 패키지)
  */
 enum class OptionType {
-    SINGLE,    // 단품
-    PACKAGE    // 패키지
+    SINGLE, // 단품
+    PACKAGE, // 패키지
 }
 
 /**
@@ -17,7 +17,7 @@ enum class PackageCategory {
     HAIR_MAKEUP,
     DRESS,
     DRONE,
-    DVD
+    DVD,
 }
 
 /**
@@ -25,7 +25,7 @@ enum class PackageCategory {
  */
 data class PartnerShop(
     val name: String,
-    val link: String
+    val link: String,
 ) {
     init {
         require(name.isNotBlank()) { "제휴 업체 이름은 비어 있을 수 없습니다." }
@@ -45,43 +45,33 @@ data class PartnerShop(
  */
 data class ProductOption(
     val optionId: Long = 0L,
-    val productId: Long,         // 상위 Product 식별자
-
+    val productId: Long, // 상위 Product 식별자
     // 옵션명(필수)
     val name: String,
-
     // 옵션 타입 (단품 / 패키지)
     val optionType: OptionType,
-
     // 옵션 추가금(0 이상)
     val additionalPrice: Long,
-
     // 옵션 설명(선택)
     val description: String = "",
-
     // -----------------------
     // [단품] 필드들
     // -----------------------
     // 의상 수(필수)
     val costumeCount: Int = 0,
-
     // 촬영 장소(필수)
     val shootingLocation: String = "",
-
     // 촬영 시간(분)(필수)
     val shootingMinutes: Int = 0,
-
     // -----------------------
     // [패키지] 필드들
     // -----------------------
     // 패키지 종류(필수)
     val packageCategory: PackageCategory? = null,
-
     // 패키지 제휴 업체(최소 1개 이상 필요)
     val partnerShops: List<PartnerShop> = emptyList(),
-
     val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null
+    val updatedAt: LocalDateTime? = null,
 ) {
     init {
         // 옵션명 필수

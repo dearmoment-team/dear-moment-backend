@@ -1,11 +1,16 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import jakarta.persistence.AttributeOverride
+import jakarta.persistence.AttributeOverrides
 import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -14,8 +19,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -43,26 +47,51 @@ open class ProductEntity(
     var title: String = "",
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-    @Column(name = "PRICE", nullable = false)
-    var price: Long = 0L,
-    @Column(name = "TYPE_CODE", nullable = false)
-    var typeCode: Int = 0,
-    @Column(name = "SHOOTING_TIME")
-    var shootingTime: LocalDateTime? = null,
-    @Column(name = "SHOOTING_LOCATION")
-    var shootingLocation: String? = null,
-    @Column(name = "NUMBER_OF_COSTUMES")
-    var numberOfCostumes: Int? = null,
+    @Column(name = "BASE_PRICE", nullable = false)
+    var basePrice: Long = 0L,
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-        name = "PRODUCT_PARTNER_SHOPS",
+        name = "PRODUCT_AVAILABLE_SEASONS",
         joinColumns = [JoinColumn(name = "PRODUCT_ID")],
     )
-    var partnerShops: List<PartnerShopEmbeddable> = mutableListOf(),
+    @Enumerated(EnumType.STRING)
+    @Column(name = "SEASON")
+    var availableSeasons: MutableSet<ShootingSeason> = mutableSetOf(),
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "PRODUCT_CAMERA_TYPES",
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "CAMERA_TYPE")
+    var cameraTypes: MutableSet<CameraType> = mutableSetOf(),
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "PRODUCT_RETOUCH_STYLES",
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "RETOUCH_STYLE")
+    var retouchStyles: MutableSet<RetouchStyle> = mutableSetOf(),
+    @Embedded
+    @AttributeOverrides(
+        AttributeOverride(name = "userId", column = Column(name = "MAIN_IMAGE_USER_ID"))
+    )
+    var mainImage: ImageEmbeddable = ImageEmbeddable(),
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "PRODUCT_SUB_IMAGES",
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+    )
+    var subImages: MutableList<ImageEmbeddable> = mutableListOf(),
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "PRODUCT_ADDITIONAL_IMAGES",
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+    )
+    var additionalImages: MutableList<ImageEmbeddable> = mutableListOf(),
     @Column(name = "DETAILED_INFO")
     var detailedInfo: String? = null,
-    @Column(name = "WARRANTY_INFO")
-    var warrantyInfo: String? = null,
     @Column(name = "CONTACT_INFO")
     var contactInfo: String? = null,
     @CreatedDate
@@ -73,13 +102,6 @@ open class ProductEntity(
     var updatedAt: LocalDateTime? = null,
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "PRODUCT_IMAGES",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
-    )
-    @Column(name = "IMAGE_URL")
-    var images: List<String> = mutableListOf(),
 ) {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
@@ -88,25 +110,37 @@ open class ProductEntity(
                     productId = if (product.productId == 0L) null else product.productId,
                     userId = product.userId,
                     title = product.title,
-                    description = if (product.description.isBlank()) null else product.description,
-                    price = product.price,
-                    typeCode = product.typeCode,
-                    shootingTime = product.shootingTime,
-                    shootingLocation = product.shootingLocation.ifBlank { null },
-                    numberOfCostumes = if (product.numberOfCostumes == 0) null else product.numberOfCostumes,
-                    partnerShops = product.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                    detailedInfo = if (product.detailedInfo.isBlank()) null else product.detailedInfo,
-                    warrantyInfo = if (product.warrantyInfo.isBlank()) null else product.warrantyInfo,
-                    contactInfo = if (product.contactInfo.isBlank()) null else product.contactInfo,
+                    description = product.description.takeIf { it.isNotBlank() },
+                    basePrice = product.basePrice,
+                    mainImage = ImageEmbeddable.fromDomainImage(product.mainImage),
+                    detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() },
+                    contactInfo = product.contactInfo.takeIf { it.isNotBlank() },
                     createdAt = product.createdAt,
                     updatedAt = product.updatedAt,
-                    images = product.images,
                 )
+
+            // 다중 선택(availableSeasons, cameraTypes, retouchStyles) 매핑
+            productEntity.availableSeasons.addAll(product.availableSeasons)
+            productEntity.cameraTypes.addAll(product.cameraTypes)
+            productEntity.retouchStyles.addAll(product.retouchStyles)
+
+            // 서브/추가 이미지 매핑
+            productEntity.subImages =
+                product.subImages
+                    .map { ImageEmbeddable.fromDomainImage(it) }
+                    .toMutableList()
+            productEntity.additionalImages =
+                product.additionalImages
+                    .map { ImageEmbeddable.fromDomainImage(it) }
+                    .toMutableList()
+
+            // 옵션 매핑
             productEntity.options.clear()
             product.options.forEach { optionDomain ->
                 val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
                 productEntity.options.add(optionEntity)
             }
+
             return productEntity
         }
     }
@@ -117,19 +151,18 @@ open class ProductEntity(
             userId = userId ?: throw IllegalArgumentException("User ID is null"),
             title = title,
             description = description ?: "",
-            price = price,
-            typeCode = typeCode,
-            shootingTime = shootingTime,
-            shootingLocation = shootingLocation ?: "",
-            numberOfCostumes = numberOfCostumes ?: 0,
-            partnerShops = partnerShops.map { PartnerShop(it.name, it.link) },
+            basePrice = basePrice,
+            availableSeasons = availableSeasons,
+            cameraTypes = cameraTypes,
+            retouchStyles = retouchStyles,
+            mainImage = mainImage.toDomainImage(),
+            subImages = subImages.map { it.toDomainImage() },
+            additionalImages = additionalImages.map { it.toDomainImage() },
             detailedInfo = detailedInfo ?: "",
-            warrantyInfo = warrantyInfo ?: "",
             contactInfo = contactInfo ?: "",
             createdAt = createdAt ?: LocalDateTime.now(),
             updatedAt = updatedAt ?: LocalDateTime.now(),
             options = options.map { it.toDomain() },
-            images = images,
         )
     }
 }
