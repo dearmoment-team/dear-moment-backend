@@ -26,3 +26,9 @@ sentry:
   max-request-body-size: always
   send-default-pii: true
   traces-sample-rate: 1.0
+
+oracle:
+  net:
+    authentication_services: SSL
+    ssl_version: "1.2"
+    ssl_server_dn_match: true

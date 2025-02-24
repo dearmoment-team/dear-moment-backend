@@ -52,6 +52,9 @@ dependencies {
 
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
+    implementation("com.oracle.database.security:oraclepki:23.3.0.23.09")
+    implementation("com.oracle.database.security:osdt_core:21.17.0.0")
+    implementation("com.oracle.database.security:osdt_cert:21.17.0.0")
 
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
