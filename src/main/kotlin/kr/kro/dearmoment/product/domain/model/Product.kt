@@ -30,15 +30,15 @@ enum class CameraType {
  * - 요구사항에 제시된 (모던한, 시크한, 차분한, 빈티지한, 동화같은, 따뜻한, 몽환적인, 화사한, 내추럴한)에 맞춰 확장
  */
 enum class RetouchStyle {
-    MODERN, // 모던한
-    CHIC, // 시크한
-    CALM, // 차분한
-    VINTAGE, // 빈티지한
-    FAIRYTALE, // 동화같은
-    WARM, // 따뜻한
-    DREAMY, // 몽환적인
-    BRIGHT, // 화사한
-    NATURAL, // 내추럴한
+    MODERN,
+    CHIC,
+    CALM,
+    VINTAGE,
+    FAIRYTALE,
+    WARM,
+    DREAMY,
+    BRIGHT,
+    NATURAL,
 }
 
 /**
