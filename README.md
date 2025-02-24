@@ -1,3 +1,4 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Onboarding-serivce_BE-onboarding&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Onboarding-serivce_BE-onboarding)
 # 디어모먼트 백엔드 업무분장표
 
 ## 🗂️ 업무 분장표
