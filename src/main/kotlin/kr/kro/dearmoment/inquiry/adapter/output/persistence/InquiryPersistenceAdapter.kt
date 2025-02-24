@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.inquiry.adapter.output.persistence
 
-import jakarta.ws.rs.NotFoundException
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryEntity
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductInquiryEntity
@@ -54,7 +55,7 @@ class InquiryPersistenceAdapter(
     ): Long {
         val entity =
             authorInquiryJpaRepository.findByIdOrNull(inquiryId)
-                ?: throw NotFoundException("Not found author's inquiry[$inquiryId]")
+                ?: throw CustomException(ErrorCode.INQUIRY_NOT_FOUND)
         entity.modifyAnswer(answer)
         return entity.id
     }
