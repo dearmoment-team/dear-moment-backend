@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleValidationException(e: ConstraintViolationException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity(ErrorResponse(e.message ?: "Error occurred"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(ErrorResponse(e.message ?: "Validation error"), HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(CustomException::class)
@@ -22,11 +22,11 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity(ErrorResponse(e.message ?: "Error occurred"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(ErrorResponse(e.message ?: "Invalid argument"), HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalStateException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+    fun handleIllegalStateException(e: IllegalStateException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(ErrorResponse(e.message ?: "Internal Server Error"), HttpStatus.BAD_REQUEST)
     }
 
