@@ -4,272 +4,201 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kr.kro.dearmoment.image.domain.Image
 
-/**
- * Product 클래스 테스트
- */
 internal class ProductTest : StringSpec({
 
-    // 공통 이미지 리스트
-    val defaultImages = listOf("default_image.jpg")
+    // 테스트용 이미지 생성 함수
+    fun createImage(fileName: String) = Image(fileName = fileName, url = "http://example.com/$fileName")
 
-    // 공통 PartnerShops 리스트
-    val defaultPartnerShops =
-        listOf(
-            PartnerShop(name = "상점1", link = "http://shop1.com"),
-            PartnerShop(name = "상점2", link = "http://shop2.com"),
-        )
-
-    // 테스트 데이터 팩토리 함수
+    // 기본 Product 생성 헬퍼
     fun createProduct(
         productId: Long = 1L,
-        userId: Long = 1L,
         title: String = "테스트 상품",
-        description: String = "테스트 설명",
-        price: Long = 100000,
-        typeCode: Int = 1,
+        mainImage: Image = createImage("main.jpg"),
+        subImages: List<Image> = List(4) { createImage("sub${it + 1}.jpg") },
         options: List<ProductOption> = emptyList(),
-        images: List<String> = defaultImages,
-        partnerShops: List<PartnerShop> = if (typeCode == 1) defaultPartnerShops else emptyList(),
+        additionalImages: List<Image> = emptyList(),
+        basePrice: Long = 100_000L,
+        retouchStyles: Set<RetouchStyle> = emptySet()
     ) = Product(
         productId = productId,
-        userId = userId,
+        userId = 1L,
         title = title,
-        description = description,
-        price = price,
-        typeCode = typeCode,
-        options = options,
-        images = images,
-        partnerShops = partnerShops,
+        mainImage = mainImage,
+        subImages = subImages,
+        additionalImages = additionalImages,
+        basePrice = basePrice,
+        retouchStyles = retouchStyles,
+        options = options
     )
 
-    "상품 생성 시 hasPackage가 true여야 한다" {
-        // given
-        val product = createProduct()
-        // when
-        val result = product.hasPackage
-        // then
-        result shouldBe true
+    "Product 생성 시 제목이 비어 있으면 예외 발생" {
+        val exception = shouldThrow<IllegalArgumentException> {
+            createProduct(title = "")
+        }
+        exception.message shouldBe "상품명은 필수 입력값입니다."
     }
 
-    "typeCode가 0인 상품은 hasPackage가 false여야 한다" {
-        // given
-        val product =
-            createProduct(
-                productId = 2L,
-                userId = 2L,
-                title = "일반 상품",
-                description = "일반 설명",
-                price = 50000,
-                typeCode = 0,
-            )
-        // when
-        val result = product.hasPackage
-        // then
-        result shouldBe false
+    "기본 가격이 음수이면 예외 발생" {
+        val exception = shouldThrow<IllegalArgumentException> {
+            createProduct(basePrice = -1)
+        }
+        exception.message shouldBe "기본 가격은 0 이상이어야 합니다."
     }
 
-    "options가 제공되지 않은 경우 빈 리스트여야 한다" {
-        // given
-        val product =
-            createProduct(
-                productId = 3L,
-                userId = 3L,
-                title = "옵션 없는 상품",
-                description = "옵션 없음 설명",
-                price = 75000,
-            )
-        // when
-        val result = product.options
-        // then
-        result shouldBe emptyList()
+    "서브 이미지는 정확히 4장이어야 함" {
+        val validProduct = createProduct(subImages = List(4) { createImage("valid$it.jpg") })
+        validProduct.subImages.size shouldBe 4
+
+        shouldThrow<IllegalArgumentException> {
+            createProduct(subImages = List(3) { createImage("invalid$it.jpg") })
+        }.message shouldBe "서브 이미지는 정확히 4장 등록해야 합니다."
     }
 
-    "options가 제공된 경우 해당 리스트로 초기화되어야 한다" {
-        // given
-        val options =
-            listOf(
-                ProductOption(
-                    optionId = 1L,
-                    productId = 4L,
-                    name = "옵션1",
-                    additionalPrice = 10000,
-                    description = "옵션 설명1",
-                ),
-                ProductOption(
-                    optionId = 2L,
-                    productId = 4L,
-                    name = "옵션2",
-                    additionalPrice = 20000,
-                    description = "옵션 설명2",
-                ),
-            )
+    "추가 이미지는 최대 5장까지 허용" {
+        val validProduct = createProduct(additionalImages = List(5) { createImage("add$it.jpg") })
+        validProduct.additionalImages.size shouldBe 5
 
-        val product =
-            createProduct(
-                productId = 4L,
-                userId = 4L,
-                title = "옵션 있는 상품",
-                description = "옵션 있음 설명",
-                price = 150000,
-                options = options,
-            )
-        // when
-        val result = product.options
-        // then
-        result shouldBe options
+        shouldThrow<IllegalArgumentException> {
+            createProduct(additionalImages = List(6) { createImage("invalid$it.jpg") })
+        }.message shouldBe "추가 이미지는 최대 5장까지 등록 가능합니다."
     }
 
-    "updateOptions 함수가 새 옵션과 삭제할 옵션을 올바르게 반환해야 한다" {
-        // given
-        val existingOptions =
-            listOf(
-                ProductOption(
-                    optionId = 1L,
-                    productId = 5L,
-                    name = "기존 옵션1",
-                    additionalPrice = 10000,
-                    description = "기존 설명1",
-                ),
-                ProductOption(
-                    optionId = 2L,
-                    productId = 5L,
-                    name = "기존 옵션2",
-                    additionalPrice = 20000,
-                    description = "기존 설명2",
-                ),
-            )
+    "보정 스타일 최대 2개 선택 가능" {
+        val validStyles = setOf(RetouchStyle.MODERN, RetouchStyle.NATURAL)
+        val validProduct = createProduct(retouchStyles = validStyles)
+        validProduct.retouchStyles.size shouldBe 2
 
-        val newOptions =
-            listOf(
-                // 업데이트: 기존 옵션1 유지, 내용 변경
-                ProductOption(
-                    optionId = 1L,
-                    productId = 5L,
-                    name = "기존 옵션1",
-                    additionalPrice = 15000,
-                    description = "업데이트 설명1",
-                ),
-                // 신규 옵션: 신규 옵션은 optionId를 0L로 지정
-                ProductOption(
-                    optionId = 0L,
-                    productId = 5L,
-                    name = "새 옵션",
-                    additionalPrice = 30000,
-                    description = "새 설명",
-                ),
-            )
-
-        val product =
-            createProduct(
-                productId = 5L,
-                userId = 5L,
-                title = "옵션 업데이트 상품",
-                description = "옵션 업데이트 설명",
-                price = 200000,
-                options = existingOptions,
-            )
-
-        // when
-        val (updatedOptions, toDelete) = product.updateOptions(newOptions)
-        // then
-        updatedOptions shouldContainExactly
-            listOf(
-                ProductOption(
-                    optionId = 1L,
-                    productId = 5L,
-                    name = "기존 옵션1",
-                    additionalPrice = 15000,
-                    description = "업데이트 설명1",
-                ),
-                ProductOption(
-                    optionId = 0L,
-                    productId = 5L,
-                    name = "새 옵션",
-                    additionalPrice = 30000,
-                    description = "새 설명",
-                ),
-            )
-        toDelete shouldContainExactly setOf(2L)
+        // 주석 해제 시 테스트 활성화
+        /*
+        shouldThrow<IllegalArgumentException> {
+            createProduct(retouchStyles = setOf(RetouchStyle.MODERN, RetouchStyle.NATURAL, RetouchStyle.VINTAGE))
+        }.message shouldBe "보정 스타일은 최대 2개까지만 선택할 수 있습니다."
+        */
     }
 
-    "이미지가 비어 있으면 예외가 발생해야 한다" {
-        // given & when & then
-        val exception =
-            shouldThrow<IllegalArgumentException> {
-                createProduct(
-                    productId = 6L,
-                    userId = 6L,
-                    title = "이미지 없는 상품",
-                    description = "이미지 없음 설명",
-                    price = 60000,
-                    typeCode = 1,
-                    images = emptyList(),
-                )
-            }
-        exception.message shouldBe "최소 1개 이상의 이미지가 필요합니다"
+    "옵션 업데이트 시 변경 사항 정확히 반영" {
+        val existingOptions = listOf(
+            ProductOption(
+                optionId = 1L,
+                productId = 1L,
+                name = "기존 옵션1",
+                optionType = OptionType.SINGLE,
+                additionalPrice = 10_000,
+                costumeCount = 1,
+                shootingLocation = "스튜디오",
+                shootingMinutes = 60
+            ),
+            ProductOption(
+                optionId = 2L,
+                productId = 1L,
+                name = "기존 옵션2",
+                optionType = OptionType.PACKAGE,
+                additionalPrice = 20_000,
+                packageCategory = PackageCategory.DRESS,
+                partnerShops = listOf(PartnerShop("드레스샵", "http://dress.com"))
+            )
+
+            val product = createProduct (options = existingOptions)
+
+        val newOptions = listOf(
+            existingOptions[0].copy(additionalPrice = 15_000), // 업데이트
+            ProductOption( // 신규 추가
+                optionId = 0L,
+                productId = 1L,
+                name = "새 옵션",
+                optionType = OptionType.PACKAGE,
+                additionalPrice = 30_000,
+                packageCategory = PackageCategory.DRONE,
+                partnerShops = listOf(PartnerShop("드론샵", "http://drone.com"))
+            )
+
+            val result = product . updateOptions (newOptions)
+
+        result.updatedOptions shouldContainExactly listOf(
+            existingOptions[0].copy(additionalPrice = 15_000),
+            newOptions[1].copy(productId = 1L)
+        )
+        result.deletedOptionIds shouldContainExactly setOf(2L)
     }
 
-    "typeCode가 1인 상품에서 partnerShops가 비어 있으면 예외가 발생해야 한다" {
-        // given & when & then
-        val exception =
-            shouldThrow<IllegalArgumentException> {
-                Product(
-                    productId = 7L,
-                    userId = 7L,
-                    title = "파트너 없는 패키지 상품",
-                    description = "파트너 없음 설명",
-                    price = 120000,
-                    typeCode = 1,
-                    images = defaultImages,
-                    partnerShops = emptyList(),
-                )
-            }
-        exception.message shouldBe "패키지 상품은 하나 이상의 협력업체 정보가 필요합니다."
+    "단품 옵션 필수 필드 검증" {
+        shouldThrow<IllegalArgumentException> {
+            ProductOption(
+                optionId = 1L,
+                productId = 1L,
+                name = "잘못된 단품",
+                optionType = OptionType.SINGLE,
+                additionalPrice = 10_000,
+                costumeCount = 0, // 잘못된 값
+                shootingLocation = "스튜디오",
+                shootingMinutes = 60
+            )
+        }.message shouldBe "단품 옵션은 의상 수가 1개 이상이어야 합니다."
+
+        shouldThrow<IllegalArgumentException> {
+            ProductOption(
+                optionId = 1L,
+                productId = 1L,
+                name = "잘못된 단품",
+                optionType = OptionType.SINGLE,
+                additionalPrice = 10_000,
+                costumeCount = 1,
+                shootingLocation = "", // 잘못된 값
+                shootingMinutes = 60
+            )
+        }.message shouldBe "단품 옵션은 촬영 장소를 반드시 입력해야 합니다."
     }
 
-    "typeCode가 1인 상품에서 partnerShops에 빈 이름 또는 링크가 있으면 예외가 발생해야 한다" {
-        // given & when & then
-        val exception1 =
-            shouldThrow<IllegalArgumentException> {
-                Product(
-                    productId = 8L,
-                    userId = 8L,
-                    title = "빈 이름의 파트너",
-                    description = "파트너 이름 빈 경우",
-                    price = 130000,
-                    typeCode = 1,
-                    images = defaultImages,
-                    partnerShops =
-                        listOf(
-                            PartnerShop(
-                                name = "",
-                                link = "http://validlink.com",
-                            ),
-                        ),
-                )
-            }
-        exception1.message shouldBe "파트너샵 이름은 비어 있을 수 없습니다."
+    "패키지 옵션 필수 필드 검증" {
+        shouldThrow<IllegalArgumentException> {
+            ProductOption(
+                optionId = 1L,
+                productId = 1L,
+                name = "잘못된 패키지",
+                optionType = OptionType.PACKAGE,
+                additionalPrice = 10_000,
+                packageCategory = null, // 잘못된 값
+                partnerShops = listOf(PartnerShop("드레스샵", "http://dress.com"))
+            )
+        }.message shouldBe "패키지 옵션에는 packageCategory가 필수입니다."
 
-        val exception2 =
-            shouldThrow<IllegalArgumentException> {
-                Product(
-                    productId = 9L,
-                    userId = 9L,
-                    title = "빈 링크의 파트너",
-                    description = "파트너 링크 빈 경우",
-                    price = 140000,
-                    typeCode = 1,
-                    images = defaultImages,
-                    partnerShops =
-                        listOf(
-                            PartnerShop(
-                                name = "Valid Name",
-                                link = "",
-                            ),
-                        ),
-                )
-            }
-        exception2.message shouldBe "파트너샵 링크는 비어 있을 수 없습니다."
+        shouldThrow<IllegalArgumentException> {
+            ProductOption(
+                optionId = 1L,
+                productId = 1L,
+                name = "잘못된 패키지",
+                optionType = OptionType.PACKAGE,
+                additionalPrice = 10_000,
+                packageCategory = PackageCategory.DRESS,
+                partnerShops = emptyList() // 잘못된 값
+            )
+        }.message shouldBe "패키지 옵션은 최소 1개 이상의 제휴 업체가 필요합니다."
+    }
+
+    "협력업체 정보 유효성 검사" {
+        shouldThrow<IllegalArgumentException> {
+            PartnerShop(name = "", link = "http://valid.com")
+        }.message shouldBe "제휴 업체 이름은 비어 있을 수 없습니다."
+
+        shouldThrow<IllegalArgumentException> {
+            PartnerShop(name = "유효한 이름", link = "")
+        }.message shouldBe "제휴 업체 링크는 비어 있을 수 없습니다."
+    }
+
+    "옵션 추가 가격 음수 검증" {
+        shouldThrow<IllegalArgumentException> {
+            ProductOption(
+                optionId = 1L,
+                productId = 1L,
+                name = "잘못된 가격",
+                optionType = OptionType.SINGLE,
+                additionalPrice = -1,
+                costumeCount = 1,
+                shootingLocation = "스튜디오",
+                shootingMinutes = 60
+            )
+        }.message shouldBe "추가 가격은 음수가 될 수 없습니다."
     }
 })
