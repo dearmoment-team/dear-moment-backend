@@ -233,7 +233,6 @@ data class CreateProductOptionRequest(
                         link = it.link
                     )
                 },
-                // 생성/수정 시각은 엔티티에서 Auditing 처리하므로 null로 설정합니다.
                 createdAt = null,
                 updatedAt = null,
             )

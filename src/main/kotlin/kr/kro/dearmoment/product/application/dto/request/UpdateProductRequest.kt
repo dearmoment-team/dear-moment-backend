@@ -52,7 +52,6 @@ data class UpdateProductRequest(
                 additionalImages = addImgList,
                 detailedInfo = req.detailedInfo ?: "",
                 contactInfo = req.contactInfo ?: "",
-                // createdAt, updatedAt는 엔티티의 Auditing에 의해 관리됩니다.
                 options = domainOptions
             )
         }
