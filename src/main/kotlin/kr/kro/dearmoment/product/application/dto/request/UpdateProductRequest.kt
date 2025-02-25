@@ -125,6 +125,8 @@ data class UpdateProductOptionRequest(
     val shootingMinutes: Int = 0,
     val retouchedCount: Int = 0,
 
+    val originalProvided: Boolean = false,
+
     // 패키지용
     val partnerShops: List<UpdatePartnerShopRequest> = emptyList(),
 ) {

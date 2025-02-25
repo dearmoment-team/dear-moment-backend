@@ -62,7 +62,7 @@ open class ProductOptionEntity(
     @Column(name = "DESCRIPTION")
     var description: String? = null,
 
-    // [단품 필드들]
+    // 단품 필드들
     @Column(name = "COSTUME_COUNT")
     var costumeCount: Int = 0,
 
@@ -78,7 +78,11 @@ open class ProductOptionEntity(
     @Column(name = "RETOUCHED_COUNT")
     var retouchedCount: Int = 0,
 
-    // [패키지 필드들]
+    // [원본 제공 여부] 새로 추가
+    @Column(name = "ORIGINAL_PROVIDED", nullable = false)
+    var originalProvided: Boolean = false,
+
+    // 패키지 필드들
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
@@ -105,6 +109,7 @@ open class ProductOptionEntity(
                 shootingHours = option.shootingHours,
                 shootingMinutes = option.shootingMinutes,
                 retouchedCount = option.retouchedCount,
+                originalProvided = option.originalProvided,
                 partnerShops = option.partnerShops.map {
                     PartnerShopEmbeddable(
                         category = it.category,
@@ -132,6 +137,7 @@ open class ProductOptionEntity(
             shootingHours = shootingHours,
             shootingMinutes = shootingMinutes,
             retouchedCount = retouchedCount,
+            originalProvided = originalProvided,
             partnerShops = partnerShops.map {
                 PartnerShop(
                     category = it.category ?: PartnerShopCategory.ETC,

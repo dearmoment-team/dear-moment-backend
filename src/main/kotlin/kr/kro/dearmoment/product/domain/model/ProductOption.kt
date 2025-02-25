@@ -1,6 +1,5 @@
 package kr.kro.dearmoment.product.domain.model
 
-import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
 
 /**
@@ -66,6 +65,9 @@ data class ProductOption(
     val shootingMinutes: Int = 0,
     val retouchedCount: Int = 0,
 
+    // [원본 제공 여부] 새로 추가
+    val originalProvided: Boolean = false,
+
     // [패키지용]
     val partnerShops: List<PartnerShop> = emptyList(),
 
@@ -98,7 +100,6 @@ data class ProductOption(
             }
 
             require(retouchedCount > 0) { "단품 옵션은 보정본이 1장 이상이어야 합니다." }
-
         } else {
             // 패키지 전용 필드
             require(partnerShops.isNotEmpty()) { "패키지 옵션은 1개 이상의 파트너샵이 필요합니다." }

@@ -8,11 +8,13 @@ import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
@@ -26,7 +28,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>()
     val useCase: ProductOptionUseCase = ProductOptionUseCaseImpl(productOptionPersistencePort, productPersistencePort)
 
-    // 새로운 도메인 모델 구조에 맞게 mockProduct 생성
+    // 새로운 도메인 모델에 맞게 Product 객체 생성
     val mockProduct = Product(
         productId = 1L,
         userId = 1L,
@@ -37,12 +39,13 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         availableSeasons = emptySet(),
         cameraTypes = emptySet(),
         retouchStyles = emptySet(),
-        mainImage = kr.kro.dearmoment.image.domain.Image(
-            userId = 1L,
-            fileName = "main.jpg",
-            url = "http://example.com/main.jpg"
+        mainImage = Image(userId = 1L, fileName = "main.jpg", url = "http://example.com/main.jpg"),
+        subImages = listOf(
+            Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+            Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+            Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+            Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg")
         ),
-        subImages = emptyList(),
         additionalImages = emptyList(),
         detailedInfo = "Test Info",
         contactInfo = "Test Contact",
@@ -51,17 +54,23 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         options = emptyList()
     )
 
-    // CreateProductOptionRequest의 필드가 변경되었으므로, validRequest도 수정
+    // 유효한 SINGLE 옵션 요청 생성 (단품 옵션의 경우 필수 값 설정)
     val validRequest = CreateProductOptionRequest(
         name = "Option 1",
         optionType = "SINGLE",
         discountAvailable = false,
         originalPrice = 5000,
         discountPrice = 0,
-        description = "Test option"
+        description = "Test option",
+        costumeCount = 1,
+        shootingLocationCount = 1,
+        shootingHours = 1,
+        shootingMinutes = 0,
+        retouchedCount = 1,
+        partnerShops = emptyList()
     )
 
-    // 저장 후 반환되는 도메인 객체도 새로운 필드에 맞게 수정
+    // 저장 후 반환되는 도메인 객체 생성
     val savedDomainOption = ProductOption(
         optionId = 1L,
         productId = 1L,
@@ -71,11 +80,11 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         originalPrice = 5000,
         discountPrice = 0,
         description = "Test option",
-        costumeCount = 0,
-        shootingLocationCount = 0,
-        shootingHours = 0,
+        costumeCount = 1,
+        shootingLocationCount = 1,
+        shootingHours = 1,
         shootingMinutes = 0,
-        retouchedCount = 0,
+        retouchedCount = 1,
         partnerShops = emptyList(),
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now()
@@ -86,10 +95,9 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             every { productPersistencePort.findById(999L) } returns null
 
             Then("IllegalArgumentException 발생") {
-                val exception =
-                    shouldThrow<IllegalArgumentException> {
-                        useCase.saveProductOption(999L, validRequest)
-                    }
+                val exception = shouldThrow<IllegalArgumentException> {
+                    useCase.saveProductOption(999L, validRequest)
+                }
                 exception shouldHaveMessage "Product not found: 999"
             }
         }
@@ -99,10 +107,9 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.existsByProductIdAndName(1L, "Option 1") } returns true
 
             Then("IllegalArgumentException 발생") {
-                val exception =
-                    shouldThrow<IllegalArgumentException> {
-                        useCase.saveProductOption(1L, validRequest)
-                    }
+                val exception = shouldThrow<IllegalArgumentException> {
+                    useCase.saveProductOption(1L, validRequest)
+                }
                 exception shouldHaveMessage "Duplicate option name: Option 1"
             }
         }
@@ -119,7 +126,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                 verify(exactly = 1) {
                     productOptionPersistencePort.save(
                         match { it.optionId == 0L },
-                        mockProduct,
+                        mockProduct
                     )
                 }
             }
@@ -148,11 +155,10 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     }
 
     Given("getProductOptionsByProductId") {
-        val options =
-            listOf(
-                savedDomainOption,
-                savedDomainOption.copy(optionId = 2L, name = "Option 2")
-            )
+        val options = listOf(
+            savedDomainOption,
+            savedDomainOption.copy(optionId = 2L, name = "Option 2")
+        )
 
         When("특정 상품의 옵션 조회 시") {
             every { productOptionPersistencePort.findByProductId(1L) } returns options
@@ -169,12 +175,16 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     Given("existsProductOptions") {
         When("옵션이 존재하는 경우") {
             every { productOptionPersistencePort.existsByProductId(1L) } returns true
-            Then("true 반환") { useCase.existsProductOptions(1L) shouldBe true }
+            Then("true 반환") {
+                useCase.existsProductOptions(1L) shouldBe true
+            }
         }
 
         When("옵션이 존재하지 않는 경우") {
             every { productOptionPersistencePort.existsByProductId(1L) } returns false
-            Then("false 반환") { useCase.existsProductOptions(1L) shouldBe false }
+            Then("false 반환") {
+                useCase.existsProductOptions(1L) shouldBe false
+            }
         }
     }
 })
