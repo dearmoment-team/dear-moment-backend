@@ -10,15 +10,55 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import java.time.LocalDateTime
 
+// 파일 최상위에 테스트용 서브클래스를 선언하여, auditing 필드에 접근할 수 있도록 합니다.
+private class TestableProductOptionEntity(
+    optionId: Long? = null,
+    product: ProductEntity? = null,
+    name: String = "",
+    optionType: OptionType = OptionType.SINGLE,
+    discountAvailable: Boolean = false,
+    originalPrice: Long = 0L,
+    discountPrice: Long = 0L,
+    description: String? = null,
+    costumeCount: Int = 0,
+    shootingLocationCount: Int = 0,
+    shootingHours: Int = 0,
+    shootingMinutes: Int = 0,
+    retouchedCount: Int = 0,
+    partnerShops: List<PartnerShopEmbeddable> = emptyList(),
+    version: Long = 0L,
+) : ProductOptionEntity(
+    optionId = optionId,
+    product = product,
+    name = name,
+    optionType = optionType,
+    discountAvailable = discountAvailable,
+    originalPrice = originalPrice,
+    discountPrice = discountPrice,
+    description = description,
+    costumeCount = costumeCount,
+    shootingLocationCount = shootingLocationCount,
+    shootingHours = shootingHours,
+    shootingMinutes = shootingMinutes,
+    retouchedCount = retouchedCount,
+    partnerShops = partnerShops,
+    version = version
+) {
+    // 테스트용으로 auditing 필드에 값을 주입할 수 있도록 합니다.
+    fun setAuditing(created: LocalDateTime, updated: LocalDateTime) {
+        this.createdDate = created
+        this.updateDate = updated
+    }
+}
+
 class ProductOptionEntityTest : StringSpec({
 
     /**
-     * ProductOptionEntity.fromDomain(...) 테스트 (단품 옵션 예시)
-     * - 도메인 ProductOption -> ProductOptionEntity 변환 검증
+     * 단품 옵션 도메인 모델에서 엔티티로 변환할 때 Auditing 필드는 복사되지 않으므로,
+     * 해당 필드가 null임을 검증합니다.
      */
     "ProductOptionEntity는 단품 옵션 도메인 모델에서 올바르게 변환되어야 한다" {
         // given
-        // 단품 옵션에서는 촬영 장소 문자열 대신 촬영 장소 수, 촬영 시간(시/분), 보정본 수 등을 사용
         val productEntity = ProductEntity(
             productId = 1L,
             userId = 123L,
@@ -67,14 +107,14 @@ class ProductOptionEntityTest : StringSpec({
         optionEntity.shootingMinutes shouldBe 60
         optionEntity.retouchedCount shouldBe 1
 
-        // 기존 도메인의 createdAt/updatedAt 값을 그대로 복사하므로, 검증 값도 고정된 값과 일치해야 함
-        optionEntity.createdAt shouldBe fixedCreatedAt
-        optionEntity.updatedAt shouldBe fixedUpdatedAt
+        // Auditing 필드는 fromDomain()에서 복사되지 않으므로 null이어야 함
+        optionEntity.createdDate shouldBe null
+        optionEntity.updateDate shouldBe null
     }
 
     /**
-     * ProductOptionEntity.toDomain(...) 테스트 (패키지 옵션 예시)
-     * - ProductOptionEntity -> 도메인 ProductOption 변환 검증
+     * 패키지 옵션 엔티티를 도메인 모델로 변환할 때, Auditing 필드가 올바르게 전달되는지 검증합니다.
+     * 테스트를 위해 auditing 필드를 수동으로 설정할 수 있는 TestableProductOptionEntity를 사용합니다.
      */
     "ProductOptionEntity는 패키지 옵션 도메인 모델로 올바르게 변환되어야 한다" {
         // given
@@ -86,7 +126,6 @@ class ProductOptionEntityTest : StringSpec({
             title = "샘플 상품2"
         )
 
-        // 기존 packageCategory 필드는 제거되고, 대신 각 파트너샵에 category 지정
         val partnerShopsEmbeddable = listOf(
             PartnerShopEmbeddable(
                 category = PartnerShopCategory.HAIR_MAKEUP,
@@ -103,7 +142,7 @@ class ProductOptionEntityTest : StringSpec({
         val fixedCreatedAt = LocalDateTime.of(2023, 2, 2, 10, 0, 0)
         val fixedUpdatedAt = LocalDateTime.of(2023, 2, 2, 12, 0, 0)
 
-        val packageOptionEntity = ProductOptionEntity(
+        val testableOptionEntity = TestableProductOptionEntity(
             optionId = 10L,
             product = productEntity,
             name = "패키지 옵션",
@@ -117,14 +156,13 @@ class ProductOptionEntityTest : StringSpec({
             shootingHours = 0,
             shootingMinutes = 0,
             retouchedCount = 0,
-            // 패키지 옵션은 partnerShops가 필수
             partnerShops = partnerShopsEmbeddable,
-            createdAt = fixedCreatedAt,
-            updatedAt = fixedUpdatedAt
-        )
+        ).apply {
+            setAuditing(fixedCreatedAt, fixedUpdatedAt)
+        }
 
         // when
-        val packageOption = packageOptionEntity.toDomain()
+        val packageOption = testableOptionEntity.toDomain()
 
         // then
         packageOption.optionId shouldBe 10L
@@ -135,15 +173,12 @@ class ProductOptionEntityTest : StringSpec({
         packageOption.discountAvailable shouldBe false
         packageOption.discountPrice shouldBe 0L
         packageOption.description shouldBe "패키지 옵션 설명"
-
-        // 단품용 필드는 사용하지 않으므로 0이어야 함
         packageOption.costumeCount shouldBe 0
         packageOption.shootingLocationCount shouldBe 0
         packageOption.shootingHours shouldBe 0
         packageOption.shootingMinutes shouldBe 0
         packageOption.retouchedCount shouldBe 0
 
-        // partnerShops 확인 (각 PartnerShop에 category, name, link가 지정되어야 함)
         packageOption.partnerShops.size shouldBe 2
         packageOption.partnerShops.map { it.name } shouldContainExactly listOf("헤어메이크업1", "드레스샵A")
         packageOption.partnerShops.map { it.link } shouldContainExactly listOf("http://hm1.com", "http://dressA.com")
@@ -152,7 +187,6 @@ class ProductOptionEntityTest : StringSpec({
             PartnerShopCategory.DRESS
         )
 
-        // Auditing 필드는 도메인 값 그대로 복사되어야 함
         packageOption.createdAt shouldBe fixedCreatedAt
         packageOption.updatedAt shouldBe fixedUpdatedAt
     }

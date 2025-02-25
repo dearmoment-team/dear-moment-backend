@@ -21,9 +21,9 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
       AND (:productType IS NULL OR p.productType = :productType)
       AND (:shootingPlace IS NULL OR p.shootingPlace = :shootingPlace)
     ORDER BY 
-      CASE WHEN :sortBy = 'created-desc' THEN p.createdAt END DESC,
-      CASE WHEN :sortBy = 'created-asc' THEN p.createdAt END ASC
-        """
+      CASE WHEN :sortBy = 'created-desc' THEN p.createdDate END DESC,
+      CASE WHEN :sortBy = 'created-asc' THEN p.createdDate END ASC
+    """
     )
     fun searchByCriteria(
         @Param("title") title: String?,
@@ -31,6 +31,7 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
         @Param("shootingPlace") shootingPlace: ShootingPlace?,
         @Param("sortBy") sortBy: String?,
     ): List<ProductEntity>
+
 
     /**
      * 특정 사용자 ID와 상품명 조합의 존재 여부를 확인합니다.

@@ -20,10 +20,7 @@ import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
@@ -89,14 +86,6 @@ open class ProductOptionEntity(
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
 
-    @CreatedDate
-    @Column(name = "CREATED_AT", updatable = false)
-    var createdAt: LocalDateTime? = null,
-
-    @LastModifiedDate
-    @Column(name = "UPDATED_AT")
-    var updatedAt: LocalDateTime? = null,
-
     @Column(nullable = false)
     open var version: Long = 0L,
 ) : Auditable() {
@@ -123,8 +112,7 @@ open class ProductOptionEntity(
                         link = it.link,
                     )
                 },
-                createdAt = option.createdAt,
-                updatedAt = option.updatedAt,
+                version = 0L
             )
         }
     }
@@ -151,8 +139,8 @@ open class ProductOptionEntity(
                     link = it.link,
                 )
             },
-            createdAt = createdDate ?: LocalDateTime.now(),
-            updatedAt = updateDate ?: LocalDateTime.now(),
+            createdAt = createdDate ?: throw IllegalStateException("createdDate is not set"),
+            updatedAt = updateDate ?: throw IllegalStateException("updateDate is not set"),
         )
     }
 }

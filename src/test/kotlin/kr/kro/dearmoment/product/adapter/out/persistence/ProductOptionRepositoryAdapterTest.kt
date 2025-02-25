@@ -11,10 +11,13 @@ import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePo
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import java.time.LocalDateTime
 
 @DataJpaTest
 @Import(ProductOptionRepositoryAdapter::class)
@@ -100,8 +103,9 @@ class ProductOptionRepositoryAdapterTest(
                     optionId shouldNotBe 0L
                     name shouldBe "옵션1"
                     originalPrice shouldBe 10_000L
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
+                    // Auditing 필드는 createdDate, updateDate로 관리됨
+                    createdDate shouldNotBe null
+                    updateDate shouldNotBe null
                 }
             }
 
