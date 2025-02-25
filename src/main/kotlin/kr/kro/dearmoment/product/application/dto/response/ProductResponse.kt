@@ -13,17 +13,13 @@ data class ProductResponse(
     val availableSeasons: List<String>,
     val cameraTypes: List<String>,
     val retouchStyles: List<String>,
-
     val mainImage: String,
     val subImages: List<String>,
     val additionalImages: List<String>,
-
     val detailedInfo: String?,
     val contactInfo: String?,
-
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
-
     val options: List<ProductOptionResponse>,
 ) {
     companion object {
@@ -35,21 +31,16 @@ data class ProductResponse(
                 shootingPlace = prod.shootingPlace.name,
                 title = prod.title,
                 description = prod.description.takeIf { it.isNotBlank() },
-
                 availableSeasons = prod.availableSeasons.map { it.name },
                 cameraTypes = prod.cameraTypes.map { it.name },
                 retouchStyles = prod.retouchStyles.map { it.name },
-
                 mainImage = prod.mainImage.url,
                 subImages = prod.subImages.map { it.url },
                 additionalImages = prod.additionalImages.map { it.url },
-
                 detailedInfo = prod.detailedInfo.takeIf { it.isNotBlank() },
                 contactInfo = prod.contactInfo.takeIf { it.isNotBlank() },
-
                 createdAt = prod.createdAt,
                 updatedAt = prod.updatedAt,
-
                 options = prod.options.map { ProductOptionResponse.fromDomain(it) },
             )
         }
@@ -70,9 +61,7 @@ data class ProductOptionResponse(
     val shootingHours: Int,
     val shootingMinutes: Int,
     val retouchedCount: Int,
-
     val partnerShops: List<PartnerShopResponse>,
-
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 ) {
@@ -87,15 +76,12 @@ data class ProductOptionResponse(
                 originalPrice = opt.originalPrice,
                 discountPrice = opt.discountPrice,
                 description = opt.description.takeIf { it.isNotBlank() },
-
                 costumeCount = opt.costumeCount,
                 shootingLocationCount = opt.shootingLocationCount,
                 shootingHours = opt.shootingHours,
                 shootingMinutes = opt.shootingMinutes,
                 retouchedCount = opt.retouchedCount,
-
                 partnerShops = opt.partnerShops.map { PartnerShopResponse.fromDomain(it) },
-
                 createdAt = opt.createdAt,
                 updatedAt = opt.updatedAt
             )

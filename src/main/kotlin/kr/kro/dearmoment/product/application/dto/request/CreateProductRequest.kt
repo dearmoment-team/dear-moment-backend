@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.product.application.dto.request
 
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.*
@@ -86,7 +85,6 @@ data class CreateProductRequest(
          * DTO -> 도메인 변환
          */
         fun toDomain(req: CreateProductRequest): Product {
-            // 문자열 enum 변환
             val productTypeEnum: ProductType = ProductType.valueOf(req.productType)
             val shootingPlaceEnum: ShootingPlace = ShootingPlace.valueOf(req.shootingPlace)
 
@@ -145,8 +143,7 @@ data class CreateProductRequest(
                 additionalImages = addImgList,
                 detailedInfo = req.detailedInfo ?: "",
                 contactInfo = req.contactInfo ?: "",
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
+                // createdAt, updatedAt는 엔티티의 Auditing에 의해 자동 관리됩니다.
                 options = domainOptions,
             )
         }
@@ -236,6 +233,7 @@ data class CreateProductOptionRequest(
                         link = it.link
                     )
                 },
+                // 생성/수정 시각은 엔티티에서 Auditing 처리하므로 null로 설정합니다.
                 createdAt = null,
                 updatedAt = null,
             )
@@ -249,5 +247,4 @@ data class CreateProductOptionRequest(
 data class CreatePartnerShopRequest(
     val name: String,
     val link: String,
-    // 필요 시 category 필드를 추가할 수 있음
 )
