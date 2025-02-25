@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.*
-import java.time.LocalDateTime
+import org.springframework.web.multipart.MultipartFile
 
 /**
  * [상품 등록] 시 사용하는 요청 DTO
@@ -13,64 +13,51 @@ data class CreateProductRequest(
 
     val userId: Long,
 
-    /**
-     * 상품 유형 (예: WEDDING_SNAP)
-     */
     @field:NotBlank
     val productType: String,
 
-    /**
-     * 촬영 장소 (예: JEJU)
-     */
     @field:NotBlank
     val shootingPlace: String,
 
-    /**
-     * 상품명
-     */
     @field:NotBlank
     val title: String,
 
-    /**
-     * 간단 설명(선택)
-     */
     val description: String? = null,
 
     /**
-     * 촬영 가능 시기 (예: [ "YEAR_2025_FIRST_HALF", "YEAR_2025_SECOND_HALF" ])
+     * 촬영 가능 시기
      */
     val availableSeasons: List<String> = emptyList(),
 
     /**
-     * 카메라 종류 (예: ["DIGITAL", "FILM"])
+     * 카메라 종류
      */
     val cameraTypes: List<String> = emptyList(),
 
     /**
-     * 보정 스타일 (예: ["MODERN", "CHIC"], 최대 2개)
+     * 보정 스타일
      */
     val retouchStyles: List<String> = emptyList(),
 
     /**
-     * 대표 이미지 (파일명/URL)
+     * 대표 이미지(1장) - 실제 업로드 파일
      */
-    @field:NotBlank
-    val mainImage: String,
+    val mainImageFile: MultipartFile?,
 
     /**
      * 서브 이미지(필수 4장)
      */
     @field:Size(min = 4, max = 4, message = "서브 이미지는 정확히 4장이어야 합니다.")
-    val subImages: List<String>,
+    val subImageFiles: List<MultipartFile> = emptyList(),
 
     /**
      * 추가 이미지(최대 5장)
      */
     @field:Size(max = 5, message = "추가 이미지는 최대 5장까지 등록 가능합니다.")
-    val additionalImages: List<String> = emptyList(),
+    val additionalImageFiles: List<MultipartFile> = emptyList(),
 
     /**
-     * 상세 정보, 연락처 정보 등
+     * 상세 정보, 연락처 등
      */
     val detailedInfo: String? = null,
     val contactInfo: String? = null,
@@ -82,50 +69,52 @@ data class CreateProductRequest(
 ) {
     companion object {
         /**
-         * DTO -> 도메인 변환
+         * 이하 toDomain은 (참고용) 예시 로직:
+         * 실제 업로드된 이미지(파일)는 ImageService를 통해 업로드 후,
+         * 그 결과(이미지 URL, 파일명 등)를 Product 도메인에 넣는 과정을
+         * UseCase/Service에서 처리하게 될 가능성이 큼.
+         *
+         * 만약 여기서 단순 문자열만 받아 도메인으로 변환하던 기존 로직을 남겨두시려면,
+         * 'req.mainImageFile', 'req.subImageFiles' 등은 별도 처리가 필요합니다.
+         * 아래 예시는 "이미지 업로드 후 URL을 다시 세팅"한다는 가정하에
+         * 임시로 Image 도메인 객체를 생성해준다고 가정한 구조입니다.
          */
-        fun toDomain(req: CreateProductRequest): Product {
-            val productTypeEnum: ProductType = ProductType.valueOf(req.productType)
-            val shootingPlaceEnum: ShootingPlace = ShootingPlace.valueOf(req.shootingPlace)
+        fun toDomain(
+            req: CreateProductRequest,
+            mainImageUrl: String? = null,
+            subImagesUrls: List<String> = emptyList(),
+            additionalImagesUrls: List<String> = emptyList(),
+        ): Product {
+            val productTypeEnum = ProductType.valueOf(req.productType)
+            val shootingPlaceEnum = ShootingPlace.valueOf(req.shootingPlace)
+            val seasonSet = req.availableSeasons.map { ShootingSeason.valueOf(it) }.toSet()
+            val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
+            val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
 
-            val seasonSet: Set<ShootingSeason> = req.availableSeasons
-                .map { ShootingSeason.valueOf(it) }
-                .toSet()
-
-            val cameraSet: Set<CameraType> = req.cameraTypes
-                .map { CameraType.valueOf(it) }
-                .toSet()
-
-            val styleSet: Set<RetouchStyle> = req.retouchStyles
-                .map { RetouchStyle.valueOf(it) }
-                .toSet()
-
-            // 대표 이미지 (도메인의 Image 객체로)
-            val mainImg = Image(
-                userId = req.userId,
-                fileName = req.mainImage,
-                url = req.mainImage,
-            )
-
-            // 서브 이미지
-            val subImgList = req.subImages.map {
+            val mainImg = mainImageUrl?.let { url ->
                 Image(
                     userId = req.userId,
-                    fileName = it,
-                    url = it
+                    fileName = url,
+                    url = url
                 )
             }
 
-            // 추가 이미지
-            val addImgList = req.additionalImages.map {
+            val subImgList = subImagesUrls.map { url ->
                 Image(
                     userId = req.userId,
-                    fileName = it,
-                    url = it
+                    fileName = url,
+                    url = url
                 )
             }
 
-            // 옵션 목록
+            val addImgList = additionalImagesUrls.map { url ->
+                Image(
+                    userId = req.userId,
+                    fileName = url,
+                    url = url
+                )
+            }
+
             val domainOptions = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
 
             return Product(
@@ -138,17 +127,17 @@ data class CreateProductRequest(
                 availableSeasons = seasonSet,
                 cameraTypes = cameraSet,
                 retouchStyles = styleSet,
-                mainImage = mainImg,
+                mainImage = mainImg ?: throw IllegalArgumentException("대표 이미지는 필수입니다."),
                 subImages = subImgList,
                 additionalImages = addImgList,
                 detailedInfo = req.detailedInfo ?: "",
                 contactInfo = req.contactInfo ?: "",
-                // createdAt, updatedAt는 엔티티의 Auditing에 의해 자동 관리됩니다.
                 options = domainOptions,
             )
         }
     }
 }
+
 
 /**
  * [상품 옵션] 생성 요청 DTO
@@ -156,62 +145,27 @@ data class CreateProductRequest(
 data class CreateProductOptionRequest(
     val name: String,
 
-    /**
-     * 옵션 타입 (SINGLE / PACKAGE)
-     */
     @field:NotBlank
     val optionType: String,
 
-    /**
-     * 할인 여부
-     */
     val discountAvailable: Boolean = false,
-
-    /**
-     * 원 판매가
-     */
     val originalPrice: Long = 0,
-
-    /**
-     * 할인가
-     */
     val discountPrice: Long = 0,
-
-    /**
-     * 옵션 설명
-     */
     val description: String? = null,
 
-    /**
-     * [단품용] 의상 수
-     */
+    // 단품용
     val costumeCount: Int = 0,
-
-    /**
-     * [단품용] 촬영 장소 수
-     */
     val shootingLocationCount: Int = 0,
-
-    /**
-     * [단품용] 촬영 시간(시/분)
-     */
     val shootingHours: Int = 0,
     val shootingMinutes: Int = 0,
-
-    /**
-     * [단품용] 보정본
-     */
     val retouchedCount: Int = 0,
 
-    /**
-     * [패키지용] 파트너샵 리스트
-     */
+    // 패키지용
     val partnerShops: List<CreatePartnerShopRequest> = emptyList(),
 ) {
     companion object {
         fun toDomain(dto: CreateProductOptionRequest, productId: Long): ProductOption {
             val optionTypeEnum = OptionType.valueOf(dto.optionType)
-
             return ProductOption(
                 optionId = 0L,
                 productId = productId,
@@ -227,8 +181,9 @@ data class CreateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 partnerShops = dto.partnerShops.map {
+                    // 파트너샵 카테고리를 요청 DTO에서 받아서 사용
                     PartnerShop(
-                        category = PartnerShopCategory.ETC,
+                        category = PartnerShopCategory.valueOf(it.category),
                         name = it.name,
                         link = it.link
                     )
@@ -244,6 +199,7 @@ data class CreateProductOptionRequest(
  * [파트너샵] 생성 요청 DTO
  */
 data class CreatePartnerShopRequest(
+    val category: String,
     val name: String,
     val link: String,
 )
