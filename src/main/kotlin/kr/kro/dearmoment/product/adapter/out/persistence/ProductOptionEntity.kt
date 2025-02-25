@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import Auditable
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
@@ -16,8 +17,8 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PackageCategory
 import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -40,86 +41,118 @@ open class ProductOptionEntity(
     )
     @Column(name = "OPTION_ID")
     var optionId: Long? = null,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID")
     var product: ProductEntity? = null,
+
     @Column(name = "NAME", nullable = false)
     var name: String = "",
+
     @Enumerated(EnumType.STRING)
     @Column(name = "OPTION_TYPE", nullable = false)
     var optionType: OptionType = OptionType.SINGLE,
-    @Column(name = "ADDITIONAL_PRICE", nullable = false)
-    var additionalPrice: Long = 0L,
+
+    @Column(name = "DISCOUNT_AVAILABLE", nullable = false)
+    var discountAvailable: Boolean = false,
+
+    @Column(name = "ORIGINAL_PRICE", nullable = false)
+    var originalPrice: Long = 0L,
+
+    @Column(name = "DISCOUNT_PRICE", nullable = false)
+    var discountPrice: Long = 0L,
+
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-    // [단품] 필드
+
+    // [단품 필드들]
     @Column(name = "COSTUME_COUNT")
     var costumeCount: Int = 0,
-    @Column(name = "SHOOTING_LOCATION")
-    var shootingLocation: String = "",
+
+    @Column(name = "SHOOTING_LOCATION_COUNT")
+    var shootingLocationCount: Int = 0,
+
+    @Column(name = "SHOOTING_HOURS")
+    var shootingHours: Int = 0,
+
     @Column(name = "SHOOTING_MINUTES")
     var shootingMinutes: Int = 0,
-    // [패키지] 필드
-    @Enumerated(EnumType.STRING)
-    @Column(name = "PACKAGE_CATEGORY")
-    var packageCategory: PackageCategory? = null,
+
+    @Column(name = "RETOUCHED_COUNT")
+    var retouchedCount: Int = 0,
+
+    // [패키지 필드들]
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
-        joinColumns = [JoinColumn(name = "OPTION_ID")],
+        joinColumns = [JoinColumn(name = "OPTION_ID")]
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
+
     @CreatedDate
     @Column(name = "CREATED_AT", updatable = false)
     var createdAt: LocalDateTime? = null,
+
     @LastModifiedDate
     @Column(name = "UPDATED_AT")
     var updatedAt: LocalDateTime? = null,
-) {
+
+    @Column(nullable = false)
+    open var version: Long = 0L,
+) : Auditable() {
     companion object {
-        /**
-         * 도메인 모델(ProductOption)을 엔티티로 변환
-         */
-        fun fromDomain(
-            option: ProductOption,
-            productEntity: ProductEntity,
-        ): ProductOptionEntity {
+        fun fromDomain(option: ProductOption, productEntity: ProductEntity): ProductOptionEntity {
             return ProductOptionEntity(
                 optionId = if (option.optionId == 0L) null else option.optionId,
                 product = productEntity,
                 name = option.name,
                 optionType = option.optionType,
-                additionalPrice = option.additionalPrice,
+                discountAvailable = option.discountAvailable,
+                originalPrice = option.originalPrice,
+                discountPrice = option.discountPrice,
                 description = option.description.takeIf { it.isNotBlank() },
                 costumeCount = option.costumeCount,
-                shootingLocation = option.shootingLocation,
+                shootingLocationCount = option.shootingLocationCount,
+                shootingHours = option.shootingHours,
                 shootingMinutes = option.shootingMinutes,
-                packageCategory = option.packageCategory,
-                partnerShops = option.partnerShops.map { PartnerShopEmbeddable(it.name, it.link) },
-                createdAt = null,
-                updatedAt = null,
+                retouchedCount = option.retouchedCount,
+                partnerShops = option.partnerShops.map {
+                    PartnerShopEmbeddable(
+                        category = it.category,
+                        name = it.name,
+                        link = it.link,
+                    )
+                },
+                createdAt = option.createdAt,
+                updatedAt = option.updatedAt,
             )
         }
     }
 
-    /**
-     * 엔티티를 도메인 모델(ProductOption)로 변환
-     */
     fun toDomain(): ProductOption {
         return ProductOption(
             optionId = optionId ?: 0L,
             productId = product?.productId ?: 0L,
             name = name,
             optionType = optionType,
-            additionalPrice = additionalPrice,
+            discountAvailable = discountAvailable,
+            originalPrice = originalPrice,
+            discountPrice = discountPrice,
             description = description ?: "",
             costumeCount = costumeCount,
-            shootingLocation = shootingLocation,
+            shootingLocationCount = shootingLocationCount,
+            shootingHours = shootingHours,
             shootingMinutes = shootingMinutes,
-            packageCategory = packageCategory,
-            partnerShops = partnerShops.map { PartnerShop(it.name, it.link) },
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            retouchedCount = retouchedCount,
+            partnerShops = partnerShops.map {
+                PartnerShop(
+                    category = it.category ?: PartnerShopCategory.ETC,
+                    name = it.name,
+                    link = it.link,
+                )
+            },
+            createdAt = createdDate ?: LocalDateTime.now(),
+            updatedAt = updateDate ?: LocalDateTime.now(),
         )
     }
 }

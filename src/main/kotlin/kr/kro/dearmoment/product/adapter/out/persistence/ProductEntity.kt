@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import Auditable
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.AttributeOverrides
 import jakarta.persistence.CascadeType
@@ -19,9 +20,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import kr.kro.dearmoment.product.domain.model.*
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
+import kr.kro.dearmoment.product.domain.model.CameraType
+import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
@@ -41,106 +45,108 @@ open class ProductEntity(
     )
     @Column(name = "PRODUCT_ID")
     var productId: Long? = null,
-    @Column(name = "USER_ID")
+
+    @Column(name = "USER_ID", nullable = false)
     var userId: Long? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PRODUCT_TYPE", nullable = false)
+    var productType: ProductType? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "SHOOTING_PLACE", nullable = false)
+    var shootingPlace: ShootingPlace? = null,
+
     @Column(name = "TITLE", nullable = false)
     var title: String = "",
+
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-    @Column(name = "BASE_PRICE", nullable = false)
-    var basePrice: Long = 0L,
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_AVAILABLE_SEASONS",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")]
     )
     @Enumerated(EnumType.STRING)
     @Column(name = "SEASON")
     var availableSeasons: MutableSet<ShootingSeason> = mutableSetOf(),
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_CAMERA_TYPES",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")]
     )
     @Enumerated(EnumType.STRING)
     @Column(name = "CAMERA_TYPE")
     var cameraTypes: MutableSet<CameraType> = mutableSetOf(),
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_RETOUCH_STYLES",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")]
     )
     @Enumerated(EnumType.STRING)
     @Column(name = "RETOUCH_STYLE")
     var retouchStyles: MutableSet<RetouchStyle> = mutableSetOf(),
+
     @Embedded
     @AttributeOverrides(
         AttributeOverride(name = "userId", column = Column(name = "MAIN_IMAGE_USER_ID"))
     )
     var mainImage: ImageEmbeddable = ImageEmbeddable(),
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_SUB_IMAGES",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")]
     )
     var subImages: MutableList<ImageEmbeddable> = mutableListOf(),
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PRODUCT_ADDITIONAL_IMAGES",
-        joinColumns = [JoinColumn(name = "PRODUCT_ID")],
+        joinColumns = [JoinColumn(name = "PRODUCT_ID")]
     )
     var additionalImages: MutableList<ImageEmbeddable> = mutableListOf(),
+
     @Column(name = "DETAILED_INFO")
     var detailedInfo: String? = null,
+
     @Column(name = "CONTACT_INFO")
     var contactInfo: String? = null,
-    @CreatedDate
-    @Column(name = "CREATED_AT", updatable = false)
-    var createdAt: LocalDateTime? = null,
-    @LastModifiedDate
-    @Column(name = "UPDATED_AT")
-    var updatedAt: LocalDateTime? = null,
+
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
-) {
+
+    @Column(nullable = false)
+    open var version: Long = 0L,
+) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val productEntity =
-                ProductEntity(
-                    productId = if (product.productId == 0L) null else product.productId,
-                    userId = product.userId,
-                    title = product.title,
-                    description = product.description.takeIf { it.isNotBlank() },
-                    basePrice = product.basePrice,
-                    mainImage = ImageEmbeddable.fromDomainImage(product.mainImage),
-                    detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() },
-                    contactInfo = product.contactInfo.takeIf { it.isNotBlank() },
-                    createdAt = product.createdAt,
-                    updatedAt = product.updatedAt,
-                )
-
-            // 다중 선택(availableSeasons, cameraTypes, retouchStyles) 매핑
+            val productEntity = ProductEntity(
+                productId = if (product.productId == 0L) null else product.productId,
+                userId = product.userId,
+                productType = product.productType,
+                shootingPlace = product.shootingPlace,
+                title = product.title,
+                description = product.description.takeIf { it.isNotBlank() },
+                mainImage = ImageEmbeddable.fromDomainImage(product.mainImage),
+                detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() },
+                contactInfo = product.contactInfo.takeIf { it.isNotBlank() },
+            )
             productEntity.availableSeasons.addAll(product.availableSeasons)
             productEntity.cameraTypes.addAll(product.cameraTypes)
             productEntity.retouchStyles.addAll(product.retouchStyles)
-
-            // 서브/추가 이미지 매핑
             productEntity.subImages =
-                product.subImages
-                    .map { ImageEmbeddable.fromDomainImage(it) }
-                    .toMutableList()
+                product.subImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
             productEntity.additionalImages =
-                product.additionalImages
-                    .map { ImageEmbeddable.fromDomainImage(it) }
-                    .toMutableList()
-
-            // 옵션 매핑
+                product.additionalImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
             productEntity.options.clear()
-            product.options.forEach { optionDomain ->
-                val optionEntity = ProductOptionEntity.fromDomain(optionDomain, productEntity)
+            product.options.forEach { opt ->
+                val optionEntity = ProductOptionEntity.fromDomain(opt, productEntity)
                 productEntity.options.add(optionEntity)
             }
-
             return productEntity
         }
     }
@@ -149,9 +155,10 @@ open class ProductEntity(
         return Product(
             productId = productId ?: 0L,
             userId = userId ?: throw IllegalArgumentException("User ID is null"),
+            productType = productType ?: throw IllegalArgumentException("ProductType is null"),
+            shootingPlace = shootingPlace ?: throw IllegalArgumentException("ShootingPlace is null"),
             title = title,
             description = description ?: "",
-            basePrice = basePrice,
             availableSeasons = availableSeasons,
             cameraTypes = cameraTypes,
             retouchStyles = retouchStyles,
@@ -160,9 +167,9 @@ open class ProductEntity(
             additionalImages = additionalImages.map { it.toDomainImage() },
             detailedInfo = detailedInfo ?: "",
             contactInfo = contactInfo ?: "",
-            createdAt = createdAt ?: LocalDateTime.now(),
-            updatedAt = updatedAt ?: LocalDateTime.now(),
-            options = options.map { it.toDomain() },
+            createdAt = createdDate ?: LocalDateTime.now(),
+            updatedAt = updateDate ?: LocalDateTime.now(),
+            options = options.map { it.toDomain() }
         )
     }
 }
