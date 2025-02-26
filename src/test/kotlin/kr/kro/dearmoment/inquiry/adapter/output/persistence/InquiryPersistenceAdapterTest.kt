@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.inquiry.adapter.output.persistence
 
 import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -113,6 +114,13 @@ class InquiryPersistenceAdapterTest(
 
                     updatedId shouldBe savedId
                     results[0].answer.length shouldNotBe 0
+                }
+            }
+
+            context("존재하지 않는 inquiryId가 전달되면") {
+                it("예외를 발생 시킨다.") {
+                    val invalidId = 999999999L
+                    shouldThrow<Throwable> { adapter.updateAuthorInquiryAnswer(invalidId, "answer") }
                 }
             }
         }
