@@ -11,11 +11,9 @@ import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInqui
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
-import kr.kro.dearmoment.inquiry.application.port.output.UpdateInquiryPort
 import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiry
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 @Component
@@ -23,7 +21,7 @@ class InquiryPersistenceAdapter(
     private val authorInquiryJpaRepository: AuthorInquiryJpaRepository,
     private val productInquiryJpaRepository: ProductInquiryJpaRepository,
     private val serviceInquiryJpaRepository: ServiceInquiryJpaRepository,
-) : SaveInquiryPort, GetInquiryPort, UpdateInquiryPort, DeleteInquiryPort {
+) : SaveInquiryPort, GetInquiryPort, DeleteInquiryPort {
     override fun saveProductInquiry(inquiry: ProductInquiry): Long {
         val entity = ProductInquiryEntity.from(inquiry)
         return productInquiryJpaRepository.save(entity).id

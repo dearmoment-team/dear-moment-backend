@@ -18,8 +18,6 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.CreateAuthorInquiryRequest
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiriesResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.WriteAnswerRequest
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.WriteAnswerResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -66,33 +64,6 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
     }
 
     @Test
-    fun `문의 답변 수정 API`() {
-        val inquiryId = 1L
-        val requestBody = WriteAnswerRequest(answer = "답변 완료입니다.")
-
-        every { updateInquiryUseCase.writeAuthorInquiryAnswer(any()) } returns WriteAnswerResponse(inquiryId)
-
-        val request =
-            RestDocumentationRequestBuilders
-                .put("/api/inquiries/authors/{inquiryId}", inquiryId)
-                .content(requestBody.toJsonString())
-                .contentType(MediaType.APPLICATION_JSON)
-
-        mockMvc.perform(request)
-            .andExpect(status().isOk)
-            .andDocument(
-                "write-author_inquiry-answer",
-                pathParameters("inquiryId" means "답변할 문의 id"),
-                responseBody(
-                    "data" type OBJECT means "데이터",
-                    "data.inquiryId" type NUMBER means "답변이 작성된 문의 id",
-                    "success" type BOOLEAN means "성공여부",
-                    "code" type NUMBER means "HTTP 코드",
-                ),
-            )
-    }
-
-    @Test
     fun `작가 문의 조회 API`() {
         val userId = 123L
 
@@ -103,14 +74,12 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
                         inquiryId = 1L,
                         title = "문의1 제목",
                         content = "문의1 내용",
-                        answer = "",
                         createdDate = LocalDateTime.now(),
                     ),
                     GetAuthorInquiryResponse(
                         inquiryId = 2L,
                         title = "문의2 제목",
                         content = "문의2 내용",
-                        answer = "내용 접수되었습니다.",
                         createdDate = LocalDateTime.now(),
                     ),
                 ),

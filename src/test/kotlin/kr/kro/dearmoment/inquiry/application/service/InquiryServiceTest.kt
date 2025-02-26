@@ -12,11 +12,9 @@ import io.mockk.verify
 import kr.kro.dearmoment.inquiry.application.command.CreateAuthorInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
-import kr.kro.dearmoment.inquiry.application.command.WriteAuthorInquiryAnswerCommand
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
-import kr.kro.dearmoment.inquiry.application.port.output.UpdateInquiryPort
 import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
@@ -25,8 +23,7 @@ class InquiryServiceTest : DescribeSpec({
     val savePort = mockk<SaveInquiryPort>()
     val deletePort = mockk<DeleteInquiryPort>()
     val getPort = mockk<GetInquiryPort>()
-    val updatePort = mockk<UpdateInquiryPort>()
-    val service = InquiryService(savePort, getPort, updatePort, deletePort)
+    val service = InquiryService(savePort, getPort, deletePort)
 
     describe("createAuthorInquiry()는") {
         context("작가 문의 생성 명령을 전달 받으면") {
@@ -131,21 +128,6 @@ class InquiryServiceTest : DescribeSpec({
                 val result = service.getProductInquiries(userId)
                 result.inquiries.size shouldBe inquiries.size
                 verify(exactly = 1) { getPort.getProductInquiries(userId) }
-            }
-        }
-    }
-
-    describe("writeAuthorInquiryAnswer()는") {
-        context("작가 문의 답변 쓰기 명령을 전달 받으면") {
-            val inquiryId = 1L
-            val answer = "답변 입니다."
-            val command = WriteAuthorInquiryAnswerCommand(inquiryId, answer)
-
-            every { updatePort.updateAuthorInquiryAnswer(inquiryId, answer) } returns inquiryId
-            it("해당 문의의 답변을 수정한다.") {
-                val result = service.writeAuthorInquiryAnswer(command)
-                result.inquiryId shouldBe inquiryId
-                verify(exactly = 1) { updatePort.updateAuthorInquiryAnswer(inquiryId, answer) }
             }
         }
     }

@@ -7,7 +7,6 @@ class AuthorInquiry(
     userId: Long = 0L,
     val title: String,
     val content: String,
-    val answer: String = "",
     val createdDate: LocalDateTime = LocalDateTime.now(),
 ) : Inquiry(id, userId) {
     init {

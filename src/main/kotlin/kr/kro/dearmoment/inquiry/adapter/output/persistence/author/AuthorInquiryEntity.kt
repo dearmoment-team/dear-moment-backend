@@ -23,21 +23,12 @@ class AuthorInquiryEntity(
     @Column(nullable = false)
     val content: String,
 ) : Auditable() {
-    @Column(nullable = false)
-    var answer: String = ""
-        protected set
-
-    fun modifyAnswer(answer: String) {
-        this.answer = answer
-    }
-
     fun toDomain() =
         AuthorInquiry(
             id = id,
             userId = userId,
             title = title,
             content = content,
-            answer = answer,
             createdDate = createdDate ?: throw IllegalStateException("createdDate is null"),
         )
 
