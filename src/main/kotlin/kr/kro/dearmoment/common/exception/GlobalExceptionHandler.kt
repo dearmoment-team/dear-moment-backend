@@ -27,7 +27,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException::class)
     fun handleIllegalStateException(e: IllegalStateException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity(ErrorResponse(e.message ?: "Internal Server Error"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(ErrorResponse(e.message ?: "Internal Server Error"), HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     @ExceptionHandler(Exception::class)

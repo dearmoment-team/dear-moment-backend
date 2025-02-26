@@ -38,7 +38,7 @@ class GlobalExceptionHandlerTest : DescribeSpec({
             val exception = IllegalStateException("Illegal state occurred")
             val response = exceptionHandler.handleIllegalStateException(exception)
 
-            response.statusCode shouldBe HttpStatus.BAD_REQUEST
+            response.statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
             response.body?.message shouldBe "Illegal state occurred"
         }
 
