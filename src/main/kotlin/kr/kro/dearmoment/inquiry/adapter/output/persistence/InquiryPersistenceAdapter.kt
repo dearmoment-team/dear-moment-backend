@@ -1,7 +1,5 @@
 package kr.kro.dearmoment.inquiry.adapter.output.persistence
 
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryEntity
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductInquiryEntity
@@ -45,17 +43,6 @@ class InquiryPersistenceAdapter(
     override fun getProductInquiries(userId: Long): List<ProductInquiry> {
         val entities = productInquiryJpaRepository.findByUserId(userId)
         return entities.map { it.toDomain() }
-    }
-
-    override fun updateAuthorInquiryAnswer(
-        inquiryId: Long,
-        answer: String,
-    ): Long {
-        val entity =
-            authorInquiryJpaRepository.findByIdOrNull(inquiryId)
-                ?: throw CustomException(ErrorCode.INQUIRY_NOT_FOUND)
-        entity.modifyAnswer(answer)
-        return entity.id
     }
 
     override fun deleteProductInquiry(inquiryId: Long): Unit = productInquiryJpaRepository.deleteById(inquiryId)

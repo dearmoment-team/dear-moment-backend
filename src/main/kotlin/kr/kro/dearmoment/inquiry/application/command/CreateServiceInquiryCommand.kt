@@ -7,6 +7,7 @@ data class CreateServiceInquiryCommand(
     val userId: Long,
     val type: String,
     val content: String,
+    val email: String,
 ) {
     fun toDomain() =
         ServiceInquiry(

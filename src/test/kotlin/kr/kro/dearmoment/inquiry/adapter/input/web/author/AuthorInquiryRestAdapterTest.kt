@@ -33,6 +33,7 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
                 userId = 123L,
                 title = "작가 정보 오류 문의합니다.",
                 content = "연락처가 잘못 된 것 같습니다.",
+                email = "email@email.com",
             )
 
         val expected = CreateInquiryResponse(1L)
@@ -53,6 +54,7 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
                     "userId" type NUMBER means "유저 ID",
                     "title" type STRING means "문의 제목",
                     "content" type STRING means "문의 내용",
+                    "email" type STRING means "답변 받을 이메일",
                 ),
                 responseBody(
                     "data" type OBJECT means "데이터",

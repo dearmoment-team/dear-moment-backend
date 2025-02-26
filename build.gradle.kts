@@ -49,6 +49,8 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:$ociSdkVersion")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:$ociSdkVersion")
     implementation("com.oracle.oci.sdk:oci-java-sdk-addons-apache-configurator-jersey3:$ociSdkVersion")
+    // mail
+    implementation("org.springframework.boot:spring-boot-starter-mail:3.3.0")
 
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")

@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.inquiry.adapter.input.web.service.dto
 
+import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -14,4 +15,6 @@ data class CreateServiceInquiryRequest(
     @field:Min(value = 10, message = "내용은 최소 10자 이상이어야 합니다.")
     @field:Max(value = 1000, message = "내용은 최소 1000자 이하이어야 합니다.")
     val content: String,
+    @field:Email(message = "올바른 이메일 형식이 아닙니다.")
+    val email: String,
 )

@@ -15,6 +15,7 @@ import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
+import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
@@ -23,13 +24,16 @@ class InquiryServiceTest : DescribeSpec({
     val savePort = mockk<SaveInquiryPort>()
     val deletePort = mockk<DeleteInquiryPort>()
     val getPort = mockk<GetInquiryPort>()
-    val service = InquiryService(savePort, getPort, deletePort)
+    val sendPort = mockk<SendInquiryPort>()
+    val service = InquiryService(savePort, getPort, deletePort, sendPort)
 
     describe("createAuthorInquiry()는") {
         context("작가 문의 생성 명령을 전달 받으면") {
-            val command = CreateAuthorInquiryCommand(userId = 1L, title = "작가 정보 문의", content = "전화번호 정보가 잘못되었습니다.")
+            val command =
+                CreateAuthorInquiryCommand(userId = 1L, title = "작가 정보 문의", content = "전화번호 정보가 잘못되었습니다.", email = "email@email.com")
             val expectedId = 1L
             every { savePort.saveAuthorInquiry(any()) } returns expectedId
+            every { sendPort.sendMail(any(), any(), any()) } just Runs
             it("문의를 저장하고 ID를 반환한다.") {
                 val result = service.createAuthorInquiry(command)
                 result.inquiryId shouldBe expectedId
@@ -58,9 +62,11 @@ class InquiryServiceTest : DescribeSpec({
                     userId = 1L,
                     type = ServiceInquiryType.SYSTEM_ERROR_REPORT.name,
                     content = "홈페이지에 접속이 안됩니다..",
+                    email = "email@email.com",
                 )
             val expectedId = 1L
             every { savePort.saveServiceInquiry(any()) } returns expectedId
+            every { sendPort.sendMail(any(), any(), any()) } just Runs
             it("문의를 저장하고 ID를 반환한다.") {
                 val result = service.createServiceInquiry(command)
                 result.inquiryId shouldBe expectedId
@@ -69,7 +75,8 @@ class InquiryServiceTest : DescribeSpec({
         }
 
         context("서비스 문의 생성 명령이 유효하지 않으면") {
-            val command = CreateServiceInquiryCommand(userId = 1L, type = "invalid type", content = "홈페이지에 접속이 안됩니다..")
+            val command =
+                CreateServiceInquiryCommand(userId = 1L, type = "invalid type", content = "홈페이지에 접속이 안됩니다..", email = "email@email.com")
             it("에러를 반환한다.") {
                 shouldThrow<IllegalArgumentException> { service.createServiceInquiry(command) }
             }

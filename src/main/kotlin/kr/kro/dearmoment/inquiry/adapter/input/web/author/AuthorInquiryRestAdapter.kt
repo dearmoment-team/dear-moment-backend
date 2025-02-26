@@ -28,6 +28,7 @@ class AuthorInquiryRestAdapter(
                 userId = request.userId,
                 title = request.title,
                 content = request.content,
+                email = request.email,
             )
 
         return createInquiryUseCase.createAuthorInquiry(command)

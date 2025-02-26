@@ -26,6 +26,7 @@ class ServiceInquiryRestAdapterTest : RestApiTestBase() {
                 userId = 123L,
                 type = "SERVICE_COMPLIMENT",
                 content = "서비스가 너무 편합니다.",
+                email = "email@email.com",
             )
 
         val expected = CreateInquiryResponse(1L)
@@ -50,6 +51,7 @@ class ServiceInquiryRestAdapterTest : RestApiTestBase() {
                         "\"SYSTEM_IMPROVEMENT\", " +
                         "\"SYSTEM_ERROR_REPORT\")",
                     "content" type STRING means "내용",
+                    "email" type STRING means "답변 받을 이메일",
                 ),
                 responseBody(
                     "data" type OBJECT means "데이터",

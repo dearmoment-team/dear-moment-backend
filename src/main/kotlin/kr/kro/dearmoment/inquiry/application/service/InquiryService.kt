@@ -14,6 +14,7 @@ import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
+import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,11 +23,20 @@ class InquiryService(
     private val saveInquiryPort: SaveInquiryPort,
     private val getInquiryPort: GetInquiryPort,
     private val deleteInquiryPort: DeleteInquiryPort,
+    private val sendInquiryPort: SendInquiryPort,
 ) : CreateInquiryUseCase, GetInquiryUseCase, RemoveInquiryUseCase {
     @Transactional
     override fun createAuthorInquiry(command: CreateAuthorInquiryCommand): CreateInquiryResponse {
         val inquiry = command.toDomain()
-        return CreateInquiryResponse(saveInquiryPort.saveAuthorInquiry(inquiry))
+        val savedInquiryId = saveInquiryPort.saveAuthorInquiry(inquiry)
+
+        sendInquiryPort.sendMail(
+            email = command.email,
+            subject = inquiry.title,
+            body = inquiry.content,
+        )
+
+        return CreateInquiryResponse(savedInquiryId)
     }
 
     @Transactional
@@ -38,7 +48,14 @@ class InquiryService(
     @Transactional
     override fun createServiceInquiry(command: CreateServiceInquiryCommand): CreateInquiryResponse {
         val inquiry = command.toDomain()
-        return CreateInquiryResponse(saveInquiryPort.saveServiceInquiry(inquiry))
+        val savedInquiryId = saveInquiryPort.saveServiceInquiry(inquiry)
+
+        sendInquiryPort.sendMail(
+            email = command.email,
+            subject = inquiry.type.desc,
+            body = inquiry.content,
+        )
+        return CreateInquiryResponse(savedInquiryId)
     }
 
     @Transactional(readOnly = true)
