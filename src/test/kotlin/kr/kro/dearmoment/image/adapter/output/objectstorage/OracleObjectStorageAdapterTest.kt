@@ -1,4 +1,3 @@
-import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.style.FunSpec
 import kr.kro.dearmoment.DearMomentApplication
 import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageAdapter
@@ -10,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles
 import java.io.File
 import java.nio.file.Files
 
-@Tags("object-storage")
 @SpringBootTest(classes = [DearMomentApplication::class])
 @ActiveProfiles("test")
 class OracleObjectStorageAdapterTest(

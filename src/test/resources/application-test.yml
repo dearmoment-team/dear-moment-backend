@@ -24,7 +24,3 @@ object-storage:
   config-path: ${OBJECT_STORAGE_CONFIG_PATH_LOCAL}
   namespace-name: ${OBJECT_STORAGE_NAMESPACE_NAME_LOCAL}
   photo-image-dir: ${OBJECT_STORAGE_IMAGE_DIR_LOCAL}
-
-kotest:
-  tags:
-    exclude: object-storage
