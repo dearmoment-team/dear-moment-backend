@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 data class OracleObjectStorageProperties(
-    @Value("\$object-storage.bucket-name")
+    @Value("\${object-storage.namespace-name}")
     val namespaceName: String,
-    @Value("\$object-storage.namespace-name")
+    @Value("\${object-storage.bucket-name}")
     val bucketName: String,
-    @Value("\$object-storage.photo-image-dir")
+    @Value("\${object-storage.photo-image-dir}")
     val photoImageDir: String,
-    @Value("\$object-storage.config-path")
+    @Value("\${object-storage.config-path}")
     val configPath: String,
 )
