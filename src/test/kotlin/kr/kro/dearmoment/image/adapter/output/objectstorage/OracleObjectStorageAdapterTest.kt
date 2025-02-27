@@ -3,12 +3,14 @@ import kr.kro.dearmoment.DearMomentApplication
 import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageAdapter
 import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageProperties
 import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageUtil
+import org.junit.jupiter.api.Tag
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.context.ActiveProfiles
 import java.io.File
 import java.nio.file.Files
 
+@Tag("object-storage")
 @SpringBootTest(classes = [DearMomentApplication::class])
 @ActiveProfiles("test")
 class OracleObjectStorageAdapterTest(
