@@ -2,6 +2,9 @@ package kr.kro.dearmoment.inquiry.adapter.output.mail
 
 import jakarta.mail.Message
 import jakarta.mail.internet.InternetAddress
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Component
@@ -16,17 +19,19 @@ class MailAdapter(
         subject: String,
         body: String,
     ) {
-        runCatching {
-            val message = mailSender.createMimeMessage()
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching {
+                val message = mailSender.createMimeMessage()
 
-            message.subject = "[$email $INQUIRY_TITLE_POSTFIX] 제목: $subject"
-            message.setRecipient(Message.RecipientType.TO, InternetAddress(mailProperties.receiver))
-            message.setFrom(InternetAddress(mailProperties.username, MAIL_SENDER_NAME))
-            message.setText(body)
+                message.subject = "[$email $INQUIRY_TITLE_POSTFIX] 제목: $subject"
+                message.setRecipient(Message.RecipientType.TO, InternetAddress(mailProperties.receiver))
+                message.setFrom(InternetAddress(mailProperties.username, MAIL_SENDER_NAME))
+                message.setText(body)
 
-            mailSender.send(message)
-        }.onFailure {
-            throw it
+                mailSender.send(message)
+            }.onFailure {
+                throw it
+            }
         }
     }
 
