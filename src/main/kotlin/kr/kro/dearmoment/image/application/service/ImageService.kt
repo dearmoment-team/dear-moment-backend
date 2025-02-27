@@ -6,6 +6,7 @@ import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.input.DeleteImageUseCase
 import kr.kro.dearmoment.image.application.port.input.GetImageUseCase
 import kr.kro.dearmoment.image.application.port.input.SaveImageUseCase
+import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
@@ -22,6 +23,7 @@ class ImageService(
     private val uploadImagePort: UploadImagePort,
     private val saveImagePort: SaveImagePort,
     private val getImagePort: GetImagePort,
+    private val updateImagePort: UpdateImagePort,
     private val deleteImageFromDBPort: DeleteImageFromDBPort,
     private val getImageFromObjectStorage: GetImageFromObjectStoragePort,
     private val deleteImageFromObjectStorage: DeleteImageFromObjectStoragePort,
@@ -42,21 +44,25 @@ class ImageService(
     override fun getOne(imageId: Long): GetImageResponse {
         val image = getImagePort.findOne(imageId)
 
-        if (image.isUrlExpired()) {
-            return GetImageResponse.from(getImageFromObjectStorage.getImage(image))
-        }
+        val updatedImage =
+            if (image.isUrlExpired()) {
+                val renewedImage = getImageFromObjectStorage.getImageWithUrl(image)
+                updateImagePort.updateUrlInfo(renewedImage)
+            } else {
+                image
+            }
 
-        return GetImageResponse.from(image)
+        return GetImageResponse.from(updatedImage)
     }
 
     @Transactional(readOnly = true)
     override fun getAll(userId: Long): GetImagesResponse {
-        val images = getImagePort.findAll(userId)
+        val images = getImagePort.findUserImages(userId)
 
         val finalResult =
             images.map { image ->
                 if (image.isUrlExpired()) {
-                    getImageFromObjectStorage.getImage(image)
+                    getImageFromObjectStorage.getImageWithUrl(image)
                 } else {
                     image
                 }

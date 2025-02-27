@@ -8,7 +8,7 @@ on:
 
 jobs:
   create-issue:
-    name: PR closed notification to slack
+    name: PR closed notification to Discord
     runs-on: ubuntu-latest
     steps:
       - name: Send closed PR notification

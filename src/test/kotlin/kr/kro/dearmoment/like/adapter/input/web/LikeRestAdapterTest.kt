@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.like.adapter.input.web
 
 import andDocument
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -18,17 +17,13 @@ import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeRequest
 import kr.kro.dearmoment.like.adapter.input.web.dto.LikeResponse
-import kr.kro.dearmoment.like.application.command.LikeCommand
-import kr.kro.dearmoment.like.application.port.input.LikeUseCase
+import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class LikeRestAdapterTest : RestApiTestBase() {
-    @MockkBean
-    lateinit var likeUseCase: LikeUseCase
-
     @Test
     fun `좋아요 생성 API`() {
         val requestBody =
@@ -38,7 +33,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
                 type = "AUTHOR",
             )
 
-        val command = LikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
+        val command = SaveLikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
         val expectedResponse = LikeResponse(likeId = 1L)
 
         every { likeUseCase.like(command) } returns expectedResponse

@@ -34,7 +34,7 @@ class OracleObjectStorageAdapter(
     ): Image {
         val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"
-        val fileName = "$fileDir/${UUID.randomUUID()}-${file.originalFilename}"
+        val fileName = "$fileDir/${UUID.randomUUID()}"
         val contentType = "img/${file.contentType?.takeLast(3) ?: "JPG"}"
 
         val putRequest =
@@ -60,7 +60,7 @@ class OracleObjectStorageAdapter(
                 fileName = fileName,
             )
 
-        return getImage(image)
+        return getImageWithUrl(image)
     }
 
     override fun uploadAll(commands: List<SaveImageCommand>): List<Image> {
@@ -77,14 +77,14 @@ class OracleObjectStorageAdapter(
 
         deletePreAuth(image.parId)
 
-        val client = OracleObjectStorageUtil().client
+        val client = objectStorageUtil.client
         client.deleteObject(request)
     }
 
-    override fun getImage(image: Image): Image {
+    override fun getImageWithUrl(image: Image): Image {
         deletePreAuth(image.parId)
 
-        val expireTime = Date(System.currentTimeMillis() + TWO_HOURS_FOR_SECONDS)
+        val expireTime = Date(System.currentTimeMillis() + ONE_YEAR_FOR_SECONDS)
 
         val details =
             CreatePreauthenticatedRequestDetails.builder()
@@ -102,7 +102,7 @@ class OracleObjectStorageAdapter(
                 .build()
 
         val response = objectStorageUtil.client.createPreauthenticatedRequest(request)
-        val url = "$baseUrl/${response.preauthenticatedRequest.accessUri}"
+        val url = "$baseUrl${response.preauthenticatedRequest.accessUri}"
 
         return Image(
             imageId = image.imageId,
@@ -131,6 +131,6 @@ class OracleObjectStorageAdapter(
     }
 
     companion object {
-        private const val TWO_HOURS_FOR_SECONDS = 2 * 60 * 60 * 1000
+        private const val ONE_YEAR_FOR_SECONDS = 24L * 60L * 60L * 1000L * 365L
     }
 }

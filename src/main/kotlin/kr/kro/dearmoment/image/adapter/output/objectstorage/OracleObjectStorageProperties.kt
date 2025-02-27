@@ -11,4 +11,6 @@ data class OracleObjectStorageProperties(
     val bucketName: String,
     @Value("\$object-storage.photo-image-dir")
     val photoImageDir: String,
+    @Value("\$object-storage.config-path")
+    val configPath: String,
 )

@@ -13,6 +13,7 @@ plugins {
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
     id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
     id("org.jetbrains.kotlinx.kover") version "0.9.1" // kover
+    id("io.sentry.jvm.gradle") version "5.2.0" // sentry
 }
 
 group = "com.example"
@@ -51,6 +52,9 @@ dependencies {
 
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
+    implementation("com.oracle.database.security:oraclepki:23.3.0.23.09")
+    implementation("com.oracle.database.security:osdt_core:21.17.0.0")
+    implementation("com.oracle.database.security:osdt_cert:21.17.0.0")
 
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
