@@ -17,6 +17,7 @@ import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
+import kr.kro.dearmoment.inquiry.application.query.GetProductInquiresQuery
 import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
@@ -155,11 +156,21 @@ class InquiryServiceTest : DescribeSpec({
                     ),
                 )
 
-            every { getPort.getProductInquiries(userId) } returns inquiries
+            val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
+            val page: Page<ProductInquiry> = PageImpl(inquiries, pageable, inquiries.size.toLong())
+
+            every { getPort.getProductInquiries(userId, pageable) } returns page
+
             it("유저의 작가 문의를 모두 반환한다.") {
-                val result = service.getProductInquiries(userId)
-                result.inquiries.size shouldBe inquiries.size
-                verify(exactly = 1) { getPort.getProductInquiries(userId) }
+                val result = service.getProductInquiries(GetProductInquiresQuery(userId, pageable))
+
+                result.totalElements shouldBe inquiries.size.toLong()
+                result.content.size shouldBe inquiries.size
+                result.totalPages shouldBe 1
+                result.page shouldBe 0
+                result.size shouldBe 10
+
+                verify(exactly = 1) { getPort.getAuthorInquiries(userId, pageable) }
             }
         }
     }

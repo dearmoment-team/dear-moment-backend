@@ -3,7 +3,6 @@ package kr.kro.dearmoment.inquiry.application.service
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.product.dto.GetProductInquiriesResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.product.dto.GetProductInquiryResponse
 import kr.kro.dearmoment.inquiry.application.command.CreateAuthorInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
@@ -16,6 +15,7 @@ import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
+import kr.kro.dearmoment.inquiry.application.query.GetProductInquiresQuery
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -72,9 +72,15 @@ class InquiryService(
     }
 
     @Transactional(readOnly = true)
-    override fun getProductInquiries(userId: Long): GetProductInquiriesResponse {
-        val inquiries = getInquiryPort.getProductInquiries(userId)
-        return GetProductInquiriesResponse(inquiries.map { GetProductInquiryResponse.from(it) })
+    override fun getProductInquiries(query: GetProductInquiresQuery): PagedResponse<GetProductInquiryResponse> {
+        val inquiries = getInquiryPort.getProductInquiries(query.userId, query.pageable)
+        return PagedResponse(
+            content = inquiries.content.map { GetProductInquiryResponse.from(it) },
+            page = query.pageable.pageNumber,
+            size = query.pageable.pageSize,
+            totalElements = inquiries.totalElements,
+            totalPages = inquiries.totalPages,
+        )
     }
 
     @Transactional

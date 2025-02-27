@@ -45,8 +45,11 @@ class InquiryPersistenceAdapter(
         return entities.map { it.toDomain() }
     }
 
-    override fun getProductInquiries(userId: Long): List<ProductInquiry> {
-        val entities = productInquiryJpaRepository.findByUserId(userId)
+    override fun getProductInquiries(
+        userId: Long,
+        pageable: Pageable,
+    ): Page<ProductInquiry> {
+        val entities = productInquiryJpaRepository.findByUserId(userId, pageable)
         return entities.map { it.toDomain() }
     }
 

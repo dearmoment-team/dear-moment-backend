@@ -103,10 +103,16 @@ class InquiryPersistenceAdapterTest(
                     ),
                 )
             inquiries.forEach { adapter.saveProductInquiry(it) }
+            val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
             context("userId가 전달되면") {
                 it("DB 에서 유저가 작성한 모든 상품 문의를 반환한다.") {
-                    val result = adapter.getProductInquiries(userId)
-                    result.size shouldBe inquiries.size
+                    val result = adapter.getProductInquiries(userId, pageable)
+
+                    result.totalElements shouldBe inquiries.size.toLong()
+                    result.content.size shouldBe inquiries.size
+                    result.totalPages shouldBe 1
+                    result.number shouldBe 0
+                    result.size shouldBe 10
                 }
             }
         }

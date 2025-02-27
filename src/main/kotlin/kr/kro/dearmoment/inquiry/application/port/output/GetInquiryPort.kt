@@ -11,5 +11,8 @@ interface GetInquiryPort {
         pageable: Pageable,
     ): Page<AuthorInquiry>
 
-    fun getProductInquiries(userId: Long): List<ProductInquiry>
+    fun getProductInquiries(
+        userId: Long,
+        pageable: Pageable,
+    ): Page<ProductInquiry>
 }
