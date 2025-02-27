@@ -27,4 +27,4 @@ object-storage:
 
 kotest:
   tags:
-    exclude: 'object-storage'
+    exclude: object-storage
