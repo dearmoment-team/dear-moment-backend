@@ -62,6 +62,7 @@ class InquiryService(
     @Transactional(readOnly = true)
     override fun getAuthorInquiries(query: GetAuthorInquiresQuery): PagedResponse<GetAuthorInquiryResponse> {
         val inquiries = getInquiryPort.getAuthorInquiries(query.userId, query.pageable)
+
         return PagedResponse(
             content = inquiries.content.map { GetAuthorInquiryResponse.from(it) },
             page = query.pageable.pageNumber,
