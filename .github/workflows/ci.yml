@@ -7,11 +7,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      OBJECT_STORAGE_BUCKET_NAME_LOCAL: ${{ secrets.OBJECT_STORAGE_BUCKET_NAME_LOCAL }}
-      OBJECT_STORAGE_CONFIG_PATH_LOCAL: ${{ secrets.OBJECT_STORAGE_CONFIG_PATH_LOCAL }}
-      OBJECT_STORAGE_NAMESPACE_NAME_LOCAL: ${{ secrets.OBJECT_STORAGE_NAMESPACE_NAME_LOCAL }}
-      OBJECT_STORAGE_IMAGE_DIR_LOCAL: ${{ secrets.OBJECT_STORAGE_IMAGE_DIR_LOCAL }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
