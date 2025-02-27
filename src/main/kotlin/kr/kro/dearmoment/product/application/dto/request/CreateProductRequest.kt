@@ -69,15 +69,9 @@ data class CreateProductRequest(
 ) {
     companion object {
         /**
-         * 이하 toDomain은 (참고용) 예시 로직:
-         * 실제 업로드된 이미지(파일)는 ImageService를 통해 업로드 후,
-         * 그 결과(이미지 URL, 파일명 등)를 Product 도메인에 넣는 과정을
-         * UseCase/Service에서 처리하게 될 가능성이 큼.
-         *
-         * 만약 여기서 단순 문자열만 받아 도메인으로 변환하던 기존 로직을 남겨두시려면,
-         * 'req.mainImageFile', 'req.subImageFiles' 등은 별도 처리가 필요합니다.
-         * 아래 예시는 "이미지 업로드 후 URL을 다시 세팅"한다는 가정하에
-         * 임시로 Image 도메인 객체를 생성해준다고 가정한 구조입니다.
+         * toDomain 메서드는 참고 예시입니다.
+         * 실제 사용 시, 업로드한 이미지 URL이나 파일명을 어떻게 세팅할지에 따라
+         * UseCase/Service 계층에서 처리할 수도 있습니다.
          */
         fun toDomain(
             req: CreateProductRequest,
@@ -138,7 +132,6 @@ data class CreateProductRequest(
     }
 }
 
-
 /**
  * [상품 옵션] 생성 요청 DTO
  */
@@ -183,7 +176,6 @@ data class CreateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 partnerShops = dto.partnerShops.map {
-                    // 파트너샵 카테고리를 요청 DTO에서 받아서 사용
                     PartnerShop(
                         category = PartnerShopCategory.valueOf(it.category),
                         name = it.name,

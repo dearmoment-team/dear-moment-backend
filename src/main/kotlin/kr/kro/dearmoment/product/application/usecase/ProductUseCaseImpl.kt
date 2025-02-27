@@ -1,14 +1,10 @@
 package kr.kro.dearmoment.product.application.usecase
 
-import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
-import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
-import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
-import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
-import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.*
 import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
@@ -27,6 +23,9 @@ class ProductUseCaseImpl(
     private val imageService: ImageService,
 ) : ProductUseCase {
 
+    // ImageHandler 인스턴스 생성(이미지 관련 로직 분리)
+    private val imageHandler = ImageHandler(imageService)
+
     /**
      * 상품 생성
      */
@@ -34,20 +33,28 @@ class ProductUseCaseImpl(
     override fun saveProduct(
         request: CreateProductRequest,
     ): ProductResponse {
-        // 1) 이미지 업로드 (대표 1장, 서브 4장, 추가 최대 5장)
+        // 1) 대표 이미지(필수)
         val mainImg = request.mainImageFile?.let {
-            uploadSingleImage(it, request.userId)
+            imageService.uploadSingleImage(it, request.userId)
         } ?: throw IllegalArgumentException("대표 이미지는 필수입니다.")
 
+        // 2) 서브 이미지 (최소 4장)
         val subImgs = request.subImageFiles.map {
-            uploadSingleImage(it, request.userId)
+            imageService.uploadSingleImage(it, request.userId)
         }
-        // 추가 이미지(최대 5장) - 이미 DTO에서 @Size(max=5)로 검증됨
-        val additionalImgs = request.additionalImageFiles.map {
-            uploadSingleImage(it, request.userId)
+        if (subImgs.size != 4) {
+            throw IllegalArgumentException("서브 이미지는 정확히 4장이어야 합니다. 현재 ${subImgs.size}장입니다.")
         }
 
-        // 2) DTO -> 도메인 변환
+        // 3) 추가 이미지 (최대 5장)
+        val additionalImgs = request.additionalImageFiles.map {
+            imageService.uploadSingleImage(it, request.userId)
+        }
+        if (additionalImgs.size > 5) {
+            throw IllegalArgumentException("추가 이미지는 최대 5장까지만 가능합니다. 현재 ${additionalImgs.size}장입니다.")
+        }
+
+        // 4) DTO -> 도메인 변환
         val product: Product = CreateProductRequest.toDomain(
             req = request,
             mainImageUrl = mainImg.url,
@@ -57,120 +64,107 @@ class ProductUseCaseImpl(
 
         validateForCreation(product)
 
-        // 3) 상품 저장
+        // 5) 상품 저장
         val savedProduct: Product = productPersistencePort.save(product)
 
-        // 4) 옵션 등록
+        // 6) 옵션 등록
         saveProductOptions(savedProduct, request.options)
 
-        // 5) 옵션까지 채워서 최종 반환
+        // 7) 옵션까지 채워서 최종 반환
         val completeProduct: Product = enrichProduct(savedProduct)
         return ProductResponse.fromDomain(completeProduct)
     }
 
     /**
      * 상품 수정
+     * - 메인 이미지: 새 파일이 있으면 교체(기존 메인 이미지 삭제), 없으면 기존 유지
+     * - 서브 이미지: 부분 업데이트(request.subImageUpdates) 또는 전체 교체(request.subImageFiles), 무조건 4장
+     * - 추가 이미지: 부분 업데이트(request.additionalImageUpdates) 또는 전체 교체(request.additionalImageFiles), 최대 5장
+     * - 옵션: 전체 교체 방식
      */
     @Transactional
     override fun updateProduct(
         request: UpdateProductRequest,
     ): ProductResponse {
         // 1) 기존 상품 조회
-        val existingProduct: Product = productPersistencePort.findById(request.productId)
-            ?: throw IllegalArgumentException("Product not found: ${request.productId}")
+        val existingProduct: Product =
+            productPersistencePort.findById(request.productId)
+                ?: throw IllegalArgumentException("존재하지 않는 상품 ID: ${request.productId}")
 
-        // 2) 새로 넘어온 이미지들 업로드
-        val newMainImg = request.mainImageFile?.let {
-            uploadSingleImage(it, request.userId)
-        }
-        val newSubImgs = request.subImageFiles?.map {
-            uploadSingleImage(it, request.userId)
-        } ?: emptyList()
-        val newAdditionalImgs = request.additionalImageFiles?.map {
-            uploadSingleImage(it, request.userId)
+        // 2) 업로드 처리 (서브, 추가 이미지는 미리 업로드)
+        val newSubImgs: List<Image> = request.subImageFiles?.map {
+            imageService.uploadSingleImage(it, request.userId)
         } ?: emptyList()
 
-        // 3) DTO -> 도메인 변환
-        //    (메인/서브/추가 이미지는 새 URL을 넣거나, 없으면 기존 이미지를 유지)
-        val mainImageUrl = newMainImg?.url ?: existingProduct.mainImage.url
-        val subImagesUrls = if (newSubImgs.isNotEmpty()) {
-            newSubImgs.map { it.url }
+        val newAdditionalImgs: List<Image> = request.additionalImageFiles?.map {
+            imageService.uploadSingleImage(it, request.userId)
+        } ?: emptyList()
+
+        // 3) 메인 이미지 업데이트: 새 파일이 있을 경우 기존 메인 이미지 삭제 후 교체
+        val mainImageUrl = if (request.mainImageFile != null) {
+            imageHandler.updateMainImage(request.mainImageFile, request.userId, existingProduct.mainImage).url
         } else {
-            existingProduct.subImages.map { it.url }
-        }
-        val additionalImagesUrls = if (newAdditionalImgs.isNotEmpty()) {
-            newAdditionalImgs.map { it.url }
-        } else {
-            existingProduct.additionalImages.map { it.url }
+            existingProduct.mainImage.url
         }
 
+        // 4) 서브 이미지 처리
+        val updatedSubImages: List<ImageEmbeddable> = imageHandler.processSubImages(
+            currentSubImages = existingProduct.subImages
+                .map { ImageEmbeddable.fromDomainImage(it) }
+                .toMutableList(),
+            updates = if (request.subImageUpdates.isEmpty()) null else request.subImageUpdates,
+            newUploadedImages = if (newSubImgs.isEmpty()) null else newSubImgs,
+            userId = request.userId
+        )
+
+        // 5) 추가 이미지 처리
+        val updatedAdditionalImages: List<ImageEmbeddable> = imageHandler.processAdditionalImages(
+            currentAdditionalImages = existingProduct.additionalImages
+                .map { ImageEmbeddable.fromDomainImage(it) }
+                .toMutableList(),
+            updates = request.additionalImageUpdates.ifEmpty { null },
+            newUploadedImages = newAdditionalImgs.ifEmpty { null },
+            userId = request.userId,
+            maxCount = 5
+        )
+
+
+        // 6) 기존 도메인과 결합하여 DTO -> 도메인 변환 (옵션 제외)
         val productFromReq = UpdateProductRequest.toDomain(
             req = request,
             mainImageUrl = mainImageUrl,
-            subImagesUrls = subImagesUrls,
-            additionalImagesUrls = additionalImagesUrls,
+            subImagesUrls = updatedSubImages.map { it.url },
+            additionalImagesUrls = updatedAdditionalImages.map { it.url }
         ).copy(options = emptyList())
 
         productFromReq.validateForUpdate()
 
-        // 4) 기존 엔티티로 변환 후 필드 업데이트
+        // 7) 엔티티 업데이트 (기본 필드)
         val existingEntity = ProductEntity.fromDomain(existingProduct)
         updateProductEntity(existingEntity, productFromReq)
 
-        // 이미지 교체 로직(대표, 서브, 추가)은 여기서 직접 세팅하거나
-        // 기존 Embeddable List를 지우고 새로 채우는 방식으로 업데이트 가능
-        if (newMainImg != null) {
-            existingEntity.mainImage = ImageEmbeddable.fromDomainImage(newMainImg)
-        }
-        if (newSubImgs.isNotEmpty()) {
-            existingEntity.subImages.clear()
-            existingEntity.subImages.addAll(
-                newSubImgs.map { emb ->
-                    ImageEmbeddable.fromDomainImage(
-                        Image(
-                            userId = emb.userId,
-                            fileName = emb.fileName,
-                            url = emb.url
-                        )
-                    )
-                }
-            )
-        }
-        if (newAdditionalImgs.isNotEmpty()) {
-            existingEntity.additionalImages.clear()
-            existingEntity.additionalImages.addAll(
-                newAdditionalImgs.map { emb ->
-                    ImageEmbeddable.fromDomainImage(
-                        Image(
-                            userId = emb.userId,
-                            fileName = emb.fileName,
-                            url = emb.url
-                        )
-                    )
-                }
-            )
-        }
+        // 8) 반영된 이미지 업데이트 적용
+        existingEntity.subImages.clear()
+        existingEntity.subImages.addAll(updatedSubImages)
 
-        // 5) 옵션 처리
+        existingEntity.additionalImages.clear()
+        existingEntity.additionalImages.addAll(updatedAdditionalImages)
+
+        // 9) 옵션 처리 (전체 교체)
         val existingOptions = productOptionPersistencePort.findByProductId(existingProduct.productId)
         val updateOptionIds = request.options
             .filter { it.optionId != null && it.optionId != 0L }
             .mapNotNull { it.optionId }
             .toSet()
 
-        //   5-1) 기존 옵션 중 요청에 없는 optionId -> 삭제
-        existingOptions
-            .filter { it.optionId !in updateOptionIds }
-            .forEach { opt ->
-                productOptionPersistencePort.deleteById(opt.optionId)
-            }
+        existingOptions.filter { it.optionId !in updateOptionIds }
+            .forEach { opt -> productOptionPersistencePort.deleteById(opt.optionId) }
 
-        //   5-2) 신규/수정 옵션
         request.options.forEach { dto ->
             processUpdateOption(dto, existingProduct.productId)
         }
 
-        // 6) 갱신된 엔티티 -> 도메인 저장
+        // 10) 최종 저장 및 결과 반환
         val updatedDomain = productPersistencePort.save(existingEntity.toDomain())
         val completeProduct = enrichProduct(updatedDomain)
         return ProductResponse.fromDomain(completeProduct)
@@ -181,18 +175,12 @@ class ProductUseCaseImpl(
      */
     @Transactional
     override fun deleteProduct(productId: Long) {
-        // 1) 상품 조회
         val product: Product =
             productPersistencePort.findById(productId)
-                ?: throw IllegalArgumentException("The product to delete does not exist: $productId.")
-
-        // 2) 연결된 모든 이미지 삭제
+                ?: throw IllegalArgumentException("삭제할 상품이 존재하지 않습니다. ID: $productId")
+        // 연관된 이미지 모두 삭제
         val allImages = listOf(product.mainImage) + product.subImages + product.additionalImages
-        allImages.forEach { image ->
-            imageService.delete(image.imageId)
-        }
-
-        // 3) 옵션 삭제 -> 상품 삭제
+        allImages.forEach { imageService.delete(it.imageId) }
         productOptionPersistencePort.deleteAllByProductId(productId)
         productPersistencePort.deleteById(productId)
     }
@@ -201,8 +189,8 @@ class ProductUseCaseImpl(
      * 상품 단건 조회
      */
     override fun getProductById(productId: Long): ProductResponse {
-        val product: Product = productPersistencePort.findById(productId)
-            ?: throw IllegalArgumentException("Product with ID $productId not found.")
+        val product = productPersistencePort.findById(productId)
+            ?: throw IllegalArgumentException("상품을 찾을 수 없습니다. ID: $productId")
         val completeProduct = enrichProduct(product)
         return ProductResponse.fromDomain(completeProduct)
     }
@@ -216,34 +204,26 @@ class ProductUseCaseImpl(
         shootingPlace: String?,
         sortBy: String?,
         page: Int,
-        size: Int
+        size: Int,
     ): PagedResponse<ProductResponse> {
-        // 1) 검색
         val found = productPersistencePort.searchByCriteria(
             title = title,
-            productType = productType,      // "WEDDING_SNAP" 등
-            shootingPlace = shootingPlace,  // "JEJU" 등
+            productType = productType,
+            shootingPlace = shootingPlace,
             sortBy = sortBy,
         )
-
-        // 2) 정렬 로직 (정말 간단한 예시)
-        //    - sortBy에 따라 likes, createdDate, etc.를 기준으로 정렬할 수 있음
         val mockData = found.mapIndexed { idx, product -> Pair(product, idx + 1) }
         val sortedProducts = when (sortBy) {
             "likes" -> mockData.sortedByDescending { it.second }.map { it.first }
             "created-desc" -> found.sortedByDescending { it.createdAt }
-            else -> mockData.map { it.first } // 별도 정렬 없음
+            else -> mockData.map { it.first }
         }
-
-        // 3) 페이징
         val totalElements = sortedProducts.size.toLong()
         val totalPages = if (size > 0) ((sortedProducts.size + size - 1) / size) else 0
         val fromIndex = page * size
         val toIndex = min(fromIndex + size, sortedProducts.size)
         val pageContent =
             if (fromIndex >= sortedProducts.size) emptyList() else sortedProducts.subList(fromIndex, toIndex)
-
-        // 4) 응답 변환
         return PagedResponse(
             content = pageContent.map { ProductResponse.fromDomain(it) },
             page = page,
@@ -257,20 +237,15 @@ class ProductUseCaseImpl(
      * 메인 페이지 노출용(페이징)
      */
     override fun getMainPageProducts(page: Int, size: Int): PagedResponse<ProductResponse> {
-        // 1) 일단 전부 조회
         val all = productPersistencePort.findAll()
-        // 2) 정렬 (예: 좋아요 or 최신순)
         val mockData = all.mapIndexed { idx, product -> Pair(product, idx + 1) }
         val sortedProducts = mockData.sortedByDescending { it.second }.map { it.first }
-
-        // 3) 페이징
         val totalElements = sortedProducts.size.toLong()
         val totalPages = ceil(sortedProducts.size.toDouble() / size).toInt()
         val fromIndex = page * size
         val toIndex = min(fromIndex + size, sortedProducts.size)
         val pageContent =
             if (fromIndex >= sortedProducts.size) emptyList() else sortedProducts.subList(fromIndex, toIndex)
-
         return PagedResponse(
             content = pageContent.map { ProductResponse.fromDomain(it) },
             page = page,
@@ -280,28 +255,8 @@ class ProductUseCaseImpl(
         )
     }
 
-    // ===================================================
-    // 아래부턴 내부 helper 메서드
+    // 내부 헬퍼 메서드
 
-    /**
-     * 이미지 1장을 업로드하고 Image 도메인 객체로 반환
-     */
-    private fun uploadSingleImage(file: MultipartFile, userId: Long): Image {
-        val cmd = SaveImageCommand(file, userId)
-        val imageId = imageService.save(cmd) // 단건 업로드
-        val response = imageService.getOne(imageId)
-        val fileName = response.url.substringAfterLast('/')
-        return Image(
-            imageId = response.imageId,
-            userId = userId,
-            fileName = fileName,
-            url = response.url,
-        )
-    }
-
-    /**
-     * 상품 등록 시 옵션들 저장
-     */
     private fun saveProductOptions(
         product: Product,
         options: List<CreateProductOptionRequest>,
@@ -312,18 +267,13 @@ class ProductUseCaseImpl(
         }
     }
 
-    /**
-     * 상품 수정 시, 옵션 신규/수정 처리
-     */
     private fun processUpdateOption(
         dto: UpdateProductOptionRequest,
         productId: Long,
     ) {
         val domainOption = UpdateProductOptionRequest.toDomain(dto, productId)
         if (domainOption.optionId != 0L) {
-            // 기존 옵션 수정
             val existingOption = productOptionPersistencePort.findById(domainOption.optionId)
-
             val updatedOption = existingOption.copy(
                 name = domainOption.name,
                 optionType = domainOption.optionType,
@@ -340,21 +290,15 @@ class ProductUseCaseImpl(
                 partnerShops = domainOption.partnerShops,
             )
             val product = productPersistencePort.findById(productId)
-                ?: throw IllegalArgumentException("Product not found: $productId")
-
+                ?: throw IllegalArgumentException("상품이 존재하지 않습니다. productId=$productId")
             productOptionPersistencePort.save(updatedOption, product)
         } else {
-            // 신규 옵션 추가
-            productOptionPersistencePort.save(
-                domainOption, productPersistencePort.findById(productId)
-                    ?: throw IllegalArgumentException("Product not found: $productId")
-            )
+            val product = productPersistencePort.findById(productId)
+                ?: throw IllegalArgumentException("상품이 존재하지 않습니다. productId=$productId")
+            productOptionPersistencePort.save(domainOption, product)
         }
     }
 
-    /**
-     * 기존에 저장된 상품 엔티티를, 요청 도메인을 기반으로 필드만 업데이트
-     */
     private fun updateProductEntity(
         entity: ProductEntity,
         domain: Product,
@@ -365,34 +309,139 @@ class ProductUseCaseImpl(
             shootingPlace = domain.shootingPlace
             title = domain.title
             description = domain.description.takeIf { it.isNotBlank() }
-
-            // 다중 선택(Set) 항목들 clear 후 재설정
             availableSeasons.clear()
             availableSeasons.addAll(domain.availableSeasons)
             cameraTypes.clear()
             cameraTypes.addAll(domain.cameraTypes)
             retouchStyles.clear()
             retouchStyles.addAll(domain.retouchStyles)
-
             detailedInfo = domain.detailedInfo.takeIf { it.isNotBlank() }
             contactInfo = domain.contactInfo.takeIf { it.isNotBlank() }
         }
     }
 
-    /**
-     * 상품 저장 전, 같은 유저가 동일 제목의 상품을 이미 등록했는지 확인
-     */
     private fun validateForCreation(product: Product) {
         require(!productPersistencePort.existsByUserIdAndTitle(product.userId, product.title)) {
-            "A product with the same title already exists: ${product.title}."
+            "동일 제목의 상품이 이미 존재합니다: ${product.title}"
         }
     }
 
-    /**
-     * 상품에 연결된 옵션 목록 등을 추가로 불러와 완전한 도메인으로 만들기
-     */
     private fun enrichProduct(product: Product): Product {
         val opts = productOptionPersistencePort.findByProductId(product.productId)
         return product.copy(options = opts)
+    }
+}
+
+/**
+ * 이미지 관련 다양한 업데이트/삭제/추가 기능을 처리하는 헬퍼 클래스
+ */
+class ImageHandler(private val imageService: ImageService) {
+
+    /**
+     * 메인 이미지 업데이트:
+     * - 새로운 파일이 있다면 새 이미지 업로드 후 기존 이미지를 삭제하고 새 이미지를 반환합니다.
+     */
+    fun updateMainImage(newFile: MultipartFile, userId: Long, currentImage: Image): Image {
+        val newImage = imageService.uploadSingleImage(newFile, userId)
+        imageService.delete(currentImage.imageId)
+        return newImage
+    }
+
+    /**
+     * 서브 이미지 처리:
+     * - 부분 업데이트 요청(updates)이 있으면 이를 처리합니다.
+     * - 그렇지 않고 새로 업로드된 이미지(newUploadedImages)가 있다면 전체 교체합니다.
+     * - 만약 둘 다 없으면 기존 이미지를 그대로 반환합니다.
+     * - 최종 이미지 개수가 4개 미만이면 예외를 발생시킵니다.
+     */
+    fun processSubImages(
+        currentSubImages: MutableList<ImageEmbeddable>,
+        updates: List<SubImageUpdateRequest>?,
+        newUploadedImages: List<Image>?,
+        userId: Long,
+    ): List<ImageEmbeddable> {
+        if (!updates.isNullOrEmpty()) {
+            val result = currentSubImages.toMutableList()
+            updates.forEach { update ->
+                when {
+                    update.isDeleted && update.imageId != null -> {
+                        imageService.delete(update.imageId)
+                        result.removeIf { it.imageId == update.imageId }
+                    }
+
+                    update.newImageFile != null && update.imageId != null -> {
+                        val uploaded = imageService.uploadSingleImage(update.newImageFile, userId)
+                        val embeddable = ImageEmbeddable.fromDomainImage(uploaded)
+                        result.replaceAll { if (it.imageId == update.imageId) embeddable else it }
+                    }
+
+                    update.imageId == null && !update.isDeleted -> {
+                        val uploaded = imageService.uploadSingleImage(update.newImageFile!!, userId)
+                        result.add(ImageEmbeddable.fromDomainImage(uploaded))
+                    }
+                }
+            }
+            if (result.size != 4) {
+                throw IllegalArgumentException("서브 이미지는 정확히 4장이어야 합니다. 현재 ${result.size}장입니다.")
+            }
+            return result
+        } else if (!newUploadedImages.isNullOrEmpty()) {
+            if (newUploadedImages.size != 4) {
+                throw IllegalArgumentException("서브 이미지는 정확히 4장이어야 합니다. 현재 ${newUploadedImages.size}장입니다.")
+            }
+            return newUploadedImages.map { ImageEmbeddable.fromDomainImage(it) }
+        }
+        if (currentSubImages.size != 4) {
+            throw IllegalArgumentException("서브 이미지는 정확히 4장이어야 합니다. 현재 ${currentSubImages.size}장입니다.")
+        }
+        return currentSubImages
+    }
+
+    /**
+     * 추가 이미지 처리:
+     * - 부분 업데이트 요청(updates)이 있으면 이를 처리합니다.
+     * - 그렇지 않고 새로 업로드된 이미지(newUploadedImages)가 있다면 전체 교체합니다.
+     * - 만약 둘 다 없으면 기존 이미지를 그대로 반환합니다.
+     * - 최종 이미지 개수가 maxCount를 초과하면 예외를 발생시킵니다.
+     */
+    fun processAdditionalImages(
+        currentAdditionalImages: MutableList<ImageEmbeddable>,
+        updates: List<SubImageUpdateRequest>?,
+        newUploadedImages: List<Image>?,
+        userId: Long,
+        maxCount: Int = 5
+    ): List<ImageEmbeddable> {
+        if (updates != null && updates.isNotEmpty()) {
+            val result = currentAdditionalImages.toMutableList()
+            updates.forEach { update ->
+                when {
+                    update.isDeleted && update.imageId != null -> {
+                        imageService.delete(update.imageId)
+                        result.removeIf { it.imageId == update.imageId }
+                    }
+
+                    update.newImageFile != null && update.imageId != null -> {
+                        val uploaded = imageService.uploadSingleImage(update.newImageFile, userId)
+                        val embeddable = ImageEmbeddable.fromDomainImage(uploaded)
+                        result.replaceAll { if (it.imageId == update.imageId) embeddable else it }
+                    }
+
+                    update.imageId == null && !update.isDeleted -> {
+                        val uploaded = imageService.uploadSingleImage(update.newImageFile!!, userId)
+                        result.add(ImageEmbeddable.fromDomainImage(uploaded))
+                    }
+                }
+            }
+            if (result.size > maxCount) {
+                throw IllegalArgumentException("추가 이미지는 최대 $`maxCount`장까지만 가능합니다. 현재 ${result.size}장입니다.")
+            }
+            return result
+        } else if (!newUploadedImages.isNullOrEmpty()) {
+            if (newUploadedImages.size > maxCount) {
+                throw IllegalArgumentException("추가 이미지는 최대 $`maxCount`장까지만 가능합니다. 현재 ${newUploadedImages.size}장입니다.")
+            }
+            return newUploadedImages.map { ImageEmbeddable.fromDomainImage(it) }
+        }
+        return currentAdditionalImages
     }
 }

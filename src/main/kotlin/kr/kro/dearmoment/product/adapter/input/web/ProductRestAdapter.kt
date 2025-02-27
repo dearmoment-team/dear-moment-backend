@@ -8,6 +8,7 @@ import kr.kro.dearmoment.product.application.usecase.ProductUseCase
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -22,18 +23,16 @@ import org.springframework.web.bind.annotation.RestController
 class ProductRestAdapter(
     private val productUseCase: ProductUseCase,
 ) {
-    @PostMapping
+    @PostMapping(consumes = ["multipart/form-data"])
     @ResponseStatus(HttpStatus.CREATED)
-    fun createProduct(
-        @RequestBody request: CreateProductRequest,
-    ): ProductResponse {
+    fun createProduct(@ModelAttribute request: CreateProductRequest): ProductResponse {
         return productUseCase.saveProduct(request)
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = ["/{id}"], consumes = ["multipart/form-data"])
     fun updateProduct(
         @PathVariable id: Long,
-        @RequestBody request: UpdateProductRequest,
+        @ModelAttribute request: UpdateProductRequest
     ): ProductResponse {
         return productUseCase.updateProduct(request.copy(productId = id))
     }

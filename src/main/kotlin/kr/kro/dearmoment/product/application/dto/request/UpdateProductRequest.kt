@@ -23,19 +23,33 @@ data class UpdateProductRequest(
 
     /**
      * 교체할 새 대표 이미지 파일(있을 수도, 없을 수도)
-     * null이면 기존 대표 이미지를 그대로 둔다는 의미로 처리할 수 있음
+     * null이면 기존 대표 이미지를 그대로 둔다는 의미로 처리
      */
     val mainImageFile: MultipartFile? = null,
 
     /**
-     * 교체할 서브 이미지들(없으면 그대로)
+     * 전체 서브 이미지를 교체할 경우 사용 (새 파일 목록)
+     * null이면 기존 서브 이미지를 유지
      */
     val subImageFiles: List<MultipartFile>? = null,
 
     /**
-     * 교체할 추가 이미지들(없으면 그대로)
+     * 부분 업데이트가 필요한 경우, 서브 이미지별 업데이트 정보를 전달
+     * 각 항목은 기존 이미지의 삭제, 수정 또는 신규 추가를 나타냅니다.
+     */
+    val subImageUpdates: List<SubImageUpdateRequest> = emptyList(),
+
+    /**
+     * 전체 추가 이미지를 교체할 경우 사용 (새 파일 목록)
+     * null이면 기존 추가 이미지를 유지
      */
     val additionalImageFiles: List<MultipartFile>? = null,
+
+    /**
+     * 부분 업데이트가 필요한 경우, 추가 이미지별 업데이트 정보를 전달
+     * (프로젝트 요구사항에 따라 추가 가능)
+     */
+    val additionalImageUpdates: List<SubImageUpdateRequest> = emptyList(),
 
     val detailedInfo: String? = null,
     val contactInfo: String? = null,
@@ -43,10 +57,6 @@ data class UpdateProductRequest(
     val options: List<UpdateProductOptionRequest> = emptyList(),
 ) {
     companion object {
-        /**
-         * toDomain 역시 등록 로직과 유사하게, 새로 업로드된 이미지 URL들을 받아서
-         * Product 도메인에 세팅하는 식으로 구현 가능.
-         */
         fun toDomain(
             req: UpdateProductRequest,
             mainImageUrl: String? = null,
@@ -59,7 +69,6 @@ data class UpdateProductRequest(
             val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
             val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
 
-            // 업로드된 새 이미지가 있다면 이미지 객체 생성, 없으면 null
             val mainImg = mainImageUrl?.let { url ->
                 Image(
                     userId = req.userId,
@@ -105,6 +114,27 @@ data class UpdateProductRequest(
         }
     }
 }
+
+/**
+ * [서브/추가 이미지 업데이트] 요청 DTO
+ * - 기존 이미지의 삭제, 교체, 신규 추가를 위한 정보를 포함합니다.
+ */
+data class SubImageUpdateRequest(
+    /**
+     * 기존 이미지의 식별자. null이면 신규 이미지 추가로 간주
+     */
+    val imageId: Long? = null,
+
+    /**
+     * 새로운 이미지 파일. 이 값이 존재하면 해당 파일로 업데이트
+     */
+    val newImageFile: MultipartFile? = null,
+
+    /**
+     * true이면 해당 이미지를 삭제 처리
+     */
+    val isDeleted: Boolean = false,
+)
 
 /**
  * [상품 옵션] 수정 요청 DTO
@@ -163,7 +193,6 @@ data class UpdateProductOptionRequest(
 
 /**
  * [파트너샵] 수정 요청 DTO
- *  - 카테고리를 포함하도록 변경
  */
 data class UpdatePartnerShopRequest(
     val category: String,

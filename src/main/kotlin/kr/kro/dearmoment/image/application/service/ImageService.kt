@@ -12,8 +12,10 @@ import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStorage
 import kr.kro.dearmoment.image.application.port.output.GetImagePort
 import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
+import kr.kro.dearmoment.image.domain.Image
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 class ImageService(
@@ -69,5 +71,21 @@ class ImageService(
 
         deleteImageFromObjectStorage.delete(image)
         deleteImageFromDBPort.delete(imageId)
+    }
+
+    /**
+     * 단일 이미지 업로드 후 Image 도메인 객체 반환
+     */
+    fun uploadSingleImage(file: MultipartFile, userId: Long): Image {
+        val cmd = SaveImageCommand(file, userId)
+        val imageId = save(cmd)
+        val response = getOne(imageId)
+        val fileName = response.url.substringAfterLast('/')
+        return Image(
+            imageId = response.imageId,
+            userId = userId,
+            fileName = fileName,
+            url = response.url,
+        )
     }
 }
