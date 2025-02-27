@@ -86,6 +86,7 @@ tasks.test {
     useJUnitPlatform()
     finalizedBy("koverXmlReport")
     finalizedBy("koverHtmlReport")
+    systemProperty("kotest.tags.exclude", "object-storage")
 }
 
 tasks.withType<Jar> {
