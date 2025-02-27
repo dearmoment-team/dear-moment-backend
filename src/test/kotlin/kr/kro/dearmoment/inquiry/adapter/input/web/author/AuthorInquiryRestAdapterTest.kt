@@ -3,6 +3,7 @@ package kr.kro.dearmoment.inquiry.adapter.input.web.author
 import andDocument
 import io.mockk.every
 import kr.kro.dearmoment.common.RestApiTestBase
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.DATETIME
@@ -11,17 +12,22 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
 import kr.kro.dearmoment.common.restdocs.pathParameters
+import kr.kro.dearmoment.common.restdocs.queryParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.CreateAuthorInquiryRequest
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiriesResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
+import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
 import org.junit.jupiter.api.Test
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
 
@@ -68,45 +74,67 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
     @Test
     fun `작가 문의 조회 API`() {
         val userId = 123L
-
-        val expected =
-            GetAuthorInquiriesResponse(
-                listOf(
-                    GetAuthorInquiryResponse(
-                        inquiryId = 1L,
-                        title = "문의1 제목",
-                        content = "문의1 내용",
-                        createdDate = LocalDateTime.now(),
-                    ),
-                    GetAuthorInquiryResponse(
-                        inquiryId = 2L,
-                        title = "문의2 제목",
-                        content = "문의2 내용",
-                        createdDate = LocalDateTime.now(),
-                    ),
+        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
+        val inquiries =
+            listOf(
+                GetAuthorInquiryResponse(
+                    inquiryId = 1L,
+                    title = "문의1 제목",
+                    content = "문의1 내용",
+                    createdDate = LocalDateTime.now(),
+                ),
+                GetAuthorInquiryResponse(
+                    inquiryId = 2L,
+                    title = "문의2 제목",
+                    content = "문의2 내용",
+                    createdDate = LocalDateTime.now(),
                 ),
             )
 
-        every { getInquiryUseCase.getAuthorInquiries(userId) } returns expected
+        val page = PageImpl(inquiries, pageable, inquiries.size.toLong())
+
+        val expectedResponse =
+            PagedResponse(
+                content = page.content,
+                page = page.number,
+                size = page.size,
+                totalElements = page.totalElements,
+                totalPages = page.totalPages,
+            )
+
+        every { getInquiryUseCase.getAuthorInquiries(GetAuthorInquiresQuery(userId, pageable)) } returns expectedResponse
 
         val request =
             RestDocumentationRequestBuilders
                 .get("/api/inquiries/authors/{userId}", userId)
+                .queryParam("page", "0")
+                .queryParam("size", "10")
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.page").value(expectedResponse.page))
+            .andExpect(jsonPath("$.data.size").value(expectedResponse.size))
+            .andExpect(jsonPath("$.data.totalElements").value(expectedResponse.totalElements))
+            .andExpect(jsonPath("$.data.totalPages").value(expectedResponse.totalPages))
             .andDocument(
                 "get-author_inquiries",
                 pathParameters("userId" means "작가 문의를 생성한 userId"),
+                queryParameters(
+                    "page" means "조회할 페이지 번호 (0부터 시작)",
+                    "size" means "페이지 크기 (기본값: 10)",
+                ),
                 responseBody(
                     "data" type OBJECT means "데이터",
-                    "data.inquiries" type ARRAY means "작가 문의 리스트",
-                    "data.inquiries[].inquiryId" type NUMBER means "작가 문의 ID",
-                    "data.inquiries[].title" type STRING means "제목",
-                    "data.inquiries[].content" type STRING means "내용",
-                    "data.inquiries[].answer" type STRING means "답변 내용",
-                    "data.inquiries[].createdDate" type DATETIME means "문의 생성 날짜",
-                    "success" type BOOLEAN means "성공여부",
+                    "data.content" type ARRAY means "작가 문의 리스트",
+                    "data.content[].inquiryId" type NUMBER means "작가 문의 ID",
+                    "data.content[].title" type STRING means "제목",
+                    "data.content[].content" type STRING means "내용",
+                    "data.content[].createdDate" type DATETIME means "문의 생성 날짜",
+                    "data.totalPages" type NUMBER means "전체 페이지 수",
+                    "data.totalElements" type NUMBER means "전체 데이터 개수",
+                    "data.size" type NUMBER means "페이지 크기",
+                    "data.page" type NUMBER means "현재 페이지 번호",
+                    "success" type BOOLEAN means "성공 여부",
                     "code" type NUMBER means "HTTP 코드",
                 ),
             )

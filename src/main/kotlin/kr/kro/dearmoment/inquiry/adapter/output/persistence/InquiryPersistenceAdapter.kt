@@ -12,6 +12,8 @@ import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiry
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -35,8 +37,11 @@ class InquiryPersistenceAdapter(
         return serviceInquiryJpaRepository.save(entity).id
     }
 
-    override fun getAuthorInquiries(userId: Long): List<AuthorInquiry> {
-        val entities = authorInquiryJpaRepository.findByUserId(userId)
+    override fun getAuthorInquiries(
+        userId: Long,
+        pageable: Pageable,
+    ): Page<AuthorInquiry> {
+        val entities = authorInquiryJpaRepository.findByUserId(userId, pageable)
         return entities.map { it.toDomain() }
     }
 

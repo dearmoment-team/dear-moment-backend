@@ -12,6 +12,8 @@ import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 
 @RepositoryTest
 class InquiryPersistenceAdapterTest(
@@ -69,10 +71,18 @@ class InquiryPersistenceAdapterTest(
                     ),
                 )
             inquiries.forEach { adapter.saveAuthorInquiry(it) }
-            context("userId가 전달되면") {
-                it("DB 에서 유저가 작성한 모든 작가 문의를 반환한다.") {
-                    val result = adapter.getAuthorInquiries(userId)
-                    result.size shouldBe inquiries.size
+
+            val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
+
+            context("userId와 Pageable이 전달되면") {
+                it("DB에서 페이징된 작가 문의 목록을 반환한다.") {
+                    val result = adapter.getAuthorInquiries(userId, pageable)
+
+                    result.totalElements shouldBe inquiries.size.toLong()
+                    result.content.size shouldBe inquiries.size
+                    result.totalPages shouldBe 1
+                    result.number shouldBe 0
+                    result.size shouldBe 10
                 }
             }
         }

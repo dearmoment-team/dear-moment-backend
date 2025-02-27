@@ -1,6 +1,6 @@
 package kr.kro.dearmoment.inquiry.application.service
 
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiriesResponse
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.product.dto.GetProductInquiriesResponse
@@ -15,6 +15,7 @@ import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
+import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -59,9 +60,15 @@ class InquiryService(
     }
 
     @Transactional(readOnly = true)
-    override fun getAuthorInquiries(userId: Long): GetAuthorInquiriesResponse {
-        val inquiries = getInquiryPort.getAuthorInquiries(userId)
-        return GetAuthorInquiriesResponse(inquiries.map { GetAuthorInquiryResponse.from(it) })
+    override fun getAuthorInquiries(query: GetAuthorInquiresQuery): PagedResponse<GetAuthorInquiryResponse> {
+        val inquiries = getInquiryPort.getAuthorInquiries(query.userId, query.pageable)
+        return PagedResponse(
+            content = inquiries.content.map { GetAuthorInquiryResponse.from(it) },
+            page = query.pageable.pageNumber,
+            size = query.pageable.pageSize,
+            totalElements = inquiries.totalElements,
+            totalPages = inquiries.totalPages,
+        )
     }
 
     @Transactional(readOnly = true)

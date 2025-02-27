@@ -16,9 +16,14 @@ import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
+import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
 import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 
 class InquiryServiceTest : DescribeSpec({
     val savePort = mockk<SaveInquiryPort>()
@@ -30,7 +35,12 @@ class InquiryServiceTest : DescribeSpec({
     describe("createAuthorInquiry()는") {
         context("작가 문의 생성 명령을 전달 받으면") {
             val command =
-                CreateAuthorInquiryCommand(userId = 1L, title = "작가 정보 문의", content = "전화번호 정보가 잘못되었습니다.", email = "email@email.com")
+                CreateAuthorInquiryCommand(
+                    userId = 1L,
+                    title = "작가 정보 문의",
+                    content = "전화번호 정보가 잘못되었습니다.",
+                    email = "email@email.com",
+                )
             val expectedId = 1L
             every { savePort.saveAuthorInquiry(any()) } returns expectedId
             every { sendPort.sendMail(any(), any(), any()) } just Runs
@@ -76,7 +86,12 @@ class InquiryServiceTest : DescribeSpec({
 
         context("서비스 문의 생성 명령이 유효하지 않으면") {
             val command =
-                CreateServiceInquiryCommand(userId = 1L, type = "invalid type", content = "홈페이지에 접속이 안됩니다..", email = "email@email.com")
+                CreateServiceInquiryCommand(
+                    userId = 1L,
+                    type = "invalid type",
+                    content = "홈페이지에 접속이 안됩니다..",
+                    email = "email@email.com",
+                )
             it("에러를 반환한다.") {
                 shouldThrow<IllegalArgumentException> { service.createServiceInquiry(command) }
             }
@@ -84,7 +99,7 @@ class InquiryServiceTest : DescribeSpec({
     }
 
     describe("getAuthorInquiries()는") {
-        context("userId가 전달되면") {
+        context("userId와 Pageable이 전달되면") {
             val userId = 1L
             val inquiries =
                 listOf(
@@ -102,11 +117,21 @@ class InquiryServiceTest : DescribeSpec({
                     ),
                 )
 
-            every { getPort.getAuthorInquiries(userId) } returns inquiries
-            it("유저의 작가 문의를 모두 반환한다.") {
-                val result = service.getAuthorInquiries(userId)
-                result.inquiries.size shouldBe inquiries.size
-                verify(exactly = 1) { getPort.getAuthorInquiries(userId) }
+            val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
+            val page: Page<AuthorInquiry> = PageImpl(inquiries, pageable, inquiries.size.toLong())
+
+            every { getPort.getAuthorInquiries(userId, pageable) } returns page
+
+            it("유저의 작가 문의를 페이징하여 반환한다.") {
+                val result = service.getAuthorInquiries(GetAuthorInquiresQuery(userId, pageable))
+
+                result.totalElements shouldBe inquiries.size.toLong()
+                result.content.size shouldBe inquiries.size
+                result.totalPages shouldBe 1
+                result.page shouldBe 0
+                result.size shouldBe 10
+
+                verify(exactly = 1) { getPort.getAuthorInquiries(userId, pageable) }
             }
         }
     }
