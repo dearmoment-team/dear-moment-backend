@@ -82,12 +82,6 @@ tasks.test {
     finalizedBy("koverHtmlReport")
 }
 
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "kr.kro.onboarding.OnBoardingApplicationKt"
-    }
-}
-
 // OpenAPI 설정
 openapi3 {
     setServer("http://localhost:8080")
@@ -149,4 +143,9 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/kover/report.xml")
     }
+}
+
+// 실제 메인 클래스의 FQCN을 지정합니다.
+springBoot {
+    mainClass.set("kr.kro.dearmoment.DearMomentApplicationKt")
 }
