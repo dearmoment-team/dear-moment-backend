@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.image.adapter.output.persistence
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
 import kr.kro.dearmoment.image.application.port.output.GetImagePort
@@ -29,12 +31,12 @@ class ImagePersistenceAdapter(
 
     override fun findOne(imageId: Long): Image {
         val entity =
-            imageRepository.findByIdOrNull(imageId) ?: throw IllegalArgumentException("Invalid imageId: $imageId")
+            imageRepository.findByIdOrNull(imageId) ?: throw CustomException(ErrorCode.IMAGE_NOT_FOUND)
         return entity.toDomain()
     }
 
     override fun updateUrlInfo(image: Image): Image {
-        val entity = imageRepository.findByIdOrNull(image.imageId) ?: throw IllegalArgumentException("Invalid imageId: ${image.imageId}")
+        val entity = imageRepository.findByIdOrNull(image.imageId) ?: throw CustomException(ErrorCode.IMAGE_NOT_FOUND)
         entity.modifyUrlInfo(image.url, image.parId)
         return entity.toDomain()
     }

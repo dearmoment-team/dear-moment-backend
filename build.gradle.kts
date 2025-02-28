@@ -11,6 +11,7 @@ plugins {
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
     id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
     id("org.jetbrains.kotlinx.kover") version "0.9.1" // kover
+    id("io.sentry.jvm.gradle") version "5.2.0" // sentry
 }
 
 group = "com.example"

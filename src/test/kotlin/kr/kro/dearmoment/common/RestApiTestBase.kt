@@ -1,7 +1,16 @@
 package kr.kro.dearmoment.common
 
+import com.ninjasquad.springmockk.MockkBean
 import kr.kro.dearmoment.TestEnvironment
+import kr.kro.dearmoment.inquiry.adapter.input.web.author.AuthorInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.adapter.input.web.product.ProductInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.adapter.input.web.service.ServiceInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
+import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
+import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
+import kr.kro.dearmoment.inquiry.application.port.input.UpdateInquiryUseCase
 import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
+import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
@@ -17,17 +26,35 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.filter.CharacterEncodingFilter
 
-@ExtendWith(RestDocumentationExtension::class)
 @AutoConfigureRestDocs
-@TestEnvironment
+@ExtendWith(RestDocumentationExtension::class)
 // Controller 여기에 나열 ..
 @WebMvcTest(
     controllers = [
         LikeRestAdapter::class,
+        AuthorInquiryRestAdapter::class,
+        ProductInquiryRestAdapter::class,
+        ServiceInquiryRestAdapter::class,
     ],
 )
+@TestEnvironment
 abstract class RestApiTestBase {
     lateinit var mockMvc: MockMvc
+
+    @MockkBean
+    protected lateinit var likeUseCase: LikeUseCase
+
+    @MockkBean
+    protected lateinit var createInquiryUseCase: CreateInquiryUseCase
+
+    @MockkBean
+    protected lateinit var removeInquiryUseCase: RemoveInquiryUseCase
+
+    @MockkBean
+    protected lateinit var getInquiryUseCase: GetInquiryUseCase
+
+    @MockkBean
+    protected lateinit var updateInquiryUseCase: UpdateInquiryUseCase
 
     /**
      * RestDocs 문서화를 위한 `MockMvc` 객체를 설정하는 함수입니다.

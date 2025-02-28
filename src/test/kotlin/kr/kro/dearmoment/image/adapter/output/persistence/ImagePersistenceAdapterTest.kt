@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.RepositoryTest
+import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.image.domain.Image
 
 @RepositoryTest
@@ -99,7 +100,7 @@ class ImagePersistenceAdapterTest(
                 }
 
                 Then("이미지가 존재하지 않으면 예외를 발생 시킨다.") {
-                    shouldThrow<IllegalArgumentException> { adapter.findOne(9999999L) }
+                    shouldThrow<CustomException> { adapter.findOne(9999999L) }
                 }
             }
 
