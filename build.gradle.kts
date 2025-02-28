@@ -1,5 +1,3 @@
-import org.gradle.api.tasks.Copy
-import org.gradle.jvm.tasks.Jar
 import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
