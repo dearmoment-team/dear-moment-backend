@@ -45,6 +45,10 @@ jobs:
           MAIL_RECEIVER: ${{ secrets.MAIL_RECEIVER }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: |
+          echo "MAIL_RECEIVER=$MAIL_RECEIVER" >> $GITHUB_ENV
+          echo "MAIL_USERNAME=$MAIL_USERNAME" >> $GITHUB_ENV
+          echo "MAIL_PASSWORD=$MAIL_PASSWORD" >> $GITHUB_ENV
 
       - name: Build and analyze
         env:
