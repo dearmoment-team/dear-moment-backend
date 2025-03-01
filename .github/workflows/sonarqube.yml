@@ -39,6 +39,13 @@ jobs:
         run: |
           echo "${{ secrets.OBJECT_STORAGE_PRIVATE_KEY }}" > ~/.oci/private_key.pem
           chmod 600 ~/.oci/private_key.pem
+
+      - name: Set environment variables
+        env:
+          MAIL_RECEIVER: ${{ secrets.MAIL_RECEIVER }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
