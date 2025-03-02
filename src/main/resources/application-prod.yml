@@ -5,6 +5,8 @@ object-storage:
   photo-image-dir: ${OBJECT_STORAGE_IMAGE_DIR}
 
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: ${SPRING_APPLICATION_NAME}
   jpa:
