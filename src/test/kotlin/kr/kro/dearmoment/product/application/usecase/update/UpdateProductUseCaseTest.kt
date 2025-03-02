@@ -33,18 +33,21 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyExistingMainImage = Image(
         imageId = 101L,
         userId = 1L,
+        parId = "",
         fileName = "existing_main.jpg",
         url = "http://example.com/existing_main.jpg"
     )
     val dummyExistingSubImage = Image(
         imageId = 200L,
         userId = 1L,
+        parId = "",
         fileName = "existing_sub.jpg",
         url = "http://example.com/existing_sub.jpg"
     )
     val dummyExistingAdditionalImage = Image(
         imageId = 300L,
         userId = 1L,
+        parId = "",
         fileName = "existing_add.jpg",
         url = "http://example.com/existing_add.jpg"
     )
@@ -117,10 +120,34 @@ class UpdateProductUseCaseTest : BehaviorSpec({
         options = emptyList()
     )
 
-    val dummyNewMainImage = Image(201L, 1L, "new_main.jpg", "http://example.com/new_main.jpg")
-    val dummyNewSubImage1 = Image(202L, 1L, "sub3.jpg", "http://example.com/sub3.jpg")
-    val dummyNewSubImage2 = Image(203L, 1L, "sub4.jpg", "http://example.com/sub4.jpg")
-    val dummyNewAdditionalImage = Image(400L, 1L, "add2.jpg", "http://example.com/add2.jpg")
+    val dummyNewMainImage = Image(
+        imageId = 201L,
+        userId = 1L,
+        parId = "",
+        fileName = "new_main.jpg",
+        url = "http://example.com/new_main.jpg"
+    )
+    val dummyNewSubImage1 = Image(
+        imageId = 202L,
+        userId = 1L,
+        parId = "",
+        fileName = "sub3.jpg",
+        url = "http://example.com/sub3.jpg"
+    )
+    val dummyNewSubImage2 = Image(
+        imageId = 203L,
+        userId = 1L,
+        parId = "",
+        fileName = "sub4.jpg",
+        url = "http://example.com/sub4.jpg"
+    )
+    val dummyNewAdditionalImage = Image(
+        imageId = 400L,
+        userId = 1L,
+        parId = "",
+        fileName = "add2.jpg",
+        url = "http://example.com/add2.jpg"
+    )
 
     Given("updateProduct 메서드") {
 
