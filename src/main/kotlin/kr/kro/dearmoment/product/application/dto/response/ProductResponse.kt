@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.application.dto.response
 
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.*
 import java.time.LocalDateTime
 
@@ -45,6 +46,44 @@ data class ProductResponse(
             )
         }
     }
+
+    fun toDomain(): Product {
+        return Product(
+            productId = this.productId,
+            userId = this.userId,
+            productType = ProductType.valueOf(this.productType),
+            shootingPlace = ShootingPlace.valueOf(this.shootingPlace),
+            title = this.title,
+            description = this.description ?: "",
+            availableSeasons = this.availableSeasons.map { ShootingSeason.valueOf(it) }.toSet(),
+            cameraTypes = this.cameraTypes.map { CameraType.valueOf(it) }.toSet(),
+            retouchStyles = this.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet(),
+            mainImage = Image(
+                userId = this.userId,
+                fileName = this.mainImage.substringAfterLast('/'),
+                url = this.mainImage
+            ),
+            subImages = this.subImages.map { url ->
+                Image(
+                    userId = this.userId,
+                    fileName = url.substringAfterLast('/'),
+                    url = url
+                )
+            },
+            additionalImages = this.additionalImages.map { url ->
+                Image(
+                    userId = this.userId,
+                    fileName = url.substringAfterLast('/'),
+                    url = url
+                )
+            },
+            detailedInfo = this.detailedInfo ?: "",
+            contactInfo = this.contactInfo ?: "",
+            createdAt = this.createdAt ?: LocalDateTime.now(),
+            updatedAt = this.updatedAt ?: LocalDateTime.now(),
+            options = this.options.map { it.toDomain() }
+        )
+    }
 }
 
 data class ProductOptionResponse(
@@ -87,6 +126,28 @@ data class ProductOptionResponse(
             )
         }
     }
+
+    fun toDomain(): ProductOption {
+        return ProductOption(
+            optionId = this.optionId,
+            productId = this.productId,
+            name = this.name,
+            optionType = OptionType.valueOf(this.optionType),
+            discountAvailable = this.discountAvailable,
+            originalPrice = this.originalPrice,
+            discountPrice = this.discountPrice,
+            description = this.description ?: "",
+            costumeCount = this.costumeCount,
+            shootingLocationCount = this.shootingLocationCount,
+            shootingHours = this.shootingHours,
+            shootingMinutes = this.shootingMinutes,
+            retouchedCount = this.retouchedCount,
+            originalProvided = true,
+            partnerShops = this.partnerShops.map { it.toDomain() },
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt
+        )
+    }
 }
 
 data class PartnerShopResponse(
@@ -102,5 +163,13 @@ data class PartnerShopResponse(
                 link = ps.link,
             )
         }
+    }
+
+    fun toDomain(): PartnerShop {
+        return PartnerShop(
+            category = PartnerShopCategory.valueOf(this.category),
+            name = this.name,
+            link = this.link
+        )
     }
 }

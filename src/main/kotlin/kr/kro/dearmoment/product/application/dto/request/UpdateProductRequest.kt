@@ -7,18 +7,22 @@ import org.springframework.web.multipart.MultipartFile
 /**
  * [상품 수정] 시 사용하는 요청 DTO
  *
- * - 서브이미지는 `subImagesFinal`로 4개를 넘겨받고,
- *   각 항목에 imageId(기존 이미지 ID)와 file(새 이미지 파일) 조합을 넣어주면 됩니다.
- * - 추가이미지는 `additionalImagesFinal`로 최대 5개를 넘겨받습니다.
- * - 기존 이미지 유지: imageId != null, file = null
- * - 기존 이미지 교체: imageId != null, file != null
- * - 새 이미지 추가: imageId = null, file != null
+ * - 서브이미지는 `subImagesFinal`로 총 4개를 전달받되,
+ *   각 항목에 [action], [imageId], [newFile]을 조합하여 최종 상태를 나타냅니다.
+ * - 추가이미지는 `additionalImagesFinal`로 최대 5개를 전달받되,
+ *   서브이미지와 동일하게 [action], [imageId], [newFile] 조합을 사용합니다.
+ *
+ * ### action 사용 예시
+ * - KEEP: 기존 이미지를 그대로 사용 (imageId != null, newFile = null)
+ * - DELETE: 기존 이미지를 삭제 (imageId != null, newFile = null)
+ * - UPLOAD: 새 이미지를 업로드 (imageId = null, newFile != null)
  */
 data class UpdateProductRequest(
 
     val productId: Long,
     val userId: Long,
 
+    // 문자열로 들어오는 값들을 enum으로 변환
     val productType: String,
     val shootingPlace: String,
     val title: String,
@@ -29,22 +33,21 @@ data class UpdateProductRequest(
     val retouchStyles: List<String> = emptyList(),
 
     /**
-     * 교체할 새 대표 이미지 파일(있을 수도, 없을 수도)
+     * 교체할 새 대표 이미지 파일(있을 수도, 없을 수도 있음)
      * null이면 기존 대표 이미지를 그대로 둔다는 의미
      */
     val mainImageFile: MultipartFile? = null,
 
     /**
-     * 최종 서브이미지 (정확히 4개)
-     * 기존 이미지를 계속 쓰려면 imageId만 주고 file은 null
-     * 교체하려면 imageId와 file 모두 넣기
-     * 새로 추가하려면 imageId=null, file!=null
+     * 최종 서브 이미지(정확히 4개).
+     * 각 항목에 [action], [imageId], [newFile]를 통해
+     * KEEP / DELETE / UPLOAD를 결정.
      */
     val subImagesFinal: List<SubImageFinalRequest> = emptyList(),
 
     /**
-     * 최종 추가이미지 (0~최대 5개)
-     * 위와 동일한 방식으로 imageId, file 조합을 전달
+     * 최종 추가 이미지(0~최대 5개).
+     * 서브 이미지와 동일한 방식으로 [action], [imageId], [newFile] 조합.
      */
     val additionalImagesFinal: List<AdditionalImageFinalRequest> = emptyList(),
 
@@ -53,15 +56,11 @@ data class UpdateProductRequest(
 
     val options: List<UpdateProductOptionRequest> = emptyList(),
 ) {
-    /**
-     * toDomain()은 업로드된 이미지들의 URL 등을 외부에서 주입받아
-     * 최종 Product 도메인 객체를 생성할 때 사용합니다.
-     *
-     * - mainImageUrl: 새로 업로드된 대표이미지의 최종 URL
-     * - subImagesUrls: 최종 서브이미지 4장의 URL
-     * - additionalImagesUrls: 최종 추가이미지의 URL
-     */
     companion object {
+        /**
+         * 파일 업로드 처리 후, 실제 [Image]가 결정된 상태에서
+         * 최종 [Product] 도메인 객체를 만들기 위한 메서드.
+         */
         fun toDomain(
             req: UpdateProductRequest,
             mainImage: Image,
@@ -89,7 +88,7 @@ data class UpdateProductRequest(
                 cameraTypes = cameraSet,
                 retouchStyles = styleSet,
                 mainImage = mainImage,
-                subImages = subImages,
+                subImages = subImages,             // 이미지 핸들러로 확정된 리스트
                 additionalImages = additionalImages,
                 detailedInfo = req.detailedInfo ?: "",
                 contactInfo = req.contactInfo ?: "",
@@ -100,25 +99,48 @@ data class UpdateProductRequest(
 }
 
 /**
- * "최종" 서브 이미지 정보
- * - imageId: 기존 이미지가 있으면 그 ID
- * - file: 새 파일
+ * 서브 이미지 수정 시, 각 항목을 어떻게 처리할지 나타내는 액션
+ */
+enum class UpdateSubImageAction {
+    KEEP, DELETE, UPLOAD
+}
+
+/**
+ * "최종" 서브 이미지 정보를 담은 DTO
+ *
+ * - [action] : KEEP / DELETE / UPLOAD
+ * - [imageId] : 기존 이미지의 ID (KEEP/DELETE 시 필요)
+ * - [newFile] : 새로 업로드할 파일 (UPLOAD 시 필요)
  */
 data class SubImageFinalRequest(
-    val imageId: Long?,              // 기존 이미지면 ID, 신규 추가면 null
-    val file: MultipartFile? = null, // 새 파일
+    val action: UpdateSubImageAction,
+    val imageId: Long?,
+    val newFile: MultipartFile? = null,
 )
 
 /**
- * "최종" 추가 이미지 정보
+ * 추가 이미지 수정 시, 각 항목을 어떻게 처리할지 나타내는 액션
+ */
+enum class UpdateAdditionalImageAction {
+    KEEP, DELETE, UPLOAD
+}
+
+/**
+ * "최종" 추가 이미지 정보를 담은 DTO
+ *
+ * - [action] : KEEP / DELETE / UPLOAD
+ * - [imageId] : 기존 이미지의 ID
+ * - [newFile] : 새로 업로드할 파일
  */
 data class AdditionalImageFinalRequest(
-    val imageId: Long?,              // 기존 이미지면 ID, 신규 추가면 null
-    val file: MultipartFile? = null, // 새 파일
+    val action: UpdateAdditionalImageAction,
+    val imageId: Long?,
+    val newFile: MultipartFile? = null,
 )
 
 /**
  * [상품 옵션] 수정 요청 DTO
+ * - 기존 옵션을 업데이트하거나, 새 옵션을 추가하거나, 또는 옵션 삭제를 처리할 때 사용될 수 있음
  */
 data class UpdateProductOptionRequest(
     val optionId: Long?,
@@ -129,13 +151,12 @@ data class UpdateProductOptionRequest(
     val discountPrice: Long = 0,
     val description: String? = null,
 
-    // 단품용
+    // 단품용 필드
     val costumeCount: Int = 0,
     val shootingLocationCount: Int = 0,
     val shootingHours: Int = 0,
     val shootingMinutes: Int = 0,
     val retouchedCount: Int = 0,
-
     val originalProvided: Boolean = false,
 
     // 패키지용

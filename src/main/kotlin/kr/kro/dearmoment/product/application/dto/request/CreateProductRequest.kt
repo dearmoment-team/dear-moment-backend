@@ -74,6 +74,9 @@ data class CreateProductRequest(
          * toDomain 메서드는 참고 예시입니다.
          * 실제 사용 시, 업로드한 이미지 URL이나 파일명을 어떻게 세팅할지에 따라
          * UseCase/Service 계층에서 처리할 수도 있습니다.
+         *
+         * 이미지 업로드가 완료되어 URL이 반환된 이후, 해당 URL을 이용하여 Image 객체를 생성합니다.
+         * fileName은 URL의 마지막 부분을 추출하여 사용합니다.
          */
         fun toDomain(
             req: CreateProductRequest,
@@ -81,10 +84,6 @@ data class CreateProductRequest(
             subImagesUrls: List<String> = emptyList(),
             additionalImagesUrls: List<String> = emptyList(),
         ): Product {
-            /**
-             * 문자열이 들어왔을 때 enum으로 변환하면서 IllegalArgumentException이 발생할 수 있으므로
-             * 실제 운영에서는 try-catch 또는 커스텀 에러 처리가 필요할 수 있습니다.
-             */
             val productTypeEnum = ProductType.valueOf(req.productType)
             val shootingPlaceEnum = ShootingPlace.valueOf(req.shootingPlace)
 
@@ -95,7 +94,7 @@ data class CreateProductRequest(
             val mainImg = mainImageUrl?.let { url ->
                 Image(
                     userId = req.userId,
-                    fileName = url,
+                    fileName = url.substringAfterLast('/'),
                     url = url
                 )
             }
@@ -103,7 +102,7 @@ data class CreateProductRequest(
             val subImgList = subImagesUrls.map { url ->
                 Image(
                     userId = req.userId,
-                    fileName = url,
+                    fileName = url.substringAfterLast('/'),
                     url = url
                 )
             }
@@ -111,7 +110,7 @@ data class CreateProductRequest(
             val addImgList = additionalImagesUrls.map { url ->
                 Image(
                     userId = req.userId,
-                    fileName = url,
+                    fileName = url.substringAfterLast('/'),
                     url = url
                 )
             }
