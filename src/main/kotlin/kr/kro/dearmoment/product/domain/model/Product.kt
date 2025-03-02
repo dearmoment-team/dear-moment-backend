@@ -37,21 +37,21 @@ enum class RetouchStyle {
 }
 
 /**
- * 상품 유형 (MVP 예: WEDDING_SNAP)
+ * 상품 유형 (예: 웨딩스냅)
  */
 enum class ProductType {
     WEDDING_SNAP,
 }
 
 /**
- * 촬영 장소 (MVP 예: JEJU)
+ * 촬영 장소 (예: JEJU)
  */
 enum class ShootingPlace {
     JEJU,
 }
 
 /**
- * Product(상품) 도메인 모델
+ * 상품 도메인 모델
  */
 data class Product(
     val productId: Long = 0L,
@@ -91,15 +91,12 @@ data class Product(
 ) {
     init {
         require(title.isNotBlank()) { "상품명은 필수 입력값입니다." }
-
         require(subImages.size == 4) {
             "서브 이미지는 정확히 4장 등록해야 합니다."
         }
-        // 추가 이미지 최대 5장 검증
         require(additionalImages.size <= 5) {
             "추가 이미지는 최대 5장까지 등록 가능합니다."
         }
-        // 보정 스타일은 최대 2개까지만 선택 가능하도록 제한
         require(retouchStyles.size <= 2) {
             "보정 스타일은 최대 2개까지만 선택할 수 있습니다."
         }
@@ -117,8 +114,7 @@ data class Product(
         val newOptionsMap = newOptions.associateBy { it.optionId }
 
         // 삭제될 옵션
-        val toDelete =
-            (existingOptionsMap.keys - newOptionsMap.keys).toList().toSet()
+        val toDelete = (existingOptionsMap.keys - newOptionsMap.keys).toList().toSet()
 
         // 업데이트될 옵션: id != 0 && 기존에 존재
         val toUpdate = newOptions

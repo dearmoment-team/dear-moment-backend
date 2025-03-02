@@ -126,8 +126,6 @@ class ProductPersistenceAdapterTest(
                     additionalImages.size shouldBe 1
                     detailedInfo shouldBe "상세 정보"
                     contactInfo shouldBe "contact@example.com"
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
                 }
             }
         }

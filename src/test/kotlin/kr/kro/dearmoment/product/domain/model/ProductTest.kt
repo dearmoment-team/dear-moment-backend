@@ -151,6 +151,7 @@ internal class ProductTest : StringSpec({
                 costumeCount = 1,
                 shootingHours = 1,
                 shootingMinutes = 30,
+                shootingLocationCount = 1,
                 retouchedCount = 2,
             ),
             createOption(
@@ -279,7 +280,7 @@ internal class ProductTest : StringSpec({
                 originalPrice = 100_000L,
                 discountPrice = 120_000L
             )
-        }.message shouldBe "할인가가 원 판매가보다 클 수 없습니다."
+        }.message shouldBe "할인가는 원 판매가보다 클 수 없습니다."
     }
 
     "옵션명 필수 검증 - 빈 문자열이면 예외" {

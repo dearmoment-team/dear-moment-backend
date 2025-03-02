@@ -145,8 +145,8 @@ open class ProductOptionEntity(
                     link = it.link,
                 )
             },
-            createdAt = createdDate ?: throw IllegalStateException("createdDate is not set"),
-            updatedAt = updateDate ?: throw IllegalStateException("updateDate is not set"),
+            createdAt = createdDate,
+            updatedAt = updateDate
         )
     }
 }

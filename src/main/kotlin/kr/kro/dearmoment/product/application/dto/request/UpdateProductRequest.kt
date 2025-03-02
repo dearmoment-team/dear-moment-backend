@@ -6,6 +6,13 @@ import org.springframework.web.multipart.MultipartFile
 
 /**
  * [상품 수정] 시 사용하는 요청 DTO
+ *
+ * - 서브이미지는 `subImagesFinal`로 4개를 넘겨받고,
+ *   각 항목에 imageId(기존 이미지 ID)와 file(새 이미지 파일) 조합을 넣어주면 됩니다.
+ * - 추가이미지는 `additionalImagesFinal`로 최대 5개를 넘겨받습니다.
+ * - 기존 이미지 유지: imageId != null, file = null
+ * - 기존 이미지 교체: imageId != null, file != null
+ * - 새 이미지 추가: imageId = null, file != null
  */
 data class UpdateProductRequest(
 
@@ -23,45 +30,43 @@ data class UpdateProductRequest(
 
     /**
      * 교체할 새 대표 이미지 파일(있을 수도, 없을 수도)
-     * null이면 기존 대표 이미지를 그대로 둔다는 의미로 처리
+     * null이면 기존 대표 이미지를 그대로 둔다는 의미
      */
     val mainImageFile: MultipartFile? = null,
 
     /**
-     * 전체 서브 이미지를 교체할 경우 사용 (새 파일 목록)
-     * null이면 기존 서브 이미지를 유지
+     * 최종 서브이미지 (정확히 4개)
+     * 기존 이미지를 계속 쓰려면 imageId만 주고 file은 null
+     * 교체하려면 imageId와 file 모두 넣기
+     * 새로 추가하려면 imageId=null, file!=null
      */
-    val subImageFiles: List<MultipartFile>? = null,
+    val subImagesFinal: List<SubImageFinalRequest> = emptyList(),
 
     /**
-     * 부분 업데이트가 필요한 경우, 서브 이미지별 업데이트 정보를 전달
-     * 각 항목은 기존 이미지의 삭제, 수정 또는 신규 추가를 나타냅니다.
+     * 최종 추가이미지 (0~최대 5개)
+     * 위와 동일한 방식으로 imageId, file 조합을 전달
      */
-    val subImageUpdates: List<SubImageUpdateRequest> = emptyList(),
-
-    /**
-     * 전체 추가 이미지를 교체할 경우 사용 (새 파일 목록)
-     * null이면 기존 추가 이미지를 유지
-     */
-    val additionalImageFiles: List<MultipartFile>? = null,
-
-    /**
-     * 부분 업데이트가 필요한 경우, 추가 이미지별 업데이트 정보를 전달
-     * (프로젝트 요구사항에 따라 추가 가능)
-     */
-    val additionalImageUpdates: List<SubImageUpdateRequest> = emptyList(),
+    val additionalImagesFinal: List<AdditionalImageFinalRequest> = emptyList(),
 
     val detailedInfo: String? = null,
     val contactInfo: String? = null,
 
     val options: List<UpdateProductOptionRequest> = emptyList(),
 ) {
+    /**
+     * toDomain()은 업로드된 이미지들의 URL 등을 외부에서 주입받아
+     * 최종 Product 도메인 객체를 생성할 때 사용합니다.
+     *
+     * - mainImageUrl: 새로 업로드된 대표이미지의 최종 URL
+     * - subImagesUrls: 최종 서브이미지 4장의 URL
+     * - additionalImagesUrls: 최종 추가이미지의 URL
+     */
     companion object {
         fun toDomain(
             req: UpdateProductRequest,
-            mainImageUrl: String? = null,
-            subImagesUrls: List<String> = emptyList(),
-            additionalImagesUrls: List<String> = emptyList(),
+            mainImage: Image,
+            subImages: List<Image>,
+            additionalImages: List<Image>,
         ): Product {
             val productTypeEnum = ProductType.valueOf(req.productType)
             val shootingPlaceEnum = ShootingPlace.valueOf(req.shootingPlace)
@@ -69,30 +74,9 @@ data class UpdateProductRequest(
             val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
             val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
 
-            val mainImg = mainImageUrl?.let { url ->
-                Image(
-                    userId = req.userId,
-                    fileName = url,
-                    url = url
-                )
+            val domainOptions = req.options.map {
+                UpdateProductOptionRequest.toDomain(it, req.productId)
             }
-
-            val subImgList = subImagesUrls.map { url ->
-                Image(
-                    userId = req.userId,
-                    fileName = url,
-                    url = url
-                )
-            }
-            val addImgList = additionalImagesUrls.map { url ->
-                Image(
-                    userId = req.userId,
-                    fileName = url,
-                    url = url
-                )
-            }
-
-            val domainOptions = req.options.map { UpdateProductOptionRequest.toDomain(it, req.productId) }
 
             return Product(
                 productId = req.productId,
@@ -104,9 +88,9 @@ data class UpdateProductRequest(
                 availableSeasons = seasonSet,
                 cameraTypes = cameraSet,
                 retouchStyles = styleSet,
-                mainImage = mainImg ?: throw IllegalArgumentException("대표 이미지는 필수입니다."),
-                subImages = subImgList,
-                additionalImages = addImgList,
+                mainImage = mainImage,
+                subImages = subImages,
+                additionalImages = additionalImages,
                 detailedInfo = req.detailedInfo ?: "",
                 contactInfo = req.contactInfo ?: "",
                 options = domainOptions
@@ -116,24 +100,21 @@ data class UpdateProductRequest(
 }
 
 /**
- * [서브/추가 이미지 업데이트] 요청 DTO
- * - 기존 이미지의 삭제, 교체, 신규 추가를 위한 정보를 포함합니다.
+ * "최종" 서브 이미지 정보
+ * - imageId: 기존 이미지가 있으면 그 ID
+ * - file: 새 파일
  */
-data class SubImageUpdateRequest(
-    /**
-     * 기존 이미지의 식별자. null이면 신규 이미지 추가로 간주
-     */
-    val imageId: Long? = null,
+data class SubImageFinalRequest(
+    val imageId: Long?,              // 기존 이미지면 ID, 신규 추가면 null
+    val file: MultipartFile? = null, // 새 파일
+)
 
-    /**
-     * 새로운 이미지 파일. 이 값이 존재하면 해당 파일로 업데이트
-     */
-    val newImageFile: MultipartFile? = null,
-
-    /**
-     * true이면 해당 이미지를 삭제 처리
-     */
-    val isDeleted: Boolean = false,
+/**
+ * "최종" 추가 이미지 정보
+ */
+data class AdditionalImageFinalRequest(
+    val imageId: Long?,              // 기존 이미지면 ID, 신규 추가면 null
+    val file: MultipartFile? = null, // 새 파일
 )
 
 /**

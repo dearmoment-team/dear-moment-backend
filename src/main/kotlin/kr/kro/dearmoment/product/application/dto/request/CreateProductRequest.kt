@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.application.dto.request
 
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.*
@@ -13,13 +14,13 @@ data class CreateProductRequest(
 
     val userId: Long,
 
-    @field:NotBlank
+    @field:NotBlank(message = "상품 유형은 필수입니다.")
     val productType: String,
 
-    @field:NotBlank
+    @field:NotBlank(message = "촬영 장소는 필수입니다.")
     val shootingPlace: String,
 
-    @field:NotBlank
+    @field:NotBlank(message = "상품 제목은 비어 있을 수 없습니다.")
     val title: String,
 
     val description: String? = null,
@@ -42,6 +43,7 @@ data class CreateProductRequest(
     /**
      * 대표 이미지(1장) - 실제 업로드 파일
      */
+    @field:NotNull(message = "대표 이미지는 필수입니다.")
     val mainImageFile: MultipartFile?,
 
     /**
@@ -79,8 +81,13 @@ data class CreateProductRequest(
             subImagesUrls: List<String> = emptyList(),
             additionalImagesUrls: List<String> = emptyList(),
         ): Product {
+            /**
+             * 문자열이 들어왔을 때 enum으로 변환하면서 IllegalArgumentException이 발생할 수 있으므로
+             * 실제 운영에서는 try-catch 또는 커스텀 에러 처리가 필요할 수 있습니다.
+             */
             val productTypeEnum = ProductType.valueOf(req.productType)
             val shootingPlaceEnum = ShootingPlace.valueOf(req.shootingPlace)
+
             val seasonSet = req.availableSeasons.map { ShootingSeason.valueOf(it) }.toSet()
             val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
             val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
@@ -136,9 +143,11 @@ data class CreateProductRequest(
  * [상품 옵션] 생성 요청 DTO
  */
 data class CreateProductOptionRequest(
+
+    @field:NotBlank(message = "옵션명은 필수입니다.")
     val name: String,
 
-    @field:NotBlank
+    @field:NotBlank(message = "옵션 타입은 필수입니다.")
     val optionType: String,
 
     val discountAvailable: Boolean = false,
@@ -175,6 +184,7 @@ data class CreateProductOptionRequest(
                 shootingHours = dto.shootingHours,
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
+                originalProvided = dto.originalProvided,
                 partnerShops = dto.partnerShops.map {
                     PartnerShop(
                         category = PartnerShopCategory.valueOf(it.category),

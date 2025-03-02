@@ -167,8 +167,6 @@ open class ProductEntity(
             additionalImages = additionalImages.map { it.toDomainImage() },
             detailedInfo = detailedInfo ?: "",
             contactInfo = contactInfo ?: "",
-            createdAt = createdDate ?: LocalDateTime.now(),
-            updatedAt = updateDate ?: LocalDateTime.now(),
             options = options.map { it.toDomain() }
         )
     }

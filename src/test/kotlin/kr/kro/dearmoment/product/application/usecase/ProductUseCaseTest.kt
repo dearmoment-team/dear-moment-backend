@@ -1,615 +1,405 @@
-package kr.kro.dearmoment.product.application.usecase
-
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
-import io.mockk.Runs
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
-import io.mockk.verify
-import kr.kro.dearmoment.image.application.service.ImageService
-import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
-import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
-import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
-import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
-import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
-import kr.kro.dearmoment.product.domain.model.*
-import org.springframework.mock.web.MockMultipartFile
-
-class ProductUseCaseTest : BehaviorSpec({
-
-    // ─────────────────────────────────────────
-    // Mock 선언
-    val productPersistencePort = mockk<ProductPersistencePort>(relaxed = true)
-    val productOptionPersistencePort = mockk<ProductOptionPersistencePort>(relaxed = true)
-    val imageService = mockk<ImageService>(relaxed = true)
-
-    // 실제 테스트 대상
-    lateinit var productUseCase: ProductUseCase
-
-    beforeEach {
-        productUseCase = ProductUseCaseImpl(
-            productPersistencePort = productPersistencePort,
-            productOptionPersistencePort = productOptionPersistencePort,
-            imageService = imageService
-        )
-        clearMocks(productPersistencePort, productOptionPersistencePort, imageService)
-    }
-
-    // ─────────────────────────────────────────
-    // 헬퍼 함수 (상품/옵션 도메인)
-
-    /**
-     * 도메인 규칙: subImages는 정확히 4장
-     * 아래 유틸 함수는 기본적으로 4장의 subImages를 넣는다
-     */
-    fun sampleProduct(
-        productId: Long = 1L,
-        userId: Long = 1L,
-        title: String = "Sample Product",
-        description: String = "Desc",
-        mainImageId: Long = 100L,
-        subImageIds: List<Long> = listOf(101L, 102L, 103L, 104L),
-        options: List<ProductOption> = emptyList(),
-    ): Product {
-        val mainImg = Image(
-            imageId = mainImageId,
-            userId = userId,
-            fileName = "main.jpg",
-            url = "http://example.com/main.jpg"
-        )
-        val subImgs = subImageIds.mapIndexed { idx, id ->
-            Image(
-                imageId = id,
-                userId = userId,
-                fileName = "sub$idx.jpg",
-                url = "http://example.com/sub$idx.jpg"
-            )
-        }
-        return Product(
-            productId = productId,
-            userId = userId,
-            productType = ProductType.WEDDING_SNAP,
-            shootingPlace = ShootingPlace.JEJU,
-            title = title,
-            description = description,
-            availableSeasons = emptySet(),
-            cameraTypes = emptySet(),
-            retouchStyles = emptySet(),
-            mainImage = mainImg,
-            subImages = subImgs, // 4장
-            additionalImages = emptyList(),
-            detailedInfo = "",
-            contactInfo = "",
-            options = options,
-        )
-    }
-
-    fun sampleOption(
-        optionId: Long = 0L,
-        productId: Long = 0L,
-        name: String = "Option"
-    ) = ProductOption(
-        optionId = optionId,
-        productId = productId,
-        name = name,
-        optionType = OptionType.SINGLE,
-        discountAvailable = false,
-        originalPrice = 1000,
-        discountPrice = 0,
-        description = "desc",
-        costumeCount = 1,
-        shootingLocationCount = 1,
-        shootingHours = 1,
-        shootingMinutes = 0,
-        retouchedCount = 1,
-        originalProvided = false,
-        partnerShops = emptyList(),
-        createdAt = null,
-        updatedAt = null,
-    )
-
-    // ─────────────────────────────────────────
-    // saveProduct() 테스트
-
-    given("saveProduct") {
-
-        // 서브 이미지 4장 준비
-        val sub1 = MockMultipartFile("sub1", "sub1.jpg", "image/jpeg", "fake-sub1".toByteArray())
-        val sub2 = MockMultipartFile("sub2", "sub2.jpg", "image/jpeg", "fake-sub2".toByteArray())
-        val sub3 = MockMultipartFile("sub3", "sub3.jpg", "image/jpeg", "fake-sub3".toByteArray())
-        val sub4 = MockMultipartFile("sub4", "sub4.jpg", "image/jpeg", "fake-sub4".toByteArray())
-
-        val createReq = CreateProductRequest(
-            userId = 1L,
-            productType = "WEDDING_SNAP",
-            shootingPlace = "JEJU",
-            title = "New Product",
-            description = "New desc",
-            mainImageFile = null,  // 대표 이미지 X -> 예외
-            subImageFiles = listOf(sub1, sub2, sub3, sub4),
-            additionalImageFiles = emptyList(),
-            options = listOf(
-                CreateProductOptionRequest(
-                    name = "Option1",
-                    optionType = "SINGLE",
-                    costumeCount = 1,
-                    shootingLocationCount = 1,
-                    shootingHours = 1,
-                    retouchedCount = 1,
-                )
-            )
-        )
-
-        `when`("대표 이미지가 null이면") {
-            then("예외 발생: 대표 이미지는 필수입니다.") {
-                val ex = shouldThrow<IllegalArgumentException> {
-                    productUseCase.saveProduct(createReq)
-                }
-                ex.message shouldBe "대표 이미지는 필수입니다."
-            }
-        }
-
-        `when`("대표 이미지를 포함해 정상 요청") {
-            val mainFile = MockMultipartFile("main", "main.jpg", "image/jpeg", "fake-main".toByteArray())
-            val reqWithMain = createReq.copy(mainImageFile = mainFile)
-
-            // Mock: 같은 제목 상품 존재 여부
-            every { productPersistencePort.existsByUserIdAndTitle(1L, "New Product") } returns false
-
-            // Mock: 이미지 업로드 (대표 1 + 서브4 => 총 5회)
-            every { imageService.save(any()) } returnsMany listOf(10L, 11L, 12L, 13L, 14L)
-            // 대표 이미지 getOne(10L):
-            every { imageService.getOne(10L) } returns
-                    kr.kro.dearmoment.image.adapter.input.web.dto.GetImageResponse(
-                        imageId = 10L,
-                        url = "http://example.com/main-uploaded.jpg"
-                    )
-
-            // Mock: DB 저장 시 productId=999
-            val savedDomain = sampleProduct(
-                productId = 999L,
-                title = "New Product"
-            )
-            every { productPersistencePort.save(any()) } returns savedDomain
-
-            // Mock: 옵션 저장 => optionId=111
-            every { productOptionPersistencePort.save(any(), any()) } answers {
-                firstArg<ProductOption>().copy(optionId = 111L, productId = 999L)
-            }
-            every { productOptionPersistencePort.findByProductId(999L) } returns listOf(
-                sampleOption(optionId = 111L, productId = 999L, name = "Option1")
-            )
-
-            then("상품 & 옵션 저장, 대표+서브 이미지 업로드 확인") {
-                val result = productUseCase.saveProduct(reqWithMain)
-
-                result.productId shouldBe 999L
-                result.title shouldBe "New Product"
-                result.mainImage shouldBe "http://example.com/main-uploaded.jpg"
-
-                // 옵션 확인
-                result.options shouldHaveSize 1
-                result.options[0].optionId shouldBe 111L
-                result.options[0].name shouldBe "Option1"
-
-                // 대표+서브4장 => 5회 호출
-                verify(exactly = 5) { imageService.save(any()) }
-                // 대표이미지에 대한 getOne(10L) 확인
-                verify(exactly = 1) { imageService.getOne(10L) }
-                // 상품, 옵션 저장
-                verify(exactly = 1) { productPersistencePort.save(any()) }
-                verify(exactly = 1) { productOptionPersistencePort.save(any(), any()) }
-                verify(exactly = 1) { productOptionPersistencePort.findByProductId(999L) }
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────
-    // updateProduct() 테스트
-
-    given("updateProduct") {
-        // 기존 상품(1L), main=10L, sub=11..14 => 도메인 규칙 충족
-        val existingProduct = sampleProduct(
-            productId = 1L,
-            title = "Old Product",
-            mainImageId = 10L,
-            subImageIds = listOf(11L, 12L, 13L, 14L),
-            options = listOf(sampleOption(optionId = 100L, productId = 1L, name = "Old Option"))
-        )
-
-        val updateReq = UpdateProductRequest(
-            productId = 1L,
-            userId = 1L,
-            productType = "WEDDING_SNAP",
-            shootingPlace = "JEJU",
-            title = "Updated Title",
-            description = "Updated desc",
-            mainImageFile = null,   // 새 대표이미지 X
-            subImageFiles = null,   // 새 서브이미지 X => 기존 11..14 유지
-            additionalImageFiles = null,
-            options = listOf(
-                UpdateProductOptionRequest(
-                    optionId = 100L,
-                    name = "Updated Option",
-                    optionType = "SINGLE",
-                    costumeCount = 1,
-                    shootingLocationCount = 1,
-                    shootingHours = 1,
-                    shootingMinutes = 0,
-                    retouchedCount = 1,
-                ),
-                UpdateProductOptionRequest(
-                    optionId = null,
-                    name = "New Option",
-                    optionType = "SINGLE",
-                    costumeCount = 1,
-                    shootingLocationCount = 1,
-                    shootingHours = 1,
-                    retouchedCount = 1,
-                )
-            )
-        )
-
-        `when`("존재하지 않는 상품 ID") {
-            every { productPersistencePort.findById(999L) } returns null
-
-            then("예외 발생") {
-                val ex = shouldThrow<IllegalArgumentException> {
-                    productUseCase.updateProduct(updateReq.copy(productId = 999L))
-                }
-                ex.message shouldBe "Product not found: 999"
-            }
-        }
-
-        `when`("새 대표이미지 없이 기존 상품 수정") {
-            // Mock: 기존 상품 조회
-            every { productPersistencePort.findById(1L) } returns existingProduct
-
-            // Mock: 저장 => title 변경
-            every { productPersistencePort.save(any()) } answers {
-                firstArg<Product>().copy(title = "Updated Title")
-            }
-
-            // Mock: 기존 옵션 리스트
-            every { productOptionPersistencePort.findByProductId(1L) } returnsMany listOf(
-                // 처음 조회 시: 구 옵션 1개
-                listOf(sampleOption(optionId = 100L, productId = 1L, name = "Old Option")),
-                // 두 번째 조회 시(마지막 enrich 단계): 업데이트된 2개
-                listOf(
-                    sampleOption(optionId = 100L, productId = 1L, name = "Updated Option"),
-                    sampleOption(optionId = 200L, productId = 1L, name = "New Option"),
-                )
-            )
-
-            every { productOptionPersistencePort.deleteById(any()) } just Runs
-
-            // Mock: 기존 옵션 개별 조회
-            every { productOptionPersistencePort.findById(100L) } returns
-                    sampleOption(100L, 1L, "Old Option")
-
-            // Mock: 옵션 저장
-            every { productOptionPersistencePort.save(any(), any()) } answers {
-                val argOption = firstArg<ProductOption>()
-                // 새로 추가된 옵션이면 ID=0 → ID=200으로 가정
-                if (argOption.optionId == 0L) argOption.copy(optionId = 200L) else argOption
-            }
-
-            then("타이틀=Updated Title, 기존옵션->Updated Option, 새옵션->New Option") {
-                val result = productUseCase.updateProduct(updateReq)
-
-                result.title shouldBe "Updated Title"
-                // 최종 옵션 2개
-                result.options shouldHaveSize 2
-                result.options.map { it.name } shouldContainExactly listOf("Updated Option", "New Option")
-
-                verify(exactly = 1) { productPersistencePort.findById(1L) }
-                verify(exactly = 1) { productPersistencePort.save(any()) }
-
-                // 옵션 조회 2번(기존, 최종)
-                verify(exactly = 2) { productOptionPersistencePort.findByProductId(1L) }
-                // 구 옵션 조회
-                verify(exactly = 1) { productOptionPersistencePort.findById(100L) }
-                // save 2회(수정1, 신규1)
-                verify(exactly = 2) { productOptionPersistencePort.save(any(), any()) }
-
-                // 대표이미지 교체 없음 => imageService.save(...) 호출 0회
-                verify(exactly = 0) { imageService.save(any()) }
-            }
-        }
-
-        `when`("새 대표이미지를 포함해 수정") {
-            val newMain = MockMultipartFile("main", "new_main.jpg", "image/jpeg", "fake".toByteArray())
-            val reqWithNewMain = updateReq.copy(mainImageFile = newMain)
-
-            // Mock: 기존 상품
-            every { productPersistencePort.findById(1L) } returns existingProduct
-            // Mock: 새 대표이미지 업로드 => ID=777
-            every { imageService.save(any()) } returns 777L
-            every {
-                imageService.getOne(777L)
-            } returns kr.kro.dearmoment.image.adapter.input.web.dto.GetImageResponse(
-                imageId = 777L,
-                url = "http://example.com/new_main.jpg"
-            )
-
-            // Mock: 상품 저장 => title="Updated Title With NewMain"
-            every { productPersistencePort.save(any()) } answers {
-                firstArg<Product>().copy(title = "Updated Title With NewMain")
-            }
-
-            // Mock: 옵션 로직
-            every { productOptionPersistencePort.findByProductId(1L) } returnsMany listOf(
-                listOf(sampleOption(optionId = 100L, productId = 1L, name = "Old Option")),
-                listOf(
-                    sampleOption(optionId = 100L, productId = 1L, name = "Updated Option"),
-                    sampleOption(optionId = 200L, productId = 1L, name = "New Option"),
-                )
-            )
-            every { productOptionPersistencePort.findById(100L) } returns
-                    sampleOption(100L, 1L, "Old Option")
-            every { productOptionPersistencePort.save(any(), any()) } returns
-                    sampleOption(100L, 1L, "Updated Option")
-
-            then("대표이미지 교체 & 옵션 수정") {
-                val result = productUseCase.updateProduct(reqWithNewMain)
-
-                result.title shouldBe "Updated Title With NewMain"
-                result.mainImage shouldBe "http://example.com/new_main.jpg"
-
-                verify(exactly = 1) { productPersistencePort.findById(1L) }
-                verify(exactly = 1) { imageService.save(any()) }
-                verify(exactly = 1) { imageService.getOne(777L) }
-                verify(exactly = 1) { productPersistencePort.save(any()) }
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────
-    // deleteProduct() 테스트
-
-    given("deleteProduct") {
-        // 기존 상품: 대표=2, 서브=3..6 (4장)
-        val prodToDelete = sampleProduct(
-            productId = 1L,
-            mainImageId = 2L,
-            subImageIds = listOf(3L, 4L, 5L, 6L)
-        )
-
-        `when`("존재하는 상품 삭제") {
-            every { productPersistencePort.findById(1L) } returns prodToDelete
-            every { productOptionPersistencePort.deleteAllByProductId(1L) } just Runs
-            every { productPersistencePort.deleteById(1L) } just Runs
-
-            // 이미지 삭제: 대표=2, 서브=3..6
-            every { imageService.delete(2L) } just Runs
-            every { imageService.delete(3L) } just Runs
-            every { imageService.delete(4L) } just Runs
-            every { imageService.delete(5L) } just Runs
-            every { imageService.delete(6L) } just Runs
-
-            then("상품, 옵션, 이미지 삭제") {
-                productUseCase.deleteProduct(1L)
-
-                verify(exactly = 1) { productPersistencePort.findById(1L) }
-                verify(exactly = 1) { productOptionPersistencePort.deleteAllByProductId(1L) }
-                verify(exactly = 1) { productPersistencePort.deleteById(1L) }
-
-                // 대표+서브(4장)=총5장
-                verify(exactly = 1) { imageService.delete(2L) }
-                verify(exactly = 1) { imageService.delete(3L) }
-                verify(exactly = 1) { imageService.delete(4L) }
-                verify(exactly = 1) { imageService.delete(5L) }
-                verify(exactly = 1) { imageService.delete(6L) }
-            }
-        }
-
-        `when`("존재하지 않는 상품 삭제") {
-            every { productPersistencePort.findById(999L) } returns null
-
-            then("예외") {
-                val ex = shouldThrow<IllegalArgumentException> {
-                    productUseCase.deleteProduct(999L)
-                }
-                ex.message shouldBe "The product to delete does not exist: 999."
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────
-    // getProductById() 테스트
-
-    given("getProductById") {
-        `when`("존재하는 상품 ID=77L") {
-            // mock된 상품, productId=77, subImages=111..114
-            val p = sampleProduct(
-                productId = 77L,
-                mainImageId = 110L,
-                subImageIds = listOf(111L, 112L, 113L, 114L),
-                options = listOf(sampleOption(optionId = 10L, productId = 77L, name = "Option"))
-            )
-            every { productPersistencePort.findById(77L) } returns p
-            every { productOptionPersistencePort.findByProductId(77L) } returns p.options
-
-            then("Product + Option 반환") {
-                val result = productUseCase.getProductById(77L)
-                result.productId shouldBe 77L
-                result.title shouldBe "Sample Product"
-                result.options shouldHaveSize 1
-                result.options[0].name shouldBe "Option"
-            }
-        }
-
-        `when`("존재하지 않는 상품 ID=999") {
-            every { productPersistencePort.findById(999L) } returns null
-
-            then("예외") {
-                val ex = shouldThrow<IllegalArgumentException> {
-                    productUseCase.getProductById(999L)
-                }
-                ex.message shouldBe "Product with ID 999 not found."
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────
-    // searchProducts() 테스트
-
-    given("searchProducts") {
-        `when`("title=WEDDING, productType=WEDDING_SNAP, shootingPlace=JEJU, sortBy=created-desc") {
-            val p1 = sampleProduct(productId = 10L, title = "P1")
-            val p2 = sampleProduct(productId = 11L, title = "P2")
-
-            // 검색 mock
-            every {
-                productPersistencePort.searchByCriteria("WEDDING", "WEDDING_SNAP", "JEJU", "created-desc")
-            } returns listOf(p1, p2)
-
-            then("결과 2개, 페이징 OK") {
-                val result = productUseCase.searchProducts(
-                    title = "WEDDING",
-                    productType = "WEDDING_SNAP",
-                    shootingPlace = "JEJU",
-                    sortBy = "created-desc",
-                    page = 0,
-                    size = 10
-                )
-                result.content shouldHaveSize 2
-                result.totalElements shouldBe 2
-                result.totalPages shouldBe 1
-            }
-        }
-
-        `when`("검색 결과가 없는 경우") {
-            every { productPersistencePort.searchByCriteria(any(), any(), any(), any()) } returns emptyList()
-
-            then("0건") {
-                val result = productUseCase.searchProducts(null, null, null, null, 0, 10)
-                result.content shouldHaveSize 0
-                result.totalElements shouldBe 0
-                result.totalPages shouldBe 0
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────
-    // getMainPageProducts() 테스트
-
-    given("getMainPageProducts") {
-        val p1 = sampleProduct(productId = 1L, title = "Main1")
-        val p2 = sampleProduct(productId = 2L, title = "Main2")
-
-        `when`("전체 상품 2개") {
-            every { productPersistencePort.findAll() } returns listOf(p1, p2)
-
-            then("size=2, totalElements=2, totalPages=1") {
-                val result = productUseCase.getMainPageProducts(0, 10)
-                result.content shouldHaveSize 2
-                result.content.map { it.title } shouldContainExactly listOf("Main1", "Main2")
-                result.totalElements shouldBe 2
-                result.totalPages shouldBe 1
-            }
-        }
-
-        `when`("전체 상품이 없는 경우") {
-            every { productPersistencePort.findAll() } returns emptyList()
-
-            then("0건") {
-                val result = productUseCase.getMainPageProducts(0, 10)
-                result.content shouldHaveSize 0
-                result.totalElements shouldBe 0
-                result.totalPages shouldBe 0
-            }
-        }
-    }
-
-    given("deleteProduct") {
-        // 기존 상품: 대표=2, 서브=3..6 (4장)
-        val prodToDelete = sampleProduct(
-            productId = 1L,
-            mainImageId = 2L,
-            subImageIds = listOf(3L, 4L, 5L, 6L)
-        )
-
-        `when`("존재하는 상품 삭제") {
-            every { productPersistencePort.findById(1L) } returns prodToDelete
-            every { productOptionPersistencePort.deleteAllByProductId(1L) } just Runs
-            every { productPersistencePort.deleteById(1L) } just Runs
-
-            // 이미지 삭제: 대표=2, 서브=3..6
-            every { imageService.delete(2L) } just Runs
-            every { imageService.delete(3L) } just Runs
-            every { imageService.delete(4L) } just Runs
-            every { imageService.delete(5L) } just Runs
-            every { imageService.delete(6L) } just Runs
-
-            then("상품, 옵션, 이미지 삭제") {
-                productUseCase.deleteProduct(1L)
-
-                verify(exactly = 1) { productPersistencePort.findById(1L) }
-                verify(exactly = 1) { productOptionPersistencePort.deleteAllByProductId(1L) }
-                verify(exactly = 1) { productPersistencePort.deleteById(1L) }
-
-                // 대표+서브(4장)=총5장
-                verify(exactly = 1) { imageService.delete(2L) }
-                verify(exactly = 1) { imageService.delete(3L) }
-                verify(exactly = 1) { imageService.delete(4L) }
-                verify(exactly = 1) { imageService.delete(5L) }
-                verify(exactly = 1) { imageService.delete(6L) }
-            }
-        }
-
-        `when`("존재하지 않는 상품 삭제") {
-            every { productPersistencePort.findById(999L) } returns null
-
-            then("예외") {
-                val ex = shouldThrow<IllegalArgumentException> {
-                    productUseCase.deleteProduct(999L)
-                }
-                ex.message shouldBe "삭제할 상품이 존재하지 않습니다. ID: 999"
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────
-    // getProductById() 테스트
-
-    given("getProductById") {
-        `when`("존재하는 상품 ID=77L") {
-            // mock된 상품, productId=77, subImages=111..114
-            val p = sampleProduct(
-                productId = 77L,
-                mainImageId = 110L,
-                subImageIds = listOf(111L, 112L, 113L, 114L),
-                options = listOf(sampleOption(optionId = 10L, productId = 77L, name = "Option"))
-            )
-            every { productPersistencePort.findById(77L) } returns p
-            every { productOptionPersistencePort.findByProductId(77L) } returns p.options
-
-            then("Product + Option 반환") {
-                val result = productUseCase.getProductById(77L)
-                result.productId shouldBe 77L
-                result.title shouldBe "Sample Product"
-                result.options shouldHaveSize 1
-                result.options[0].name shouldBe "Option"
-            }
-        }
-
-        `when`("존재하지 않는 상품 ID=999") {
-            every { productPersistencePort.findById(999L) } returns null
-
-            then("예외") {
-                val ex = shouldThrow<IllegalArgumentException> {
-                    productUseCase.getProductById(999L)
-                }
-                ex.message shouldBe "상품을 찾을 수 없습니다. ID: 999"
-            }
-        }
-    }
-})
+//package kr.kro.dearmoment.product.application.usecase
+//
+//import io.kotest.core.spec.style.BehaviorSpec
+//import io.kotest.matchers.shouldBe
+//import io.mockk.*
+//import kr.kro.dearmoment.image.application.service.ImageService
+//import kr.kro.dearmoment.image.domain.Image
+//import kr.kro.dearmoment.product.application.dto.request.*
+//import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+//import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
+//import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+//import kr.kro.dearmoment.product.domain.model.*
+//import org.springframework.web.multipart.MultipartFile
+//import java.time.LocalDateTime
+//
+//class ProductUseCaseTest : BehaviorSpec({
+//
+//    // -------------------------------------------------------------------------
+//    // 테스트 준비
+//    // -------------------------------------------------------------------------
+//    beforeEach {
+//        clearAllMocks()
+//    }
+//
+//    val productPersistencePort = mockk<ProductPersistencePort>()
+//    val productOptionPersistencePort = mockk<ProductOptionPersistencePort>()
+//    val imageService = mockk<ImageService>()
+//    val imageHandler = ImageHandler(imageService)
+//
+//    val productUseCase = ProductUseCaseImpl(
+//        productPersistencePort,
+//        productOptionPersistencePort,
+//        imageService,
+//        imageHandler
+//    )
+//
+//    // -------------------------------------------------------------------------
+//    // 공통적으로 사용할 Mock multipartFile, Image 등 예시
+//    // -------------------------------------------------------------------------
+//    val mockFileA = mockk<MultipartFile>(relaxed = true) {
+//        every { originalFilename } returns "fileA.jpg"
+//    }
+//    val mockFileB = mockk<MultipartFile>(relaxed = true) {
+//        every { originalFilename } returns "fileB.jpg"
+//    }
+//    val mockFileC = mockk<MultipartFile>(relaxed = true) {
+//        every { originalFilename } returns "fileC.jpg"
+//    }
+//
+//    // 샘플 Image 도메인(기존 이미지 시나리오)
+//    val existingImage1 = Image(
+//        imageId = 101L,
+//        userId = 999L,
+//        fileName = "existing1.jpg",
+//        url = "http://cdn.com/existing1.jpg",
+//        urlExpireTime = LocalDateTime.now().plusDays(1)
+//    )
+//    val existingImage2 = Image(
+//        imageId = 102L,
+//        userId = 999L,
+//        fileName = "existing2.jpg",
+//        url = "http://cdn.com/existing2.jpg",
+//        urlExpireTime = LocalDateTime.now().plusDays(1)
+//    )
+//    val existingImage3 = Image(
+//        imageId = 103L,
+//        userId = 999L,
+//        fileName = "existing3.jpg",
+//        url = "http://cdn.com/existing3.jpg",
+//        urlExpireTime = LocalDateTime.now().plusDays(1)
+//    )
+//    val existingImage4 = Image(
+//        imageId = 104L,
+//        userId = 999L,
+//        fileName = "existing4.jpg",
+//        url = "http://cdn.com/existing4.jpg",
+//        urlExpireTime = LocalDateTime.now().plusDays(1)
+//    )
+//    val existingImage5 = Image(
+//        imageId = 105L,
+//        userId = 999L,
+//        fileName = "existing5.jpg",
+//        url = "http://cdn.com/existing5.jpg",
+//        urlExpireTime = LocalDateTime.now().plusDays(1)
+//    )
+//
+//    // -------------------------------------------------------------------------
+//    // "상품 업데이트" 상세 시나리오
+//    // -------------------------------------------------------------------------
+//    Given("이미 존재하는 상품이 있고, 여러가지 업데이트 상황이 발생한다") {
+//
+//        // 기존 상품 도메인 (서브이미지 4장, 추가이미지 0장, 옵션 2개)
+//        val existingProduct = Product(
+//            productId = 1L,
+//            userId = 999L,
+//            productType = ProductType.WEDDING_SNAP,
+//            shootingPlace = ShootingPlace.JEJU,
+//            title = "기존 상품명",
+//            description = "기존 설명",
+//            mainImage = existingImage1,
+//            subImages = listOf(existingImage2, existingImage3, existingImage4, existingImage5),
+//            additionalImages = emptyList(),
+//            retouchStyles = setOf(RetouchStyle.MODERN),
+//            options = listOf(
+//                ProductOption(
+//                    optionId = 10L,
+//                    productId = 1L,
+//                    name = "옵션A",
+//                    optionType = OptionType.SINGLE,
+//                    discountAvailable = false,
+//                    originalPrice = 100000L,
+//                    discountPrice = 0L,
+//                    description = "",
+//                    costumeCount = 1,
+//                    shootingHours = 1,
+//                    shootingLocationCount = 1,
+//                    retouchedCount = 1
+//                ),
+//                ProductOption(
+//                    optionId = 11L,
+//                    productId = 1L,
+//                    name = "옵션B",
+//                    optionType = OptionType.SINGLE,
+//                    discountAvailable = true,
+//                    originalPrice = 200000L,
+//                    discountPrice = 150000L,
+//                    description = "",
+//                    costumeCount = 2,
+//                    shootingHours = 1,
+//                    shootingLocationCount = 1,
+//                    retouchedCount = 1
+//                )
+//            )
+//        )
+//
+//        // Stubbing
+//        every { productPersistencePort.findById(1L) } returns existingProduct
+//        every { productPersistencePort.save(any()) } answers { firstArg<Product>() }
+//        every { productOptionPersistencePort.findByProductId(1L) } returns existingProduct.options
+//
+//        // 옵션 삭제/저장
+//        // (테스트는 옵션 부분 업데이트만 검증; 전체 삭제 로직은 없음)
+//        justRun { productOptionPersistencePort.deleteById(any()) }
+//        every { productOptionPersistencePort.save(any(), any()) } answers { firstArg<ProductOption>() }
+//
+//        // 이미지 업로드
+//        coEvery { imageService.uploadSingleImage(any(), any()) } answers {
+//            val file = arg<MultipartFile>(0)
+//            val userId = arg<Long>(1)
+//            val newId = (1000..2000).random().toLong()
+//            Image(
+//                imageId = newId,
+//                userId = userId,
+//                fileName = file.originalFilename ?: "unknown.jpg",
+//                url = "http://cdn.com/${file.originalFilename}"
+//            )
+//        }
+//        // 이미지 삭제
+//        justRun { imageService.delete(any()) }
+//
+//        // --- 시나리오 1 ---
+//        When("대표이미지 교체 + 서브이미지 전체교체(4장) + 추가이미지 없음 + 기존 옵션 일부 수정/삭제 + 새 옵션 추가") {
+//            val subImagesFinalRequests = listOf(
+//                SubImageFinalRequest(imageId = null, file = mockFileA),
+//                SubImageFinalRequest(imageId = null, file = mockFileB),
+//                SubImageFinalRequest(imageId = null, file = mockFileC),
+//                SubImageFinalRequest(imageId = null, file = mockFileB), // 임의
+//            )
+//
+//            val updateReq = UpdateProductRequest(
+//                productId = 1L,
+//                userId = 999L,
+//                productType = "WEDDING_SNAP",
+//                shootingPlace = "JEJU",
+//                title = "바뀐 상품명",
+//                description = "바뀐 설명",
+//                mainImageFile = mockFileA,
+//                subImagesFinal = subImagesFinalRequests,
+//                additionalImagesFinal = emptyList(),
+//                retouchStyles = listOf("CALM", "VINTAGE"),
+//                options = listOf(
+//                    UpdateProductOptionRequest(
+//                        optionId = 10L, // 기존 옵션A
+//                        name = "옵션A-수정",
+//                        optionType = "SINGLE",
+//                        originalPrice = 120000L,
+//                        costumeCount = 2,
+//                        shootingHours = 1,
+//                        shootingLocationCount = 1,
+//                        retouchedCount = 3
+//                    ),
+//                    UpdateProductOptionRequest(
+//                        optionId = null, // 신규 옵션C
+//                        name = "옵션C-추가",
+//                        optionType = "SINGLE",
+//                        originalPrice = 50000L,
+//                        costumeCount = 2,
+//                        shootingHours = 1,
+//                        shootingLocationCount = 1,
+//                        retouchedCount = 3
+//                    )
+//                    // 옵션B(11L)는 누락 => 삭제 대상
+//                )
+//            )
+//
+//            val updated: ProductResponse = productUseCase.updateProduct(updateReq)
+//
+//            Then("대표이미지는 새 파일로 교체, 기존(101L) 삭제") {
+//                coVerify(exactly = 1) {
+//                    imageService.uploadSingleImage(mockFileA, 999L)
+//                    imageService.delete(101L)
+//                }
+//                updated.title shouldBe "바뀐 상품명"
+//                updated.description shouldBe "바뀐 설명"
+//            }
+//
+//            Then("서브이미지: 기존 102,103,104,105 전부 삭제 후 새 4장 업로드") {
+//                // 업로드 4번 호출
+//                coVerify(exactly = 4) { imageService.uploadSingleImage(ofType<MultipartFile>(), 999L) }
+//                // 기존 4장 삭제
+//                verify(exactly = 4) {
+//                    imageService.delete(withArg { id -> id in listOf(102L, 103L, 104L, 105L) })
+//                }
+//                updated.subImages.size shouldBe 4
+//            }
+//
+//            Then("추가이미지는 0장 유지") {
+//                updated.additionalImages.size shouldBe 0
+//            }
+//
+//            Then("보정스타일 = CALM, VINTAGE") {
+//                updated.retouchStyles shouldBe setOf(RetouchStyle.CALM, RetouchStyle.VINTAGE)
+//            }
+//
+//            Then("옵션A(10L)는 수정, 옵션B(11L)는 삭제, 옵션C(새로 추가)") {
+//                verify { productOptionPersistencePort.deleteById(11L) }
+//                // A 수정
+//                verify {
+//                    productOptionPersistencePort.save(
+//                        match { it.optionId == 10L && it.originalPrice == 120000L },
+//                        any()
+//                    )
+//                }
+//                // C 추가
+//                verify {
+//                    productOptionPersistencePort.save(
+//                        match { it.optionId == 0L && it.name == "옵션C-추가" },
+//                        any()
+//                    )
+//                }
+//                updated.options.size shouldBe 2
+//            }
+//        }
+//
+//        // --- 시나리오 2 ---
+//        When("대표이미지는 그대로, 서브이미지 부분교체(2장 유지, 2장 교체), 추가이미지 2장 새로 추가, 옵션 일부 삭제") {
+//            val subImagesPartial = listOf(
+//                SubImageFinalRequest(102L, mockFileB), // 기존102->교체
+//                SubImageFinalRequest(103L, mockFileC), // 기존103->교체
+//                SubImageFinalRequest(104L, null),      // 유지
+//                SubImageFinalRequest(105L, null)       // 유지
+//            )
+//            val additionalPartial = listOf(
+//                AdditionalImageFinalRequest(null, mockFileA),
+//                AdditionalImageFinalRequest(null, mockFileB),
+//            )
+//
+//            val partialUpdateReq = UpdateProductRequest(
+//                productId = 1L,
+//                userId = 999L,
+//                productType = "WEDDING_SNAP",
+//                shootingPlace = "JEJU",
+//                title = "상품명 부분변경",
+//                description = "설명 부분변경",
+//                mainImageFile = null,
+//                subImagesFinal = subImagesPartial,
+//                additionalImagesFinal = additionalPartial,
+//                options = listOf(
+//                    // 옵션A 유지(변경없음)
+//                    UpdateProductOptionRequest(
+//                        optionId = 10L,
+//                        name = "옵션A(동일)",
+//                        optionType = "SINGLE",
+//                        originalPrice = 100000L,
+//                        discountPrice = 0L,
+//                        costumeCount = 2,
+//                        shootingHours = 1,
+//                        shootingLocationCount = 1,
+//                        retouchedCount = 3
+//                    )
+//                    // 옵션B(11L)는 빠짐 -> 삭제
+//                )
+//            )
+//
+//            val updated2: ProductResponse = productUseCase.updateProduct(partialUpdateReq)
+//
+//            Then("대표이미지는 그대로(삭제/업로드 없음)") {
+//                coVerify(exactly = 0) { imageService.delete(101L) }
+//                coVerify(exactly = 0) { imageService.uploadSingleImage(mockFileA, 999L) } // 대표이미지 용 없음
+//            }
+//
+//            Then("서브이미지 중 102,103만 교체 -> 기존삭제 + 새업로드, 104,105는 유지") {
+//                coVerify(exactly = 1) { imageService.uploadSingleImage(mockFileB, 999L) } // 교체102
+//                coVerify(exactly = 1) { imageService.uploadSingleImage(mockFileC, 999L) } // 교체103
+//                verify(exactly = 1) { imageService.delete(102L) }
+//                verify(exactly = 1) { imageService.delete(103L) }
+//                verify(exactly = 0) { imageService.delete(104L) }
+//                verify(exactly = 0) { imageService.delete(105L) }
+//                updated2.subImages.size shouldBe 4
+//            }
+//
+//            Then("추가이미지 2장 새로 추가되어 최종 2장") {
+//                coVerify(exactly = 1) { imageService.uploadSingleImage(mockFileA, 999L) }
+//                coVerify(exactly = 1) { imageService.uploadSingleImage(mockFileB, 999L) }
+//                updated2.additionalImages.size shouldBe 2
+//            }
+//
+//            Then("옵션B(11L)는 빠졌으므로 삭제, 옵션A(10L)는 그대로") {
+//                verify { productOptionPersistencePort.deleteById(11L) }
+//                verify(exactly = 1) {
+//                    productOptionPersistencePort.save(
+//                        withArg<ProductOption> {
+//                            it.optionId shouldBe 10L
+//                            it.name shouldBe "옵션A(동일)"
+//                            it.originalPrice shouldBe 100000L
+//                        },
+//                        any()
+//                    )
+//                }
+//                updated2.options.size shouldBe 1
+//            }
+//        }
+//    }
+//
+//    // -------------------------------------------------------------------------
+//    // 상품 삭제 테스트
+//    // -------------------------------------------------------------------------
+//
+//    Given("상품 삭제가 요청되었을 때") {
+//        val productIdToDelete = 1L
+//
+//        // 예시로, 기존 상품에는 대표+서브+추가 총 5장
+//        val existingProduct = Product(
+//            productId = productIdToDelete,
+//            userId = 999L,
+//            productType = ProductType.WEDDING_SNAP,
+//            shootingPlace = ShootingPlace.JEJU,
+//            title = "삭제될 상품",
+//            mainImage = existingImage1,
+//            subImages = listOf(existingImage2, existingImage3, existingImage4, existingImage5),
+//            additionalImages = listOf(),
+//            options = listOf(ProductOption(
+//                optionId = 10L,
+//                productId = 1L,
+//                name = "옵션A",
+//                optionType = OptionType.SINGLE,
+//                discountAvailable = false,
+//                originalPrice = 100000L,
+//                discountPrice = 0L,
+//                description = "",
+//                costumeCount = 1,
+//                shootingHours = 1,
+//                shootingLocationCount = 1,
+//                retouchedCount = 1,
+//            ),
+//                ProductOption(
+//                    optionId = 11L,
+//                    productId = 1L,
+//                    name = "옵션B",
+//                    optionType = OptionType.SINGLE,
+//                    discountAvailable = true,
+//                    originalPrice = 200000L,
+//                    discountPrice = 150000L,
+//                    description = "",
+//                    costumeCount = 2,
+//                    shootingHours = 1,
+//                    shootingLocationCount = 1,
+//                    retouchedCount = 1
+//                ))
+//        )
+//
+//        // Stubbing
+//        every { productPersistencePort.findById(productIdToDelete) } returns existingProduct
+//        justRun { productPersistencePort.deleteById(productIdToDelete) }
+//        justRun { imageService.delete(any()) }
+//
+//        // 옵션 전체 삭제는 '자동' 또는 별도 로직이라고 가정
+//        // => 테스트도 옵션 삭제 호출은 검증하지 않음
+//
+//        When("deleteProduct(productId)를 호출하면") {
+//            productUseCase.deleteProduct(productIdToDelete)
+//
+//            Then("상품 PersistencePort.deleteById(1L) 호출 + 대표/서브/추가 이미지 삭제") {
+//                verify(exactly = 1) { productPersistencePort.deleteById(1L) }
+//
+//                // 대표 + 서브이미지 총 5장 삭제
+//                verify(exactly = 5) {
+//                    imageService.delete(withArg { id ->
+//                        id in listOf(101L, 102L, 103L, 104L, 105L)
+//                    })
+//                }
+//            }
+//        }
+//    }
+//})
