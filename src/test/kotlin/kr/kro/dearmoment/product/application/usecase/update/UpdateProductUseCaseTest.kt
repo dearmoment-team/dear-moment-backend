@@ -347,9 +347,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         dummyExistingSubImage3,
                         dummyNewSubImageD,
                     )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
-                dummyExistingAdditionalImage
-            )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyExistingAdditionalImage,
+                    )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
@@ -400,9 +401,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         dummyNewSubImageC,
                         dummyNewSubImageD,
                     )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
-                dummyExistingAdditionalImage
-            )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyExistingAdditionalImage,
+                    )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
@@ -455,9 +457,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         dummyNewSubImageB,
                         dummyNewSubImageC,
                     )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
-                dummyExistingAdditionalImage
-            )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyExistingAdditionalImage,
+                    )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
@@ -510,9 +513,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         dummyNewSubImageC,
                         dummyNewSubImageD,
                     )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
-                dummyExistingAdditionalImage
-            )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyExistingAdditionalImage,
+                    )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
