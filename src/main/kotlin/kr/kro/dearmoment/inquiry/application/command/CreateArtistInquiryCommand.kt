@@ -1,15 +1,15 @@
 package kr.kro.dearmoment.inquiry.application.command
 
-import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
+import kr.kro.dearmoment.inquiry.domain.ArtistInquiry
 
-data class CreateAuthorInquiryCommand(
+data class CreateArtistInquiryCommand(
     val userId: Long,
     val title: String,
     val content: String,
     val email: String,
 ) {
     fun toDomain() =
-        AuthorInquiry(
+        ArtistInquiry(
             userId = userId,
             title = title,
             content = content,

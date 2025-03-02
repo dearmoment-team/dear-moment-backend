@@ -1,10 +1,10 @@
 package kr.kro.dearmoment.inquiry.application.service
 
 import kr.kro.dearmoment.common.dto.PagedResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
+import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.GetArtistInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.product.dto.GetProductInquiryResponse
-import kr.kro.dearmoment.inquiry.application.command.CreateAuthorInquiryCommand
+import kr.kro.dearmoment.inquiry.application.command.CreateArtistInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
@@ -14,7 +14,7 @@ import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
-import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
+import kr.kro.dearmoment.inquiry.application.query.GetArtistInquiresQuery
 import kr.kro.dearmoment.inquiry.application.query.GetProductInquiresQuery
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,9 +27,9 @@ class InquiryService(
     private val sendInquiryPort: SendInquiryPort,
 ) : CreateInquiryUseCase, GetInquiryUseCase, RemoveInquiryUseCase {
     @Transactional
-    override fun createAuthorInquiry(command: CreateAuthorInquiryCommand): CreateInquiryResponse {
+    override fun createArtistInquiry(command: CreateArtistInquiryCommand): CreateInquiryResponse {
         val inquiry = command.toDomain()
-        val savedInquiryId = saveInquiryPort.saveAuthorInquiry(inquiry)
+        val savedInquiryId = saveInquiryPort.saveArtistInquiry(inquiry)
 
         sendInquiryPort.sendMail(
             email = command.email,
@@ -60,11 +60,11 @@ class InquiryService(
     }
 
     @Transactional(readOnly = true)
-    override fun getAuthorInquiries(query: GetAuthorInquiresQuery): PagedResponse<GetAuthorInquiryResponse> {
-        val inquiries = getInquiryPort.getAuthorInquiries(query.userId, query.pageable)
+    override fun getArtistInquiries(query: GetArtistInquiresQuery): PagedResponse<GetArtistInquiryResponse> {
+        val inquiries = getInquiryPort.getArtistInquiries(query.userId, query.pageable)
 
         return PagedResponse(
-            content = inquiries.content.map { GetAuthorInquiryResponse.from(it) },
+            content = inquiries.content.map { GetArtistInquiryResponse.from(it) },
             page = query.pageable.pageNumber,
             size = query.pageable.pageSize,
             totalElements = inquiries.totalElements,

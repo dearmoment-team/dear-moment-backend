@@ -4,7 +4,7 @@ enum class LikeType(
     val value: String,
 ) {
     PRODUCT("PRODUCT"),
-    AUTHOR("AUTHOR"),
+    ARTIST("ARTIST"),
     ;
 
     companion object {

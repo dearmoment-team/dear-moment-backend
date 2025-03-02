@@ -1,17 +1,17 @@
-package kr.kro.dearmoment.inquiry.adapter.input.web.author.dto
+package kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto
 
-import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
+import kr.kro.dearmoment.inquiry.domain.ArtistInquiry
 import java.time.LocalDateTime
 
-data class GetAuthorInquiryResponse(
+data class GetArtistInquiryResponse(
     val inquiryId: Long,
     val title: String,
     val content: String,
     val createdDate: LocalDateTime,
 ) {
     companion object {
-        fun from(inquiry: AuthorInquiry) =
-            GetAuthorInquiryResponse(
+        fun from(inquiry: ArtistInquiry) =
+            GetArtistInquiryResponse(
                 inquiryId = inquiry.id,
                 title = inquiry.title,
                 content = inquiry.content,
