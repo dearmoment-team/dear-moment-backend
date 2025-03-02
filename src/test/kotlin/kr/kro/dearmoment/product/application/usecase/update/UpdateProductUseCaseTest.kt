@@ -176,6 +176,79 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             url = "http://example.com/add2.jpg",
         )
 
+    // 서브 이미지 교체 시 필요한 더미들
+    val baseUpdateRequest =
+        updateRequest.copy(
+            mainImageFile = null,
+            additionalImagesFinal = emptyList(),
+        )
+
+    val mockSubFileA = MockMultipartFile("subA.jpg", "subA.jpg", "image/jpeg", "subA-content".toByteArray())
+    val mockSubFileB = MockMultipartFile("subB.jpg", "subB.jpg", "image/jpeg", "subB-content".toByteArray())
+    val mockSubFileC = MockMultipartFile("subC.jpg", "subC.jpg", "image/jpeg", "subC-content".toByteArray())
+    val mockSubFileD = MockMultipartFile("subD.jpg", "subD.jpg", "image/jpeg", "subD-content".toByteArray())
+
+    val dummyExistingSubImage1 =
+        Image(
+            imageId = 201L,
+            userId = 1L,
+            parId = "",
+            fileName = "existing_sub1.jpg",
+            url = "http://example.com/existing_sub1.jpg",
+        )
+    val dummyExistingSubImage2 =
+        Image(
+            imageId = 202L,
+            userId = 1L,
+            parId = "",
+            fileName = "existing_sub2.jpg",
+            url = "http://example.com/existing_sub2.jpg",
+        )
+    val dummyExistingSubImage3 =
+        Image(
+            imageId = 203L,
+            userId = 1L,
+            parId = "",
+            fileName = "existing_sub3.jpg",
+            url = "http://example.com/existing_sub3.jpg",
+        )
+
+    val dummyNewSubImageA =
+        Image(
+            imageId = 301L,
+            userId = 1L,
+            parId = "",
+            fileName = "new_subA.jpg",
+            url = "http://example.com/new_subA.jpg",
+        )
+    val dummyNewSubImageB =
+        Image(
+            imageId = 302L,
+            userId = 1L,
+            parId = "",
+            fileName = "new_subB.jpg",
+            url = "http://example.com/new_subB.jpg",
+        )
+    val dummyNewSubImageC =
+        Image(
+            imageId = 303L,
+            userId = 1L,
+            parId = "",
+            fileName = "new_subC.jpg",
+            url = "http://example.com/new_subC.jpg",
+        )
+    val dummyNewSubImageD =
+        Image(
+            imageId = 304L,
+            userId = 1L,
+            parId = "",
+            fileName = "new_subD.jpg",
+            url = "http://example.com/new_subD.jpg",
+        )
+
+    // -------------------------------------------------------------
+    // 여기서부터 하나의 Given 블록 내부에 모든 시나리오를 담는다.
+    // -------------------------------------------------------------
     Given("updateProduct 메서드") {
 
         When("존재하지 않는 상품 ID 요청 시") {
@@ -220,11 +293,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         cameraTypes = setOf(CameraType.DIGITAL),
                         retouchStyles = setOf(RetouchStyle.CALM),
                         mainImage = dummyNewMainImage,
-                        subImages = listOf(
+                        subImages =
+                        listOf(
                             dummyExistingSubImage,
                             dummyNewSubImage1,
                             dummyNewSubImage2,
-                            dummyNewSubImage1
+                            dummyNewSubImage1,
                         ),
                         additionalImages = listOf(dummyNewAdditionalImage),
                         detailedInfo = "Updated Detailed Info",
@@ -244,6 +318,227 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 verify(exactly = 1) { imageHandler.updateMainImage(any(), any(), any()) }
                 verify(exactly = 1) { imageHandler.processSubImagesFinal(any(), any(), any()) }
                 verify(exactly = 1) { productPersistencePort.save(any()) }
+            }
+
+            unmockkObject(ProductEntity.Companion)
+        }
+
+        // --------------------------------------------------------------
+        // -- 아래부터 서브 이미지를 (1개/2개/3개/4개)만 교체하는 시나리오 --
+        // --------------------------------------------------------------
+        When("서브 이미지를 1개만 교체하고, 나머지 3개는 그대로 유지할 때") {
+            val oneChangeRequest =
+                baseUpdateRequest.copy(
+                    subImagesFinal =
+                    listOf(
+                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
+                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage2.imageId, null),
+                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage3.imageId, null),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
+                    ),
+                )
+
+            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
+            every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyExistingSubImage1,
+                        dummyExistingSubImage2,
+                        dummyExistingSubImage3,
+                        dummyNewSubImageD,
+                    )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
+                dummyExistingAdditionalImage
+            )
+
+            mockkObject(ProductEntity.Companion)
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
+            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+
+            every { productPersistencePort.save(any()) } answers {
+                existingProduct.copy(
+                    mainImage = dummyNewMainImage,
+                    subImages =
+                    listOf(
+                        dummyExistingSubImage1,
+                        dummyExistingSubImage2,
+                        dummyExistingSubImage3,
+                        dummyNewSubImageD,
+                    ),
+                    updatedAt = LocalDateTime.now(),
+                )
+            }
+
+            val result = useCase.updateProduct(oneChangeRequest)
+
+            Then("서브 이미지 4개 중 3개는 기존 그대로, 1개만 새로운 이미지로 교체된다") {
+                result.subImages shouldHaveSize 4
+                result.subImages.last() shouldBe dummyNewSubImageD.url
+            }
+
+            unmockkObject(ProductEntity.Companion)
+        }
+
+        When("서브 이미지를 2개만 교체하고, 나머지 2개는 그대로 유지할 때") {
+            val twoChangeRequest =
+                baseUpdateRequest.copy(
+                    subImagesFinal =
+                    listOf(
+                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
+                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage2.imageId, null),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
+                    ),
+                )
+
+            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
+            every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyExistingSubImage1,
+                        dummyExistingSubImage2,
+                        dummyNewSubImageC,
+                        dummyNewSubImageD,
+                    )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
+                dummyExistingAdditionalImage
+            )
+
+            mockkObject(ProductEntity.Companion)
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
+            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+
+            every { productPersistencePort.save(any()) } answers {
+                existingProduct.copy(
+                    mainImage = dummyNewMainImage,
+                    subImages =
+                    listOf(
+                        dummyExistingSubImage1,
+                        dummyExistingSubImage2,
+                        dummyNewSubImageC,
+                        dummyNewSubImageD,
+                    ),
+                    updatedAt = LocalDateTime.now(),
+                )
+            }
+
+            val result = useCase.updateProduct(twoChangeRequest)
+
+            Then("서브 이미지 4개 중 2개는 기존 그대로, 2개가 새 파일로 업로드된다") {
+                result.subImages[0] shouldBe dummyExistingSubImage1.url
+                result.subImages[1] shouldBe dummyExistingSubImage2.url
+                result.subImages[2] shouldBe dummyNewSubImageC.url
+                result.subImages[3] shouldBe dummyNewSubImageD.url
+            }
+
+            unmockkObject(ProductEntity.Companion)
+        }
+
+        When("서브 이미지를 3개만 교체하고, 나머지 1개는 그대로 유지할 때") {
+            val threeChangeRequest =
+                baseUpdateRequest.copy(
+                    subImagesFinal =
+                    listOf(
+                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileA),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileB),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
+                    ),
+                )
+
+            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
+            every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyExistingSubImage1,
+                        dummyNewSubImageA,
+                        dummyNewSubImageB,
+                        dummyNewSubImageC,
+                    )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
+                dummyExistingAdditionalImage
+            )
+
+            mockkObject(ProductEntity.Companion)
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
+            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+
+            every { productPersistencePort.save(any()) } answers {
+                existingProduct.copy(
+                    mainImage = dummyNewMainImage,
+                    subImages =
+                    listOf(
+                        dummyExistingSubImage1,
+                        dummyNewSubImageA,
+                        dummyNewSubImageB,
+                        dummyNewSubImageC,
+                    ),
+                    updatedAt = LocalDateTime.now(),
+                )
+            }
+
+            val result = useCase.updateProduct(threeChangeRequest)
+
+            Then("서브 이미지 4개 중 1개는 기존 그대로, 3개가 새로운 이미지로 교체된다") {
+                result.subImages[0] shouldBe dummyExistingSubImage1.url
+                result.subImages[1] shouldBe dummyNewSubImageA.url
+                result.subImages[2] shouldBe dummyNewSubImageB.url
+                result.subImages[3] shouldBe dummyNewSubImageC.url
+            }
+
+            unmockkObject(ProductEntity.Companion)
+        }
+
+        When("서브 이미지를 4개 모두 교체할 때") {
+            val allChangeRequest =
+                baseUpdateRequest.copy(
+                    subImagesFinal =
+                    listOf(
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileA),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileB),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
+                    ),
+                )
+
+            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
+            every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
+                    listOf(
+                        dummyNewSubImageA,
+                        dummyNewSubImageB,
+                        dummyNewSubImageC,
+                        dummyNewSubImageD,
+                    )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns listOf(
+                dummyExistingAdditionalImage
+            )
+
+            mockkObject(ProductEntity.Companion)
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
+            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+
+            every { productPersistencePort.save(any()) } answers {
+                existingProduct.copy(
+                    mainImage = dummyNewMainImage,
+                    subImages =
+                    listOf(
+                        dummyNewSubImageA,
+                        dummyNewSubImageB,
+                        dummyNewSubImageC,
+                        dummyNewSubImageD,
+                    ),
+                    updatedAt = LocalDateTime.now(),
+                )
+            }
+
+            val result = useCase.updateProduct(allChangeRequest)
+
+            Then("4개 모두 새로운 이미지로 교체된다") {
+                result.subImages[0] shouldBe dummyNewSubImageA.url
+                result.subImages[1] shouldBe dummyNewSubImageB.url
+                result.subImages[2] shouldBe dummyNewSubImageC.url
+                result.subImages[3] shouldBe dummyNewSubImageD.url
             }
 
             unmockkObject(ProductEntity.Companion)
