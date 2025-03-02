@@ -8,7 +8,6 @@ data class GetAuthorInquiryResponse(
     val title: String,
     val content: String,
     val createdDate: LocalDateTime,
-    val answer: String,
 ) {
     companion object {
         fun from(inquiry: AuthorInquiry) =
@@ -17,7 +16,6 @@ data class GetAuthorInquiryResponse(
                 title = inquiry.title,
                 content = inquiry.content,
                 createdDate = inquiry.createdDate,
-                answer = inquiry.answer,
             )
     }
 }

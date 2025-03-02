@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   datasource:
     driver-class-name: org.h2.Driver
     username: sa
@@ -16,3 +18,9 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: 'true'
+
+object-storage:
+  bucket-name: ${OBJECT_STORAGE_BUCKET_NAME_LOCAL}
+  config-path: ${OBJECT_STORAGE_CONFIG_PATH_LOCAL}
+  namespace-name: ${OBJECT_STORAGE_NAMESPACE_NAME_LOCAL}
+  photo-image-dir: ${OBJECT_STORAGE_IMAGE_DIR_LOCAL}

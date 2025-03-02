@@ -6,6 +6,7 @@ data class CreateAuthorInquiryCommand(
     val userId: Long,
     val title: String,
     val content: String,
+    val email: String,
 ) {
     fun toDomain() =
         AuthorInquiry(
