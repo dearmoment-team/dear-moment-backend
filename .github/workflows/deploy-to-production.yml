@@ -47,10 +47,10 @@ jobs:
   # -----------------------
   # [3] Object Storage
   # -----------------------
-  OBJECT_STORAGE_CONFIG_PATH=/home/ubuntu/.oci/config
-  OBJECT_STORAGE_BUCKET_NAME=dear-moment-local
-  OBJECT_STORAGE_NAMESPACE_NAME=axi7ktcb95py
-  OBJECT_STORAGE_IMAGE_DIR=photo/
+  OBJECT_STORAGE_CONFIG_PATH=${{ secrets.OBJECT_STORAGE_CONFIG_PATH }}
+  OBJECT_STORAGE_BUCKET_NAME=${{ secrets.OBJECT_STORAGE_BUCKET_NAME }}
+  OBJECT_STORAGE_NAMESPACE_NAME=${{ secrets.OBJECT_STORAGE_NAMESPACE_NAME }}
+  OBJECT_STORAGE_IMAGE_DIR=${{ secrets.OBJECT_STORAGE_IMAGE_DIR }}
   
   # -----------------------
   # [4] Sentry
