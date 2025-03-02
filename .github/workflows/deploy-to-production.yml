@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH using Docker Compose
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.1
         with:
           host: ${{ secrets.SERVER_IP }}         # 원격 서버 IP (예: OCI VM)
           username: ${{ secrets.SERVER_USER }}   # 원격 서버 접속 사용자 (예: ubuntu)
@@ -77,7 +77,7 @@ jobs:
   docker pull ghcr.io/${{ github.repository }}/dear-moment-backend:latest
   
   echo "==== Shutting down existing containers ===="
-  docker-compose down
+  docker compose down
   
   echo "==== Starting containers (using the new image + updated .env) ===="
-  docker-compose up -d
+  docker compose up -d
