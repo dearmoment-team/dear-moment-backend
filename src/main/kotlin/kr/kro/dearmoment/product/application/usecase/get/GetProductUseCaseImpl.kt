@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service
 class GetProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
 ) : GetProductUseCase {
-
     override fun getProductById(productId: Long): ProductResponse {
-        val product = productPersistencePort.findById(productId)
-            ?: throw IllegalArgumentException("상품을 찾을 수 없습니다. ID: $productId")
+        val product =
+            productPersistencePort.findById(productId)
+                ?: throw IllegalArgumentException("상품을 찾을 수 없습니다. ID: $productId")
         return ProductResponse.fromDomain(product)
     }
 }

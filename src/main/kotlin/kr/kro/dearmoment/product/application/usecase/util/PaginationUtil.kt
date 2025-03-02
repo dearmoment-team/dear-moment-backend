@@ -3,13 +3,17 @@ package kr.kro.dearmoment.product.application.usecase.util
 import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.domain.model.Product
+import org.springframework.stereotype.Component
 import kotlin.math.ceil
 import kotlin.math.min
-import org.springframework.stereotype.Component
 
 @Component
 class PaginationUtil {
-    fun createPagedResponse(sorted: List<Product>, page: Int, size: Int): PagedResponse<ProductResponse> {
+    fun createPagedResponse(
+        sorted: List<Product>,
+        page: Int,
+        size: Int,
+    ): PagedResponse<ProductResponse> {
         val totalElements = sorted.size.toLong()
         val totalPages = ceil(totalElements / size.toDouble()).toInt()
         val fromIndex = page * size
@@ -20,7 +24,7 @@ class PaginationUtil {
             page = page,
             size = size,
             totalElements = totalElements,
-            totalPages = totalPages
+            totalPages = totalPages,
         )
     }
 }

@@ -28,75 +28,80 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     val useCase: ProductOptionUseCase = ProductOptionUseCaseImpl(productOptionPersistencePort, productPersistencePort)
 
     // 새로운 도메인 모델에 맞게 Product 객체 생성
-    val mockProduct = Product(
-        productId = 1L,
-        userId = 1L,
-        productType = ProductType.WEDDING_SNAP,
-        shootingPlace = ShootingPlace.JEJU,
-        title = "Test Product",
-        description = "Test Description",
-        availableSeasons = emptySet(),
-        cameraTypes = emptySet(),
-        retouchStyles = emptySet(),
-        mainImage = Image(userId = 1L, fileName = "main.jpg", url = "http://example.com/main.jpg"),
-        subImages = listOf(
-            Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
-            Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
-            Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
-            Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg")
-        ),
-        additionalImages = emptyList(),
-        detailedInfo = "Test Info",
-        contactInfo = "Test Contact",
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now(),
-        options = emptyList()
-    )
+    val mockProduct =
+        Product(
+            productId = 1L,
+            userId = 1L,
+            productType = ProductType.WEDDING_SNAP,
+            shootingPlace = ShootingPlace.JEJU,
+            title = "Test Product",
+            description = "Test Description",
+            availableSeasons = emptySet(),
+            cameraTypes = emptySet(),
+            retouchStyles = emptySet(),
+            mainImage = Image(userId = 1L, fileName = "main.jpg", url = "http://example.com/main.jpg"),
+            subImages =
+            listOf(
+                Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+            ),
+            additionalImages = emptyList(),
+            detailedInfo = "Test Info",
+            contactInfo = "Test Contact",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+            options = emptyList(),
+        )
 
     // 유효한 SINGLE 옵션 요청 생성 (단품 옵션의 경우 필수 값 설정)
-    val validRequest = CreateProductOptionRequest(
-        name = "Option 1",
-        optionType = "SINGLE",
-        discountAvailable = false,
-        originalPrice = 5000,
-        discountPrice = 0,
-        description = "Test option",
-        costumeCount = 1,
-        shootingLocationCount = 1,
-        shootingHours = 1,
-        shootingMinutes = 0,
-        retouchedCount = 1,
-        partnerShops = emptyList()
-    )
+    val validRequest =
+        CreateProductOptionRequest(
+            name = "Option 1",
+            optionType = "SINGLE",
+            discountAvailable = false,
+            originalPrice = 5000,
+            discountPrice = 0,
+            description = "Test option",
+            costumeCount = 1,
+            shootingLocationCount = 1,
+            shootingHours = 1,
+            shootingMinutes = 0,
+            retouchedCount = 1,
+            partnerShops = emptyList(),
+        )
 
     // 저장 후 반환되는 도메인 객체 생성
-    val savedDomainOption = ProductOption(
-        optionId = 1L,
-        productId = 1L,
-        name = "Option 1",
-        optionType = OptionType.SINGLE,
-        discountAvailable = false,
-        originalPrice = 5000,
-        discountPrice = 0,
-        description = "Test option",
-        costumeCount = 1,
-        shootingLocationCount = 1,
-        shootingHours = 1,
-        shootingMinutes = 0,
-        retouchedCount = 1,
-        partnerShops = emptyList(),
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now()
-    )
+    val savedDomainOption =
+        ProductOption(
+            optionId = 1L,
+            productId = 1L,
+            name = "Option 1",
+            optionType = OptionType.SINGLE,
+            discountAvailable = false,
+            originalPrice = 5000,
+            discountPrice = 0,
+            description = "Test option",
+            costumeCount = 1,
+            shootingLocationCount = 1,
+            shootingHours = 1,
+            shootingMinutes = 0,
+            retouchedCount = 1,
+            partnerShops = emptyList(),
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+        )
 
     Given("saveProductOption") {
         When("존재하지 않는 productId로 요청 시") {
             every { productPersistencePort.findById(999L) } returns null
 
             Then("IllegalArgumentException 발생") {
-                val exception = shouldThrow<IllegalArgumentException> {
-                    useCase.saveProductOption(999L, validRequest)
-                }
+                val exception =
+                    shouldThrow<IllegalArgumentException> {
+                        useCase.saveProductOption(999L, validRequest)
+                    }
                 exception shouldHaveMessage "Product not found: 999"
             }
         }
@@ -106,9 +111,10 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.existsByProductIdAndName(1L, "Option 1") } returns true
 
             Then("IllegalArgumentException 발생") {
-                val exception = shouldThrow<IllegalArgumentException> {
-                    useCase.saveProductOption(1L, validRequest)
-                }
+                val exception =
+                    shouldThrow<IllegalArgumentException> {
+                        useCase.saveProductOption(1L, validRequest)
+                    }
                 exception shouldHaveMessage "Duplicate option name: Option 1"
             }
         }
@@ -125,7 +131,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                 verify(exactly = 1) {
                     productOptionPersistencePort.save(
                         match { it.optionId == 0L },
-                        mockProduct
+                        mockProduct,
                     )
                 }
             }
@@ -154,10 +160,11 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     }
 
     Given("getProductOptionsByProductId") {
-        val options = listOf(
-            savedDomainOption,
-            savedDomainOption.copy(optionId = 2L, name = "Option 2")
-        )
+        val options =
+            listOf(
+                savedDomainOption,
+                savedDomainOption.copy(optionId = 2L, name = "Option 2"),
+            )
 
         When("특정 상품의 옵션 조회 시") {
             every { productOptionPersistencePort.findByProductId(1L) } returns options

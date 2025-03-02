@@ -10,8 +10,11 @@ interface ProductSearchUseCase {
         shootingPlace: String?,
         sortBy: String?,
         page: Int,
-        size: Int
+        size: Int,
     ): PagedResponse<ProductResponse>
 
-    fun getMainPageProducts(page: Int, size: Int): PagedResponse<ProductResponse>
+    fun getMainPageProducts(
+        page: Int,
+        size: Int,
+    ): PagedResponse<ProductResponse>
 }

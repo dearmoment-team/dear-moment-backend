@@ -3,10 +3,16 @@ package kr.kro.dearmoment.image.application.handler
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.every
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.verify
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.application.dto.request.*
+import kr.kro.dearmoment.product.application.dto.request.AdditionalImageFinalRequest
+import kr.kro.dearmoment.product.application.dto.request.SubImageFinalRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateAdditionalImageAction
+import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import org.springframework.web.multipart.MultipartFile
 
 class ImageHandlerTest : StringSpec({
@@ -17,19 +23,21 @@ class ImageHandlerTest : StringSpec({
     "updateMainImage - 새 파일 업로드 후 기존 이미지 삭제" {
         // Given
         val userId = 1L
-        val currentImage = Image(
-            imageId = 100L,
-            userId = userId,
-            fileName = "old_main.jpg",
-            url = "http://test.com/old_main.jpg"
-        )
+        val currentImage =
+            Image(
+                imageId = 100L,
+                userId = userId,
+                fileName = "old_main.jpg",
+                url = "http://test.com/old_main.jpg",
+            )
         val newFile: MultipartFile = mockk()
-        val uploadedImage = Image(
-            imageId = 200L,
-            userId = userId,
-            fileName = "new_main.jpg",
-            url = "http://test.com/new_main.jpg"
-        )
+        val uploadedImage =
+            Image(
+                imageId = 200L,
+                userId = userId,
+                fileName = "new_main.jpg",
+                url = "http://test.com/new_main.jpg",
+            )
 
         every { imageService.uploadSingleImage(newFile, userId) } returns uploadedImage
         justRun { imageService.delete(currentImage.imageId) }
@@ -56,13 +64,14 @@ class ImageHandlerTest : StringSpec({
     "processAdditionalImagesFinal - 요청된 추가 이미지 수가 최대 개수(5장)를 초과하면 예외" {
         val userId = 1L
         val currentAdditionalImages = emptyList<Image>()
-        val finalRequests = List(6) {
-            AdditionalImageFinalRequest(
-                action = UpdateAdditionalImageAction.UPLOAD,
-                imageId = null,
-                newFile = mockk<MultipartFile>()
-            )
-        }
+        val finalRequests =
+            List(6) {
+                AdditionalImageFinalRequest(
+                    action = UpdateAdditionalImageAction.UPLOAD,
+                    imageId = null,
+                    newFile = mockk<MultipartFile>(),
+                )
+            }
 
         shouldThrow<IllegalArgumentException> {
             imageHandler.processAdditionalImagesFinal(currentAdditionalImages, finalRequests, userId)
@@ -91,12 +100,13 @@ class ImageHandlerTest : StringSpec({
         justRun { imageService.delete(existingImg2.imageId) } // DELETE
         justRun { imageService.delete(existingImg3.imageId) } // UPLOAD 교체
 
-        val finalRequests = listOf(
-            SubImageFinalRequest(UpdateSubImageAction.KEEP, imageId = 11L, newFile = null),
-            SubImageFinalRequest(UpdateSubImageAction.DELETE, imageId = 22L, newFile = null),
-            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, imageId = 33L, newFile = newFile3),
-            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, imageId = null, newFile = newFile4)
-        )
+        val finalRequests =
+            listOf(
+                SubImageFinalRequest(UpdateSubImageAction.KEEP, imageId = 11L, newFile = null),
+                SubImageFinalRequest(UpdateSubImageAction.DELETE, imageId = 22L, newFile = null),
+                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, imageId = 33L, newFile = newFile3),
+                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, imageId = null, newFile = newFile4),
+            )
 
         // When
         val result = imageHandler.processSubImagesFinal(currentSubImages, finalRequests, userId)
@@ -107,9 +117,9 @@ class ImageHandlerTest : StringSpec({
         // (테스트 시나리오 상 "DELETE" 대신 "UPLOAD"를 2장 하면 4개가 됨)
         // 여기서는 예시로 3장 결과를 확인하지만, 실제 비즈니스 로직에 맞춰 4장을 모두 채우도록 할 수도 있음
         result.size shouldBe 3
-        result[0] shouldBe existingImg1      // KEEP
-        result[1] shouldBe uploadedImage3    // UPLOAD 교체
-        result[2] shouldBe uploadedImage4    // UPLOAD 신규
+        result[0] shouldBe existingImg1 // KEEP
+        result[1] shouldBe uploadedImage3 // UPLOAD 교체
+        result[2] shouldBe uploadedImage4 // UPLOAD 신규
 
         // Verify
         verify(exactly = 1) { imageService.delete(existingImg2.imageId) }
@@ -128,20 +138,22 @@ class ImageHandlerTest : StringSpec({
 
         // 요청 3개: 1) KEEP(1001), 2) DELETE(1002), 3) UPLOAD(새)
         val newFile = mockk<MultipartFile>()
-        val uploadedAdd = Image(
-            imageId = 2002L,
-            userId = userId,
-            fileName = "add_new.jpg",
-            url = "http://test.com/add_new.jpg"
-        )
+        val uploadedAdd =
+            Image(
+                imageId = 2002L,
+                userId = userId,
+                fileName = "add_new.jpg",
+                url = "http://test.com/add_new.jpg",
+            )
         every { imageService.uploadSingleImage(newFile, userId) } returns uploadedAdd
         justRun { imageService.delete(existingAdd2.imageId) }
 
-        val finalRequests = listOf(
-            AdditionalImageFinalRequest(UpdateAdditionalImageAction.KEEP, imageId = 1001L),
-            AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, imageId = 1002L),
-            AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, imageId = null, newFile = newFile)
-        )
+        val finalRequests =
+            listOf(
+                AdditionalImageFinalRequest(UpdateAdditionalImageAction.KEEP, imageId = 1001L),
+                AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, imageId = 1002L),
+                AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, imageId = null, newFile = newFile),
+            )
 
         // When
         val result = imageHandler.processAdditionalImagesFinal(currentAdditionalImages, finalRequests, userId)

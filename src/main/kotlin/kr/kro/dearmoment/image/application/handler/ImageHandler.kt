@@ -2,21 +2,27 @@ package kr.kro.dearmoment.image.application.handler
 
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.application.dto.request.*
-import kr.kro.dearmoment.product.domain.model.*
+import kr.kro.dearmoment.product.application.dto.request.AdditionalImageFinalRequest
+import kr.kro.dearmoment.product.application.dto.request.SubImageFinalRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateAdditionalImageAction
+import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 
 @Component
 class ImageHandler(
-    private val imageService: ImageService
+    private val imageService: ImageService,
 ) {
     /**
      * 메인 이미지 교체
      * - newFile(새 파일)이 있으면 새 업로드 후 기존 삭제
      * - newFile이 null이면 기존 이미지를 그대로 사용
      */
-    fun updateMainImage(newFile: MultipartFile, userId: Long, currentImage: Image): Image {
+    fun updateMainImage(
+        newFile: MultipartFile,
+        userId: Long,
+        currentImage: Image,
+    ): Image {
         // 새 파일 업로드
         val newImage = imageService.uploadSingleImage(newFile, userId)
         // 기존 이미지 삭제
@@ -35,7 +41,7 @@ class ImageHandler(
     fun processSubImagesFinal(
         currentSubImages: List<Image>,
         finalRequests: List<SubImageFinalRequest>,
-        userId: Long
+        userId: Long,
     ): List<Image> {
         // 1) 서브 이미지는 정확히 4장이어야 한다
         if (finalRequests.size != 4) {
@@ -52,16 +58,18 @@ class ImageHandler(
                 UpdateSubImageAction.KEEP -> {
                     // 기존 이미지 유지
                     requireNotNull(req.imageId) { "KEEP 액션일 경우 imageId는 필수입니다." }
-                    val existingImg = currentMap[req.imageId]
-                        ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
+                    val existingImg =
+                        currentMap[req.imageId]
+                            ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
                     result.add(existingImg)
                 }
 
                 UpdateSubImageAction.DELETE -> {
                     // 기존 이미지 삭제
                     requireNotNull(req.imageId) { "DELETE 액션일 경우 imageId는 필수입니다." }
-                    val existingImg = currentMap[req.imageId]
-                        ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
+                    val existingImg =
+                        currentMap[req.imageId]
+                            ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
                     imageService.delete(existingImg.imageId)
                     // DELETE이면 결과 목록에 추가하지 않음
                 }
@@ -101,7 +109,7 @@ class ImageHandler(
         currentAdditionalImages: List<Image>,
         finalRequests: List<AdditionalImageFinalRequest>,
         userId: Long,
-        maxCount: Int = 5
+        maxCount: Int = 5,
     ): List<Image> {
         // 1) 추가 이미지는 최대 maxCount장까지만 허용
         if (finalRequests.size > maxCount) {
@@ -116,15 +124,17 @@ class ImageHandler(
             when (req.action) {
                 UpdateAdditionalImageAction.KEEP -> {
                     requireNotNull(req.imageId) { "KEEP 액션일 경우 imageId는 필수입니다." }
-                    val existingImg = currentMap[req.imageId]
-                        ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
+                    val existingImg =
+                        currentMap[req.imageId]
+                            ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
                     result.add(existingImg)
                 }
 
                 UpdateAdditionalImageAction.DELETE -> {
                     requireNotNull(req.imageId) { "DELETE 액션일 경우 imageId는 필수입니다." }
-                    val existingImg = currentMap[req.imageId]
-                        ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
+                    val existingImg =
+                        currentMap[req.imageId]
+                            ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
                     imageService.delete(existingImg.imageId)
                     // 결과 목록에는 추가하지 않음
                 }

@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.throwable.shouldHaveMessage
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import java.time.LocalDateTime
 
 @DataJpaTest
 @Import(ProductOptionRepositoryAdapter::class)
@@ -34,54 +32,57 @@ class ProductOptionRepositoryAdapterTest(
 
         beforeEach {
             // 테스트용 ProductEntity 생성
-            testProductEntity = jpaProductRepository.save(
-                ProductEntity(
-                    userId = 1L,
-                    // 변경된 도메인: price, typeCode, images, partnerShops 등이 제거되고,
-                    // productType와 shootingPlace가 추가됨.
-                    productType = kr.kro.dearmoment.product.domain.model.ProductType.WEDDING_SNAP,
-                    shootingPlace = kr.kro.dearmoment.product.domain.model.ShootingPlace.JEJU,
-                    title = "테스트 상품",
-                    mainImage = ImageEmbeddable.fromDomainImage(
-                        kr.kro.dearmoment.image.domain.Image(
-                            userId = 1L,
-                            fileName = "main.jpg",
-                            url = "http://example.com/main.jpg"
-                        )
+            testProductEntity =
+                jpaProductRepository.save(
+                    ProductEntity(
+                        userId = 1L,
+                        // 변경된 도메인: price, typeCode, images, partnerShops 등이 제거되고,
+                        // productType와 shootingPlace가 추가됨.
+                        productType = kr.kro.dearmoment.product.domain.model.ProductType.WEDDING_SNAP,
+                        shootingPlace = kr.kro.dearmoment.product.domain.model.ShootingPlace.JEJU,
+                        title = "테스트 상품",
+                        mainImage =
+                        ImageEmbeddable.fromDomainImage(
+                            kr.kro.dearmoment.image.domain.Image(
+                                userId = 1L,
+                                fileName = "main.jpg",
+                                url = "http://example.com/main.jpg",
+                            ),
+                        ),
+                        subImages =
+                        listOf(
+                            ImageEmbeddable.fromDomainImage(
+                                kr.kro.dearmoment.image.domain.Image(
+                                    userId = 1L,
+                                    fileName = "sub1.jpg",
+                                    url = "http://example.com/sub1.jpg",
+                                ),
+                            ),
+                            ImageEmbeddable.fromDomainImage(
+                                kr.kro.dearmoment.image.domain.Image(
+                                    userId = 1L,
+                                    fileName = "sub2.jpg",
+                                    url = "http://example.com/sub2.jpg",
+                                ),
+                            ),
+                            ImageEmbeddable.fromDomainImage(
+                                kr.kro.dearmoment.image.domain.Image(
+                                    userId = 1L,
+                                    fileName = "sub3.jpg",
+                                    url = "http://example.com/sub3.jpg",
+                                ),
+                            ),
+                            ImageEmbeddable.fromDomainImage(
+                                kr.kro.dearmoment.image.domain.Image(
+                                    userId = 1L,
+                                    fileName = "sub4.jpg",
+                                    url = "http://example.com/sub4.jpg",
+                                ),
+                            ),
+                        ).toMutableList(),
+                        additionalImages = emptyList<ImageEmbeddable>().toMutableList(),
                     ),
-                    subImages = listOf(
-                        ImageEmbeddable.fromDomainImage(
-                            kr.kro.dearmoment.image.domain.Image(
-                                userId = 1L,
-                                fileName = "sub1.jpg",
-                                url = "http://example.com/sub1.jpg"
-                            )
-                        ),
-                        ImageEmbeddable.fromDomainImage(
-                            kr.kro.dearmoment.image.domain.Image(
-                                userId = 1L,
-                                fileName = "sub2.jpg",
-                                url = "http://example.com/sub2.jpg"
-                            )
-                        ),
-                        ImageEmbeddable.fromDomainImage(
-                            kr.kro.dearmoment.image.domain.Image(
-                                userId = 1L,
-                                fileName = "sub3.jpg",
-                                url = "http://example.com/sub3.jpg"
-                            )
-                        ),
-                        ImageEmbeddable.fromDomainImage(
-                            kr.kro.dearmoment.image.domain.Image(
-                                userId = 1L,
-                                fileName = "sub4.jpg",
-                                url = "http://example.com/sub4.jpg"
-                            )
-                        )
-                    ).toMutableList(),
-                    additionalImages = emptyList<ImageEmbeddable>().toMutableList()
                 )
-            )
             testProductDomain = testProductEntity.toDomain()
             jpaProductOptionRepository.deleteAllInBatch()
         }
@@ -125,12 +126,13 @@ class ProductOptionRepositoryAdapterTest(
             lateinit var savedOptions: List<ProductOption>
 
             beforeEach {
-                savedOptions = listOf(
-                    createSampleOption("옵션A", 10_000L),
-                    createSampleOption("옵션B", 20_000L)
-                ).map {
-                    productOptionPersistencePort.save(it, testProductDomain)
-                }
+                savedOptions =
+                    listOf(
+                        createSampleOption("옵션A", 10_000L),
+                        createSampleOption("옵션B", 20_000L),
+                    ).map {
+                        productOptionPersistencePort.save(it, testProductDomain)
+                    }
                 jpaProductOptionRepository.flush()
             }
 
@@ -229,7 +231,7 @@ class ProductOptionRepositoryAdapterTest(
                 shootingHours = 0,
                 shootingMinutes = 30,
                 retouchedCount = 1,
-                partnerShops = emptyList()
+                partnerShops = emptyList(),
             )
     }
 }

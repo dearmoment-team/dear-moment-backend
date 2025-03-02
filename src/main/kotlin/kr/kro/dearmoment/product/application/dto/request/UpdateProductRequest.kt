@@ -1,7 +1,16 @@
 package kr.kro.dearmoment.product.application.dto.request
 
 import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.domain.model.*
+import kr.kro.dearmoment.product.domain.model.CameraType
+import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import org.springframework.web.multipart.MultipartFile
 
 /**
@@ -18,42 +27,34 @@ import org.springframework.web.multipart.MultipartFile
  * - UPLOAD: 새 이미지를 업로드 (imageId = null, newFile != null)
  */
 data class UpdateProductRequest(
-
     val productId: Long,
     val userId: Long,
-
     // 문자열로 들어오는 값들을 enum으로 변환
     val productType: String,
     val shootingPlace: String,
     val title: String,
     val description: String? = null,
-
     val availableSeasons: List<String> = emptyList(),
     val cameraTypes: List<String> = emptyList(),
     val retouchStyles: List<String> = emptyList(),
-
     /**
      * 교체할 새 대표 이미지 파일(있을 수도, 없을 수도 있음)
      * null이면 기존 대표 이미지를 그대로 둔다는 의미
      */
     val mainImageFile: MultipartFile? = null,
-
     /**
      * 최종 서브 이미지(정확히 4개).
      * 각 항목에 [action], [imageId], [newFile]를 통해
      * KEEP / DELETE / UPLOAD를 결정.
      */
     val subImagesFinal: List<SubImageFinalRequest> = emptyList(),
-
     /**
      * 최종 추가 이미지(0~최대 5개).
      * 서브 이미지와 동일한 방식으로 [action], [imageId], [newFile] 조합.
      */
     val additionalImagesFinal: List<AdditionalImageFinalRequest> = emptyList(),
-
     val detailedInfo: String? = null,
     val contactInfo: String? = null,
-
     val options: List<UpdateProductOptionRequest> = emptyList(),
 ) {
     companion object {
@@ -73,9 +74,10 @@ data class UpdateProductRequest(
             val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
             val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
 
-            val domainOptions = req.options.map {
-                UpdateProductOptionRequest.toDomain(it, req.productId)
-            }
+            val domainOptions =
+                req.options.map {
+                    UpdateProductOptionRequest.toDomain(it, req.productId)
+                }
 
             return Product(
                 productId = req.productId,
@@ -88,11 +90,11 @@ data class UpdateProductRequest(
                 cameraTypes = cameraSet,
                 retouchStyles = styleSet,
                 mainImage = mainImage,
-                subImages = subImages,             // 이미지 핸들러로 확정된 리스트
+                subImages = subImages,
                 additionalImages = additionalImages,
                 detailedInfo = req.detailedInfo ?: "",
                 contactInfo = req.contactInfo ?: "",
-                options = domainOptions
+                options = domainOptions,
             )
         }
     }
@@ -102,7 +104,9 @@ data class UpdateProductRequest(
  * 서브 이미지 수정 시, 각 항목을 어떻게 처리할지 나타내는 액션
  */
 enum class UpdateSubImageAction {
-    KEEP, DELETE, UPLOAD
+    KEEP,
+    DELETE,
+    UPLOAD,
 }
 
 /**
@@ -122,7 +126,9 @@ data class SubImageFinalRequest(
  * 추가 이미지 수정 시, 각 항목을 어떻게 처리할지 나타내는 액션
  */
 enum class UpdateAdditionalImageAction {
-    KEEP, DELETE, UPLOAD
+    KEEP,
+    DELETE,
+    UPLOAD,
 }
 
 /**
@@ -150,7 +156,6 @@ data class UpdateProductOptionRequest(
     val originalPrice: Long = 0,
     val discountPrice: Long = 0,
     val description: String? = null,
-
     // 단품용 필드
     val costumeCount: Int = 0,
     val shootingLocationCount: Int = 0,
@@ -158,12 +163,14 @@ data class UpdateProductOptionRequest(
     val shootingMinutes: Int = 0,
     val retouchedCount: Int = 0,
     val originalProvided: Boolean = false,
-
     // 패키지용
     val partnerShops: List<UpdatePartnerShopRequest> = emptyList(),
 ) {
     companion object {
-        fun toDomain(dto: UpdateProductOptionRequest, productId: Long): ProductOption {
+        fun toDomain(
+            dto: UpdateProductOptionRequest,
+            productId: Long,
+        ): ProductOption {
             val optionTypeEnum = OptionType.valueOf(dto.optionType)
             return ProductOption(
                 optionId = dto.optionId ?: 0L,
@@ -179,11 +186,12 @@ data class UpdateProductOptionRequest(
                 shootingHours = dto.shootingHours,
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
-                partnerShops = dto.partnerShops.map {
+                partnerShops =
+                dto.partnerShops.map {
                     PartnerShop(
                         category = PartnerShopCategory.valueOf(it.category),
                         name = it.name,
-                        link = it.link
+                        link = it.link,
                     )
                 },
                 createdAt = null,

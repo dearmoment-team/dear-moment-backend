@@ -28,31 +28,36 @@ class ProductRestAdapter(
     private val updateProductUseCase: UpdateProductUseCase,
     private val deleteProductUseCase: DeleteProductUseCase,
     private val getProductUseCase: GetProductUseCase,
-    private val productSearchUseCase: ProductSearchUseCase
+    private val productSearchUseCase: ProductSearchUseCase,
 ) {
-
     @PostMapping(consumes = ["multipart/form-data"])
     @ResponseStatus(HttpStatus.CREATED)
-    fun createProduct(@ModelAttribute request: CreateProductRequest): ProductResponse {
+    fun createProduct(
+        @ModelAttribute request: CreateProductRequest,
+    ): ProductResponse {
         return createProductUseCase.saveProduct(request)
     }
 
     @PutMapping("/{id}", consumes = ["multipart/form-data"])
     fun updateProduct(
         @PathVariable id: Long,
-        @ModelAttribute request: UpdateProductRequest
+        @ModelAttribute request: UpdateProductRequest,
     ): ProductResponse {
         return updateProductUseCase.updateProduct(request.copy(productId = id))
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteProduct(@PathVariable id: Long) {
+    fun deleteProduct(
+        @PathVariable id: Long,
+    ) {
         deleteProductUseCase.deleteProduct(id)
     }
 
     @GetMapping("/{id}")
-    fun getProduct(@PathVariable id: Long): ProductResponse {
+    fun getProduct(
+        @PathVariable id: Long,
+    ): ProductResponse {
         return getProductUseCase.getProductById(id)
     }
 
@@ -60,7 +65,7 @@ class ProductRestAdapter(
     @GetMapping("/main")
     fun getMainPageProducts(
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(defaultValue = "10") size: Int,
     ): PagedResponse<ProductResponse> {
         return productSearchUseCase.getMainPageProducts(page, size)
     }

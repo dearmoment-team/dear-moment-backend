@@ -56,36 +56,29 @@ enum class ShootingPlace {
 data class Product(
     val productId: Long = 0L,
     val userId: Long,
-
     val productType: ProductType,
     val shootingPlace: ShootingPlace,
-
     // 상품명
     val title: String,
     // 간단 설명
     val description: String = "",
-
     // 촬영 가능 시기(다중 선택)
     val availableSeasons: Set<ShootingSeason> = emptySet(),
     // 카메라 종류(다중 선택)
     val cameraTypes: Set<CameraType> = emptySet(),
     // 보정 스타일(다중 선택)
     val retouchStyles: Set<RetouchStyle> = emptySet(),
-
     // 대표 이미지 (필수)
     val mainImage: Image,
     // 서브 이미지(4장 필수)
     val subImages: List<Image> = emptyList(),
     // 추가 이미지(최대 5장)
     val additionalImages: List<Image> = emptyList(),
-
     // 상세 정보, 연락처
     val detailedInfo: String = "",
     val contactInfo: String = "",
-
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
-
     // 여러 옵션
     val options: List<ProductOption> = emptyList(),
 ) {
@@ -117,18 +110,20 @@ data class Product(
         val toDelete = (existingOptionsMap.keys - newOptionsMap.keys).toList().toSet()
 
         // 업데이트될 옵션: id != 0 && 기존에 존재
-        val toUpdate = newOptions
-            .filter { it.optionId != 0L && existingOptionsMap.containsKey(it.optionId) }
-            .map { it.copy(productId = productId) }
+        val toUpdate =
+            newOptions
+                .filter { it.optionId != 0L && existingOptionsMap.containsKey(it.optionId) }
+                .map { it.copy(productId = productId) }
 
         // 새로 삽입될 옵션: id == 0
-        val toInsert = newOptions
-            .filter { it.optionId == 0L }
-            .map { it.copy(productId = productId) }
+        val toInsert =
+            newOptions
+                .filter { it.optionId == 0L }
+                .map { it.copy(productId = productId) }
 
         return ProductOptionUpdateResult(
             updatedOptions = toUpdate + toInsert,
-            deletedOptionIds = toDelete
+            deletedOptionIds = toDelete,
         )
     }
 }

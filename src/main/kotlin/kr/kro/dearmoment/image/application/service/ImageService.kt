@@ -82,7 +82,10 @@ class ImageService(
     /**
      * 단일 이미지 업로드 후 Image 도메인 객체 반환
      */
-    fun uploadSingleImage(file: MultipartFile, userId: Long): Image {
+    fun uploadSingleImage(
+        file: MultipartFile,
+        userId: Long,
+    ): Image {
         val cmd = SaveImageCommand(file, userId)
         val imageId = save(cmd)
         val response = getOne(imageId)

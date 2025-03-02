@@ -23,5 +23,8 @@ interface ProductOptionUseCase {
 
     fun existsProductOptions(productId: Long): Boolean
 
-    fun synchronizeOptions(existingProduct: Product, requestOptions: List<UpdateProductOptionRequest>)
+    fun synchronizeOptions(
+        existingProduct: Product,
+        requestOptions: List<UpdateProductOptionRequest>,
+    )
 }

@@ -15,10 +15,8 @@ data class PartnerShopEmbeddable(
     @Enumerated(EnumType.STRING)
     @Column(name = "SHOP_CATEGORY", nullable = false)
     var category: PartnerShopCategory? = null,
-
     @Column(name = "SHOP_NAME", nullable = false)
     var name: String = "",
-
     @Column(name = "SHOP_LINK")
     var link: String = "",
 )

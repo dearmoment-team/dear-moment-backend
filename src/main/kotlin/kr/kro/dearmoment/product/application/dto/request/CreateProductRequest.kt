@@ -4,66 +4,62 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.domain.model.*
+import kr.kro.dearmoment.product.domain.model.CameraType
+import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import org.springframework.web.multipart.MultipartFile
 
 /**
  * [상품 등록] 시 사용하는 요청 DTO
  */
 data class CreateProductRequest(
-
     val userId: Long,
-
     @field:NotBlank(message = "상품 유형은 필수입니다.")
     val productType: String,
-
     @field:NotBlank(message = "촬영 장소는 필수입니다.")
     val shootingPlace: String,
-
     @field:NotBlank(message = "상품 제목은 비어 있을 수 없습니다.")
     val title: String,
-
     val description: String? = null,
-
     /**
      * 촬영 가능 시기
      */
     val availableSeasons: List<String> = emptyList(),
-
     /**
      * 카메라 종류
      */
     val cameraTypes: List<String> = emptyList(),
-
     /**
      * 보정 스타일
      */
     val retouchStyles: List<String> = emptyList(),
-
     /**
      * 대표 이미지(1장) - 실제 업로드 파일
      */
     @field:NotNull(message = "대표 이미지는 필수입니다.")
     val mainImageFile: MultipartFile?,
-
     /**
      * 서브 이미지(필수 4장)
      */
     @field:Size(min = 4, max = 4, message = "서브 이미지는 정확히 4장이어야 합니다.")
     val subImageFiles: List<MultipartFile> = emptyList(),
-
     /**
      * 추가 이미지(최대 5장)
      */
     @field:Size(max = 5, message = "추가 이미지는 최대 5장까지 등록 가능합니다.")
     val additionalImageFiles: List<MultipartFile> = emptyList(),
-
     /**
      * 상세 정보, 연락처 등
      */
     val detailedInfo: String? = null,
     val contactInfo: String? = null,
-
     /**
      * 옵션 목록
      */
@@ -91,29 +87,32 @@ data class CreateProductRequest(
             val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
             val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
 
-            val mainImg = mainImageUrl?.let { url ->
-                Image(
-                    userId = req.userId,
-                    fileName = url.substringAfterLast('/'),
-                    url = url
-                )
-            }
+            val mainImg =
+                mainImageUrl?.let { url ->
+                    Image(
+                        userId = req.userId,
+                        fileName = url.substringAfterLast('/'),
+                        url = url,
+                    )
+                }
 
-            val subImgList = subImagesUrls.map { url ->
-                Image(
-                    userId = req.userId,
-                    fileName = url.substringAfterLast('/'),
-                    url = url
-                )
-            }
+            val subImgList =
+                subImagesUrls.map { url ->
+                    Image(
+                        userId = req.userId,
+                        fileName = url.substringAfterLast('/'),
+                        url = url,
+                    )
+                }
 
-            val addImgList = additionalImagesUrls.map { url ->
-                Image(
-                    userId = req.userId,
-                    fileName = url.substringAfterLast('/'),
-                    url = url
-                )
-            }
+            val addImgList =
+                additionalImagesUrls.map { url ->
+                    Image(
+                        userId = req.userId,
+                        fileName = url.substringAfterLast('/'),
+                        url = url,
+                    )
+                }
 
             val domainOptions = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
 
@@ -142,32 +141,29 @@ data class CreateProductRequest(
  * [상품 옵션] 생성 요청 DTO
  */
 data class CreateProductOptionRequest(
-
     @field:NotBlank(message = "옵션명은 필수입니다.")
     val name: String,
-
     @field:NotBlank(message = "옵션 타입은 필수입니다.")
     val optionType: String,
-
     val discountAvailable: Boolean = false,
     val originalPrice: Long = 0,
     val discountPrice: Long = 0,
     val description: String? = null,
-
     // 단품용
     val costumeCount: Int = 0,
     val shootingLocationCount: Int = 0,
     val shootingHours: Int = 0,
     val shootingMinutes: Int = 0,
     val retouchedCount: Int = 0,
-
     val originalProvided: Boolean = false,
-
     // 패키지용
     val partnerShops: List<CreatePartnerShopRequest> = emptyList(),
 ) {
     companion object {
-        fun toDomain(dto: CreateProductOptionRequest, productId: Long): ProductOption {
+        fun toDomain(
+            dto: CreateProductOptionRequest,
+            productId: Long,
+        ): ProductOption {
             val optionTypeEnum = OptionType.valueOf(dto.optionType)
             return ProductOption(
                 optionId = 0L,
@@ -184,11 +180,12 @@ data class CreateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
-                partnerShops = dto.partnerShops.map {
+                partnerShops =
+                dto.partnerShops.map {
                     PartnerShop(
                         category = PartnerShopCategory.valueOf(it.category),
                         name = it.name,
-                        link = it.link
+                        link = it.link,
                     )
                 },
                 createdAt = null,

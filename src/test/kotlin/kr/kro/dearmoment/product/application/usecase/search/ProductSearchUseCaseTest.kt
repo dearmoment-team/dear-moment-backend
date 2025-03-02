@@ -11,7 +11,12 @@ import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.util.PaginationUtil
-import kr.kro.dearmoment.product.domain.model.*
+import kr.kro.dearmoment.product.domain.model.CameraType
+import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
 
 class ProductSearchUseCaseTest : BehaviorSpec({
@@ -21,61 +26,65 @@ class ProductSearchUseCaseTest : BehaviorSpec({
     val paginationUtil = mockk<PaginationUtil>()
 
     // 테스트 대상 UseCase
-    val useCase = ProductSearchUseCaseImpl(
-        productPersistencePort = productPersistencePort,
-        paginationUtil = paginationUtil
-    )
+    val useCase =
+        ProductSearchUseCaseImpl(
+            productPersistencePort = productPersistencePort,
+            paginationUtil = paginationUtil,
+        )
 
     // 테스트용 더미 이미지
-    val dummyImage = Image(
-        imageId = 1L,
-        userId = 1L,
-        fileName = "dummy.jpg",
-        url = "http://test.com/dummy.jpg"
-    )
+    val dummyImage =
+        Image(
+            imageId = 1L,
+            userId = 1L,
+            fileName = "dummy.jpg",
+            url = "http://test.com/dummy.jpg",
+        )
 
     // 서브 이미지는 4장이어야 함
     val fourSubImages = List(4) { dummyImage }
 
-    val product1 = Product(
-        productId = 1L,
-        userId = 2L,
-        productType = ProductType.WEDDING_SNAP,
-        shootingPlace = ShootingPlace.JEJU,
-        title = "First Product",
-        description = "Desc1",
-        availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF),
-        cameraTypes = setOf(CameraType.FILM),
-        retouchStyles = setOf(RetouchStyle.NATURAL),
-        mainImage = dummyImage,
-        subImages = fourSubImages,
-        additionalImages = listOf(dummyImage),
-        detailedInfo = "Info1",
-        contactInfo = "Contact1",
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now(),
-        options = emptyList()
-    )
+    val product1 =
+        Product(
+            productId = 1L,
+            userId = 2L,
+            productType = ProductType.WEDDING_SNAP,
+            shootingPlace = ShootingPlace.JEJU,
+            title = "First Product",
+            description = "Desc1",
+            availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF),
+            cameraTypes = setOf(CameraType.FILM),
+            retouchStyles = setOf(RetouchStyle.NATURAL),
+            mainImage = dummyImage,
+            subImages = fourSubImages,
+            additionalImages = listOf(dummyImage),
+            detailedInfo = "Info1",
+            contactInfo = "Contact1",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+            options = emptyList(),
+        )
 
-    val product2 = Product(
-        productId = 2L,
-        userId = 3L,
-        productType = ProductType.WEDDING_SNAP,
-        shootingPlace = ShootingPlace.JEJU,
-        title = "Second Product",
-        description = "Desc2",
-        availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF),
-        cameraTypes = setOf(CameraType.FILM),
-        retouchStyles = setOf(RetouchStyle.NATURAL),
-        mainImage = dummyImage,
-        subImages = fourSubImages,
-        additionalImages = listOf(dummyImage),
-        detailedInfo = "Info2",
-        contactInfo = "Contact2",
-        createdAt = LocalDateTime.now().minusDays(1),
-        updatedAt = LocalDateTime.now(),
-        options = emptyList()
-    )
+    val product2 =
+        Product(
+            productId = 2L,
+            userId = 3L,
+            productType = ProductType.WEDDING_SNAP,
+            shootingPlace = ShootingPlace.JEJU,
+            title = "Second Product",
+            description = "Desc2",
+            availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF),
+            cameraTypes = setOf(CameraType.FILM),
+            retouchStyles = setOf(RetouchStyle.NATURAL),
+            mainImage = dummyImage,
+            subImages = fourSubImages,
+            additionalImages = listOf(dummyImage),
+            detailedInfo = "Info2",
+            contactInfo = "Contact2",
+            createdAt = LocalDateTime.now().minusDays(1),
+            updatedAt = LocalDateTime.now(),
+            options = emptyList(),
+        )
 
     val dummyList = listOf(product1, product2)
 
@@ -84,16 +93,18 @@ class ProductSearchUseCaseTest : BehaviorSpec({
     val size = 10
 
     // 페이징 유틸이 반환할 더미 PagedResponse
-    val dummyPagedResponse = PagedResponse(
-        content = listOf(
-            ProductResponse.fromDomain(product1),
-            ProductResponse.fromDomain(product2)
-        ),
-        page = page,
-        size = size,
-        totalElements = 2,
-        totalPages = 1
-    )
+    val dummyPagedResponse =
+        PagedResponse(
+            content =
+            listOf(
+                ProductResponse.fromDomain(product1),
+                ProductResponse.fromDomain(product2),
+            ),
+            page = page,
+            size = size,
+            totalElements = 2,
+            totalPages = 1,
+        )
 
     Given("searchProducts 메서드가 호출되었을 때") {
 
@@ -106,7 +117,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
                     dummyPagedResponse.copy(
                         content = listOf(ProductResponse.fromDomain(product1)),
                         totalElements = 1,
-                        totalPages = 1
+                        totalPages = 1,
                     )
 
             val result = useCase.searchProducts("First", "WEDDING_SNAP", "JEJU", null, page, size)
@@ -132,14 +143,16 @@ class ProductSearchUseCaseTest : BehaviorSpec({
             // created-desc 일 때 product2 → product1 순으로 정렬
             every {
                 paginationUtil.createPagedResponse(listOf(product2, product1), page, size)
-            } returns dummyPagedResponse.copy(
-                content = listOf(
-                    ProductResponse.fromDomain(product2),
-                    ProductResponse.fromDomain(product1)
-                ),
-                totalElements = 2,
-                totalPages = 1
-            )
+            } returns
+                    dummyPagedResponse.copy(
+                        content =
+                        listOf(
+                            ProductResponse.fromDomain(product2),
+                            ProductResponse.fromDomain(product1),
+                        ),
+                        totalElements = 2,
+                        totalPages = 1,
+                    )
 
             val result = useCase.searchProducts(null, null, null, "created-desc", page, size)
 
@@ -169,14 +182,16 @@ class ProductSearchUseCaseTest : BehaviorSpec({
             // findAll() 결과를 역순 정렬 (product2, product1)
             every {
                 paginationUtil.createPagedResponse(listOf(product2, product1), page, size)
-            } returns dummyPagedResponse.copy(
-                content = listOf(
-                    ProductResponse.fromDomain(product2),
-                    ProductResponse.fromDomain(product1)
-                ),
-                totalElements = 2,
-                totalPages = 1
-            )
+            } returns
+                    dummyPagedResponse.copy(
+                        content =
+                        listOf(
+                            ProductResponse.fromDomain(product2),
+                            ProductResponse.fromDomain(product1),
+                        ),
+                        totalElements = 2,
+                        totalPages = 1,
+                    )
 
             val result = useCase.getMainPageProducts(page, size)
 

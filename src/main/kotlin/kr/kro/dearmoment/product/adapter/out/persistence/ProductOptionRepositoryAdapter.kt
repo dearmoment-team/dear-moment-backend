@@ -16,14 +16,15 @@ class ProductOptionRepositoryAdapter(
         productOption: ProductOption,
         product: Product,
     ): ProductOption {
-        val productEntity = jpaProductRepository.findById(product.productId)
-            .orElseThrow { IllegalArgumentException("Product not found: ${product.productId}") }
+        val productEntity =
+            jpaProductRepository.findById(product.productId)
+                .orElseThrow { IllegalArgumentException("Product not found: ${product.productId}") }
 
         require(
             !jpaProductOptionRepository.existsByProductProductIdAndName(
                 productEntity.productId!!,
                 productOption.name,
-            )
+            ),
         ) { "ProductOption already exists: ${productOption.name}" }
 
         val optionEntity = ProductOptionEntity.fromDomain(productOption, productEntity)

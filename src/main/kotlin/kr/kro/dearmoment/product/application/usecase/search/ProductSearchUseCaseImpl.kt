@@ -9,26 +9,29 @@ import org.springframework.stereotype.Service
 @Service
 class ProductSearchUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
-    private val paginationUtil: PaginationUtil
+    private val paginationUtil: PaginationUtil,
 ) : ProductSearchUseCase {
-
     override fun searchProducts(
         title: String?,
         productType: String?,
         shootingPlace: String?,
         sortBy: String?,
         page: Int,
-        size: Int
+        size: Int,
     ): PagedResponse<ProductResponse> {
         val found = productPersistencePort.searchByCriteria(title, productType, shootingPlace, sortBy)
-        val sorted = when (sortBy) {
-            "created-desc" -> found.sortedByDescending { it.productId }
-            else -> found
-        }
+        val sorted =
+            when (sortBy) {
+                "created-desc" -> found.sortedByDescending { it.productId }
+                else -> found
+            }
         return paginationUtil.createPagedResponse(sorted, page, size)
     }
 
-    override fun getMainPageProducts(page: Int, size: Int): PagedResponse<ProductResponse> {
+    override fun getMainPageProducts(
+        page: Int,
+        size: Int,
+    ): PagedResponse<ProductResponse> {
         val all = productPersistencePort.findAll()
         val mockData = all.mapIndexed { idx, product -> Pair(product, idx + 1) }
         val sortedProducts = mockData.sortedByDescending { it.second }.map { it.first }

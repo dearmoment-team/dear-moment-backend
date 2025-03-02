@@ -15,35 +15,39 @@ class ProductEntityTest : StringSpec({
 
     "ProductEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
         // given
-        val product = Product(
-            productId = 1L,
-            userId = 123L,
-            productType = ProductType.WEDDING_SNAP,
-            shootingPlace = ShootingPlace.JEJU,
-            title = "테스트 제품",
-            description = "테스트 설명",
-            availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF, ShootingSeason.YEAR_2025_SECOND_HALF),
-            cameraTypes = setOf(CameraType.DIGITAL),
-            retouchStyles = setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE),
-            mainImage = Image(
+        val product =
+            Product(
+                productId = 1L,
                 userId = 123L,
-                fileName = "main.jpg",
-                url = "http://example.com/main.jpg"
-            ),
-            subImages = listOf(
-                Image(userId = 123L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
-                Image(userId = 123L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
-                Image(userId = 123L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
-                Image(userId = 123L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg")
-            ),
-            additionalImages = listOf(
-                Image(userId = 123L, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
-                Image(userId = 123L, fileName = "add2.jpg", url = "http://example.com/add2.jpg")
-            ),
-            detailedInfo = "상세 정보",
-            contactInfo = "연락처 정보",
-            options = emptyList()
-        )
+                productType = ProductType.WEDDING_SNAP,
+                shootingPlace = ShootingPlace.JEJU,
+                title = "테스트 제품",
+                description = "테스트 설명",
+                availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF, ShootingSeason.YEAR_2025_SECOND_HALF),
+                cameraTypes = setOf(CameraType.DIGITAL),
+                retouchStyles = setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE),
+                mainImage =
+                Image(
+                    userId = 123L,
+                    fileName = "main.jpg",
+                    url = "http://example.com/main.jpg",
+                ),
+                subImages =
+                listOf(
+                    Image(userId = 123L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                    Image(userId = 123L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                    Image(userId = 123L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                    Image(userId = 123L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+                ),
+                additionalImages =
+                listOf(
+                    Image(userId = 123L, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
+                    Image(userId = 123L, fileName = "add2.jpg", url = "http://example.com/add2.jpg"),
+                ),
+                detailedInfo = "상세 정보",
+                contactInfo = "연락처 정보",
+                options = emptyList(),
+            )
 
         // when
         val productEntity = ProductEntity.fromDomain(product)
@@ -56,10 +60,11 @@ class ProductEntityTest : StringSpec({
         productEntity.title shouldBe "테스트 제품"
         productEntity.description shouldBe "테스트 설명"
 
-        productEntity.availableSeasons shouldContainExactly setOf(
-            ShootingSeason.YEAR_2025_FIRST_HALF,
-            ShootingSeason.YEAR_2025_SECOND_HALF
-        )
+        productEntity.availableSeasons shouldContainExactly
+                setOf(
+                    ShootingSeason.YEAR_2025_FIRST_HALF,
+                    ShootingSeason.YEAR_2025_SECOND_HALF,
+                )
         productEntity.cameraTypes shouldContainExactly setOf(CameraType.DIGITAL)
         productEntity.retouchStyles shouldContainExactly setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE)
 

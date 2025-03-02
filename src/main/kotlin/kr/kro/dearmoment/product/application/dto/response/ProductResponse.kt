@@ -1,7 +1,16 @@
 package kr.kro.dearmoment.product.application.dto.response
 
 import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.domain.model.*
+import kr.kro.dearmoment.product.domain.model.CameraType
+import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
 
 data class ProductResponse(
@@ -58,30 +67,33 @@ data class ProductResponse(
             availableSeasons = this.availableSeasons.map { ShootingSeason.valueOf(it) }.toSet(),
             cameraTypes = this.cameraTypes.map { CameraType.valueOf(it) }.toSet(),
             retouchStyles = this.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet(),
-            mainImage = Image(
+            mainImage =
+            Image(
                 userId = this.userId,
                 fileName = this.mainImage.substringAfterLast('/'),
-                url = this.mainImage
+                url = this.mainImage,
             ),
-            subImages = this.subImages.map { url ->
+            subImages =
+            this.subImages.map { url ->
                 Image(
                     userId = this.userId,
                     fileName = url.substringAfterLast('/'),
-                    url = url
+                    url = url,
                 )
             },
-            additionalImages = this.additionalImages.map { url ->
+            additionalImages =
+            this.additionalImages.map { url ->
                 Image(
                     userId = this.userId,
                     fileName = url.substringAfterLast('/'),
-                    url = url
+                    url = url,
                 )
             },
             detailedInfo = this.detailedInfo ?: "",
             contactInfo = this.contactInfo ?: "",
             createdAt = this.createdAt ?: LocalDateTime.now(),
             updatedAt = this.updatedAt ?: LocalDateTime.now(),
-            options = this.options.map { it.toDomain() }
+            options = this.options.map { it.toDomain() },
         )
     }
 }
@@ -102,7 +114,7 @@ data class ProductOptionResponse(
     val retouchedCount: Int,
     val partnerShops: List<PartnerShopResponse>,
     val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
 ) {
     companion object {
         fun fromDomain(opt: ProductOption): ProductOptionResponse {
@@ -122,7 +134,7 @@ data class ProductOptionResponse(
                 retouchedCount = opt.retouchedCount,
                 partnerShops = opt.partnerShops.map { PartnerShopResponse.fromDomain(it) },
                 createdAt = opt.createdAt,
-                updatedAt = opt.updatedAt
+                updatedAt = opt.updatedAt,
             )
         }
     }
@@ -145,7 +157,7 @@ data class ProductOptionResponse(
             originalProvided = true,
             partnerShops = this.partnerShops.map { it.toDomain() },
             createdAt = this.createdAt,
-            updatedAt = this.updatedAt
+            updatedAt = this.updatedAt,
         )
     }
 }
@@ -153,7 +165,7 @@ data class ProductOptionResponse(
 data class PartnerShopResponse(
     val category: String,
     val name: String,
-    val link: String
+    val link: String,
 ) {
     companion object {
         fun fromDomain(ps: PartnerShop): PartnerShopResponse {
@@ -169,7 +181,7 @@ data class PartnerShopResponse(
         return PartnerShop(
             category = PartnerShopCategory.valueOf(this.category),
             name = this.name,
-            link = this.link
+            link = this.link,
         )
     }
 }

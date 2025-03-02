@@ -99,9 +99,10 @@ internal class ProductTest : StringSpec({
     }
 
     "Product 생성 시 제목이 비어 있으면 예외 발생" {
-        val exception = shouldThrow<IllegalArgumentException> {
-            createProduct(title = "")
-        }
+        val exception =
+            shouldThrow<IllegalArgumentException> {
+                createProduct(title = "")
+            }
         exception.message shouldBe "상품명은 필수 입력값입니다."
     }
 
@@ -132,70 +133,74 @@ internal class ProductTest : StringSpec({
 
         shouldThrow<IllegalArgumentException> {
             createProduct(
-                retouchStyles = setOf(
+                retouchStyles =
+                setOf(
                     RetouchStyle.MODERN,
                     RetouchStyle.NATURAL,
-                    RetouchStyle.VINTAGE
-                )
+                    RetouchStyle.VINTAGE,
+                ),
             )
         }.message shouldBe "보정 스타일은 최대 2개까지만 선택할 수 있습니다."
-
     }
 
     "옵션 업데이트 시 삭제/갱신/삽입 로직 검증" {
-        val existingOptions = listOf(
-            createOption(
-                optionId = 1L,
-                name = "기존 단품 옵션",
-                originalPrice = 100_000L,
-                costumeCount = 1,
-                shootingHours = 1,
-                shootingMinutes = 30,
-                shootingLocationCount = 1,
-                retouchedCount = 2,
-            ),
-            createOption(
-                optionId = 2L,
-                name = "기존 패키지 옵션",
-                optionType = OptionType.PACKAGE,
-                partnerShops = listOf(
-                    PartnerShop(
-                        category = PartnerShopCategory.DRESS,
-                        name = "드레스샵",
-                        link = "http://dress.com"
-                    )
-                )
-            ),
-        )
+        val existingOptions =
+            listOf(
+                createOption(
+                    optionId = 1L,
+                    name = "기존 단품 옵션",
+                    originalPrice = 100_000L,
+                    costumeCount = 1,
+                    shootingHours = 1,
+                    shootingMinutes = 30,
+                    shootingLocationCount = 1,
+                    retouchedCount = 2,
+                ),
+                createOption(
+                    optionId = 2L,
+                    name = "기존 패키지 옵션",
+                    optionType = OptionType.PACKAGE,
+                    partnerShops =
+                    listOf(
+                        PartnerShop(
+                            category = PartnerShopCategory.DRESS,
+                            name = "드레스샵",
+                            link = "http://dress.com",
+                        ),
+                    ),
+                ),
+            )
         val product = createProduct(options = existingOptions)
 
         // 새 옵션 목록
-        val newOptions = listOf(
-            // 기존 첫 번째 옵션을 갱신 (optionId=1)
-            existingOptions[0].copy(originalPrice = 120_000L),
-
-            // 새로 추가 (optionId=0)
-            createOption(
-                optionId = 0L,
-                name = "새로운 패키지 옵션",
-                optionType = OptionType.PACKAGE,
-                partnerShops = listOf(
-                    PartnerShop(
-                        category = PartnerShopCategory.VIDEO,
-                        name = "영상업체",
-                        link = "http://video.com"
-                    )
-                )
+        val newOptions =
+            listOf(
+                // 기존 첫 번째 옵션을 갱신 (optionId=1)
+                existingOptions[0].copy(originalPrice = 120_000L),
+                // 새로 추가 (optionId=0)
+                createOption(
+                    optionId = 0L,
+                    name = "새로운 패키지 옵션",
+                    optionType = OptionType.PACKAGE,
+                    partnerShops =
+                    listOf(
+                        PartnerShop(
+                            category = PartnerShopCategory.VIDEO,
+                            name = "영상업체",
+                            link = "http://video.com",
+                        ),
+                    ),
+                ),
             )
-        )
 
         val result = product.updateOptions(newOptions)
 
         // updatedOptions => 기존 1번 옵션 갱신 + 신규 삽입
-        result.updatedOptions shouldContainExactly listOf(
-            existingOptions[0].copy(originalPrice = 120_000L),
-            newOptions[1].copy(productId = 1L),
-        )
+        result.updatedOptions shouldContainExactly
+                listOf(
+                    existingOptions[0].copy(originalPrice = 120_000L),
+                    newOptions[1].copy(productId = 1L),
+                )
 
         // deletedOptionIds => 2번 옵션은 새 목록에 없으므로 삭제 대상
         result.deletedOptionIds shouldContainExactly setOf(2L)
@@ -206,7 +211,7 @@ internal class ProductTest : StringSpec({
         shouldThrow<IllegalArgumentException> {
             createOption(
                 optionType = OptionType.SINGLE,
-                costumeCount = 0
+                costumeCount = 0,
             )
         }.message shouldBe "단품 옵션은 의상 수가 1개 이상이어야 합니다."
 
@@ -215,7 +220,7 @@ internal class ProductTest : StringSpec({
             createOption(
                 optionType = OptionType.SINGLE,
                 costumeCount = 1,
-                shootingLocationCount = 0
+                shootingLocationCount = 0,
             )
         }.message shouldBe "단품 옵션은 촬영 장소 수가 1개 이상이어야 합니다."
 
@@ -247,7 +252,7 @@ internal class ProductTest : StringSpec({
         shouldThrow<IllegalArgumentException> {
             createOption(
                 optionType = OptionType.PACKAGE,
-                partnerShops = emptyList()
+                partnerShops = emptyList(),
             )
         }.message shouldBe "패키지 옵션은 1개 이상의 파트너샵이 필요합니다."
     }
@@ -257,7 +262,7 @@ internal class ProductTest : StringSpec({
             PartnerShop(
                 category = PartnerShopCategory.DRESS,
                 name = "",
-                link = "http://valid.com"
+                link = "http://valid.com",
             )
         }.message shouldBe "제휴 업체 이름은 비어 있을 수 없습니다."
     }
@@ -278,7 +283,7 @@ internal class ProductTest : StringSpec({
             createOption(
                 discountAvailable = true,
                 originalPrice = 100_000L,
-                discountPrice = 120_000L
+                discountPrice = 120_000L,
             )
         }.message shouldBe "할인가는 원 판매가보다 클 수 없습니다."
     }

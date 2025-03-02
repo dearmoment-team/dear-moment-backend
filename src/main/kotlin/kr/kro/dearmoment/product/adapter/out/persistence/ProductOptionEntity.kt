@@ -38,63 +38,51 @@ open class ProductOptionEntity(
     )
     @Column(name = "OPTION_ID")
     var optionId: Long? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID")
     var product: ProductEntity? = null,
-
     @Column(name = "NAME", nullable = false)
     var name: String = "",
-
     @Enumerated(EnumType.STRING)
     @Column(name = "OPTION_TYPE", nullable = false)
     var optionType: OptionType = OptionType.SINGLE,
-
     @Column(name = "DISCOUNT_AVAILABLE", nullable = false)
     var discountAvailable: Boolean = false,
-
     @Column(name = "ORIGINAL_PRICE", nullable = false)
     var originalPrice: Long = 0L,
-
     @Column(name = "DISCOUNT_PRICE", nullable = false)
     var discountPrice: Long = 0L,
-
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-
     // 단품 필드들
     @Column(name = "COSTUME_COUNT")
     var costumeCount: Int = 0,
-
     @Column(name = "SHOOTING_LOCATION_COUNT")
     var shootingLocationCount: Int = 0,
-
     @Column(name = "SHOOTING_HOURS")
     var shootingHours: Int = 0,
-
     @Column(name = "SHOOTING_MINUTES")
     var shootingMinutes: Int = 0,
-
     @Column(name = "RETOUCHED_COUNT")
     var retouchedCount: Int = 0,
-
     // [원본 제공 여부] 새로 추가
     @Column(name = "ORIGINAL_PROVIDED", nullable = false)
     var originalProvided: Boolean = false,
-
     // 패키지 필드들
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
-        joinColumns = [JoinColumn(name = "OPTION_ID")]
+        joinColumns = [JoinColumn(name = "OPTION_ID")],
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
-
     @Column(nullable = false)
     open var version: Long = 0L,
 ) : Auditable() {
     companion object {
-        fun fromDomain(option: ProductOption, productEntity: ProductEntity): ProductOptionEntity {
+        fun fromDomain(
+            option: ProductOption,
+            productEntity: ProductEntity,
+        ): ProductOptionEntity {
             return ProductOptionEntity(
                 optionId = if (option.optionId == 0L) null else option.optionId,
                 product = productEntity,
@@ -110,14 +98,15 @@ open class ProductOptionEntity(
                 shootingMinutes = option.shootingMinutes,
                 retouchedCount = option.retouchedCount,
                 originalProvided = option.originalProvided,
-                partnerShops = option.partnerShops.map {
+                partnerShops =
+                option.partnerShops.map {
                     PartnerShopEmbeddable(
                         category = it.category,
                         name = it.name,
                         link = it.link,
                     )
                 },
-                version = 0L
+                version = 0L,
             )
         }
     }
@@ -138,7 +127,8 @@ open class ProductOptionEntity(
             shootingMinutes = shootingMinutes,
             retouchedCount = retouchedCount,
             originalProvided = originalProvided,
-            partnerShops = partnerShops.map {
+            partnerShops =
+            partnerShops.map {
                 PartnerShop(
                     category = it.category ?: PartnerShopCategory.ETC,
                     name = it.name,
@@ -146,7 +136,7 @@ open class ProductOptionEntity(
                 )
             },
             createdAt = createdDate,
-            updatedAt = updateDate
+            updatedAt = updateDate,
         )
     }
 }

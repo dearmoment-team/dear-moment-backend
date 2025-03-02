@@ -42,30 +42,23 @@ enum class OptionType {
 data class ProductOption(
     val optionId: Long = 0L,
     val productId: Long,
-
     val name: String,
     val optionType: OptionType,
-
     // 할인 구조
     val discountAvailable: Boolean = false,
     val originalPrice: Long = 0,
     val discountPrice: Long = 0,
-
     val description: String = "",
-
     // [단품용]
     val costumeCount: Int = 0,
     val shootingLocationCount: Int = 0,
     val shootingHours: Int = 0,
     val shootingMinutes: Int = 0,
     val retouchedCount: Int = 0,
-
     // [원본 제공 여부]
     val originalProvided: Boolean = true,
-
     // [패키지용]
     val partnerShops: List<PartnerShop> = emptyList(),
-
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
 ) {

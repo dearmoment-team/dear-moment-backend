@@ -13,7 +13,6 @@ class ProductPersistenceAdapter(
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
 ) : ProductPersistencePort {
-
     override fun save(product: Product): Product {
         val entity = ProductEntity.fromDomain(product)
         return jpaProductRepository.saveAndFlush(entity).toDomain()

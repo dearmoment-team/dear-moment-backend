@@ -14,7 +14,6 @@ class ProductOptionUseCaseImpl(
     private val productOptionPersistencePort: ProductOptionPersistencePort,
     private val productPersistencePort: ProductPersistencePort,
 ) : ProductOptionUseCase {
-
     @Transactional
     override fun saveProductOption(
         productId: Long,
@@ -63,7 +62,10 @@ class ProductOptionUseCaseImpl(
      * 기존 옵션과 요청된 옵션들을 비교하여 업데이트, 신규 생성, 삭제를 수행합니다.
      */
     @Transactional
-    override fun synchronizeOptions(existingProduct: Product, requestOptions: List<UpdateProductOptionRequest>) {
+    override fun synchronizeOptions(
+        existingProduct: Product,
+        requestOptions: List<UpdateProductOptionRequest>,
+    ) {
         val existingOptions = productOptionPersistencePort.findByProductId(existingProduct.productId)
         val existingOptionMap = existingOptions.associateBy { it.optionId }
 
@@ -72,27 +74,29 @@ class ProductOptionUseCaseImpl(
             val optId = dto.optionId ?: 0L
             if (optId != 0L && existingOptionMap.containsKey(optId)) {
                 val existingOpt = existingOptionMap[optId]!!
-                val updatedOpt = existingOpt.copy(
-                    name = dto.name,
-                    optionType = kr.kro.dearmoment.product.domain.model.OptionType.valueOf(dto.optionType),
-                    discountAvailable = dto.discountAvailable,
-                    originalPrice = dto.originalPrice,
-                    discountPrice = dto.discountPrice,
-                    description = dto.description ?: "",
-                    costumeCount = dto.costumeCount,
-                    shootingLocationCount = dto.shootingLocationCount,
-                    shootingHours = dto.shootingHours,
-                    shootingMinutes = dto.shootingMinutes,
-                    retouchedCount = dto.retouchedCount,
-                    originalProvided = dto.originalProvided,
-                    partnerShops = dto.partnerShops.map {
-                        kr.kro.dearmoment.product.domain.model.PartnerShop(
-                            category = kr.kro.dearmoment.product.domain.model.PartnerShopCategory.valueOf(it.category),
-                            name = it.name,
-                            link = it.link
-                        )
-                    }
-                )
+                val updatedOpt =
+                    existingOpt.copy(
+                        name = dto.name,
+                        optionType = kr.kro.dearmoment.product.domain.model.OptionType.valueOf(dto.optionType),
+                        discountAvailable = dto.discountAvailable,
+                        originalPrice = dto.originalPrice,
+                        discountPrice = dto.discountPrice,
+                        description = dto.description ?: "",
+                        costumeCount = dto.costumeCount,
+                        shootingLocationCount = dto.shootingLocationCount,
+                        shootingHours = dto.shootingHours,
+                        shootingMinutes = dto.shootingMinutes,
+                        retouchedCount = dto.retouchedCount,
+                        originalProvided = dto.originalProvided,
+                        partnerShops =
+                        dto.partnerShops.map {
+                            kr.kro.dearmoment.product.domain.model.PartnerShop(
+                                category = kr.kro.dearmoment.product.domain.model.PartnerShopCategory.valueOf(it.category),
+                                name = it.name,
+                                link = it.link,
+                            )
+                        },
+                    )
                 productOptionPersistencePort.save(updatedOpt, existingProduct)
                 requestedIds.add(optId)
             } else {
@@ -112,9 +116,12 @@ class ProductOptionUseCaseImpl(
             ?: throw IllegalArgumentException("Product not found: $productId")
     }
 
-    private fun validateDuplicateOption(productId: Long, name: String) {
+    private fun validateDuplicateOption(
+        productId: Long,
+        name: String,
+    ) {
         require(
-            !productOptionPersistencePort.existsByProductIdAndName(productId, name)
+            !productOptionPersistencePort.existsByProductIdAndName(productId, name),
         ) { "Duplicate option name: $name" }
     }
 }
