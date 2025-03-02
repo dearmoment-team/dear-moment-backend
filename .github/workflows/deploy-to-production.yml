@@ -11,25 +11,70 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
+      - name: Deploy via SSH using Docker Compose
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SERVER_IP }}               # 배포 대상 서버의 공인 IP (예: OCI VM)
-          username: ${{ secrets.SERVER_USER }}           # 서버 접속 사용자 (예: ubuntu)
-          key: ${{ secrets.SSH_PRIVATE_KEY }}            # SSH 개인 키 (GitHub Secrets 에 등록)
+          host: ${{ secrets.SERVER_IP }}      # 배포 대상 서버의 공인 IP
+          username: ${{ secrets.SERVER_USER }} # 배포 서버 접속 사용자 (예: ubuntu)
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH 개인 키 (GitHub Secrets)
           script: |
-            echo "Pulling latest Docker image from GHCR..."
-            docker pull ghcr.io/${{ github.repository }}/dear-moment-backend:latest
+            echo "==== Creating/updating .env in ~/dear-moment-backend/env/.env ===="
 
-            echo "Stopping existing container (if any)..."
-            docker stop dear-moment-backend || true
-            docker rm dear-moment-backend || true
-
-            echo "Starting new container..."
-            docker run -d --restart=always -p 8080:8080 \
-              -v /home/ubuntu/adb_wallet:/app/wallet:ro \
-              -e TNS_ADMIN=/app/wallet \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              --name dear-moment-backend \
-              ghcr.io/${{ github.repository }}/dear-moment-backend:latest
+            # 1) cat <<EOF ... > file  : 덮어쓰기로 .env 파일 생성
+            cat <<EOF > ~/dear-moment-backend/env/.env
+# -----------------------
+# [1] Spring Profiles
+# -----------------------
+  SPRING_PROFILES_ACTIVE=prod
+  SPRING_APPLICATION_NAME=dear-moment-backend
+  
+  # -----------------------
+  # [2] DB Config
+  # -----------------------
+  SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
+  SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }}
+  SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME=oracle.jdbc.OracleDriver
+  
+  SPRING_JPA_HIBERNATE_DDL_AUTO=update
+  SPRING_JPA_SHOW_SQL=false
+  SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.OracleDialect
+  
+  ORACLE_PASSWORD=oracle_password
+  APP_USER=spring_user
+  APP_USER_PASSWORD=spring_password
+  
+  # -----------------------
+  # [3] Object Storage
+  # -----------------------
+  OBJECT_STORAGE_CONFIG_PATH=/home/ubuntu/.oci/config
+  OBJECT_STORAGE_BUCKET_NAME=dear-moment-local
+  OBJECT_STORAGE_NAMESPACE_NAME=axi7ktcb95py
+  OBJECT_STORAGE_IMAGE_DIR=photo/
+  
+  # -----------------------
+  # [4] Sentry
+  # -----------------------
+  SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+  
+  # -----------------------
+  # [5] Mail
+  # -----------------------
+  MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+  MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+  MAIL_RECEIVER=${{ secrets.MAIL_RECEIVER }}
+  EOF
+  
+  echo "==== .env file updated in ~/dear-moment-backend/env/.env ===="
+  
+  # 2) Docker Compose 실행
+  cd ~/dear-moment-backend
+  
+  echo "==== Pulling latest images (if needed) ===="
+  docker-compose pull
+  
+  echo "==== Shutting down existing containers ===="
+  docker-compose down
+  
+  echo "==== Starting containers with updated .env ===="
+  docker-compose up -d
