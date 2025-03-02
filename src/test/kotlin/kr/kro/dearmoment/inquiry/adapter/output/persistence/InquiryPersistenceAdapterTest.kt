@@ -5,10 +5,10 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
-import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryJpaRepository
+import kr.kro.dearmoment.inquiry.adapter.output.persistence.artist.ArtistInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInquiryJpaRepository
-import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
+import kr.kro.dearmoment.inquiry.domain.ArtistInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
@@ -17,12 +17,12 @@ import org.springframework.data.domain.Sort
 
 @RepositoryTest
 class InquiryPersistenceAdapterTest(
-    private val authorInquiryJpaRepository: AuthorInquiryJpaRepository,
+    private val artistInquiryJpaRepository: ArtistInquiryJpaRepository,
     private val productInquiryJpaRepository: ProductInquiryJpaRepository,
     private val serviceInquiryJpaRepository: ServiceInquiryJpaRepository,
 ) : DescribeSpec({
         val adapter =
-            InquiryPersistenceAdapter(authorInquiryJpaRepository, productInquiryJpaRepository, serviceInquiryJpaRepository)
+            InquiryPersistenceAdapter(artistInquiryJpaRepository, productInquiryJpaRepository, serviceInquiryJpaRepository)
 
         describe("saveProductInquiry()는") {
             context("productInquiry 가 전달되면") {
@@ -34,11 +34,11 @@ class InquiryPersistenceAdapterTest(
             }
         }
 
-        describe("saveAuthorInquiry()는") {
-            context("authorInquiry 가 전달되면") {
-                val inquiry = AuthorInquiry(userId = 1L, title = "작가의 상풍 정보 문의", content = "작가 상풍 정보가 잘못되었습니다.")
+        describe("saveArtistInquiry()는") {
+            context("ArtistInquiry 가 전달되면") {
+                val inquiry = ArtistInquiry(userId = 1L, title = "작가의 상풍 정보 문의", content = "작가 상풍 정보가 잘못되었습니다.")
                 it("엔티티로 변환하여 DB에 저장한다.") {
-                    val resultId = adapter.saveAuthorInquiry(inquiry)
+                    val resultId = adapter.saveArtistInquiry(inquiry)
                     resultId shouldNotBe 0L
                 }
             }
@@ -55,28 +55,28 @@ class InquiryPersistenceAdapterTest(
             }
         }
 
-        describe("getAuthorInquiries()는") {
+        describe("getArtistInquiries()는") {
             val userId = 1L
             val inquiries =
                 listOf(
-                    AuthorInquiry(
+                    ArtistInquiry(
                         userId = userId,
                         title = "문의1 제목",
                         content = "문의1 내용",
                     ),
-                    AuthorInquiry(
+                    ArtistInquiry(
                         userId = userId,
                         title = "문의2 제목",
                         content = "문의2 내용",
                     ),
                 )
-            inquiries.forEach { adapter.saveAuthorInquiry(it) }
+            inquiries.forEach { adapter.saveArtistInquiry(it) }
 
             val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
 
             context("userId와 Pageable이 전달되면") {
                 it("DB에서 페이징된 작가 문의 목록을 반환한다.") {
-                    val result = adapter.getAuthorInquiries(userId, pageable)
+                    val result = adapter.getArtistInquiries(userId, pageable)
 
                     result.totalElements shouldBe inquiries.size.toLong()
                     result.content.size shouldBe inquiries.size

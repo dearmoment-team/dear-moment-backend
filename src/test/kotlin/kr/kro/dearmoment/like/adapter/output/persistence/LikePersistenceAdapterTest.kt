@@ -15,7 +15,7 @@ class LikePersistenceAdapterTest(
         val adapter = LikePersistenceAdapter(likeRepository)
 
         describe("LikePersistenceAdapter는") {
-            val like = Like(userId = 1L, targetId = 2L, type = LikeType.AUTHOR)
+            val like = Like(userId = 1L, targetId = 2L, type = LikeType.ARTIST)
             val likeId = adapter.save(like)
 
             context("like 도메인이 전달되면") {
@@ -40,9 +40,9 @@ class LikePersistenceAdapterTest(
                 val userId = 2L
                 val likes =
                     listOf(
-                        Like(userId = userId, targetId = 1L, type = LikeType.AUTHOR),
-                        Like(userId = userId, targetId = 2L, type = LikeType.AUTHOR),
-                        Like(userId = userId, targetId = 3L, type = LikeType.AUTHOR),
+                        Like(userId = userId, targetId = 1L, type = LikeType.ARTIST),
+                        Like(userId = userId, targetId = 2L, type = LikeType.ARTIST),
+                        Like(userId = userId, targetId = 3L, type = LikeType.ARTIST),
                         Like(userId = userId, targetId = 1L, type = LikeType.PRODUCT),
                         Like(userId = userId, targetId = 2L, type = LikeType.PRODUCT),
                     )

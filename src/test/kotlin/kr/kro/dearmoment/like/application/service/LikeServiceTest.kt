@@ -26,7 +26,7 @@ class LikeServiceTest : DescribeSpec({
 
     describe("like()는") {
         context("유효한 command를 전달 받으면") {
-            val command = SaveLikeCommand(userId = 1L, targetId = 2L, type = LikeType.AUTHOR.value)
+            val command = SaveLikeCommand(userId = 1L, targetId = 2L, type = LikeType.ARTIST.value)
             val like =
                 Like(
                     id = 1L,
@@ -61,14 +61,14 @@ class LikeServiceTest : DescribeSpec({
             val query =
                 GetLikesQuery(
                     userId = 1L,
-                    likeType = LikeType.AUTHOR.value,
+                    likeType = LikeType.ARTIST.value,
                 )
 
             val likes =
                 listOf(
-                    Like(userId = query.userId, targetId = 1L, type = LikeType.AUTHOR),
-                    Like(userId = query.userId, targetId = 2L, type = LikeType.AUTHOR),
-                    Like(userId = query.userId, targetId = 3L, type = LikeType.AUTHOR),
+                    Like(userId = query.userId, targetId = 1L, type = LikeType.ARTIST),
+                    Like(userId = query.userId, targetId = 2L, type = LikeType.ARTIST),
+                    Like(userId = query.userId, targetId = 3L, type = LikeType.ARTIST),
                     Like(userId = query.userId, targetId = 1L, type = LikeType.PRODUCT),
                     Like(userId = query.userId, targetId = 2L, type = LikeType.PRODUCT),
                 )
@@ -82,7 +82,7 @@ class LikeServiceTest : DescribeSpec({
 
     describe("isLike()는") {
         context("ExistLikeQuery가 전달되면") {
-            val query = ExistLikeQuery(userId = 1L, targetId = 1L, type = LikeType.AUTHOR.value)
+            val query = ExistLikeQuery(userId = 1L, targetId = 1L, type = LikeType.ARTIST.value)
             every { getLikePort.existLike(query.userId, query.targetId, query.type) } returns true
 
             it("좋아요가 존재하는지 알 수 있다.") {

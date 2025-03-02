@@ -9,16 +9,16 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kr.kro.dearmoment.inquiry.application.command.CreateAuthorInquiryCommand
+import kr.kro.dearmoment.inquiry.application.command.CreateArtistInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
-import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
+import kr.kro.dearmoment.inquiry.application.query.GetArtistInquiresQuery
 import kr.kro.dearmoment.inquiry.application.query.GetProductInquiresQuery
-import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
+import kr.kro.dearmoment.inquiry.domain.ArtistInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
 import org.springframework.data.domain.Page
@@ -33,22 +33,22 @@ class InquiryServiceTest : DescribeSpec({
     val sendPort = mockk<SendInquiryPort>()
     val service = InquiryService(savePort, getPort, deletePort, sendPort)
 
-    describe("createAuthorInquiry()는") {
+    describe("createArtistInquiry()는") {
         context("작가 문의 생성 명령을 전달 받으면") {
             val command =
-                CreateAuthorInquiryCommand(
+                CreateArtistInquiryCommand(
                     userId = 1L,
                     title = "작가 정보 문의",
                     content = "전화번호 정보가 잘못되었습니다.",
                     email = "email@email.com",
                 )
             val expectedId = 1L
-            every { savePort.saveAuthorInquiry(any()) } returns expectedId
+            every { savePort.saveArtistInquiry(any()) } returns expectedId
             every { sendPort.sendMail(any(), any(), any()) } just Runs
             it("문의를 저장하고 ID를 반환한다.") {
-                val result = service.createAuthorInquiry(command)
+                val result = service.createArtistInquiry(command)
                 result.inquiryId shouldBe expectedId
-                verify(exactly = 1) { savePort.saveAuthorInquiry(any()) }
+                verify(exactly = 1) { savePort.saveArtistInquiry(any()) }
             }
         }
     }
@@ -99,18 +99,18 @@ class InquiryServiceTest : DescribeSpec({
         }
     }
 
-    describe("getAuthorInquiries()는") {
+    describe("getArtistInquiries()는") {
         context("userId와 Pageable이 전달되면") {
             val userId = 1L
             val inquiries =
                 listOf(
-                    AuthorInquiry(
+                    ArtistInquiry(
                         id = 1L,
                         userId = userId,
                         title = "문의1 제목",
                         content = "문의1 내용",
                     ),
-                    AuthorInquiry(
+                    ArtistInquiry(
                         id = 2L,
                         userId = userId,
                         title = "문의2 제목",
@@ -119,12 +119,12 @@ class InquiryServiceTest : DescribeSpec({
                 )
 
             val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
-            val page: Page<AuthorInquiry> = PageImpl(inquiries, pageable, inquiries.size.toLong())
+            val page: Page<ArtistInquiry> = PageImpl(inquiries, pageable, inquiries.size.toLong())
 
-            every { getPort.getAuthorInquiries(userId, pageable) } returns page
+            every { getPort.getArtistInquiries(userId, pageable) } returns page
 
             it("유저의 작가 문의를 페이징하여 반환한다.") {
-                val result = service.getAuthorInquiries(GetAuthorInquiresQuery(userId, pageable))
+                val result = service.getArtistInquiries(GetArtistInquiresQuery(userId, pageable))
 
                 result.totalElements shouldBe inquiries.size.toLong()
                 result.content.size shouldBe inquiries.size
@@ -132,7 +132,7 @@ class InquiryServiceTest : DescribeSpec({
                 result.page shouldBe 0
                 result.size shouldBe 10
 
-                verify(exactly = 1) { getPort.getAuthorInquiries(userId, pageable) }
+                verify(exactly = 1) { getPort.getArtistInquiries(userId, pageable) }
             }
         }
     }
@@ -170,7 +170,7 @@ class InquiryServiceTest : DescribeSpec({
                 result.page shouldBe 0
                 result.size shouldBe 10
 
-                verify(exactly = 1) { getPort.getAuthorInquiries(userId, pageable) }
+                verify(exactly = 1) { getPort.getArtistInquiries(userId, pageable) }
             }
         }
     }

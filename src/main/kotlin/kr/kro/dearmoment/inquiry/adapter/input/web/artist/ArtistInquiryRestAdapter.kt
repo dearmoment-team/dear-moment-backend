@@ -1,13 +1,13 @@
-package kr.kro.dearmoment.inquiry.adapter.input.web.author
+package kr.kro.dearmoment.inquiry.adapter.input.web.artist
 
 import kr.kro.dearmoment.common.dto.PagedResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.CreateAuthorInquiryRequest
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
+import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.CreateArtistInquiryRequest
+import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.GetArtistInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
-import kr.kro.dearmoment.inquiry.application.command.CreateAuthorInquiryCommand
+import kr.kro.dearmoment.inquiry.application.command.CreateArtistInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
-import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
+import kr.kro.dearmoment.inquiry.application.query.GetArtistInquiresQuery
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
@@ -19,32 +19,32 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/inquiries/authors")
-class AuthorInquiryRestAdapter(
+@RequestMapping("/api/inquiries/artists")
+class ArtistInquiryRestAdapter(
     private val createInquiryUseCase: CreateInquiryUseCase,
     private val getInquiryUseCase: GetInquiryUseCase,
 ) {
     @PostMapping
-    fun writeAuthorInquiry(
-        @RequestBody request: CreateAuthorInquiryRequest,
+    fun writeArtistInquiry(
+        @RequestBody request: CreateArtistInquiryRequest,
     ): CreateInquiryResponse {
         val command =
-            CreateAuthorInquiryCommand(
+            CreateArtistInquiryCommand(
                 userId = request.userId,
                 title = request.title,
                 content = request.content,
                 email = request.email,
             )
 
-        return createInquiryUseCase.createAuthorInquiry(command)
+        return createInquiryUseCase.createArtistInquiry(command)
     }
 
     @GetMapping("/{userId}")
-    fun getAuthorInquiries(
+    fun getArtistInquiries(
         @PathVariable userId: Long,
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
-    ): PagedResponse<GetAuthorInquiryResponse> {
-        val query = GetAuthorInquiresQuery(userId, pageable)
-        return getInquiryUseCase.getAuthorInquiries(query)
+    ): PagedResponse<GetArtistInquiryResponse> {
+        val query = GetArtistInquiresQuery(userId, pageable)
+        return getInquiryUseCase.getArtistInquiries(query)
     }
 }

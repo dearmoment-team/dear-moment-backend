@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.inquiry.adapter.input.web.author
+package kr.kro.dearmoment.inquiry.adapter.input.web.artist
 
 import andDocument
 import io.mockk.every
@@ -17,10 +17,10 @@ import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.CreateAuthorInquiryRequest
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.dto.GetAuthorInquiryResponse
+import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.CreateArtistInquiryRequest
+import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.GetArtistInquiryResponse
 import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
-import kr.kro.dearmoment.inquiry.application.query.GetAuthorInquiresQuery
+import kr.kro.dearmoment.inquiry.application.query.GetArtistInquiresQuery
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -31,11 +31,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
 
-class AuthorInquiryRestAdapterTest : RestApiTestBase() {
+class ArtistInquiryRestAdapterTest : RestApiTestBase() {
     @Test
     fun `작가 문의 생성 API`() {
         val requestBody =
-            CreateAuthorInquiryRequest(
+            CreateArtistInquiryRequest(
                 userId = 123L,
                 title = "작가 정보 오류 문의합니다.",
                 content = "연락처가 잘못 된 것 같습니다.",
@@ -44,18 +44,18 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
 
         val expected = CreateInquiryResponse(1L)
 
-        every { createInquiryUseCase.createAuthorInquiry(any()) } returns expected
+        every { createInquiryUseCase.createArtistInquiry(any()) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
-                .post("/api/inquiries/authors")
+                .post("/api/inquiries/artists")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
-                "create-author_inquiry",
+                "create-artist_inquiry",
                 requestBody(
                     "userId" type NUMBER means "유저 ID",
                     "title" type STRING means "문의 제목",
@@ -77,13 +77,13 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
         val inquiries =
             listOf(
-                GetAuthorInquiryResponse(
+                GetArtistInquiryResponse(
                     inquiryId = 1L,
                     title = "문의1 제목",
                     content = "문의1 내용",
                     createdDate = LocalDateTime.now(),
                 ),
-                GetAuthorInquiryResponse(
+                GetArtistInquiryResponse(
                     inquiryId = 2L,
                     title = "문의2 제목",
                     content = "문의2 내용",
@@ -102,11 +102,11 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
                 totalPages = page.totalPages,
             )
 
-        every { getInquiryUseCase.getAuthorInquiries(GetAuthorInquiresQuery(userId, pageable)) } returns expectedResponse
+        every { getInquiryUseCase.getArtistInquiries(GetArtistInquiresQuery(userId, pageable)) } returns expectedResponse
 
         val request =
             RestDocumentationRequestBuilders
-                .get("/api/inquiries/authors/{userId}", userId)
+                .get("/api/inquiries/artists/{userId}", userId)
                 .queryParam("page", "0")
                 .queryParam("size", "10")
 
@@ -117,7 +117,7 @@ class AuthorInquiryRestAdapterTest : RestApiTestBase() {
             .andExpect(jsonPath("$.data.totalElements").value(expectedResponse.totalElements))
             .andExpect(jsonPath("$.data.totalPages").value(expectedResponse.totalPages))
             .andDocument(
-                "get-author_inquiries",
+                "get-artist_inquiries",
                 pathParameters("userId" means "작가 문의를 생성한 userId"),
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",

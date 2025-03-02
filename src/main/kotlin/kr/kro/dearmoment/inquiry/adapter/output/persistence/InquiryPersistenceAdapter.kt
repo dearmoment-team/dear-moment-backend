@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.inquiry.adapter.output.persistence
 
-import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryEntity
-import kr.kro.dearmoment.inquiry.adapter.output.persistence.author.AuthorInquiryJpaRepository
+import kr.kro.dearmoment.inquiry.adapter.output.persistence.artist.ArtistInquiryEntity
+import kr.kro.dearmoment.inquiry.adapter.output.persistence.artist.ArtistInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductInquiryEntity
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInquiryEntity
@@ -9,7 +9,7 @@ import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInqui
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
-import kr.kro.dearmoment.inquiry.domain.AuthorInquiry
+import kr.kro.dearmoment.inquiry.domain.ArtistInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiry
 import org.springframework.data.domain.Page
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class InquiryPersistenceAdapter(
-    private val authorInquiryJpaRepository: AuthorInquiryJpaRepository,
+    private val artistInquiryJpaRepository: ArtistInquiryJpaRepository,
     private val productInquiryJpaRepository: ProductInquiryJpaRepository,
     private val serviceInquiryJpaRepository: ServiceInquiryJpaRepository,
 ) : SaveInquiryPort, GetInquiryPort, DeleteInquiryPort {
@@ -27,9 +27,9 @@ class InquiryPersistenceAdapter(
         return productInquiryJpaRepository.save(entity).id
     }
 
-    override fun saveAuthorInquiry(inquiry: AuthorInquiry): Long {
-        val entity = AuthorInquiryEntity.from(inquiry)
-        return authorInquiryJpaRepository.save(entity).id
+    override fun saveArtistInquiry(inquiry: ArtistInquiry): Long {
+        val entity = ArtistInquiryEntity.from(inquiry)
+        return artistInquiryJpaRepository.save(entity).id
     }
 
     override fun saveServiceInquiry(inquiry: ServiceInquiry): Long {
@@ -37,11 +37,11 @@ class InquiryPersistenceAdapter(
         return serviceInquiryJpaRepository.save(entity).id
     }
 
-    override fun getAuthorInquiries(
+    override fun getArtistInquiries(
         userId: Long,
         pageable: Pageable,
-    ): Page<AuthorInquiry> {
-        val entities = authorInquiryJpaRepository.findByUserId(userId, pageable)
+    ): Page<ArtistInquiry> {
+        val entities = artistInquiryJpaRepository.findByUserId(userId, pageable)
         return entities.map { it.toDomain() }
     }
 
