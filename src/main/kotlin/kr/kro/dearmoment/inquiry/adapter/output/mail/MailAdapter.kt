@@ -26,7 +26,7 @@ class MailAdapter(
                 message.subject = subject
                 message.setRecipient(Message.RecipientType.TO, InternetAddress(mailProperties.receiver))
                 message.setFrom(InternetAddress(mailProperties.username, MAIL_SENDER_NAME))
-                message.setText(body)
+                message.setText("내용:\n$body\n\n작성자 이메일: $email")
 
                 mailSender.send(message)
             }.onFailure {

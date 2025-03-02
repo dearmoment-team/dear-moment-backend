@@ -33,7 +33,7 @@ class InquiryService(
 
         sendInquiryPort.sendMail(
             email = command.email,
-            subject = "[작가 정보 오류 제보] ${inquiry.title}}",
+            subject = "[작가 정보 오류 제보] ${inquiry.title}",
             body = inquiry.content,
         )
 
@@ -53,7 +53,7 @@ class InquiryService(
 
         sendInquiryPort.sendMail(
             email = command.email,
-            subject = "[고객의 소리] ${inquiry.type.desc}}",
+            subject = "[고객의 소리] ${inquiry.type.desc}",
             body = inquiry.content,
         )
         return CreateInquiryResponse(savedInquiryId)
