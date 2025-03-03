@@ -10,12 +10,16 @@ import kr.kro.dearmoment.studio.application.port.input.RegisterStudioUseCase
 import kr.kro.dearmoment.studio.application.port.output.DeleteStudioPort
 import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
 import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
+@Service
 class StudioService(
     private val saveStudioPort: SaveStudioPort,
     private val updateStudioPort: UpdateStudioPort,
     private val deleteStudioPort: DeleteStudioPort,
 ) : RegisterStudioUseCase, ModifyStudioUseCase, DeleteStudioUseCase {
+    @Transactional
     override fun register(command: RegisterStudioCommand): RegisterStudioResponse {
         val studio = command.toDomain()
         val savedStudio = saveStudioPort.save(studio)
@@ -34,6 +38,7 @@ class StudioService(
         )
     }
 
+    @Transactional
     override fun modify(command: ModifyStudioCommand): ModifyStudioResponse {
         val studio = command.toDomain()
         val updatedStudio = updateStudioPort.update(studio)
@@ -52,6 +57,7 @@ class StudioService(
         )
     }
 
+    @Transactional
     override fun delete(id: Long) {
         deleteStudioPort.delete(id)
     }
