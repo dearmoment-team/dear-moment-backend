@@ -4,6 +4,7 @@ import kr.kro.dearmoment.studio.adapter.input.dto.StudioPartnerShopDto
 
 data class ModifyStudioResponse(
     val id: Long,
+    val userId: Long,
     val name: String,
     val contact: String,
     val studioIntro: String,

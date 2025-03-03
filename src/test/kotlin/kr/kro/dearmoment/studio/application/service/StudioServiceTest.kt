@@ -35,6 +35,7 @@ class StudioServiceTest : DescribeSpec({
                 )
             val registerCommand =
                 RegisterStudioCommand(
+                    userId = 1L,
                     name = "스튜디오 A",
                     contact = "010-1234-5678",
                     studioIntro = "스튜디오 소개글",
@@ -50,6 +51,7 @@ class StudioServiceTest : DescribeSpec({
             val expected =
                 Studio(
                     id = 1L,
+                    userId = registerCommand.userId,
                     name = registerCommand.name,
                     contact = registerCommand.contact,
                     studioIntro = registerCommand.studioIntro,
@@ -80,6 +82,7 @@ class StudioServiceTest : DescribeSpec({
             val modifyCommand =
                 ModifyStudioCommand(
                     id = 1L,
+                    userId = 1L,
                     name = "스튜디오 A(수정)",
                     contact = "010-1234-5678(수정)",
                     studioIntro = "스튜디오 소개글(수정)",
@@ -95,6 +98,7 @@ class StudioServiceTest : DescribeSpec({
             val expected =
                 Studio(
                     id = 1L,
+                    userId = modifyCommand.userId,
                     name = modifyCommand.name,
                     contact = modifyCommand.contact,
                     studioIntro = modifyCommand.studioIntro,

@@ -18,6 +18,7 @@ import kr.kro.dearmoment.studio.domain.StudioStatus
 @Table(name = "studios")
 class StudioEntity(
     name: String,
+    userId: Long,
     contact: String,
     studioIntro: String,
     artistsIntro: String,
@@ -32,6 +33,9 @@ class StudioEntity(
     @Column(name = "studio_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
+
+    @Column(nullable = false)
+    val userId: Long = userId
 
     @Column(nullable = false)
     var name: String = name
@@ -94,6 +98,7 @@ class StudioEntity(
     fun toDomain() =
         Studio(
             id = id,
+            userId = userId,
             name = name,
             contact = contact,
             studioIntro = studioIntro,
@@ -110,6 +115,7 @@ class StudioEntity(
         fun from(domain: Studio) =
             StudioEntity(
                 name = domain.name,
+                userId = domain.userId,
                 contact = domain.contact,
                 studioIntro = domain.studioIntro,
                 artistsIntro = domain.artistsIntro,

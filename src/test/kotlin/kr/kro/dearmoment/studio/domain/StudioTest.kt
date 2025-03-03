@@ -10,6 +10,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
+                        userId = 1L,
                         name = "",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -28,6 +29,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
+                        userId = 1L,
                         name = "스튜디오",
                         contact = "",
                         studioIntro = "스튜디오 소개글",
@@ -46,6 +48,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
+                        userId = 1L,
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "",
@@ -64,6 +67,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
+                        userId = 1L,
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -82,6 +86,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
+                        userId = 1L,
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -100,6 +105,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
+                        userId = 1L,
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",

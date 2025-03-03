@@ -5,6 +5,7 @@ import kr.kro.dearmoment.studio.domain.StudioStatus
 
 data class ModifyStudioCommand(
     val id: Long,
+    val userId: Long,
     val name: String,
     val contact: String,
     val studioIntro: String,
@@ -19,6 +20,7 @@ data class ModifyStudioCommand(
     fun toDomain() =
         Studio(
             id = id,
+            userId = userId,
             name = name,
             contact = contact,
             studioIntro = studioIntro,

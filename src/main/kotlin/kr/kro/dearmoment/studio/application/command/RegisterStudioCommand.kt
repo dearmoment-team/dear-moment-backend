@@ -5,6 +5,7 @@ import kr.kro.dearmoment.studio.domain.StudioStatus
 
 data class RegisterStudioCommand(
     val name: String,
+    val userId: Long,
     val contact: String,
     val studioIntro: String,
     val artistsIntro: String,
@@ -18,6 +19,7 @@ data class RegisterStudioCommand(
     fun toDomain() =
         Studio(
             name = name,
+            userId = userId,
             contact = contact,
             studioIntro = studioIntro,
             artistsIntro = artistsIntro,

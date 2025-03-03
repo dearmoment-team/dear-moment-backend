@@ -33,6 +33,7 @@ class StudioPersistenceAdapterTest(
                     )
                 val studio =
                     Studio(
+                        userId = 1L,
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -67,6 +68,7 @@ class StudioPersistenceAdapterTest(
                     )
                 val studio =
                     Studio(
+                        userId = 1L,
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -90,6 +92,7 @@ class StudioPersistenceAdapterTest(
                 val updatedStudio =
                     Studio(
                         id = savedStudio.id,
+                        userId = savedStudio.userId,
                         name = "스튜디오 A(수정)",
                         contact = "010-1234-5678(수정)",
                         studioIntro = "스튜디오 소개글(수정)",

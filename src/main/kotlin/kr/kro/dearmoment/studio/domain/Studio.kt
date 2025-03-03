@@ -7,6 +7,7 @@ import kr.kro.dearmoment.product.domain.model.Product
  */
 data class Studio(
     val id: Long = 0L,
+    val userId: Long,
     val name: String,
     val contact: String,
     val studioIntro: String,

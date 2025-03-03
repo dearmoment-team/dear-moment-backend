@@ -2,11 +2,14 @@ package kr.kro.dearmoment.studio.adapter.input.dto.request
 
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import kr.kro.dearmoment.studio.adapter.input.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 
 data class ModifyStudioRequest(
+    @field:NotNull(message = "유저 ID는 필수입니다.")
+    val userId: Long,
     @field:NotBlank(message = "스튜디오 이름은 필수입니다.")
     val name: String,
     @field:Pattern(
@@ -31,6 +34,7 @@ data class ModifyStudioRequest(
     fun toCommand(studioId: Long) =
         ModifyStudioCommand(
             id = studioId,
+            userId = userId,
             name = name,
             contact = contact,
             studioIntro = studioIntro,

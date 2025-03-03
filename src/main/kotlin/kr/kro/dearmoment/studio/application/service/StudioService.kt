@@ -27,6 +27,7 @@ class StudioService(
 
         return RegisterStudioResponse(
             id = savedStudio.id,
+            userId = savedStudio.userId,
             name = savedStudio.name,
             contact = savedStudio.contact,
             studioIntro = savedStudio.studioIntro,
@@ -54,6 +55,7 @@ class StudioService(
 
         return ModifyStudioResponse(
             id = updatedStudio.id,
+            userId = updatedStudio.userId,
             name = updatedStudio.name,
             contact = updatedStudio.contact,
             studioIntro = updatedStudio.studioIntro,
