@@ -10,7 +10,6 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
-import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapterTestConfig
 import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
@@ -18,6 +17,10 @@ import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
+import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
+import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
+import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
@@ -29,21 +32,34 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.RestDocumentationExtension
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
-@Import(ProductRestAdapterTestConfig::class, ResponseWrapper::class)
+@Import(ResponseWrapper::class)
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
 class CreateProductRestAdapterTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 
-    @Autowired
+    @MockitoBean
+    lateinit var updateProductUseCase: UpdateProductUseCase
+
+    @MockitoBean
     lateinit var createProductUseCase: CreateProductUseCase
+
+    @MockitoBean
+    lateinit var deleteProductUseCase: DeleteProductUseCase
+
+    @MockitoBean
+    lateinit var getProductUseCase: GetProductUseCase
+
+    @MockitoBean
+    lateinit var productSearchUseCase: ProductSearchUseCase
 
     @Test
     fun `상품 생성 API 테스트`() {
@@ -267,7 +283,6 @@ class CreateProductRestAdapterTest {
                     "data.contactInfo" type STRING means "연락처",
                     "data.createdAt" type OBJECT means "생성 시간",
                     "data.updatedAt" type OBJECT means "수정 시간",
-                    // 옵션 상세 필드 추가
                     "data.options" type ARRAY means "옵션 목록",
                     "data.options[].optionId" type NUMBER means "옵션 ID",
                     "data.options[].productId" type NUMBER means "상품 ID",

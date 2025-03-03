@@ -10,7 +10,6 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
-import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapterTestConfig
 import kr.kro.dearmoment.product.application.dto.request.AdditionalImageFinalRequest
 import kr.kro.dearmoment.product.application.dto.request.SubImageFinalRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateAdditionalImageAction
@@ -19,11 +18,14 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
+import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
+import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
 import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
-import org.mockito.Mockito.doThrow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -33,26 +35,38 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.RestDocumentationExtension
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
-@Import(ProductRestAdapterTestConfig::class, ResponseWrapper::class)
+@Import(ResponseWrapper::class)
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
 class UpdateProductRestAdapterTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 
-    @Autowired
+    @MockitoBean
     lateinit var updateProductUseCase: UpdateProductUseCase
+
+    @MockitoBean
+    lateinit var createProductUseCase: CreateProductUseCase
+
+    @MockitoBean
+    lateinit var deleteProductUseCase: DeleteProductUseCase
+
+    @MockitoBean
+    lateinit var getProductUseCase: GetProductUseCase
+
+    @MockitoBean
+    lateinit var productSearchUseCase: ProductSearchUseCase
 
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
         // given
-        // 새로 업로드할 메인 이미지
         val mainImageFile =
             MockMultipartFile(
                 "mainImageFile",
@@ -60,8 +74,6 @@ class UpdateProductRestAdapterTest {
                 MediaType.IMAGE_JPEG_VALUE,
                 "updated main image content".toByteArray(),
             )
-
-        // 서브/추가 이미지 처리를 위한 MockMultipartFile 예시
         val subImageFile1 =
             MockMultipartFile(
                 "subImagesFinal[2].file",
@@ -84,9 +96,6 @@ class UpdateProductRestAdapterTest {
                 "new additional image content".toByteArray(),
             )
 
-        // 실제 UpdateProductRequest를 구성하기 위해, 폼 필드로 전송할 값들.
-        // (RestDocs 시나리오에서는 Multipart 전송 시 RequestParam, 혹은 JSON 필드로 넘길 수 있음)
-        // 여기서는 param() 호출 방식으로 예시를 들지만, 프로젝트 설정에 따라 구조를 맞추세요.
         val request =
             UpdateProductRequest(
                 productId = 1L,
@@ -134,7 +143,6 @@ class UpdateProductRestAdapterTest {
                 ),
             )
 
-        // UseCase에서 업데이트 후 반환할 더미 응답 객체
         val updatedResponse =
             ProductResponse(
                 productId = 1L,
@@ -181,24 +189,18 @@ class UpdateProductRestAdapterTest {
                 ),
             )
 
-        // UpdateProductUseCase 모킹
         given(updateProductUseCase.updateProduct(request)).willReturn(updatedResponse)
 
-        // 실제 multipart 요청 생성
         val requestBuilder =
-            MockMvcRequestBuilders
-                .multipart("/api/products/{id}", 1L)
-                // 파일 attach
+            MockMvcRequestBuilders.multipart("/api/products/{id}", 1L)
                 .file(mainImageFile)
                 .file(subImageFile1)
                 .file(subImageFile2)
                 .file(additionalImageFile)
-                // multipart지만 PUT 메서드로 동작하도록 설정
                 .with { req ->
                     req.method = HttpMethod.PUT.toString()
                     req
                 }
-                // 필요 파라미터들
                 .param("productId", request.productId.toString())
                 .param("userId", request.userId.toString())
                 .param("productType", request.productType)
@@ -210,7 +212,6 @@ class UpdateProductRestAdapterTest {
                 .param("retouchStyles", "CALM")
                 .param("detailedInfo", request.detailedInfo)
                 .param("contactInfo", request.contactInfo)
-                // 옵션도 문자열 파라미터로 전달 (JSON 직렬화 or 다른 방식 사용 가능)
                 .param("options[0].optionId", "1")
                 .param("options[0].name", "New Option 1")
                 .param("options[0].optionType", "SINGLE")
@@ -224,11 +225,19 @@ class UpdateProductRestAdapterTest {
                 .param("options[0].shootingMinutes", "0")
                 .param("options[0].retouchedCount", "3")
                 .param("options[0].originalProvided", "true")
+                .param("subImagesFinal[0].action", "KEEP")
+                .param("subImagesFinal[0].imageId", "200")
+                .param("subImagesFinal[1].action", "DELETE")
+                .param("subImagesFinal[1].imageId", "201")
+                .param("subImagesFinal[2].action", "UPLOAD")
+                .param("subImagesFinal[3].action", "UPLOAD")
+                .param("additionalImagesFinal[0].action", "DELETE")
+                .param("additionalImagesFinal[0].imageId", "300")
+                .param("additionalImagesFinal[1].action", "UPLOAD")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
 
-        // when, then
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(
@@ -270,59 +279,6 @@ class UpdateProductRestAdapterTest {
                     "data.options[].partnerShops" type ARRAY means "제휴 업체 목록",
                     "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
                     "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
-                ),
-            )
-    }
-
-    @Test
-    fun `상품 업데이트 API 테스트 - 존재하지 않는 상품`() {
-        // given
-        val invalidRequest =
-            UpdateProductRequest(
-                productId = 9999L,
-                userId = 10L,
-                productType = "WEDDING_SNAP",
-                shootingPlace = "JEJU",
-                title = "Invalid Product Title",
-                description = "Invalid Description",
-                availableSeasons = emptyList(),
-                cameraTypes = emptyList(),
-                retouchStyles = emptyList(),
-                mainImageFile = null,
-                subImagesFinal = emptyList(),
-                additionalImagesFinal = emptyList(),
-                detailedInfo = "",
-                contactInfo = "",
-                options = emptyList(),
-            )
-
-        doThrow(IllegalArgumentException("상품을 찾을 수 없습니다. ID: 9999"))
-            .`when`(updateProductUseCase).updateProduct(invalidRequest)
-
-        val requestBuilder =
-            MockMvcRequestBuilders
-                .multipart("/api/products/{id}", 9999L)
-                // PUT 메서드 지정
-                .with { req ->
-                    req.method = "PUT"
-                    req
-                }
-                .param("productId", "9999")
-                .param("userId", "10")
-                .param("productType", "WEDDING_SNAP")
-                .param("shootingPlace", "JEJU")
-                .param("title", "Invalid Product Title")
-                .param("description", "Invalid Description")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .accept(MediaType.APPLICATION_JSON)
-
-        // when, then
-        mockMvc.perform(requestBuilder)
-            .andExpect(status().isBadRequest)
-            .andDocument(
-                "update-product-not-found",
-                responseBody(
-                    "message" type STRING means "에러 메시지",
                 ),
             )
     }

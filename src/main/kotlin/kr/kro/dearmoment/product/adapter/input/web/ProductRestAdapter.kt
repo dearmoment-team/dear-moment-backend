@@ -55,9 +55,7 @@ class ProductRestAdapter(
         @ModelAttribute request: UpdateProductRequest,
     ): ResponseEntity<ProductResponse> {
         val updatedProduct = updateProductUseCase.updateProduct(request.copy(productId = id))
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(updatedProduct)
+        return ResponseEntity.ok().body(updatedProduct)
     }
 
     @DeleteMapping("/{id}")

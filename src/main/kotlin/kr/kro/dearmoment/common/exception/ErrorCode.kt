@@ -14,4 +14,7 @@ enum class ErrorCode(
 
     // 상품
     PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 상품입니다."),
+
+    // 요청 오류
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다."),
 }
