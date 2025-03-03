@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.studio.adapter.output.persistence
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
@@ -9,8 +10,10 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
+import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
 
@@ -80,6 +83,9 @@ class StudioEntity(
     )
     var partnerShops: MutableSet<StudioPartnerShopEmbeddable> = partnerShops
         protected set
+
+    @OneToMany(mappedBy = "studio", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val products: List<ProductEntity> = mutableListOf()
 
     fun update(entity: StudioEntity) {
         name = entity.name

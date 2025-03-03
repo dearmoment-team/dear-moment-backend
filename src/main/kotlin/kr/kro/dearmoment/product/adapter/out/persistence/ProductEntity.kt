@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
@@ -26,6 +27,7 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
@@ -105,6 +107,9 @@ open class ProductEntity(
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
     @Column(nullable = false)
     open var version: Long = 0L,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "studio_id")
+    var studio: StudioEntity? = null,
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
