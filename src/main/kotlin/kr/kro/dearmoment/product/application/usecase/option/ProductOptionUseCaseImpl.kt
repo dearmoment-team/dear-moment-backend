@@ -59,7 +59,7 @@ class ProductOptionUseCaseImpl(
     }
 
     /**
-     * 기존 옵션과 요청된 옵션들을 비교하여 업데이트, 신규 생성, 삭제를 수행합니다.
+     * 기존 옵션과 요청된 옵션들을 비교하여 업데이트, 신규 생성, 삭제를 수행한다.
      */
     @Transactional
     override fun synchronizeOptions(
