@@ -11,4 +11,7 @@ enum class ErrorCode(
 
     // 문의
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "문의를 찾을 수 없습니다."),
+
+    // 상품
+    PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 상품입니다."),
 }

@@ -10,6 +10,8 @@ import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.unmockkObject
 import io.mockk.verify
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.handler.ImageHandler
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
@@ -256,10 +258,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             Then("예외 발생") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.updateProduct(updateRequest)
                     }
-                exception.message shouldBe "존재하지 않는 상품 ID: 999"
+                exception.errorCode shouldBe ErrorCode.PRODUCT_NOT_FOUND
             }
         }
 

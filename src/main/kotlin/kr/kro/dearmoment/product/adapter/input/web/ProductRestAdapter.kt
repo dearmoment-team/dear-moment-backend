@@ -10,6 +10,8 @@ import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
 import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -30,20 +32,32 @@ class ProductRestAdapter(
     private val getProductUseCase: GetProductUseCase,
     private val productSearchUseCase: ProductSearchUseCase,
 ) {
-    @PostMapping(consumes = ["multipart/form-data"])
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
     fun createProduct(
         @ModelAttribute request: CreateProductRequest,
-    ): ProductResponse {
-        return createProductUseCase.saveProduct(request)
+    ): ResponseEntity<ProductResponse> {
+        val productResponse = createProductUseCase.saveProduct(request)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(productResponse)
     }
 
-    @PutMapping("/{id}", consumes = ["multipart/form-data"])
+    @PutMapping(
+        value = ["/{id}"],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
     fun updateProduct(
         @PathVariable id: Long,
         @ModelAttribute request: UpdateProductRequest,
-    ): ProductResponse {
-        return updateProductUseCase.updateProduct(request.copy(productId = id))
+    ): ResponseEntity<ProductResponse> {
+        val updatedProduct = updateProductUseCase.updateProduct(request.copy(productId = id))
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(updatedProduct)
     }
 
     @DeleteMapping("/{id}")
@@ -54,19 +68,42 @@ class ProductRestAdapter(
         deleteProductUseCase.deleteProduct(id)
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(
+        value = ["/{id}"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
     fun getProduct(
         @PathVariable id: Long,
-    ): ProductResponse {
-        return getProductUseCase.getProductById(id)
+    ): ResponseEntity<ProductResponse> {
+        val product = getProductUseCase.getProductById(id)
+        return ResponseEntity.ok(product)
     }
 
-    // 메인페이지 전용 엔드포인트 (추천순 → 최근일자 정렬)
-    @GetMapping("/main")
+    @GetMapping(
+        value = ["/main"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
     fun getMainPageProducts(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
-    ): PagedResponse<ProductResponse> {
-        return productSearchUseCase.getMainPageProducts(page, size)
+    ): ResponseEntity<PagedResponse<ProductResponse>> {
+        val pagedProducts = productSearchUseCase.getMainPageProducts(page, size)
+        return ResponseEntity.ok(pagedProducts)
+    }
+
+    @GetMapping(
+        value = ["/search"],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun searchProducts(
+        @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) productType: String?,
+        @RequestParam(required = false) shootingPlace: String?,
+        @RequestParam(required = false) sortBy: String?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+    ): ResponseEntity<PagedResponse<ProductResponse>> {
+        val searchResult = productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
+        return ResponseEntity.ok(searchResult)
     }
 }

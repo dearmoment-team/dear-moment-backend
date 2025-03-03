@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.product.application.usecase.update
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.handler.ImageHandler
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
@@ -21,7 +23,7 @@ class UpdateProductUseCaseImpl(
     override fun updateProduct(request: UpdateProductRequest): ProductResponse {
         val existingProduct =
             productPersistencePort.findById(request.productId)
-                ?: throw IllegalArgumentException("존재하지 않는 상품 ID: ${request.productId}")
+                ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
         // 새 mainImage 계산
         val newMainImage: Image =
@@ -29,7 +31,7 @@ class UpdateProductUseCaseImpl(
                 imageHandler.updateMainImage(file, request.userId, existingProduct.mainImage)
             } ?: existingProduct.mainImage
 
-        // 서브/추가 이미지 등 로직은 동일
+        // 서브 및 추가 이미지 처리
         val updatedSubImages: List<Image> =
             imageHandler.processSubImagesFinal(
                 currentSubImages = existingProduct.subImages,
@@ -52,10 +54,10 @@ class UpdateProductUseCaseImpl(
             )
         productFromReq.validateForUpdate()
 
-        // 기존 Entity를 도메인으로부터 생성
+        // 기존 Entity를 도메인 객체에서 재생성
         val existingEntity = ProductEntity.fromDomain(existingProduct)
 
-        // 이 부분에서 mainImage를 함께 업데이트해야 함
+        // 업데이트 적용
         existingEntity.apply {
             userId = productFromReq.userId
             productType = productFromReq.productType
@@ -76,7 +78,7 @@ class UpdateProductUseCaseImpl(
             contactInfo = productFromReq.contactInfo.takeIf { it.isNotBlank() }
         }
 
-        // 서브/추가 이미지 필드도 업데이트
+        // 서브/추가 이미지 필드 업데이트
         existingEntity.subImages =
             updatedSubImages
                 .map { ImageEmbeddable.fromDomainImage(it) }
@@ -86,10 +88,10 @@ class UpdateProductUseCaseImpl(
                 .map { ImageEmbeddable.fromDomainImage(it) }
                 .toMutableList()
 
-        // 옵션 동기화
+        // 옵션 동기화 (옵션 삭제 포함)
         productOptionUseCase.synchronizeOptions(existingProduct, request.options)
 
-        // 최종 저장 후, 도메인 -> 응답 변환
+        // 최종 저장 후, 도메인 객체를 응답 DTO로 변환
         val updatedProduct = productPersistencePort.save(existingEntity.toDomain())
         return ProductResponse.fromDomain(updatedProduct)
     }
