@@ -68,27 +68,27 @@ data class ProductResponse(
             cameraTypes = this.cameraTypes.map { CameraType.valueOf(it) }.toSet(),
             retouchStyles = this.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet(),
             mainImage =
-            Image(
-                userId = this.userId,
-                fileName = this.mainImage.substringAfterLast('/'),
-                url = this.mainImage,
-            ),
+                Image(
+                    userId = this.userId,
+                    fileName = this.mainImage.substringAfterLast('/'),
+                    url = this.mainImage,
+                ),
             subImages =
-            this.subImages.map { url ->
-                Image(
-                    userId = this.userId,
-                    fileName = url.substringAfterLast('/'),
-                    url = url,
-                )
-            },
+                this.subImages.map { url ->
+                    Image(
+                        userId = this.userId,
+                        fileName = url.substringAfterLast('/'),
+                        url = url,
+                    )
+                },
             additionalImages =
-            this.additionalImages.map { url ->
-                Image(
-                    userId = this.userId,
-                    fileName = url.substringAfterLast('/'),
-                    url = url,
-                )
-            },
+                this.additionalImages.map { url ->
+                    Image(
+                        userId = this.userId,
+                        fileName = url.substringAfterLast('/'),
+                        url = url,
+                    )
+                },
             detailedInfo = this.detailedInfo ?: "",
             contactInfo = this.contactInfo ?: "",
             createdAt = this.createdAt ?: LocalDateTime.now(),

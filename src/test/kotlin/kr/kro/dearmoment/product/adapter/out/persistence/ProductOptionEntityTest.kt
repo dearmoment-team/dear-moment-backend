@@ -28,22 +28,22 @@ private class TestableProductOptionEntity(
     partnerShops: List<PartnerShopEmbeddable> = emptyList(),
     version: Long = 0L,
 ) : ProductOptionEntity(
-    optionId = optionId,
-    product = product,
-    name = name,
-    optionType = optionType,
-    discountAvailable = discountAvailable,
-    originalPrice = originalPrice,
-    discountPrice = discountPrice,
-    description = description,
-    costumeCount = costumeCount,
-    shootingLocationCount = shootingLocationCount,
-    shootingHours = shootingHours,
-    shootingMinutes = shootingMinutes,
-    retouchedCount = retouchedCount,
-    partnerShops = partnerShops,
-    version = version,
-) {
+        optionId = optionId,
+        product = product,
+        name = name,
+        optionType = optionType,
+        discountAvailable = discountAvailable,
+        originalPrice = originalPrice,
+        discountPrice = discountPrice,
+        description = description,
+        costumeCount = costumeCount,
+        shootingLocationCount = shootingLocationCount,
+        shootingHours = shootingHours,
+        shootingMinutes = shootingMinutes,
+        retouchedCount = retouchedCount,
+        partnerShops = partnerShops,
+        version = version,
+    ) {
     // 테스트용으로 auditing 필드에 값을 주입할 수 있도록 합니다.
     fun setAuditing(
         created: LocalDateTime,
@@ -191,10 +191,10 @@ class ProductOptionEntityTest : StringSpec({
         packageOption.partnerShops.map { it.name } shouldContainExactly listOf("헤어메이크업1", "드레스샵A")
         packageOption.partnerShops.map { it.link } shouldContainExactly listOf("http://hm1.com", "http://dressA.com")
         packageOption.partnerShops.map { it.category } shouldContainExactly
-                listOf(
-                    PartnerShopCategory.HAIR_MAKEUP,
-                    PartnerShopCategory.DRESS,
-                )
+            listOf(
+                PartnerShopCategory.HAIR_MAKEUP,
+                PartnerShopCategory.DRESS,
+            )
 
         packageOption.createdAt shouldBe fixedCreatedAt
         packageOption.updatedAt shouldBe fixedUpdatedAt

@@ -59,22 +59,22 @@ class CreateProductUseCaseTest : BehaviorSpec({
             detailedInfo = "Test Info",
             contactInfo = "Test Contact",
             options =
-            listOf(
-                CreateProductOptionRequest(
-                    name = "Option A",
-                    optionType = "SINGLE",
-                    discountAvailable = false,
-                    originalPrice = 10000,
-                    discountPrice = 8000,
-                    description = "Option description",
-                    costumeCount = 1,
-                    shootingLocationCount = 1,
-                    shootingHours = 1,
-                    shootingMinutes = 0,
-                    retouchedCount = 1,
-                    partnerShops = emptyList(),
+                listOf(
+                    CreateProductOptionRequest(
+                        name = "Option A",
+                        optionType = "SINGLE",
+                        discountAvailable = false,
+                        originalPrice = 10000,
+                        discountPrice = 8000,
+                        description = "Option description",
+                        costumeCount = 1,
+                        shootingLocationCount = 1,
+                        shootingHours = 1,
+                        shootingMinutes = 0,
+                        retouchedCount = 1,
+                        partnerShops = emptyList(),
+                    ),
                 ),
-            ),
         )
 
     val dummyImage =
@@ -181,7 +181,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
                     productPersistencePort.save(
                         match { product ->
                             product.title == "Unique Product" &&
-                                    product.userId == 1L
+                                product.userId == 1L
                         },
                     )
                 }

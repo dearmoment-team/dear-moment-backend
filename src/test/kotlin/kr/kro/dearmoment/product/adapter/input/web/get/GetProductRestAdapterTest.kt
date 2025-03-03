@@ -71,12 +71,12 @@ class GetProductRestAdapterTest {
                 retouchStyles = listOf("MODERN"),
                 mainImage = "http://image-server.com/mainImage.jpg",
                 subImages =
-                listOf(
-                    "http://image-server.com/subImage1.jpg",
-                    "http://image-server.com/subImage2.jpg",
-                    "http://image-server.com/subImage3.jpg",
-                    "http://image-server.com/subImage4.jpg",
-                ),
+                    listOf(
+                        "http://image-server.com/subImage1.jpg",
+                        "http://image-server.com/subImage2.jpg",
+                        "http://image-server.com/subImage3.jpg",
+                        "http://image-server.com/subImage4.jpg",
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",

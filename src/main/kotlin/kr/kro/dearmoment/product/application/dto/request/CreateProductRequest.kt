@@ -181,13 +181,13 @@ data class CreateProductOptionRequest(
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
                 partnerShops =
-                dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )

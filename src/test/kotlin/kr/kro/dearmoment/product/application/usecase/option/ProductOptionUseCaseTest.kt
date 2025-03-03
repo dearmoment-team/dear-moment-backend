@@ -41,12 +41,12 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             retouchStyles = emptySet(),
             mainImage = Image(userId = 1L, fileName = "main.jpg", url = "http://example.com/main.jpg"),
             subImages =
-            listOf(
-                Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
-                Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
-                Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
-                Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
-            ),
+                listOf(
+                    Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                    Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                    Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                    Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+                ),
             additionalImages = emptyList(),
             detailedInfo = "Test Info",
             contactInfo = "Test Contact",

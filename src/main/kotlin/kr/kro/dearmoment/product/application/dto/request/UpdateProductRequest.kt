@@ -187,13 +187,13 @@ data class UpdateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 partnerShops =
-                dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )

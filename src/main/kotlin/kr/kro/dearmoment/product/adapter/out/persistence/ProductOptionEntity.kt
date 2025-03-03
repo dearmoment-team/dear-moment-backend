@@ -99,13 +99,13 @@ open class ProductOptionEntity(
                 retouchedCount = option.retouchedCount,
                 originalProvided = option.originalProvided,
                 partnerShops =
-                option.partnerShops.map {
-                    PartnerShopEmbeddable(
-                        category = it.category,
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                    option.partnerShops.map {
+                        PartnerShopEmbeddable(
+                            category = it.category,
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 version = 0L,
             )
         }
@@ -128,13 +128,13 @@ open class ProductOptionEntity(
             retouchedCount = retouchedCount,
             originalProvided = originalProvided,
             partnerShops =
-            partnerShops.map {
-                PartnerShop(
-                    category = it.category ?: PartnerShopCategory.ETC,
-                    name = it.name,
-                    link = it.link,
-                )
-            },
+                partnerShops.map {
+                    PartnerShop(
+                        category = it.category ?: PartnerShopCategory.ETC,
+                        name = it.name,
+                        link = it.link,
+                    )
+                },
             createdAt = createdDate,
             updatedAt = updateDate,
         )

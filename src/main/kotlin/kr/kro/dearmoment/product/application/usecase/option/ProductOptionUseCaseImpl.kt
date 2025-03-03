@@ -89,13 +89,13 @@ class ProductOptionUseCaseImpl(
                         retouchedCount = dto.retouchedCount,
                         originalProvided = dto.originalProvided,
                         partnerShops =
-                        dto.partnerShops.map {
-                            kr.kro.dearmoment.product.domain.model.PartnerShop(
-                                category = kr.kro.dearmoment.product.domain.model.PartnerShopCategory.valueOf(it.category),
-                                name = it.name,
-                                link = it.link,
-                            )
-                        },
+                            dto.partnerShops.map {
+                                kr.kro.dearmoment.product.domain.model.PartnerShop(
+                                    category = kr.kro.dearmoment.product.domain.model.PartnerShopCategory.valueOf(it.category),
+                                    name = it.name,
+                                    link = it.link,
+                                )
+                            },
                     )
                 productOptionPersistencePort.save(updatedOpt, existingProduct)
                 requestedIds.add(optId)

@@ -96,10 +96,10 @@ class ProductSearchUseCaseTest : BehaviorSpec({
     val dummyPagedResponse =
         PagedResponse(
             content =
-            listOf(
-                ProductResponse.fromDomain(product1),
-                ProductResponse.fromDomain(product2),
-            ),
+                listOf(
+                    ProductResponse.fromDomain(product1),
+                    ProductResponse.fromDomain(product2),
+                ),
             page = page,
             size = size,
             totalElements = 2,
@@ -114,11 +114,11 @@ class ProductSearchUseCaseTest : BehaviorSpec({
             } returns listOf(product1)
 
             every { paginationUtil.createPagedResponse(any(), page, size) } returns
-                    dummyPagedResponse.copy(
-                        content = listOf(ProductResponse.fromDomain(product1)),
-                        totalElements = 1,
-                        totalPages = 1,
-                    )
+                dummyPagedResponse.copy(
+                    content = listOf(ProductResponse.fromDomain(product1)),
+                    totalElements = 1,
+                    totalPages = 1,
+                )
 
             val result = useCase.searchProducts("First", "WEDDING_SNAP", "JEJU", null, page, size)
 
@@ -144,15 +144,15 @@ class ProductSearchUseCaseTest : BehaviorSpec({
             every {
                 paginationUtil.createPagedResponse(listOf(product2, product1), page, size)
             } returns
-                    dummyPagedResponse.copy(
-                        content =
+                dummyPagedResponse.copy(
+                    content =
                         listOf(
                             ProductResponse.fromDomain(product2),
                             ProductResponse.fromDomain(product1),
                         ),
-                        totalElements = 2,
-                        totalPages = 1,
-                    )
+                    totalElements = 2,
+                    totalPages = 1,
+                )
 
             val result = useCase.searchProducts(null, null, null, "created-desc", page, size)
 
@@ -183,15 +183,15 @@ class ProductSearchUseCaseTest : BehaviorSpec({
             every {
                 paginationUtil.createPagedResponse(listOf(product2, product1), page, size)
             } returns
-                    dummyPagedResponse.copy(
-                        content =
+                dummyPagedResponse.copy(
+                    content =
                         listOf(
                             ProductResponse.fromDomain(product2),
                             ProductResponse.fromDomain(product1),
                         ),
-                        totalElements = 2,
-                        totalPages = 1,
-                    )
+                    totalElements = 2,
+                    totalPages = 1,
+                )
 
             val result = useCase.getMainPageProducts(page, size)
 

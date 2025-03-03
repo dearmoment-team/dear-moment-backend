@@ -109,38 +109,38 @@ class UpdateProductRestAdapterTest {
                 retouchStyles = listOf("CALM"),
                 mainImageFile = mainImageFile,
                 subImagesFinal =
-                listOf(
-                    SubImageFinalRequest(UpdateSubImageAction.KEEP, 200L, null),
-                    SubImageFinalRequest(UpdateSubImageAction.DELETE, 201L, null),
-                    SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, subImageFile1),
-                    SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, subImageFile2),
-                ),
+                    listOf(
+                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 200L, null),
+                        SubImageFinalRequest(UpdateSubImageAction.DELETE, 201L, null),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, subImageFile1),
+                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, subImageFile2),
+                    ),
                 additionalImagesFinal =
-                listOf(
-                    AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, 300L, null),
-                    AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, null, additionalImageFile),
-                ),
+                    listOf(
+                        AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, 300L, null),
+                        AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, null, additionalImageFile),
+                    ),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 options =
-                listOf(
-                    UpdateProductOptionRequest(
-                        optionId = 1L,
-                        name = "New Option 1",
-                        optionType = "SINGLE",
-                        discountAvailable = true,
-                        originalPrice = 10000,
-                        discountPrice = 7000,
-                        description = "Updated Option Desc",
-                        costumeCount = 1,
-                        shootingLocationCount = 1,
-                        shootingHours = 2,
-                        shootingMinutes = 0,
-                        retouchedCount = 3,
-                        originalProvided = true,
-                        partnerShops = emptyList(),
+                    listOf(
+                        UpdateProductOptionRequest(
+                            optionId = 1L,
+                            name = "New Option 1",
+                            optionType = "SINGLE",
+                            discountAvailable = true,
+                            originalPrice = 10000,
+                            discountPrice = 7000,
+                            description = "Updated Option Desc",
+                            costumeCount = 1,
+                            shootingLocationCount = 1,
+                            shootingHours = 2,
+                            shootingMinutes = 0,
+                            retouchedCount = 3,
+                            originalProvided = true,
+                            partnerShops = emptyList(),
+                        ),
                     ),
-                ),
             )
 
         val updatedResponse =
@@ -156,37 +156,37 @@ class UpdateProductRestAdapterTest {
                 retouchStyles = listOf("CALM"),
                 mainImage = "http://image-server.com/updated_main.jpg",
                 subImages =
-                listOf(
-                    "http://image-server.com/subImage1_KEPT.jpg",
-                    "http://image-server.com/subImage3_UPLOADED.jpg",
-                    "http://image-server.com/subImage4_UPLOADED.jpg",
-                ),
+                    listOf(
+                        "http://image-server.com/subImage1_KEPT.jpg",
+                        "http://image-server.com/subImage3_UPLOADED.jpg",
+                        "http://image-server.com/subImage4_UPLOADED.jpg",
+                    ),
                 additionalImages = listOf("http://image-server.com/additionalImage2_UPLOADED.jpg"),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 createdAt = null,
                 updatedAt = null,
                 options =
-                listOf(
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = 1L,
-                        name = "New Option 1",
-                        optionType = "SINGLE",
-                        discountAvailable = true,
-                        originalPrice = 10000,
-                        discountPrice = 7000,
-                        description = "Updated Option Desc",
-                        costumeCount = 1,
-                        shootingLocationCount = 1,
-                        shootingHours = 2,
-                        shootingMinutes = 0,
-                        retouchedCount = 3,
-                        partnerShops = emptyList(),
-                        createdAt = null,
-                        updatedAt = null,
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "New Option 1",
+                            optionType = "SINGLE",
+                            discountAvailable = true,
+                            originalPrice = 10000,
+                            discountPrice = 7000,
+                            description = "Updated Option Desc",
+                            costumeCount = 1,
+                            shootingLocationCount = 1,
+                            shootingHours = 2,
+                            shootingMinutes = 0,
+                            retouchedCount = 3,
+                            partnerShops = emptyList(),
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
                     ),
-                ),
             )
 
         given(updateProductUseCase.updateProduct(request)).willReturn(updatedResponse)

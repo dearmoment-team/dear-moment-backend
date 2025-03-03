@@ -84,12 +84,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             retouchStyles = setOf(RetouchStyle.NATURAL),
             mainImage = dummyExistingMainImage,
             subImages =
-            listOf(
-                dummyExistingSubImage,
-                dummyExistingSubImage,
-                dummyExistingSubImage,
-                dummyExistingSubImage,
-            ),
+                listOf(
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                ),
             additionalImages = listOf(dummyExistingAdditionalImage),
             detailedInfo = "Existing Detailed Info",
             contactInfo = "Existing Contact",
@@ -110,36 +110,36 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             cameraTypes = listOf("DIGITAL"),
             retouchStyles = listOf("CALM"),
             mainImageFile =
-            MockMultipartFile(
-                "mainImageFile",
-                "new_main.jpg",
-                "image/jpeg",
-                "new-main-content".toByteArray(),
-            ),
+                MockMultipartFile(
+                    "mainImageFile",
+                    "new_main.jpg",
+                    "image/jpeg",
+                    "new-main-content".toByteArray(),
+                ),
             subImagesFinal =
-            listOf(
-                SubImageFinalRequest(UpdateSubImageAction.KEEP, 200L, null),
-                SubImageFinalRequest(UpdateSubImageAction.DELETE, 200L, null),
-                SubImageFinalRequest(
-                    UpdateSubImageAction.UPLOAD,
-                    null,
-                    MockMultipartFile("sub3.jpg", "sub3.jpg", "image/jpeg", "sub3-content".toByteArray()),
+                listOf(
+                    SubImageFinalRequest(UpdateSubImageAction.KEEP, 200L, null),
+                    SubImageFinalRequest(UpdateSubImageAction.DELETE, 200L, null),
+                    SubImageFinalRequest(
+                        UpdateSubImageAction.UPLOAD,
+                        null,
+                        MockMultipartFile("sub3.jpg", "sub3.jpg", "image/jpeg", "sub3-content".toByteArray()),
+                    ),
+                    SubImageFinalRequest(
+                        UpdateSubImageAction.UPLOAD,
+                        null,
+                        MockMultipartFile("sub4.jpg", "sub4.jpg", "image/jpeg", "sub4-content".toByteArray()),
+                    ),
                 ),
-                SubImageFinalRequest(
-                    UpdateSubImageAction.UPLOAD,
-                    null,
-                    MockMultipartFile("sub4.jpg", "sub4.jpg", "image/jpeg", "sub4-content".toByteArray()),
-                ),
-            ),
             additionalImagesFinal =
-            listOf(
-                AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, 300L, null),
-                AdditionalImageFinalRequest(
-                    UpdateAdditionalImageAction.UPLOAD,
-                    null,
-                    MockMultipartFile("add2.jpg", "add2.jpg", "image/jpeg", "add2-content".toByteArray()),
+                listOf(
+                    AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, 300L, null),
+                    AdditionalImageFinalRequest(
+                        UpdateAdditionalImageAction.UPLOAD,
+                        null,
+                        MockMultipartFile("add2.jpg", "add2.jpg", "image/jpeg", "add2-content".toByteArray()),
+                    ),
                 ),
-            ),
             detailedInfo = "Updated Detailed Info",
             contactInfo = "Updated Contact",
             options = emptyList(),
@@ -277,35 +277,35 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingSubImage,
-                        dummyNewSubImage1,
-                        dummyNewSubImage2,
-                        dummyNewSubImage1,
-                    )
+                listOf(
+                    dummyExistingSubImage,
+                    dummyNewSubImage1,
+                    dummyNewSubImage2,
+                    dummyNewSubImage1,
+                )
             every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyNewAdditionalImage,
-                    )
+                listOf(
+                    dummyNewAdditionalImage,
+                )
             every { productPersistencePort.save(any()) } returns
-                    existingProduct.copy(
-                        title = "Updated Title",
-                        description = "Updated Description",
-                        availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
-                        cameraTypes = setOf(CameraType.DIGITAL),
-                        retouchStyles = setOf(RetouchStyle.CALM),
-                        mainImage = dummyNewMainImage,
-                        subImages =
+                existingProduct.copy(
+                    title = "Updated Title",
+                    description = "Updated Description",
+                    availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
+                    cameraTypes = setOf(CameraType.DIGITAL),
+                    retouchStyles = setOf(RetouchStyle.CALM),
+                    mainImage = dummyNewMainImage,
+                    subImages =
                         listOf(
                             dummyExistingSubImage,
                             dummyNewSubImage1,
                             dummyNewSubImage2,
                             dummyNewSubImage1,
                         ),
-                        additionalImages = listOf(dummyNewAdditionalImage),
-                        detailedInfo = "Updated Detailed Info",
-                        contactInfo = "Updated Contact",
-                    )
+                    additionalImages = listOf(dummyNewAdditionalImage),
+                    detailedInfo = "Updated Detailed Info",
+                    contactInfo = "Updated Contact",
+                )
 
             val result = useCase.updateProduct(updateRequest)
 
@@ -332,27 +332,27 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val oneChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage2.imageId, null),
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage3.imageId, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage2.imageId, null),
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage3.imageId, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyExistingSubImage2,
-                        dummyExistingSubImage3,
-                        dummyNewSubImageD,
-                    )
+                listOf(
+                    dummyExistingSubImage1,
+                    dummyExistingSubImage2,
+                    dummyExistingSubImage3,
+                    dummyNewSubImageD,
+                )
             every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingAdditionalImage,
-                    )
+                listOf(
+                    dummyExistingAdditionalImage,
+                )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
@@ -362,12 +362,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyExistingSubImage2,
-                        dummyExistingSubImage3,
-                        dummyNewSubImageD,
-                    ),
+                        listOf(
+                            dummyExistingSubImage1,
+                            dummyExistingSubImage2,
+                            dummyExistingSubImage3,
+                            dummyNewSubImageD,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }
@@ -386,27 +386,27 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val twoChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage2.imageId, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage2.imageId, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyExistingSubImage2,
-                        dummyNewSubImageC,
-                        dummyNewSubImageD,
-                    )
+                listOf(
+                    dummyExistingSubImage1,
+                    dummyExistingSubImage2,
+                    dummyNewSubImageC,
+                    dummyNewSubImageD,
+                )
             every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingAdditionalImage,
-                    )
+                listOf(
+                    dummyExistingAdditionalImage,
+                )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
@@ -416,12 +416,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyExistingSubImage2,
-                        dummyNewSubImageC,
-                        dummyNewSubImageD,
-                    ),
+                        listOf(
+                            dummyExistingSubImage1,
+                            dummyExistingSubImage2,
+                            dummyNewSubImageC,
+                            dummyNewSubImageD,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }
@@ -442,27 +442,27 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val threeChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileA),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileB),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, dummyExistingSubImage1.imageId, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileA),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileB),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyNewSubImageA,
-                        dummyNewSubImageB,
-                        dummyNewSubImageC,
-                    )
+                listOf(
+                    dummyExistingSubImage1,
+                    dummyNewSubImageA,
+                    dummyNewSubImageB,
+                    dummyNewSubImageC,
+                )
             every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingAdditionalImage,
-                    )
+                listOf(
+                    dummyExistingAdditionalImage,
+                )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
@@ -472,12 +472,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyNewSubImageA,
-                        dummyNewSubImageB,
-                        dummyNewSubImageC,
-                    ),
+                        listOf(
+                            dummyExistingSubImage1,
+                            dummyNewSubImageA,
+                            dummyNewSubImageB,
+                            dummyNewSubImageC,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }
@@ -498,27 +498,27 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val allChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileA),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileB),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileA),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileB),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileC),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, mockSubFileD),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every { imageHandler.processSubImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyNewSubImageA,
-                        dummyNewSubImageB,
-                        dummyNewSubImageC,
-                        dummyNewSubImageD,
-                    )
+                listOf(
+                    dummyNewSubImageA,
+                    dummyNewSubImageB,
+                    dummyNewSubImageC,
+                    dummyNewSubImageD,
+                )
             every { imageHandler.processAdditionalImagesFinal(any(), any(), any()) } returns
-                    listOf(
-                        dummyExistingAdditionalImage,
-                    )
+                listOf(
+                    dummyExistingAdditionalImage,
+                )
 
             mockkObject(ProductEntity.Companion)
             val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
@@ -528,12 +528,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
-                    listOf(
-                        dummyNewSubImageA,
-                        dummyNewSubImageB,
-                        dummyNewSubImageC,
-                        dummyNewSubImageD,
-                    ),
+                        listOf(
+                            dummyNewSubImageA,
+                            dummyNewSubImageB,
+                            dummyNewSubImageC,
+                            dummyNewSubImageD,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }

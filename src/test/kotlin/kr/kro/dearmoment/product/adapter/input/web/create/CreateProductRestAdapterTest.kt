@@ -117,45 +117,45 @@ class CreateProductRestAdapterTest {
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",
                 options =
-                listOf(
-                    CreateProductOptionRequest(
-                        name = "Option 1",
-                        optionType = "SINGLE",
-                        discountAvailable = false,
-                        originalPrice = 10000,
-                        discountPrice = 1000,
-                        description = "Extra option",
-                        costumeCount = 1,
-                        shootingLocationCount = 1,
-                        shootingHours = 1,
-                        shootingMinutes = 30,
-                        retouchedCount = 1,
-                        originalProvided = true,
-                        partnerShops =
-                        listOf(
-                            CreatePartnerShopRequest("DRESS", "Shop A", "http://shopA.com"),
-                            CreatePartnerShopRequest("DRESS", "Shop B", "http://shopB.com"),
+                    listOf(
+                        CreateProductOptionRequest(
+                            name = "Option 1",
+                            optionType = "SINGLE",
+                            discountAvailable = false,
+                            originalPrice = 10000,
+                            discountPrice = 1000,
+                            description = "Extra option",
+                            costumeCount = 1,
+                            shootingLocationCount = 1,
+                            shootingHours = 1,
+                            shootingMinutes = 30,
+                            retouchedCount = 1,
+                            originalProvided = true,
+                            partnerShops =
+                                listOf(
+                                    CreatePartnerShopRequest("DRESS", "Shop A", "http://shopA.com"),
+                                    CreatePartnerShopRequest("DRESS", "Shop B", "http://shopB.com"),
+                                ),
+                        ),
+                        CreateProductOptionRequest(
+                            name = "Option 2",
+                            optionType = "PACKAGE",
+                            discountAvailable = true,
+                            originalPrice = 20000,
+                            discountPrice = 15000,
+                            description = "Package option",
+                            costumeCount = 0,
+                            shootingLocationCount = 0,
+                            shootingHours = 0,
+                            shootingMinutes = 0,
+                            retouchedCount = 0,
+                            originalProvided = false,
+                            partnerShops =
+                                listOf(
+                                    CreatePartnerShopRequest("DRESS", "Shop C", "http://shopC.com"),
+                                ),
                         ),
                     ),
-                    CreateProductOptionRequest(
-                        name = "Option 2",
-                        optionType = "PACKAGE",
-                        discountAvailable = true,
-                        originalPrice = 20000,
-                        discountPrice = 15000,
-                        description = "Package option",
-                        costumeCount = 0,
-                        shootingLocationCount = 0,
-                        shootingHours = 0,
-                        shootingMinutes = 0,
-                        retouchedCount = 0,
-                        originalProvided = false,
-                        partnerShops =
-                        listOf(
-                            CreatePartnerShopRequest("DRESS", "Shop C", "http://shopC.com"),
-                        ),
-                    ),
-                ),
             )
 
         // 응답 객체 세팅
@@ -175,10 +175,10 @@ class CreateProductRestAdapterTest {
                 shootingMinutes = 30,
                 retouchedCount = 1,
                 partnerShops =
-                listOf(
-                    PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
-                    PartnerShopResponse("DRESS", "Shop B", "http://shopB.com"),
-                ),
+                    listOf(
+                        PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
+                        PartnerShopResponse("DRESS", "Shop B", "http://shopB.com"),
+                    ),
                 createdAt = null,
                 updatedAt = null,
             )
@@ -199,9 +199,9 @@ class CreateProductRestAdapterTest {
                 shootingMinutes = 0,
                 retouchedCount = 0,
                 partnerShops =
-                listOf(
-                    PartnerShopResponse("DRESS", "Shop C", "http://shopC.com"),
-                ),
+                    listOf(
+                        PartnerShopResponse("DRESS", "Shop C", "http://shopC.com"),
+                    ),
                 createdAt = null,
                 updatedAt = null,
             )
@@ -219,12 +219,12 @@ class CreateProductRestAdapterTest {
                 retouchStyles = listOf("MODERN"),
                 mainImage = "http://image-server.com/mainImage.jpg",
                 subImages =
-                listOf(
-                    "http://image-server.com/subImage1.jpg",
-                    "http://image-server.com/subImage2.jpg",
-                    "http://image-server.com/subImage3.jpg",
-                    "http://image-server.com/subImage4.jpg",
-                ),
+                    listOf(
+                        "http://image-server.com/subImage1.jpg",
+                        "http://image-server.com/subImage2.jpg",
+                        "http://image-server.com/subImage3.jpg",
+                        "http://image-server.com/subImage4.jpg",
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",

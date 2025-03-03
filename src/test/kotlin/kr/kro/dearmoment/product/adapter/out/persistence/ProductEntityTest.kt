@@ -27,23 +27,23 @@ class ProductEntityTest : StringSpec({
                 cameraTypes = setOf(CameraType.DIGITAL),
                 retouchStyles = setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE),
                 mainImage =
-                Image(
-                    userId = 123L,
-                    fileName = "main.jpg",
-                    url = "http://example.com/main.jpg",
-                ),
+                    Image(
+                        userId = 123L,
+                        fileName = "main.jpg",
+                        url = "http://example.com/main.jpg",
+                    ),
                 subImages =
-                listOf(
-                    Image(userId = 123L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
-                    Image(userId = 123L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
-                    Image(userId = 123L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
-                    Image(userId = 123L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
-                ),
+                    listOf(
+                        Image(userId = 123L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                        Image(userId = 123L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                        Image(userId = 123L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                        Image(userId = 123L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+                    ),
                 additionalImages =
-                listOf(
-                    Image(userId = 123L, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
-                    Image(userId = 123L, fileName = "add2.jpg", url = "http://example.com/add2.jpg"),
-                ),
+                    listOf(
+                        Image(userId = 123L, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
+                        Image(userId = 123L, fileName = "add2.jpg", url = "http://example.com/add2.jpg"),
+                    ),
                 detailedInfo = "상세 정보",
                 contactInfo = "연락처 정보",
                 options = emptyList(),
@@ -61,10 +61,10 @@ class ProductEntityTest : StringSpec({
         productEntity.description shouldBe "테스트 설명"
 
         productEntity.availableSeasons shouldContainExactly
-                setOf(
-                    ShootingSeason.YEAR_2025_FIRST_HALF,
-                    ShootingSeason.YEAR_2025_SECOND_HALF,
-                )
+            setOf(
+                ShootingSeason.YEAR_2025_FIRST_HALF,
+                ShootingSeason.YEAR_2025_SECOND_HALF,
+            )
         productEntity.cameraTypes shouldContainExactly setOf(CameraType.DIGITAL)
         productEntity.retouchStyles shouldContainExactly setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE)
 
