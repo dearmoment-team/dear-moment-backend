@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.studio.adapter.input.dto.response
 
+import kr.kro.dearmoment.studio.adapter.input.dto.StudioPartnerShopDto
+
 data class RegisterStudioResponse(
     val id: Long,
     val name: String,
@@ -11,4 +13,5 @@ data class RegisterStudioResponse(
     val reservationNotice: String,
     val cancellationPolicy: String,
     val status: String,
+    val partnerShops: List<StudioPartnerShopDto>,
 )

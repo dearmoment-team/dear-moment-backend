@@ -6,16 +6,17 @@ import kr.kro.dearmoment.product.domain.model.Product
  * TODO: 유저 연동 필요
  */
 data class Studio(
-    val id: Long = 0L, // 스튜디오 ID
-    val name: String, // 스튜디오명
-    val contact: String, // 연락처
-    val studioIntro: String, // 스튜디오 소개글
-    val artistsIntro: String, // 소속 작가 소개글
-    val instagramUrl: String, // 인스타그램 링크
-    val kakaoChannelUrl: String, // 카카오톡 채널 링크
-    val reservationNotice: String, // 예약 전 안내사항
-    val cancellationPolicy: String, // 취소 및 환불 규정
-    val status: StudioStatus, // 상태 (활성/비활성)
+    val id: Long = 0L,
+    val name: String,
+    val contact: String,
+    val studioIntro: String,
+    val artistsIntro: String,
+    val instagramUrl: String,
+    val kakaoChannelUrl: String,
+    val reservationNotice: String,
+    val cancellationPolicy: String,
+    val status: StudioStatus,
+    val partnerShops: List<StudioPartnerShop> = emptyList(),
     val products: List<Product> = emptyList(),
 ) {
     init {

@@ -3,6 +3,8 @@ package kr.kro.dearmoment.studio.adapter.input.dto.request
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import kr.kro.dearmoment.studio.adapter.input.dto.StudioPartnerShopDto
+import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 
 data class ModifyStudioRequest(
     @field:NotBlank(message = "스튜디오 이름은 필수입니다.")
@@ -23,5 +25,21 @@ data class ModifyStudioRequest(
     val kakaoChannelUrl: String,
     val reservationNotice: String,
     val cancellationPolicy: String,
+    val partnerShops: List<StudioPartnerShopDto>,
     val status: String,
-)
+) {
+    fun toCommand(studioId: Long) =
+        ModifyStudioCommand(
+            id = studioId,
+            name = name,
+            contact = contact,
+            studioIntro = studioIntro,
+            artistsIntro = artistsIntro,
+            instagramUrl = instagramUrl,
+            kakaoChannelUrl = kakaoChannelUrl,
+            reservationNotice = reservationNotice,
+            cancellationPolicy = cancellationPolicy,
+            partnerShops = partnerShops.map { it.toCommand() },
+            status = status,
+        )
+}

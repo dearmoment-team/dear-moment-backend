@@ -6,6 +6,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.studio.domain.Studio
+import kr.kro.dearmoment.studio.domain.StudioPartnerShop
+import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 
 @RepositoryTest
@@ -16,6 +18,19 @@ class StudioPersistenceAdapterTest(
 
         describe("StudioPersistenceAdapter 클래스는") {
             context("저장하려는 스튜디오를 전달하면") {
+                val partnerShops =
+                    listOf(
+                        StudioPartnerShop(
+                            category = StudioPartnerShopCategory.STUDIO,
+                            name = "스튜디오 제휴 업체",
+                            urlLink = "studio-partner-shop.url",
+                        ),
+                        StudioPartnerShop(
+                            category = StudioPartnerShopCategory.DRESS,
+                            name = "드레스 제휴 업체",
+                            urlLink = "dress-partner-shop.url",
+                        ),
+                    )
                 val studio =
                     Studio(
                         name = "스튜디오",
@@ -27,6 +42,7 @@ class StudioPersistenceAdapterTest(
                         reservationNotice = "",
                         cancellationPolicy = "",
                         status = StudioStatus.ACTIVE,
+                        partnerShops = partnerShops,
                     )
 
                 it("DB에 데이터를 저장하고 반환한다.") {
@@ -36,6 +52,19 @@ class StudioPersistenceAdapterTest(
             }
 
             context("수정하려는 스튜디오를 전달하면") {
+                val partnerShops =
+                    listOf(
+                        StudioPartnerShop(
+                            category = StudioPartnerShopCategory.STUDIO,
+                            name = "스튜디오 제휴 업체",
+                            urlLink = "studio-partner-shop.url",
+                        ),
+                        StudioPartnerShop(
+                            category = StudioPartnerShopCategory.DRESS,
+                            name = "드레스 제휴 업체",
+                            urlLink = "dress-partner-shop.url",
+                        ),
+                    )
                 val studio =
                     Studio(
                         name = "스튜디오",
@@ -47,8 +76,17 @@ class StudioPersistenceAdapterTest(
                         reservationNotice = "",
                         cancellationPolicy = "",
                         status = StudioStatus.ACTIVE,
+                        partnerShops = partnerShops,
                     )
                 val savedStudio = adapter.save(studio)
+                val updatePartnerShops =
+                    listOf(
+                        StudioPartnerShop(
+                            category = StudioPartnerShopCategory.STUDIO,
+                            name = "스튜디오 제휴 업체(수정)",
+                            urlLink = "studio-partner-shop-modifiy.url",
+                        ),
+                    )
                 val updatedStudio =
                     Studio(
                         id = savedStudio.id,
@@ -61,7 +99,9 @@ class StudioPersistenceAdapterTest(
                         reservationNotice = "예약은 평일만 가능합니다.(수정)",
                         cancellationPolicy = "환불은 불가능합니다.(수정)",
                         status = StudioStatus.INACTIVE,
+                        partnerShops = updatePartnerShops,
                     )
+
                 it("DB에 해당 데이터를 업데이트하고 반환한다.") {
                     val result = adapter.update(updatedStudio)
                     updatedStudio shouldBe result

@@ -1,10 +1,14 @@
 package kr.kro.dearmoment.studio.adapter.output.persistence
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.studio.domain.Studio
@@ -22,6 +26,7 @@ class StudioEntity(
     reservationNotice: String,
     cancellationPolicy: String,
     status: String,
+    partnerShops: MutableSet<StudioPartnerShopEmbeddable>,
 ) : Auditable() {
     @Id
     @Column(name = "studio_id")
@@ -64,6 +69,14 @@ class StudioEntity(
     var status: String = status
         protected set
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+        name = "studio_partner_shops",
+        joinColumns = [JoinColumn(name = "studio_id")],
+    )
+    var partnerShops: MutableSet<StudioPartnerShopEmbeddable> = partnerShops
+        protected set
+
     fun update(entity: StudioEntity) {
         name = entity.name
         contact = entity.contact
@@ -74,6 +87,8 @@ class StudioEntity(
         reservationNotice = entity.reservationNotice
         cancellationPolicy = entity.cancellationPolicy
         status = entity.status
+
+        partnerShops = entity.partnerShops.toMutableSet()
     }
 
     fun toDomain() =
@@ -88,6 +103,7 @@ class StudioEntity(
             reservationNotice = reservationNotice,
             cancellationPolicy = cancellationPolicy,
             status = StudioStatus.from(status),
+            partnerShops = partnerShops.map { it.toDomain() },
         )
 
     companion object {
@@ -102,6 +118,10 @@ class StudioEntity(
                 reservationNotice = domain.reservationNotice,
                 cancellationPolicy = domain.cancellationPolicy,
                 status = domain.status.name,
+                partnerShops =
+                    domain.partnerShops.map {
+                        StudioPartnerShopEmbeddable(it.category.name, it.name, it.urlLink)
+                    }.toMutableSet(),
             )
     }
 }

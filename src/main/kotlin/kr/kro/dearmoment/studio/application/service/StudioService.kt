@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.studio.application.service
 
+import kr.kro.dearmoment.studio.adapter.input.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.adapter.input.dto.response.ModifyStudioResponse
 import kr.kro.dearmoment.studio.adapter.input.dto.response.RegisterStudioResponse
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
@@ -35,6 +36,14 @@ class StudioService(
             reservationNotice = savedStudio.reservationNotice,
             cancellationPolicy = savedStudio.cancellationPolicy,
             status = savedStudio.status.name,
+            partnerShops =
+                savedStudio.partnerShops.map {
+                    StudioPartnerShopDto(
+                        category = it.category.name,
+                        name = it.name,
+                        urlLink = it.urlLink,
+                    )
+                },
         )
     }
 
@@ -54,6 +63,14 @@ class StudioService(
             reservationNotice = updatedStudio.reservationNotice,
             cancellationPolicy = updatedStudio.cancellationPolicy,
             status = updatedStudio.status.name,
+            partnerShops =
+                updatedStudio.partnerShops.map {
+                    StudioPartnerShopDto(
+                        category = it.category.name,
+                        name = it.name,
+                        urlLink = it.urlLink,
+                    )
+                },
         )
     }
 

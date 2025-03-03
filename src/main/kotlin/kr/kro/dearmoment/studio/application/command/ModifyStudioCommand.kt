@@ -13,6 +13,7 @@ data class ModifyStudioCommand(
     val kakaoChannelUrl: String,
     val reservationNotice: String,
     val cancellationPolicy: String,
+    val partnerShops: List<StudioPartnerShopCommand>,
     val status: String,
 ) {
     fun toDomain() =
@@ -26,6 +27,7 @@ data class ModifyStudioCommand(
             kakaoChannelUrl = kakaoChannelUrl,
             reservationNotice = reservationNotice,
             cancellationPolicy = cancellationPolicy,
+            partnerShops = partnerShops.map { it.toDomain() },
             status = StudioStatus.from(status),
         )
 }

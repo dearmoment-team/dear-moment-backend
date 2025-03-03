@@ -10,10 +10,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
+import kr.kro.dearmoment.studio.application.command.StudioPartnerShopCommand
 import kr.kro.dearmoment.studio.application.port.output.DeleteStudioPort
 import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
 import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
 import kr.kro.dearmoment.studio.domain.Studio
+import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 
 class StudioServiceTest : DescribeSpec({
@@ -25,6 +27,12 @@ class StudioServiceTest : DescribeSpec({
 
     describe("StudioService 클래스는") {
         context("RegisterStudioCommand를 전달하면") {
+            val partnerShopCommand =
+                StudioPartnerShopCommand(
+                    category = StudioPartnerShopCategory.DRESS.name,
+                    name = "드레스 제휴 업체",
+                    urlLink = "제휴업체 url link",
+                )
             val registerCommand =
                 RegisterStudioCommand(
                     name = "스튜디오 A",
@@ -36,6 +44,7 @@ class StudioServiceTest : DescribeSpec({
                     reservationNotice = "예약은 평일만 가능합니다.",
                     cancellationPolicy = "환불은 불가능합니다.",
                     status = StudioStatus.ACTIVE.name,
+                    partnerShops = listOf(partnerShopCommand),
                 )
 
             val expected =
@@ -50,6 +59,7 @@ class StudioServiceTest : DescribeSpec({
                     reservationNotice = registerCommand.reservationNotice,
                     cancellationPolicy = registerCommand.cancellationPolicy,
                     status = StudioStatus.from(registerCommand.status),
+                    partnerShops = listOf(partnerShopCommand.toDomain()),
                 )
 
             every { saveStudioPort.save(any()) } returns expected
@@ -61,6 +71,12 @@ class StudioServiceTest : DescribeSpec({
         }
 
         context("ModifyStudioCommand를 전달하면") {
+            val partnerShopCommand =
+                StudioPartnerShopCommand(
+                    category = StudioPartnerShopCategory.DRESS.name,
+                    name = "드레스 제휴 업체",
+                    urlLink = "제휴업체 url link",
+                )
             val modifyCommand =
                 ModifyStudioCommand(
                     id = 1L,
@@ -73,6 +89,7 @@ class StudioServiceTest : DescribeSpec({
                     reservationNotice = "예약은 평일만 가능합니다.(수정)",
                     cancellationPolicy = "환불은 불가능합니다.(수정)",
                     status = StudioStatus.ACTIVE.name,
+                    partnerShops = listOf(partnerShopCommand),
                 )
 
             val expected =
@@ -87,6 +104,7 @@ class StudioServiceTest : DescribeSpec({
                     reservationNotice = modifyCommand.reservationNotice,
                     cancellationPolicy = modifyCommand.cancellationPolicy,
                     status = StudioStatus.from(modifyCommand.status),
+                    partnerShops = listOf(partnerShopCommand.toDomain()),
                 )
 
             every { updateStudioPort.update(any()) } returns expected
