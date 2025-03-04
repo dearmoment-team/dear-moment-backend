@@ -1,9 +1,9 @@
 package kr.kro.dearmoment.like.adapter.input.web
 
-import kr.kro.dearmoment.like.adapter.input.web.dto.GetLikeResponse
-import kr.kro.dearmoment.like.adapter.input.web.dto.LikeRequest
-import kr.kro.dearmoment.like.adapter.input.web.dto.LikeResponse
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
+import kr.kro.dearmoment.like.application.dto.GetLikeResponse
+import kr.kro.dearmoment.like.application.dto.LikeRequest
+import kr.kro.dearmoment.like.application.dto.LikeResponse
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.query.GetLikesQuery
 import org.springframework.http.HttpStatus

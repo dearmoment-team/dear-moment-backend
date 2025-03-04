@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.like.adapter.input.web.dto
+package kr.kro.dearmoment.like.application.dto
 
 import kr.kro.dearmoment.like.domain.Like
 

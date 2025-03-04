@@ -16,9 +16,9 @@ import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.like.adapter.input.web.dto.LikeRequest
-import kr.kro.dearmoment.like.adapter.input.web.dto.LikeResponse
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
+import kr.kro.dearmoment.like.application.dto.LikeRequest
+import kr.kro.dearmoment.like.application.dto.LikeResponse
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.domain.LikeType
 import org.junit.jupiter.api.Test
