@@ -18,8 +18,6 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.dto.LikeRequest
 import kr.kro.dearmoment.like.application.dto.LikeResponse
-import kr.kro.dearmoment.like.application.port.input.LikeUseCase
-import kr.kro.dearmoment.like.domain.LikeType
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
