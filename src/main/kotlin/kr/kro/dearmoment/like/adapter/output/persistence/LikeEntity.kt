@@ -24,20 +24,20 @@ class LikeEntity(
     @Column(nullable = false)
     val type: String,
 ) : Auditable() {
+    fun toDomain() =
+        Like(
+            id = id,
+            userId = userId,
+            targetId = targetId,
+            type = LikeType.from(type),
+        )
+
     companion object {
         fun from(domain: Like) =
             LikeEntity(
                 userId = domain.userId,
                 targetId = domain.targetId,
                 type = domain.type.value,
-            )
-
-        fun toDomain(entity: LikeEntity) =
-            Like(
-                id = entity.id,
-                userId = entity.userId,
-                targetId = entity.targetId,
-                type = LikeType.from(entity.type),
             )
     }
 }

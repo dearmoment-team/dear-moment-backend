@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.like.adapter.input.web.dto
+package kr.kro.dearmoment.like.application.dto
 
 import jakarta.validation.constraints.NotBlank
 import org.jetbrains.annotations.NotNull
