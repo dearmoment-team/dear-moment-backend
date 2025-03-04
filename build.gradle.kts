@@ -1,5 +1,3 @@
-import org.gradle.api.tasks.Copy
-import org.gradle.jvm.tasks.Jar
 import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
@@ -13,6 +11,7 @@ plugins {
     id("org.sonarqube") version "5.1.0.4882" // sonarqube
     id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
     id("org.jetbrains.kotlinx.kover") version "0.9.1" // kover
+    id("io.sentry.jvm.gradle") version "5.2.0" // sentry
 }
 
 group = "com.example"
@@ -48,9 +47,14 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:$ociSdkVersion")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:$ociSdkVersion")
     implementation("com.oracle.oci.sdk:oci-java-sdk-addons-apache-configurator-jersey3:$ociSdkVersion")
+    // mail
+    implementation("org.springframework.boot:spring-boot-starter-mail:3.3.0")
 
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
+    implementation("com.oracle.database.security:oraclepki:23.3.0.23.09")
+    implementation("com.oracle.database.security:osdt_core:21.17.0.0")
+    implementation("com.oracle.database.security:osdt_cert:21.17.0.0")
 
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
@@ -71,18 +75,15 @@ dependencies {
     // Kotest Assertions (선택적, 다양한 assert 기능 제공)
     testImplementation("io.kotest:kotest-assertions-core:5.7.0")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
+
+    // 코루틴
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }
 
 tasks.test {
     useJUnitPlatform()
     finalizedBy("koverXmlReport")
     finalizedBy("koverHtmlReport")
-}
-
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "kr.kro.onboarding.OnBoardingApplicationKt"
-    }
 }
 
 // OpenAPI 설정
@@ -146,4 +147,9 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/kover/report.xml")
     }
+}
+
+// 실제 메인 클래스의 FQCN을 지정합니다.
+springBoot {
+    mainClass.set("kr.kro.dearmoment.DearMomentApplicationKt")
 }

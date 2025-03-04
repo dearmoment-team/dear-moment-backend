@@ -1,0 +1,21 @@
+object-storage:
+  bucket-name: ${OBJECT_STORAGE_BUCKET_NAME_LOCAL}
+  config-path: ${OBJECT_STORAGE_CONFIG_PATH_LOCAL}
+  namespace-name: ${OBJECT_STORAGE_NAMESPACE_NAME_LOCAL}
+  photo-image-dir: ${OBJECT_STORAGE_IMAGE_DIR_LOCAL}
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: demo
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.OracleDialect
+  datasource:
+    password:
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: user
+    url: jdbc:oracle:thin:@db:1521/FREEPDB1

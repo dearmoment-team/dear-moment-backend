@@ -1,10 +1,10 @@
 package kr.kro.dearmoment.product.application.usecase
 
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort

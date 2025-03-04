@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web
 
 import andDocument
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -14,7 +15,6 @@ import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse

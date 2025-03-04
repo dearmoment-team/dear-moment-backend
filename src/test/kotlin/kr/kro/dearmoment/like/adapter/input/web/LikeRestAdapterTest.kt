@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.like.adapter.input.web
 
 import andDocument
-import com.ninjasquad.springmockk.MockkBean
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -27,16 +26,13 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class LikeRestAdapterTest : RestApiTestBase() {
-    @MockkBean
-    lateinit var likeUseCase: LikeUseCase
-
     @Test
     fun `좋아요 생성 API`() {
         val requestBody =
             LikeRequest(
                 userId = 1L,
                 targetId = 1L,
-                type = LikeType.AUTHOR.value,
+                type = "ARTIST",
             )
 
         val command = SaveLikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
@@ -57,7 +53,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
                 requestBody(
                     "userId" type NUMBER means "유저 ID",
                     "targetId" type NUMBER means "좋아요할 대상 ID(상품, 작가)",
-                    "type" type STRING means "좋아요 타입(\"AUTHOR\", \"PRODUCT\")",
+                    "type" type STRING means "좋아요 타입(\"ARTIST\", \"PRODUCT\")",
                 ),
                 responseBody(
                     "data" type OBJECT means "데이터",
