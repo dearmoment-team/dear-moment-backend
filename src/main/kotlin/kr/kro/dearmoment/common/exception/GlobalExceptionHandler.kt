@@ -3,6 +3,7 @@ package kr.kro.dearmoment.common.exception
 import jakarta.validation.ConstraintViolationException
 import kr.kro.dearmoment.common.dto.ErrorResponse
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -32,6 +33,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleGlobalException(e: Exception): ResponseEntity<ErrorResponse> {
-        return ResponseEntity(ErrorResponse(e.message ?: "Internal Server Error"), HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .contentType(APPLICATION_JSON) // JSON 응답 명시
+            .body(ErrorResponse(e.message ?: "Internal Server Error"))
     }
 }

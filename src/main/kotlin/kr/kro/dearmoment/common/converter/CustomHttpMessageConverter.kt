@@ -10,6 +10,7 @@ class CustomHttpMessageConverter(
 ) : MappingJackson2HttpMessageConverter(objectMapper) {
     init {
         objectMapper.registerModule(kotlinModule())
+        supportedMediaTypes = listOf(MediaType.APPLICATION_JSON)
         setObjectMapper(objectMapper)
     }
 
