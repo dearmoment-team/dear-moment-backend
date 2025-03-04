@@ -13,6 +13,7 @@ import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.studio.adapter.input.StudioRestAdapter
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
+import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.ModifyStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.RegisterStudioUseCase
 import org.junit.jupiter.api.BeforeEach
@@ -63,6 +64,9 @@ abstract class RestApiTestBase {
 
     @MockkBean
     protected lateinit var registerStudioUseCase: RegisterStudioUseCase
+
+    @MockkBean
+    protected lateinit var getStudioUseCase: GetStudioUseCase
 
     @MockkBean
     protected lateinit var modifyStudioUseCase: ModifyStudioUseCase

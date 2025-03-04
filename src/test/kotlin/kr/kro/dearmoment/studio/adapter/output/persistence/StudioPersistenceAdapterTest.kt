@@ -51,6 +51,40 @@ class StudioPersistenceAdapterTest(
                     savedStudio.id shouldNotBe 0L
                 }
             }
+            context("조회하려는 스튜디오 식별자를 전달하면") {
+                val partnerShops =
+                    listOf(
+                        StudioPartnerShop(
+                            category = StudioPartnerShopCategory.STUDIO,
+                            name = "스튜디오 제휴 업체",
+                            urlLink = "studio-partner-shop.url",
+                        ),
+                        StudioPartnerShop(
+                            category = StudioPartnerShopCategory.DRESS,
+                            name = "드레스 제휴 업체",
+                            urlLink = "dress-partner-shop.url",
+                        ),
+                    )
+                val studio =
+                    Studio(
+                        userId = 1L,
+                        name = "스튜디오",
+                        contact = "010-1234-5678",
+                        studioIntro = "스튜디오 소개글",
+                        artistsIntro = "작가 소개글",
+                        instagramUrl = "인스타 url",
+                        kakaoChannelUrl = "카카오톡 채널 url",
+                        reservationNotice = "",
+                        cancellationPolicy = "",
+                        status = StudioStatus.ACTIVE,
+                        partnerShops = partnerShops,
+                    )
+                val expected = adapter.save(studio)
+                it("DB에서 해당 스튜디오 엔티티를 반환한다.") {
+                    val result = adapter.findById(expected.id)
+                    result shouldBe expected
+                }
+            }
 
             context("수정하려는 스튜디오를 전달하면") {
                 val partnerShops =

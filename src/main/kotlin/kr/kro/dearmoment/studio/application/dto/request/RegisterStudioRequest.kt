@@ -1,11 +1,11 @@
-package kr.kro.dearmoment.studio.adapter.input.dto.request
+package kr.kro.dearmoment.studio.application.dto.request
 
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
-import kr.kro.dearmoment.studio.adapter.input.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
+import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 
 data class RegisterStudioRequest(
     @field:NotNull(message = "유저 ID는 필수입니다.")

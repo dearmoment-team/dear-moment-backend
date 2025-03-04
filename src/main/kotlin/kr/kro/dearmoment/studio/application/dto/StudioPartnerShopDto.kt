@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.studio.adapter.input.dto
+package kr.kro.dearmoment.studio.application.dto
 
 import jakarta.validation.constraints.NotBlank
 import kr.kro.dearmoment.studio.application.command.StudioPartnerShopCommand

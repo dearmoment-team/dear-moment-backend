@@ -16,11 +16,12 @@ import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.studio.adapter.input.dto.StudioPartnerShopDto
-import kr.kro.dearmoment.studio.adapter.input.dto.request.ModifyStudioRequest
-import kr.kro.dearmoment.studio.adapter.input.dto.request.RegisterStudioRequest
-import kr.kro.dearmoment.studio.adapter.input.dto.response.ModifyStudioResponse
-import kr.kro.dearmoment.studio.adapter.input.dto.response.RegisterStudioResponse
+import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
+import kr.kro.dearmoment.studio.application.dto.request.ModifyStudioRequest
+import kr.kro.dearmoment.studio.application.dto.request.RegisterStudioRequest
+import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
+import kr.kro.dearmoment.studio.application.dto.response.ModifyStudioResponse
+import kr.kro.dearmoment.studio.application.dto.response.RegisterStudioResponse
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.http.MediaType
@@ -104,6 +105,75 @@ class StudioRestAdapterTest : RestApiTestBase() {
                     "partnerShops[].name" type STRING means "제휴 업체 이름",
                     "partnerShops[].urlLink" type STRING means "제휴 업체 URL",
                 ),
+                responseBody(
+                    "data" type OBJECT means "응답 데이터",
+                    "data.id" type NUMBER means "등록된 스튜디오 ID",
+                    "data.userId" type NUMBER means "유저 ID",
+                    "data.name" type STRING means "스튜디오 이름",
+                    "data.contact" type STRING means "연락처",
+                    "data.studioIntro" type STRING means "스튜디오 소개",
+                    "data.artistsIntro" type STRING means "작가 소개",
+                    "data.instagramUrl" type STRING means "인스타그램 URL",
+                    "data.kakaoChannelUrl" type STRING means "카카오 채널 URL",
+                    "data.reservationNotice" type STRING means "예약 안내",
+                    "data.cancellationPolicy" type STRING means "취소 및 환불 정책",
+                    "data.status" type STRING means "스튜디오 상태 (ACTIVE, INACTIVE)",
+                    "data.partnerShops" type ARRAY means "제휴 업체 목록",
+                    "data.partnerShops[].category" type STRING means "제휴 업체 구분 " +
+                        "(HAIR_MAKEUP, DRESS, MENS_SUIT, BOUQUET, VIDEO, STUDIO, ETC)",
+                    "data.partnerShops[].name" type STRING means "제휴 업체 이름",
+                    "data.partnerShops[].urlLink" type STRING means "제휴 업체 링크",
+                    "success" type BOOLEAN means "성공 여부",
+                    "code" type NUMBER means "HTTP 상태 코드",
+                ),
+            )
+    }
+
+    @Test
+    fun`스튜디오 조회 API`() {
+        val existedStudioId = 1L
+        val partnerShopsDto =
+            listOf(
+                StudioPartnerShopDto(
+                    category = StudioPartnerShopCategory.DRESS.name,
+                    name = "디어모먼트 드레스샵(수정)",
+                    urlLink = "dear-moment-dress-shop.partner-shop-modify.url",
+                ),
+                StudioPartnerShopDto(
+                    category = StudioPartnerShopCategory.MENS_SUIT.name,
+                    name = "디어모먼트 남자 수트샵(수정)",
+                    urlLink = "dear-moment-mens-suit.partner-shop-modify.url",
+                ),
+            )
+
+        val expected =
+            GetStudioResponse(
+                id = existedStudioId,
+                userId = 1L,
+                name = "디어모먼트 스튜디오(수정)",
+                contact = "010-1111-2222",
+                studioIntro = "스튜디오 소개글(수정)",
+                artistsIntro = "작가 소개글(수정)",
+                instagramUrl = "https://www.instagram.com/username-modify",
+                kakaoChannelUrl = "http://pf.kakao.com/user-modify",
+                reservationNotice = "예약은 공휴일 제외 가능합니다.(수정)",
+                cancellationPolicy = "환불은 가능합니다.(수정)",
+                status = StudioStatus.ACTIVE.name,
+                partnerShops = partnerShopsDto,
+            )
+
+        every { getStudioUseCase.getStudio(existedStudioId) } returns expected
+
+        val request =
+            RestDocumentationRequestBuilders
+                .get("/api/studios/{studioId}", existedStudioId)
+                .contentType(MediaType.APPLICATION_JSON)
+
+        mockMvc.perform(request)
+            .andExpect(status().isOk)
+            .andDocument(
+                "get-studio",
+                pathParameters("studioId" means "조회할 스튜디오 id"),
                 responseBody(
                     "data" type OBJECT means "응답 데이터",
                     "data.id" type NUMBER means "등록된 스튜디오 ID",
