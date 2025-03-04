@@ -2,9 +2,7 @@ package kr.kro.dearmoment.studio.adapter.input
 
 import kr.kro.dearmoment.studio.application.dto.request.ModifyStudioRequest
 import kr.kro.dearmoment.studio.application.dto.request.RegisterStudioRequest
-import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
-import kr.kro.dearmoment.studio.application.dto.response.ModifyStudioResponse
-import kr.kro.dearmoment.studio.application.dto.response.RegisterStudioResponse
+import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.ModifyStudioUseCase
@@ -31,13 +29,13 @@ class StudioRestAdapter(
     @PostMapping
     fun register(
         @RequestBody request: RegisterStudioRequest,
-    ): RegisterStudioResponse = registerStudioUseCase.register(request.toCommand())
+    ): StudioResponse = registerStudioUseCase.register(request.toCommand())
 
     @PutMapping("/{studioId}")
     fun modify(
         @PathVariable studioId: Long,
         @RequestBody request: ModifyStudioRequest,
-    ): ModifyStudioResponse = modifyStudioUseCase.modify(request.toCommand(studioId))
+    ): StudioResponse = modifyStudioUseCase.modify(request.toCommand(studioId))
 
 //    @GetMapping("/{userId}")
 //    fun getStudios(
@@ -47,7 +45,7 @@ class StudioRestAdapter(
     @GetMapping("/{studioId}")
     fun getStudio(
         @PathVariable studioId: Long,
-    ): GetStudioResponse = getStudioUseCase.getStudio(studioId)
+    ): StudioResponse = getStudioUseCase.getStudio(studioId)
 
     @DeleteMapping("/{studioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

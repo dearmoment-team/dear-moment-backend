@@ -19,9 +19,7 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.application.dto.request.ModifyStudioRequest
 import kr.kro.dearmoment.studio.application.dto.request.RegisterStudioRequest
-import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
-import kr.kro.dearmoment.studio.application.dto.response.ModifyStudioResponse
-import kr.kro.dearmoment.studio.application.dto.response.RegisterStudioResponse
+import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.http.MediaType
@@ -61,7 +59,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
 
         val expected =
-            RegisterStudioResponse(
+            StudioResponse(
                 id = 1L,
                 userId = requestBody.userId,
                 name = requestBody.name,
@@ -147,7 +145,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
 
         val expected =
-            GetStudioResponse(
+            StudioResponse(
                 id = existedStudioId,
                 userId = 1L,
                 name = "디어모먼트 스튜디오(수정)",
@@ -230,7 +228,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
 
         val expected =
-            ModifyStudioResponse(
+            StudioResponse(
                 id = existedStudioId,
                 userId = requestBody.userId,
                 name = requestBody.name,

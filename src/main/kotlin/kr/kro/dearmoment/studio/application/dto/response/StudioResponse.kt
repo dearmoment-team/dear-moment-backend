@@ -3,7 +3,7 @@ package kr.kro.dearmoment.studio.application.dto.response
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.domain.Studio
 
-data class GetStudioResponse(
+data class StudioResponse(
     val id: Long,
     val userId: Long,
     val name: String,
@@ -19,7 +19,7 @@ data class GetStudioResponse(
 ) {
     companion object {
         fun from(domain: Studio) =
-            GetStudioResponse(
+            StudioResponse(
                 id = domain.id,
                 userId = domain.userId,
                 name = domain.name,

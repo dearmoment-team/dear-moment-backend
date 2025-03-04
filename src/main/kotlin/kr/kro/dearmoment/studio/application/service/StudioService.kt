@@ -2,9 +2,7 @@ package kr.kro.dearmoment.studio.application.service
 
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
-import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
-import kr.kro.dearmoment.studio.application.dto.response.ModifyStudioResponse
-import kr.kro.dearmoment.studio.application.dto.response.RegisterStudioResponse
+import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.ModifyStudioUseCase
@@ -24,24 +22,24 @@ class StudioService(
     private val deleteStudioPort: DeleteStudioPort,
 ) : RegisterStudioUseCase, GetStudioUseCase, ModifyStudioUseCase, DeleteStudioUseCase {
     @Transactional
-    override fun register(command: RegisterStudioCommand): RegisterStudioResponse {
+    override fun register(command: RegisterStudioCommand): StudioResponse {
         val studio = command.toDomain()
 
-        return RegisterStudioResponse.from(saveStudioPort.save(studio))
+        return StudioResponse.from(saveStudioPort.save(studio))
     }
 
-    override fun getStudio(studioId: Long): GetStudioResponse {
+    override fun getStudio(studioId: Long): StudioResponse {
         val studio = getStudioPort.findById(studioId)
 
-        return GetStudioResponse.from(studio)
+        return StudioResponse.from(studio)
     }
 
     @Transactional
-    override fun modify(command: ModifyStudioCommand): ModifyStudioResponse {
+    override fun modify(command: ModifyStudioCommand): StudioResponse {
         val studio = command.toDomain()
         val updatedStudio = updateStudioPort.update(studio)
 
-        return ModifyStudioResponse.from(updatedStudio)
+        return StudioResponse.from(updatedStudio)
     }
 
     @Transactional

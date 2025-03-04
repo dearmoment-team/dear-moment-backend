@@ -11,7 +11,7 @@ import io.mockk.verify
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.command.StudioPartnerShopCommand
-import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
+import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.application.port.output.DeleteStudioPort
 import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
@@ -89,7 +89,7 @@ class StudioServiceTest : DescribeSpec({
                     status = StudioStatus.ACTIVE,
                 )
 
-            val expected = GetStudioResponse.from(studio)
+            val expected = StudioResponse.from(studio)
 
             every { getStudioPort.findById(studio.id) } returns studio
             it("studioId에 해당하는 스튜디오를 반환한다.") {
