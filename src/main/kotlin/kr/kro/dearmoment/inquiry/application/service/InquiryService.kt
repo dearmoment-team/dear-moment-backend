@@ -1,12 +1,12 @@
 package kr.kro.dearmoment.inquiry.application.service
 
 import kr.kro.dearmoment.common.dto.PagedResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.GetArtistInquiryResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.product.dto.GetProductInquiryResponse
 import kr.kro.dearmoment.inquiry.application.command.CreateArtistInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
+import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.GetArtistInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.GetProductInquiryResponse
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase

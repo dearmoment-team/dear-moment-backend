@@ -2,9 +2,9 @@ package kr.kro.dearmoment.common
 
 import com.ninjasquad.springmockk.MockkBean
 import kr.kro.dearmoment.TestEnvironment
-import kr.kro.dearmoment.inquiry.adapter.input.web.artist.ArtistInquiryRestAdapter
-import kr.kro.dearmoment.inquiry.adapter.input.web.product.ProductInquiryRestAdapter
-import kr.kro.dearmoment.inquiry.adapter.input.web.service.ServiceInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.adapter.input.web.ArtistInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.adapter.input.web.ProductInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.adapter.input.web.ServiceInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase

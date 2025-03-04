@@ -17,9 +17,9 @@ import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.CreateArtistInquiryRequest
-import kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto.GetArtistInquiryResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.CreateArtistInquiryRequest
+import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.GetArtistInquiryResponse
 import kr.kro.dearmoment.inquiry.application.query.GetArtistInquiresQuery
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageImpl

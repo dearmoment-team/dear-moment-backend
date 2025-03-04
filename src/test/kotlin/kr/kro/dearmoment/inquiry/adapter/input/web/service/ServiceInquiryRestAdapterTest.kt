@@ -11,8 +11,8 @@ import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.service.dto.CreateServiceInquiryRequest
+import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.CreateServiceInquiryRequest
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders

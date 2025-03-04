@@ -1,8 +1,8 @@
-package kr.kro.dearmoment.inquiry.adapter.input.web.service
+package kr.kro.dearmoment.inquiry.adapter.input.web
 
-import kr.kro.dearmoment.inquiry.adapter.input.web.dto.CreateInquiryResponse
-import kr.kro.dearmoment.inquiry.adapter.input.web.service.dto.CreateServiceInquiryRequest
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
+import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.CreateServiceInquiryRequest
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import org.springframework.web.bind.annotation.PostMapping

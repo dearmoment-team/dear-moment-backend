@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.inquiry.adapter.input.web.product.dto
+package kr.kro.dearmoment.inquiry.application.dto
 
 import org.jetbrains.annotations.NotNull
 

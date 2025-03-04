@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.inquiry.adapter.input.web.artist.dto
+package kr.kro.dearmoment.inquiry.application.dto
 
 import kr.kro.dearmoment.inquiry.domain.ArtistInquiry
 import java.time.LocalDateTime
