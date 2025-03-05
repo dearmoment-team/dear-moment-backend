@@ -1,3 +1,5 @@
+package kr.kro.dearmoment.common.persistence
+
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
