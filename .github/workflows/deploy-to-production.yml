@@ -20,43 +20,43 @@ jobs:
           script: |
             echo "==== Creating/updating .env in ~/env/.env ===="
             cat <<EOF > ~/env/.env
-# -----------------------
-# [1] Spring Profiles
-SPRING_PROFILES_ACTIVE=prod
-SPRING_APPLICATION_NAME=dearmoment-backend
-
-# -----------------------
-# [2] DB Config
-SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
-SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }}
-SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
-SPRING_DATASOURCE_DRIVER_CLASS_NAME=oracle.jdbc.OracleDriver
-
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
-SPRING_JPA_SHOW_SQL=false
-SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.OracleDialect
-
-ORACLE_PASSWORD=oracle_password
-APP_USER=spring_user
-APP_USER_PASSWORD=spring_password
-
-# -----------------------
-# [3] Object Storage
-OBJECT_STORAGE_CONFIG_PATH=${{ secrets.OBJECT_STORAGE_CONFIG_PATH }}
-OBJECT_STORAGE_BUCKET_NAME=${{ secrets.OBJECT_STORAGE_BUCKET_NAME }}
-OBJECT_STORAGE_NAMESPACE_NAME=${{ secrets.OBJECT_STORAGE_NAMESPACE_NAME }}
-OBJECT_STORAGE_IMAGE_DIR=${{ secrets.OBJECT_STORAGE_IMAGE_DIR }}
-
-# -----------------------
-# [4] Sentry
-SENTRY_DSN=${{ secrets.SENTRY_DSN }}
-
-# -----------------------
-# [5] Mail
-MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-MAIL_RECEIVER=${{ secrets.MAIL_RECEIVER }}
-EOF
+            # -----------------------
+            # [1] Spring Profiles
+            SPRING_PROFILES_ACTIVE=prod
+            SPRING_APPLICATION_NAME=dearmoment-backend
+            
+            # -----------------------
+            # [2] DB Config
+            SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
+            SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }}
+            SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
+            SPRING_DATASOURCE_DRIVER_CLASS_NAME=oracle.jdbc.OracleDriver
+            
+            SPRING_JPA_HIBERNATE_DDL_AUTO=update
+            SPRING_JPA_SHOW_SQL=false
+            SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.OracleDialect
+            
+            ORACLE_PASSWORD=oracle_password
+            APP_USER=spring_user
+            APP_USER_PASSWORD=spring_password
+            
+            # -----------------------
+            # [3] Object Storage
+            OBJECT_STORAGE_CONFIG_PATH=${{ secrets.OBJECT_STORAGE_CONFIG_PATH }}
+            OBJECT_STORAGE_BUCKET_NAME=${{ secrets.OBJECT_STORAGE_BUCKET_NAME }}
+            OBJECT_STORAGE_NAMESPACE_NAME=${{ secrets.OBJECT_STORAGE_NAMESPACE_NAME }}
+            OBJECT_STORAGE_IMAGE_DIR=${{ secrets.OBJECT_STORAGE_IMAGE_DIR }}
+            
+            # -----------------------
+            # [4] Sentry
+            SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+            
+            # -----------------------
+            # [5] Mail
+            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            MAIL_RECEIVER=${{ secrets.MAIL_RECEIVER }}
+            EOF
             echo "==== .env file updated in ~/env/.env ===="
             cd ~
             echo "==== Logging into GHCR... ===="
