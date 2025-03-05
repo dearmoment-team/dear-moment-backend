@@ -1,10 +1,12 @@
 package kr.kro.dearmoment.inquiry.domain
 
-enum class ServiceInquiryType {
-    SERVICE_COMPLIMENT,
-    SERVICE_SUGGESTION,
-    SYSTEM_IMPROVEMENT,
-    SYSTEM_ERROR_REPORT,
+enum class ServiceInquiryType(
+    val desc: String,
+) {
+    SERVICE_COMPLIMENT("디어모먼트 서비스 칭찬"),
+    SERVICE_SUGGESTION("디어모먼트 서비스 불편/제안"),
+    SYSTEM_IMPROVEMENT("시스템 개선 의견"),
+    SYSTEM_ERROR_REPORT("시스템 오류 제보"),
     ;
 
     companion object {

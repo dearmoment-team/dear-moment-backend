@@ -1,8 +1,8 @@
 package kr.kro.dearmoment.product.application.usecase
 
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 
 interface ProductUseCase {

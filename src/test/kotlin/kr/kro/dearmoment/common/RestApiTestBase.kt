@@ -2,13 +2,12 @@ package kr.kro.dearmoment.common
 
 import com.ninjasquad.springmockk.MockkBean
 import kr.kro.dearmoment.TestEnvironment
-import kr.kro.dearmoment.inquiry.adapter.input.web.author.AuthorInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.adapter.input.web.artist.ArtistInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.adapter.input.web.product.ProductInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.adapter.input.web.service.ServiceInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
-import kr.kro.dearmoment.inquiry.application.port.input.UpdateInquiryUseCase
 import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.studio.adapter.input.StudioRestAdapter
@@ -37,7 +36,7 @@ import org.springframework.web.filter.CharacterEncodingFilter
 @WebMvcTest(
     controllers = [
         LikeRestAdapter::class,
-        AuthorInquiryRestAdapter::class,
+        ArtistInquiryRestAdapter::class,
         ProductInquiryRestAdapter::class,
         ServiceInquiryRestAdapter::class,
         StudioRestAdapter::class,
@@ -58,9 +57,6 @@ abstract class RestApiTestBase {
 
     @MockkBean
     protected lateinit var getInquiryUseCase: GetInquiryUseCase
-
-    @MockkBean
-    protected lateinit var updateInquiryUseCase: UpdateInquiryUseCase
 
     @MockkBean
     protected lateinit var registerStudioUseCase: RegisterStudioUseCase

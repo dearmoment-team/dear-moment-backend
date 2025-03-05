@@ -2,12 +2,11 @@ package kr.kro.dearmoment.inquiry.domain
 
 import java.time.LocalDateTime
 
-class AuthorInquiry(
+class ArtistInquiry(
     id: Long = 0L,
     userId: Long = 0L,
     val title: String,
     val content: String,
-    val answer: String = "",
     val createdDate: LocalDateTime = LocalDateTime.now(),
 ) : Inquiry(id, userId) {
     init {

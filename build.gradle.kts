@@ -1,5 +1,3 @@
-import org.gradle.api.tasks.Copy
-import org.gradle.jvm.tasks.Jar
 import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
@@ -49,6 +47,8 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:$ociSdkVersion")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:$ociSdkVersion")
     implementation("com.oracle.oci.sdk:oci-java-sdk-addons-apache-configurator-jersey3:$ociSdkVersion")
+    // mail
+    implementation("org.springframework.boot:spring-boot-starter-mail:3.3.0")
 
     // Oracle JDBC
     runtimeOnly("com.oracle.database.jdbc:ojdbc11")
@@ -78,18 +78,15 @@ dependencies {
     // Kotest Assertions (선택적, 다양한 assert 기능 제공)
     testImplementation("io.kotest:kotest-assertions-core:5.7.0")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
+
+    // 코루틴
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }
 
 tasks.test {
     useJUnitPlatform()
     finalizedBy("koverXmlReport")
     finalizedBy("koverHtmlReport")
-}
-
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "kr.kro.onboarding.OnBoardingApplicationKt"
-    }
 }
 
 // OpenAPI 설정
@@ -153,4 +150,9 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/kover/report.xml")
     }
+}
+
+// 실제 메인 클래스의 FQCN을 지정합니다.
+springBoot {
+    mainClass.set("kr.kro.dearmoment.DearMomentApplicationKt")
 }

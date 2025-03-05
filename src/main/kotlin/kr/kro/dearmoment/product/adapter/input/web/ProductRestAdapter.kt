@@ -1,8 +1,8 @@
 package kr.kro.dearmoment.product.adapter.input.web
 
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase

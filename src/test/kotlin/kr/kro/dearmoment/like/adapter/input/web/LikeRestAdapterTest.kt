@@ -30,7 +30,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
             LikeRequest(
                 userId = 1L,
                 targetId = 1L,
-                type = "AUTHOR",
+                type = "ARTIST",
             )
 
         val command = SaveLikeCommand(requestBody.userId, requestBody.targetId, requestBody.type)
@@ -51,7 +51,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
                 requestBody(
                     "userId" type NUMBER means "유저 ID",
                     "targetId" type NUMBER means "좋아요할 대상 ID(상품, 작가)",
-                    "type" type STRING means "좋아요 타입(\"AUTHOR\", \"PRODUCT\")",
+                    "type" type STRING means "좋아요 타입(\"ARTIST\", \"PRODUCT\")",
                 ),
                 responseBody(
                     "data" type OBJECT means "데이터",

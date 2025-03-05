@@ -17,11 +17,11 @@ jobs:
         uses: actions/checkout@v4
 
       # 2) JDK 설치
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       # 3-0) OCI Object Storage Config 설정 (🔹 Docker Build 전)
       - name: Create OCI Config File

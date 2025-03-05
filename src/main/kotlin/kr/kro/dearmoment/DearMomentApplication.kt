@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class OnBoardingApplication
+class DearMomentApplication
 
 fun main(args: Array<String>) {
-    runApplication<OnBoardingApplication>(*args)
+    runApplication<DearMomentApplication>(*args)
 }
