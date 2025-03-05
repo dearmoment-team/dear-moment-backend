@@ -16,7 +16,6 @@ import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.multipart.MultipartFile
 
 @Service
 class ImageService(
