@@ -18,66 +18,52 @@ jobs:
           username: ${{ secrets.SERVER_USER }}   # 원격 서버 접속 사용자 (예: ubuntu)
           key: ${{ secrets.SSH_PRIVATE_KEY }}    # SSH 개인키 (GitHub Secrets)
           script: |
-            echo "==== Creating/updating .env in ~/dear-moment-backend/env/.env ===="
-
-            # 1) cat <<EOF ... > file : 덮어쓰기로 .env 파일 생성
-            cat <<EOF > ~/dear-moment-backend/env/.env
+            echo "==== Creating/updating .env in ~/env/.env ===="
+            cat <<EOF > ~/env/.env
 # -----------------------
 # [1] Spring Profiles
+SPRING_PROFILES_ACTIVE=prod
+SPRING_APPLICATION_NAME=dearmoment-backend
+
 # -----------------------
-  SPRING_PROFILES_ACTIVE=prod
-  SPRING_APPLICATION_NAME=dear-moment-backend
-  
-  # -----------------------
-  # [2] DB Config
-  # -----------------------
-  SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
-  SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }}
-  SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
-  SPRING_DATASOURCE_DRIVER_CLASS_NAME=oracle.jdbc.OracleDriver
-  
-  SPRING_JPA_HIBERNATE_DDL_AUTO=update
-  SPRING_JPA_SHOW_SQL=false
-  SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.OracleDialect
-  
-  ORACLE_PASSWORD=oracle_password
-  APP_USER=spring_user
-  APP_USER_PASSWORD=spring_password
-  
-  # -----------------------
-  # [3] Object Storage
-  # -----------------------
-  OBJECT_STORAGE_CONFIG_PATH=${{ secrets.OBJECT_STORAGE_CONFIG_PATH }}
-  OBJECT_STORAGE_BUCKET_NAME=${{ secrets.OBJECT_STORAGE_BUCKET_NAME }}
-  OBJECT_STORAGE_NAMESPACE_NAME=${{ secrets.OBJECT_STORAGE_NAMESPACE_NAME }}
-  OBJECT_STORAGE_IMAGE_DIR=${{ secrets.OBJECT_STORAGE_IMAGE_DIR }}
-  
-  # -----------------------
-  # [4] Sentry
-  # -----------------------
-  SENTRY_DSN=${{ secrets.SENTRY_DSN }}
-  
-  # -----------------------
-  # [5] Mail
-  # -----------------------
-  MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-  MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-  MAIL_RECEIVER=${{ secrets.MAIL_RECEIVER }}
-  EOF
-  
-  echo "==== .env file updated in ~/dear-moment-backend/env/.env ===="
-  
-  # 2) Docker Compose 실행
-  cd ~/dear-moment-backend
-  
-  echo "==== Logging into GHCR... ===="
-  echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-  
-  echo "==== Pulling the latest image from GHCR... ===="
-  docker pull ghcr.io/${{ github.repository }}/dear-moment-backend:latest
-  
-  echo "==== Shutting down existing containers ===="
-  docker compose down
-  
-  echo "==== Starting containers (using the new image + updated .env) ===="
-  docker compose up -d
+# [2] DB Config
+SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
+SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }}
+SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
+SPRING_DATASOURCE_DRIVER_CLASS_NAME=oracle.jdbc.OracleDriver
+
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_JPA_SHOW_SQL=false
+SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.OracleDialect
+
+ORACLE_PASSWORD=oracle_password
+APP_USER=spring_user
+APP_USER_PASSWORD=spring_password
+
+# -----------------------
+# [3] Object Storage
+OBJECT_STORAGE_CONFIG_PATH=${{ secrets.OBJECT_STORAGE_CONFIG_PATH }}
+OBJECT_STORAGE_BUCKET_NAME=${{ secrets.OBJECT_STORAGE_BUCKET_NAME }}
+OBJECT_STORAGE_NAMESPACE_NAME=${{ secrets.OBJECT_STORAGE_NAMESPACE_NAME }}
+OBJECT_STORAGE_IMAGE_DIR=${{ secrets.OBJECT_STORAGE_IMAGE_DIR }}
+
+# -----------------------
+# [4] Sentry
+SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+
+# -----------------------
+# [5] Mail
+MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+MAIL_RECEIVER=${{ secrets.MAIL_RECEIVER }}
+EOF
+            echo "==== .env file updated in ~/env/.env ===="
+            cd ~
+            echo "==== Logging into GHCR... ===="
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+            echo "==== Pulling the latest image from GHCR... ===="
+            docker pull ghcr.io/${{ github.repository }}/dearmoment-backend:latest
+            echo "==== Shutting down existing containers ===="
+            docker compose down
+            echo "==== Starting containers (using the new image + updated .env) ===="
+            docker compose up -d
