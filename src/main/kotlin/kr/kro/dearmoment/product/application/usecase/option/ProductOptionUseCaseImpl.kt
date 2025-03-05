@@ -73,7 +73,7 @@ class ProductOptionUseCaseImpl(
         requestOptions.forEach { dto ->
             val optId = dto.optionId ?: 0L
             if (optId != 0L && existingOptionMap.containsKey(optId)) {
-                val existingOpt = existingOptionMap[optId]
+                val existingOpt = existingOptionMap[optId] ?: throw IllegalStateException("Option with id $optId is missing")
                 val updatedOpt =
                     existingOpt.copy(
                         name = dto.name,
