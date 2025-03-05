@@ -13,6 +13,7 @@ import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStorage
 import kr.kro.dearmoment.image.application.port.output.GetImagePort
 import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
+import kr.kro.dearmoment.image.domain.Image
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,7 +28,7 @@ class ImageService(
     private val deleteImageFromObjectStorage: DeleteImageFromObjectStoragePort,
 ) : SaveImageUseCase, DeleteImageUseCase, GetImageUseCase {
     @Transactional
-    override fun save(saveImageCommand: SaveImageCommand): Long {
+    override fun save(saveImageCommand: SaveImageCommand): Image {
         val image = uploadImagePort.upload(saveImageCommand.file, saveImageCommand.userId)
         return saveImagePort.save(image)
     }

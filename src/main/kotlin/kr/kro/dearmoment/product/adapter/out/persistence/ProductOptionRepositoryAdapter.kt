@@ -29,7 +29,6 @@ class ProductOptionRepositoryAdapter(
 
         val optionEntity = ProductOptionEntity.fromDomain(productOption, productEntity)
         val savedEntity = jpaProductOptionRepository.save(optionEntity)
-
         return savedEntity.toDomain()
     }
 

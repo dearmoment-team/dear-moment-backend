@@ -7,8 +7,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
+import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
@@ -28,19 +31,56 @@ class ProductOptionRepositoryAdapterTest(
             lateinit var testProductDomain: Product
 
             beforeEach {
-                // userId를 명시적으로 1L로 지정하여 User ID null 문제를 해결합니다.
+                // 테스트용 ProductEntity 생성
                 testProductEntity =
                     jpaProductRepository.save(
                         ProductEntity(
                             userId = 1L,
+                            // 변경된 도메인: price, typeCode, images, partnerShops 등이 제거되고,
+                            // productType와 shootingPlace가 추가됨.
+                            productType = kr.kro.dearmoment.product.domain.model.ProductType.WEDDING_SNAP,
+                            shootingPlace = kr.kro.dearmoment.product.domain.model.ShootingPlace.JEJU,
                             title = "테스트 상품",
-                            price = 100_000L,
-                            typeCode = 1,
-                            images = listOf("image.jpg"),
-                            partnerShops =
-                                listOf(
-                                    PartnerShopEmbeddable("협력업체명", "https://partner.link"),
+                            mainImage =
+                                ImageEmbeddable.fromDomainImage(
+                                    kr.kro.dearmoment.image.domain.Image(
+                                        userId = 1L,
+                                        fileName = "main.jpg",
+                                        url = "http://example.com/main.jpg",
+                                    ),
                                 ),
+                            subImages =
+                                listOf(
+                                    ImageEmbeddable.fromDomainImage(
+                                        kr.kro.dearmoment.image.domain.Image(
+                                            userId = 1L,
+                                            fileName = "sub1.jpg",
+                                            url = "http://example.com/sub1.jpg",
+                                        ),
+                                    ),
+                                    ImageEmbeddable.fromDomainImage(
+                                        kr.kro.dearmoment.image.domain.Image(
+                                            userId = 1L,
+                                            fileName = "sub2.jpg",
+                                            url = "http://example.com/sub2.jpg",
+                                        ),
+                                    ),
+                                    ImageEmbeddable.fromDomainImage(
+                                        kr.kro.dearmoment.image.domain.Image(
+                                            userId = 1L,
+                                            fileName = "sub3.jpg",
+                                            url = "http://example.com/sub3.jpg",
+                                        ),
+                                    ),
+                                    ImageEmbeddable.fromDomainImage(
+                                        kr.kro.dearmoment.image.domain.Image(
+                                            userId = 1L,
+                                            fileName = "sub4.jpg",
+                                            url = "http://example.com/sub4.jpg",
+                                        ),
+                                    ),
+                                ).toMutableList(),
+                            additionalImages = emptyList<ImageEmbeddable>().toMutableList(),
                         ),
                     )
                 testProductDomain = testProductEntity.toDomain()
@@ -63,9 +103,10 @@ class ProductOptionRepositoryAdapterTest(
                     with(persisted!!) {
                         optionId shouldNotBe 0L
                         name shouldBe "옵션1"
-                        additionalPrice shouldBe 10_000L
-                        createdAt shouldNotBe null
-                        updatedAt shouldNotBe null
+                        originalPrice shouldBe 10_000L
+                        // Auditing 필드는 createdDate, updateDate로 관리됨
+                        createdDate shouldNotBe null
+                        updateDate shouldNotBe null
                     }
                 }
 
@@ -101,7 +142,7 @@ class ProductOptionRepositoryAdapterTest(
                     // Then
                     with(found) {
                         name shouldBe "옵션A"
-                        additionalPrice shouldBe 10_000L
+                        originalPrice shouldBe 10_000L
                     }
                 }
 
@@ -174,14 +215,23 @@ class ProductOptionRepositoryAdapterTest(
     companion object {
         fun createSampleOption(
             name: String = "기본옵션",
-            price: Long = 0L,
+            originalPrice: Long = 0L,
         ): ProductOption =
             ProductOption(
                 optionId = 0L,
                 productId = 0L,
                 name = name,
-                additionalPrice = price,
+                optionType = OptionType.SINGLE,
+                discountAvailable = false,
+                originalPrice = originalPrice,
+                discountPrice = 0L,
                 description = "옵션 설명",
+                costumeCount = 1,
+                shootingLocationCount = 1,
+                shootingHours = 0,
+                shootingMinutes = 30,
+                retouchedCount = 1,
+                partnerShops = emptyList(),
             )
     }
 }

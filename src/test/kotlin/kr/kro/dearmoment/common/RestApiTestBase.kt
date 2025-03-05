@@ -10,6 +10,11 @@ import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
 import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
+import kr.kro.dearmoment.studio.adapter.input.StudioRestAdapter
+import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
+import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
+import kr.kro.dearmoment.studio.application.port.input.ModifyStudioUseCase
+import kr.kro.dearmoment.studio.application.port.input.RegisterStudioUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
@@ -34,6 +39,7 @@ import org.springframework.web.filter.CharacterEncodingFilter
         ArtistInquiryRestAdapter::class,
         ProductInquiryRestAdapter::class,
         ServiceInquiryRestAdapter::class,
+        StudioRestAdapter::class,
     ],
 )
 @TestEnvironment
@@ -51,6 +57,18 @@ abstract class RestApiTestBase {
 
     @MockkBean
     protected lateinit var getInquiryUseCase: GetInquiryUseCase
+
+    @MockkBean
+    protected lateinit var registerStudioUseCase: RegisterStudioUseCase
+
+    @MockkBean
+    protected lateinit var getStudioUseCase: GetStudioUseCase
+
+    @MockkBean
+    protected lateinit var modifyStudioUseCase: ModifyStudioUseCase
+
+    @MockkBean
+    protected lateinit var deleteStudioUseCase: DeleteStudioUseCase
 
     /**
      * RestDocs 문서화를 위한 `MockMvc` 객체를 설정하는 함수입니다.

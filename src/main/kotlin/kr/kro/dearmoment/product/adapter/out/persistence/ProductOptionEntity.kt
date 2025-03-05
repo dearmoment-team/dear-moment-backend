@@ -1,8 +1,12 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -11,11 +15,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import kr.kro.dearmoment.common.persistence.Auditable
+import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
@@ -38,22 +43,42 @@ open class ProductOptionEntity(
     var product: ProductEntity? = null,
     @Column(name = "NAME", nullable = false)
     var name: String = "",
-    @Column(name = "ADDITIONAL_PRICE", nullable = false)
-    var additionalPrice: Long = 0L,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "OPTION_TYPE", nullable = false)
+    var optionType: OptionType = OptionType.SINGLE,
+    @Column(name = "DISCOUNT_AVAILABLE", nullable = false)
+    var discountAvailable: Boolean = false,
+    @Column(name = "ORIGINAL_PRICE", nullable = false)
+    var originalPrice: Long = 0L,
+    @Column(name = "DISCOUNT_PRICE", nullable = false)
+    var discountPrice: Long = 0L,
     @Column(name = "DESCRIPTION")
     var description: String? = null,
-    @CreatedDate
-    @Column(name = "CREATED_AT", updatable = false)
-    var createdAt: LocalDateTime? = null,
-    @LastModifiedDate
-    @Column(name = "UPDATED_AT")
-    var updatedAt: LocalDateTime? = null,
-) {
+    // 단품 필드들
+    @Column(name = "COSTUME_COUNT")
+    var costumeCount: Int = 0,
+    @Column(name = "SHOOTING_LOCATION_COUNT")
+    var shootingLocationCount: Int = 0,
+    @Column(name = "SHOOTING_HOURS")
+    var shootingHours: Int = 0,
+    @Column(name = "SHOOTING_MINUTES")
+    var shootingMinutes: Int = 0,
+    @Column(name = "RETOUCHED_COUNT")
+    var retouchedCount: Int = 0,
+    // [원본 제공 여부] 새로 추가
+    @Column(name = "ORIGINAL_PROVIDED", nullable = false)
+    var originalProvided: Boolean = false,
+    // 패키지 필드들
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+        name = "PRODUCT_PARTNER_SHOPS",
+        joinColumns = [JoinColumn(name = "OPTION_ID")],
+    )
+    var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
+    @Column(nullable = false)
+    open var version: Long = 0L,
+) : Auditable() {
     companion object {
-        /**
-         * 도메인 모델의 ProductOption을 엔티티로 변환합니다.
-         * 신규 옵션의 경우, 도메인에서 optionId가 0L이면 엔티티에서는 null로 변환하여 ID 자동 생성이 되도록 합니다.
-         */
         fun fromDomain(
             option: ProductOption,
             productEntity: ProductEntity,
@@ -62,28 +87,56 @@ open class ProductOptionEntity(
                 optionId = if (option.optionId == 0L) null else option.optionId,
                 product = productEntity,
                 name = option.name,
-                additionalPrice = option.additionalPrice,
+                optionType = option.optionType,
+                discountAvailable = option.discountAvailable,
+                originalPrice = option.originalPrice,
+                discountPrice = option.discountPrice,
                 description = option.description.takeIf { it.isNotBlank() },
-                createdAt = null,
-                updatedAt = null,
+                costumeCount = option.costumeCount,
+                shootingLocationCount = option.shootingLocationCount,
+                shootingHours = option.shootingHours,
+                shootingMinutes = option.shootingMinutes,
+                retouchedCount = option.retouchedCount,
+                originalProvided = option.originalProvided,
+                partnerShops =
+                    option.partnerShops.map {
+                        PartnerShopEmbeddable(
+                            category = it.category,
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
+                version = 0L,
             )
         }
     }
 
-    /**
-     * 엔티티를 도메인 모델의 ProductOption으로 변환합니다.
-     * product가 null인 경우, productId는 0L로 처리합니다.
-     * 여기서는 createdAt과 updatedAt이 null이면 그대로 null을 전달합니다.
-     */
     fun toDomain(): ProductOption {
         return ProductOption(
             optionId = optionId ?: 0L,
             productId = product?.productId ?: 0L,
             name = name,
-            additionalPrice = additionalPrice,
+            optionType = optionType,
+            discountAvailable = discountAvailable,
+            originalPrice = originalPrice,
+            discountPrice = discountPrice,
             description = description ?: "",
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            costumeCount = costumeCount,
+            shootingLocationCount = shootingLocationCount,
+            shootingHours = shootingHours,
+            shootingMinutes = shootingMinutes,
+            retouchedCount = retouchedCount,
+            originalProvided = originalProvided,
+            partnerShops =
+                partnerShops.map {
+                    PartnerShop(
+                        category = it.category ?: PartnerShopCategory.ETC,
+                        name = it.name,
+                        link = it.link,
+                    )
+                },
+            createdAt = createdDate,
+            updatedAt = updateDate,
         )
     }
 }

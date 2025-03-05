@@ -2,7 +2,6 @@ package kr.kro.dearmoment.image.application.service
 
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.longs.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.every
@@ -51,16 +50,22 @@ class ImageServiceTest : BehaviorSpec({
                 url = "localhost:8080/image",
                 fileName = "image.jpg",
             )
-        val expectedImageId = 456L
+        val expectedImage =
+            Image(
+                imageId = 456L,
+                userId = userId,
+                url = "localhost:8080/image",
+                fileName = "image.jpg",
+            )
 
         every { uploadImagePort.upload(file, userId) } returns uploadedImage
-        every { saveImagePort.save(uploadedImage) } returns expectedImageId
+        every { saveImagePort.save(uploadedImage) } returns expectedImage
 
         When("이미지를 저장하면") {
             val result = imageService.save(saveImageCommand)
 
-            Then("이미지를 저장하고 이미지 ID를 반환한다.") {
-                result shouldBeExactly expectedImageId
+            Then("이미지를 저장하고 이미지 객체를 반환한다.") {
+                result shouldBe expectedImage
                 verify(exactly = 1) { uploadImagePort.upload(file, userId) }
                 verify(exactly = 1) { saveImagePort.save(uploadedImage) }
             }

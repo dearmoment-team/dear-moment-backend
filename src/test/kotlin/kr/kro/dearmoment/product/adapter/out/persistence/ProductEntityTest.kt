@@ -3,104 +3,87 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
-import java.time.LocalDateTime
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 
 class ProductEntityTest : StringSpec({
+
     "ProductEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
-        val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops =
-            listOf(
-                PartnerShop(name = "상점1", link = "http://shop1.com"),
-                PartnerShop(name = "상점2", link = "http://shop2.com"),
-            )
+        // given
         val product =
             Product(
                 productId = 1L,
                 userId = 123L,
+                productType = ProductType.WEDDING_SNAP,
+                shootingPlace = ShootingPlace.JEJU,
                 title = "테스트 제품",
-                description = "이것은 테스트 제품입니다",
-                price = 1000L,
-                typeCode = 1,
-                shootingTime = fixedDateTime,
-                shootingLocation = "테스트 장소",
-                numberOfCostumes = 5,
-                partnerShops = partnerShops,
+                description = "테스트 설명",
+                availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF, ShootingSeason.YEAR_2025_SECOND_HALF),
+                cameraTypes = setOf(CameraType.DIGITAL),
+                retouchStyles = setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE),
+                mainImage =
+                    Image(
+                        userId = 123L,
+                        fileName = "main.jpg",
+                        url = "http://example.com/main.jpg",
+                    ),
+                subImages =
+                    listOf(
+                        Image(userId = 123L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                        Image(userId = 123L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                        Image(userId = 123L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                        Image(userId = 123L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+                    ),
+                additionalImages =
+                    listOf(
+                        Image(userId = 123L, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
+                        Image(userId = 123L, fileName = "add2.jpg", url = "http://example.com/add2.jpg"),
+                    ),
                 detailedInfo = "상세 정보",
-                warrantyInfo = "1년 보증",
-                contactInfo = "test@example.com",
-                createdAt = fixedDateTime,
-                updatedAt = fixedDateTime,
-                images = listOf("image1.jpg", "image2.jpg"),
+                contactInfo = "연락처 정보",
+                options = emptyList(),
             )
 
+        // when
         val productEntity = ProductEntity.fromDomain(product)
 
-        productEntity.productId shouldBe product.productId
-        productEntity.userId shouldBe product.userId
-        productEntity.title shouldBe product.title
-        productEntity.description shouldBe product.description
-        productEntity.price shouldBe product.price
-        productEntity.typeCode shouldBe product.typeCode
-        productEntity.shootingTime shouldBe product.shootingTime
-        productEntity.shootingLocation shouldBe product.shootingLocation
-        productEntity.numberOfCostumes shouldBe product.numberOfCostumes
-        productEntity.partnerShops.map { it.name } shouldContainExactly partnerShops.map { it.name }
-        productEntity.partnerShops.map { it.link } shouldContainExactly partnerShops.map { it.link }
-        productEntity.detailedInfo shouldBe product.detailedInfo
-        productEntity.warrantyInfo shouldBe product.warrantyInfo
-        productEntity.contactInfo shouldBe product.contactInfo
-        productEntity.createdAt shouldBe product.createdAt
-        productEntity.updatedAt shouldBe product.updatedAt
-        productEntity.images shouldContainExactly product.images
-    }
+        // then
+        productEntity.productId shouldBe 1L
+        productEntity.userId shouldBe 123L
+        productEntity.productType shouldBe ProductType.WEDDING_SNAP
+        productEntity.shootingPlace shouldBe ShootingPlace.JEJU
+        productEntity.title shouldBe "테스트 제품"
+        productEntity.description shouldBe "테스트 설명"
 
-    "ProductEntity는 도메인 모델로 올바르게 변환되어야 한다" {
-        val fixedDateTime = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
-        val partnerShops =
-            listOf(
-                PartnerShopEmbeddable(name = "상점1", link = "http://shop1.com"),
-                PartnerShopEmbeddable(name = "상점2", link = "http://shop2.com"),
+        productEntity.availableSeasons shouldContainExactly
+            setOf(
+                ShootingSeason.YEAR_2025_FIRST_HALF,
+                ShootingSeason.YEAR_2025_SECOND_HALF,
             )
-        val productEntity =
-            ProductEntity(
-                productId = 1L,
-                userId = 123L,
-                title = "테스트 제품",
-                description = "이것은 테스트 제품입니다",
-                price = 1000L,
-                typeCode = 1,
-                shootingTime = fixedDateTime,
-                shootingLocation = "테스트 장소",
-                numberOfCostumes = 5,
-                partnerShops = partnerShops,
-                detailedInfo = "상세 정보",
-                warrantyInfo = "1년 보증",
-                contactInfo = "test@example.com",
-                createdAt = fixedDateTime,
-                updatedAt = fixedDateTime,
-                images = listOf("image1.jpg", "image2.jpg"),
-            )
+        productEntity.cameraTypes shouldContainExactly setOf(CameraType.DIGITAL)
+        productEntity.retouchStyles shouldContainExactly setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE)
 
-        val product = productEntity.toDomain()
+        productEntity.mainImage.run {
+            fileName shouldBe "main.jpg"
+            url shouldBe "http://example.com/main.jpg"
+        }
 
-        product.productId shouldBe productEntity.productId
-        product.userId shouldBe productEntity.userId
-        product.title shouldBe productEntity.title
-        product.description shouldBe productEntity.description
-        product.price shouldBe productEntity.price
-        product.typeCode shouldBe productEntity.typeCode
-        product.shootingTime shouldBe productEntity.shootingTime
-        product.shootingLocation shouldBe productEntity.shootingLocation
-        product.numberOfCostumes shouldBe productEntity.numberOfCostumes
-        product.partnerShops.map { it.name } shouldContainExactly partnerShops.map { it.name }
-        product.partnerShops.map { it.link } shouldContainExactly partnerShops.map { it.link }
-        product.detailedInfo shouldBe productEntity.detailedInfo
-        product.warrantyInfo shouldBe productEntity.warrantyInfo
-        product.contactInfo shouldBe productEntity.contactInfo
-        product.createdAt shouldBe productEntity.createdAt
-        product.updatedAt shouldBe productEntity.updatedAt
-        product.images shouldContainExactly productEntity.images
+        productEntity.subImages.size shouldBe 4
+        productEntity.subImages[0].fileName shouldBe "sub1.jpg"
+        productEntity.subImages[1].fileName shouldBe "sub2.jpg"
+        productEntity.subImages[2].fileName shouldBe "sub3.jpg"
+        productEntity.subImages[3].fileName shouldBe "sub4.jpg"
+
+        productEntity.additionalImages.size shouldBe 2
+        productEntity.additionalImages[0].fileName shouldBe "add1.jpg"
+        productEntity.additionalImages[1].fileName shouldBe "add2.jpg"
+
+        productEntity.detailedInfo shouldBe "상세 정보"
+        productEntity.contactInfo shouldBe "연락처 정보"
     }
 })

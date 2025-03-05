@@ -28,6 +28,10 @@ class ResponseWrapper : ResponseBodyAdvice<Any> {
         request: ServerHttpRequest,
         response: ServerHttpResponse,
     ): Any? {
+        if (request.uri.path.startsWith("/v3/api-docs")) {
+            return body
+        }
+
         val servletResponse = (response as ServletServerHttpResponse).servletResponse
         val status = servletResponse.status
         val resolvedStatus = HttpStatus.resolve(status)

@@ -39,14 +39,21 @@ interface ProductPersistencePort {
 
     /**
      * 특정 조건에 따라 Product를 검색합니다.
+     *
+     * 기존에는 basePrice를 기준으로 검색하였으나, 도메인 변경에 따라
+     * 이제는 상품의 제목, 상품 유형(productType), 촬영 장소(shootingPlace) 등을
+     * 조건으로 검색합니다.
+     *
      * @param title 검색할 Product의 제목 (nullable)
-     * @param priceRange 검색할 가격 범위 (최소값, 최대값 nullable)
+     * @param productType 검색할 상품 유형 (nullable, 예: "WEDDING_SNAP")
+     * @param shootingPlace 검색할 촬영 장소 (nullable, 예: "JEJU")
+     * @param sortBy 정렬 조건 (nullable, 예: "created-desc", "created-asc")
      * @return 조건에 맞는 Product 리스트
      */
     fun searchByCriteria(
         title: String?,
-        priceRange: Pair<Long?, Long?>?,
-        typeCode: Int?,
+        productType: String?,
+        shootingPlace: String?,
         sortBy: String?,
     ): List<Product>
 
@@ -57,7 +64,7 @@ interface ProductPersistencePort {
     fun deleteById(id: Long)
 
     /**
-     * 특정 사용자 ID와 상품명 조합의 존재 여부 확인
+     * 특정 사용자 ID와 상품명 조합의 존재 여부를 확인합니다.
      * @param userId 사용자 ID
      * @param title 검색할 상품명
      * @return 존재 여부 (true/false)
