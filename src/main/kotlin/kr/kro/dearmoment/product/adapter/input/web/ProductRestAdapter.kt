@@ -38,11 +38,8 @@ class ProductRestAdapter(
     )
     fun createProduct(
         @ModelAttribute request: CreateProductRequest,
-    ): ResponseEntity<ProductResponse> {
-        val productResponse = createProductUseCase.saveProduct(request)
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(productResponse)
+    ): ProductResponse {
+        return createProductUseCase.saveProduct(request)
     }
 
     @PutMapping(

@@ -260,7 +260,7 @@ class CreateProductRestAdapterTest {
 
         // then
         mockMvc.perform(requestBuilder)
-            .andExpect(status().isCreated)
+            .andExpect(status().isOk)
             .andDocument(
                 "create-product",
                 responseBody(
