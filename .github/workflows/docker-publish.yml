@@ -35,7 +35,7 @@ jobs:
           echo "${{ secrets.OBJECT_STORAGE_PRIVATE_KEY }}" > ~/.oci/private_key.pem
           chmod 600 ~/.oci/private_key.pem
           
-            - name: Set environment variables
+      - name: Set environment variables
         env:
           MAIL_RECEIVER: ${{ secrets.MAIL_RECEIVER }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
