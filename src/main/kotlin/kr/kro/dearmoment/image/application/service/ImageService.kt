@@ -29,7 +29,7 @@ class ImageService(
     private val deleteImageFromObjectStorage: DeleteImageFromObjectStoragePort,
 ) : SaveImageUseCase, DeleteImageUseCase, GetImageUseCase {
     @Transactional
-    override fun save(saveImageCommand: SaveImageCommand): Long {
+    override fun save(saveImageCommand: SaveImageCommand): Image {
         val image = uploadImagePort.upload(saveImageCommand.file, saveImageCommand.userId)
         return saveImagePort.save(image)
     }
@@ -77,24 +77,5 @@ class ImageService(
 
         deleteImageFromObjectStorage.delete(image)
         deleteImageFromDBPort.delete(imageId)
-    }
-
-    /**
-     * 단일 이미지 업로드 후 Image 도메인 객체 반환
-     */
-    fun uploadSingleImage(
-        file: MultipartFile,
-        userId: Long,
-    ): Image {
-        val cmd = SaveImageCommand(file, userId)
-        val imageId = save(cmd)
-        val response = getOne(imageId)
-        val fileName = response.url.substringAfterLast('/')
-        return Image(
-            imageId = response.imageId,
-            userId = userId,
-            fileName = fileName,
-            url = response.url,
-        )
     }
 }

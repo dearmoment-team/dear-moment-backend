@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.image.application.handler
 
+import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.AdditionalImageFinalRequest
@@ -24,7 +25,7 @@ class ImageHandler(
         currentImage: Image,
     ): Image {
         // 새 파일 업로드
-        val newImage = imageService.uploadSingleImage(newFile, userId)
+        val newImage = imageService.save(SaveImageCommand(file = newFile, userId = userId))
         // 기존 이미지 삭제
         imageService.delete(currentImage.imageId)
         return newImage
@@ -58,26 +59,22 @@ class ImageHandler(
                 UpdateSubImageAction.KEEP -> {
                     // 기존 이미지 유지
                     requireNotNull(req.imageId) { "KEEP 액션일 경우 imageId는 필수입니다." }
-                    val existingImg =
-                        currentMap[req.imageId]
-                            ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
+                    val existingImg = currentMap[req.imageId]
+                        ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
                     result.add(existingImg)
                 }
-
                 UpdateSubImageAction.DELETE -> {
                     // 기존 이미지 삭제
                     requireNotNull(req.imageId) { "DELETE 액션일 경우 imageId는 필수입니다." }
-                    val existingImg =
-                        currentMap[req.imageId]
-                            ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
+                    val existingImg = currentMap[req.imageId]
+                        ?: throw IllegalArgumentException("존재하지 않는 subImage ID: ${req.imageId}")
                     imageService.delete(existingImg.imageId)
                     // DELETE이면 결과 목록에 추가하지 않음
                 }
-
                 UpdateSubImageAction.UPLOAD -> {
                     // 새 이미지 업로드
                     requireNotNull(req.newFile) { "UPLOAD 액션일 경우 newFile은 필수입니다." }
-                    val newImg = imageService.uploadSingleImage(req.newFile, userId)
+                    val newImg = imageService.save(SaveImageCommand(file = req.newFile, userId = userId))
                     // 만약 교체 개념이라면, 기존 imageId가 있다면 삭제
                     req.imageId?.let { oldId ->
                         currentMap[oldId]?.let { oldImg ->
@@ -88,10 +85,6 @@ class ImageHandler(
                 }
             }
         }
-
-        // 3) 이미 DELETE나 UPLOAD로 제거된 이미지가 아닌데,
-        //    result에 포함되지 않는 기존 이미지가 있다면 추가 삭제 로직을 넣을 수 있음.
-        //    필요 시 로직 구현. (현재는 액션이 명시되지 않으면 그대로 두는 것으로 가정)
 
         return result
     }
@@ -124,24 +117,20 @@ class ImageHandler(
             when (req.action) {
                 UpdateAdditionalImageAction.KEEP -> {
                     requireNotNull(req.imageId) { "KEEP 액션일 경우 imageId는 필수입니다." }
-                    val existingImg =
-                        currentMap[req.imageId]
-                            ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
+                    val existingImg = currentMap[req.imageId]
+                        ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
                     result.add(existingImg)
                 }
-
                 UpdateAdditionalImageAction.DELETE -> {
                     requireNotNull(req.imageId) { "DELETE 액션일 경우 imageId는 필수입니다." }
-                    val existingImg =
-                        currentMap[req.imageId]
-                            ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
+                    val existingImg = currentMap[req.imageId]
+                        ?: throw IllegalArgumentException("존재하지 않는 additionalImage ID: ${req.imageId}")
                     imageService.delete(existingImg.imageId)
                     // 결과 목록에는 추가하지 않음
                 }
-
                 UpdateAdditionalImageAction.UPLOAD -> {
                     requireNotNull(req.newFile) { "UPLOAD 액션일 경우 newFile은 필수입니다." }
-                    val newImg = imageService.uploadSingleImage(req.newFile, userId)
+                    val newImg = imageService.save(SaveImageCommand(file = req.newFile, userId = userId))
                     // 기존에 있던 이미지 교체라면 삭제
                     req.imageId?.let { oldId ->
                         currentMap[oldId]?.let { oldImg ->
@@ -152,10 +141,6 @@ class ImageHandler(
                 }
             }
         }
-
-        // 3) 위 서브 이미지와 동일하게,
-        //    DELETE/UPLOAD로 제거되지 않았지만 result에 없는 기존 이미지를
-        //    별도로 삭제할지 여부는 요구사항에 따라 결정.
 
         return result
     }

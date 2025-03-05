@@ -7,6 +7,7 @@ import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
@@ -59,22 +60,22 @@ class CreateProductUseCaseTest : BehaviorSpec({
             detailedInfo = "Test Info",
             contactInfo = "Test Contact",
             options =
-                listOf(
-                    CreateProductOptionRequest(
-                        name = "Option A",
-                        optionType = "SINGLE",
-                        discountAvailable = false,
-                        originalPrice = 10000,
-                        discountPrice = 8000,
-                        description = "Option description",
-                        costumeCount = 1,
-                        shootingLocationCount = 1,
-                        shootingHours = 1,
-                        shootingMinutes = 0,
-                        retouchedCount = 1,
-                        partnerShops = emptyList(),
-                    ),
+            listOf(
+                CreateProductOptionRequest(
+                    name = "Option A",
+                    optionType = "SINGLE",
+                    discountAvailable = false,
+                    originalPrice = 10000,
+                    discountPrice = 8000,
+                    description = "Option description",
+                    costumeCount = 1,
+                    shootingLocationCount = 1,
+                    shootingHours = 1,
+                    shootingMinutes = 0,
+                    retouchedCount = 1,
+                    partnerShops = emptyList(),
                 ),
+            ),
         )
 
     val dummyImage =
@@ -93,8 +94,8 @@ class CreateProductUseCaseTest : BehaviorSpec({
                 )
             } returns true
 
-            // 이미지 업로드 성공 모킹
-            every { imageService.uploadSingleImage(any(), any()) } returns dummyImage
+            // 이미지 업로드 성공 모킹 (save 메서드 사용)
+            every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
 
             Then("IllegalArgumentException 발생") {
                 val exception =
@@ -168,10 +169,8 @@ class CreateProductUseCaseTest : BehaviorSpec({
             )
 
         every { productPersistencePort.existsByUserIdAndTitle(any(), any()) } returns false
-        every { imageService.uploadSingleImage(any(), any()) } returns dummyImage
+        every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
         every { productPersistencePort.save(any()) } returns dummyProduct
-        // 더 이상 enrichProduct 호출이 없으므로 해당 모킹은 제거합니다.
-        // every { productMapper.enrichProduct(dummyProduct) } returns dummyProduct
 
         When("모든 조건을 만족할 경우") {
             val result = useCase.saveProduct(validRequest)
@@ -181,7 +180,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
                     productPersistencePort.save(
                         match { product ->
                             product.title == "Unique Product" &&
-                                product.userId == 1L
+                                    product.userId == 1L
                         },
                     )
                 }

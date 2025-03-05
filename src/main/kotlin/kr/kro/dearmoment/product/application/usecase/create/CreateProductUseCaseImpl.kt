@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.application.usecase.create
 
+import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
@@ -15,6 +16,7 @@ class CreateProductUseCaseImpl(
     private val imageService: ImageService,
     private val productOptionUseCase: ProductOptionUseCase,
 ) : CreateProductUseCase {
+
     @Transactional
     override fun saveProduct(request: CreateProductRequest): ProductResponse {
         // 서브 이미지 / 추가 이미지 개수 검증
@@ -25,31 +27,42 @@ class CreateProductUseCaseImpl(
             throw IllegalArgumentException("추가 이미지는 최대 5장까지만 가능합니다. 현재 ${request.additionalImageFiles.size}장입니다.")
         }
 
-        // 메인 이미지 업로드
-        val mainImg =
-            imageService.uploadSingleImage(
-                request.mainImageFile ?: throw IllegalArgumentException("메인 이미지는 필수입니다."),
-                request.userId,
+        // 메인 이미지 업로드 (메인 이미지는 필수)
+        val mainImageFile = request.mainImageFile ?: throw IllegalArgumentException("메인 이미지는 필수입니다.")
+        val mainImg = imageService.save(
+            SaveImageCommand(
+                file = mainImageFile,
+                userId = request.userId
             )
+        )
+
         // 서브 이미지 업로드
-        val subImgs =
-            request.subImageFiles.map {
-                imageService.uploadSingleImage(it, request.userId)
-            }
+        val subImgs = request.subImageFiles.map {
+            imageService.save(
+                SaveImageCommand(
+                    file = it,
+                    userId = request.userId
+                )
+            )
+        }
+
         // 추가 이미지 업로드
-        val additionalImgs =
-            request.additionalImageFiles.map {
-                imageService.uploadSingleImage(it, request.userId)
-            }
+        val additionalImgs = request.additionalImageFiles.map {
+            imageService.save(
+                SaveImageCommand(
+                    file = it,
+                    userId = request.userId
+                )
+            )
+        }
 
         // 도메인 객체 생성
-        val product =
-            CreateProductRequest.toDomain(
-                req = request,
-                mainImageUrl = mainImg.url,
-                subImagesUrls = subImgs.map { it.url },
-                additionalImagesUrls = additionalImgs.map { it.url },
-            )
+        val product = CreateProductRequest.toDomain(
+            req = request,
+            mainImageUrl = mainImg.url,
+            subImagesUrls = subImgs.map { it.url },
+            additionalImagesUrls = additionalImgs.map { it.url },
+        )
 
         // 동일 제목 중복 체크
         validateForCreation(product)

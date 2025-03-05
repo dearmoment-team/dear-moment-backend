@@ -39,7 +39,7 @@ class ImageHandlerTest : StringSpec({
                 url = "http://test.com/new_main.jpg",
             )
 
-        every { imageService.uploadSingleImage(newFile, userId) } returns uploadedImage
+        every { imageService.save(match { it.file == newFile && it.userId == userId }) } returns uploadedImage
         justRun { imageService.delete(currentImage.imageId) }
 
         // When
@@ -47,7 +47,7 @@ class ImageHandlerTest : StringSpec({
 
         // Then
         result shouldBe uploadedImage
-        verify(exactly = 1) { imageService.uploadSingleImage(newFile, userId) }
+        verify(exactly = 1) { imageService.save(match { it.file == newFile && it.userId == userId }) }
         verify(exactly = 1) { imageService.delete(currentImage.imageId) }
     }
 
@@ -95,8 +95,8 @@ class ImageHandlerTest : StringSpec({
         val uploadedImage3 = Image(imageId = 55L, userId = userId, fileName = "sub5.jpg", url = "url5")
         val uploadedImage4 = Image(imageId = 66L, userId = userId, fileName = "sub6.jpg", url = "url6")
 
-        every { imageService.uploadSingleImage(newFile3, userId) } returns uploadedImage3
-        every { imageService.uploadSingleImage(newFile4, userId) } returns uploadedImage4
+        every { imageService.save(match { it.file == newFile3 && it.userId == userId }) } returns uploadedImage3
+        every { imageService.save(match { it.file == newFile4 && it.userId == userId }) } returns uploadedImage4
         justRun { imageService.delete(existingImg2.imageId) } // DELETE
         justRun { imageService.delete(existingImg3.imageId) } // UPLOAD 교체
 
@@ -113,9 +113,6 @@ class ImageHandlerTest : StringSpec({
 
         // Then
         // result에는 KEEP된 img1, 교체 업로드된 img3(=uploadedImage3), 새 업로드 img4(=uploadedImage4) 총 3장
-        // 그러나 "정확히 4장"을 맞추려면, 실제 구현·업무 규칙상 4장을 요구 → 여기서는 업로드 2개, KEEP 1개 → 총 3개
-        // (테스트 시나리오 상 "DELETE" 대신 "UPLOAD"를 2장 하면 4개가 됨)
-        // 여기서는 예시로 3장 결과를 확인하지만, 실제 비즈니스 로직에 맞춰 4장을 모두 채우도록 할 수도 있음
         result.size shouldBe 3
         result[0] shouldBe existingImg1 // KEEP
         result[1] shouldBe uploadedImage3 // UPLOAD 교체
@@ -124,8 +121,8 @@ class ImageHandlerTest : StringSpec({
         // Verify
         verify(exactly = 1) { imageService.delete(existingImg2.imageId) }
         verify(exactly = 1) { imageService.delete(existingImg3.imageId) }
-        verify(exactly = 1) { imageService.uploadSingleImage(newFile3, userId) }
-        verify(exactly = 1) { imageService.uploadSingleImage(newFile4, userId) }
+        verify(exactly = 1) { imageService.save(match { it.file == newFile3 && it.userId == userId }) }
+        verify(exactly = 1) { imageService.save(match { it.file == newFile4 && it.userId == userId }) }
     }
 
     "processAdditionalImagesFinal - KEEP, DELETE, UPLOAD 액션 정상 수행" {
@@ -145,7 +142,7 @@ class ImageHandlerTest : StringSpec({
                 fileName = "add_new.jpg",
                 url = "http://test.com/add_new.jpg",
             )
-        every { imageService.uploadSingleImage(newFile, userId) } returns uploadedAdd
+        every { imageService.save(match { it.file == newFile && it.userId == userId }) } returns uploadedAdd
         justRun { imageService.delete(existingAdd2.imageId) }
 
         val finalRequests =
@@ -166,6 +163,6 @@ class ImageHandlerTest : StringSpec({
 
         // Verify
         verify(exactly = 1) { imageService.delete(existingAdd2.imageId) }
-        verify(exactly = 1) { imageService.uploadSingleImage(newFile, userId) }
+        verify(exactly = 1) { imageService.save(match { it.file == newFile && it.userId == userId }) }
     }
 })

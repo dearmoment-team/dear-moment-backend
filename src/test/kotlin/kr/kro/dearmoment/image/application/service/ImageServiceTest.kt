@@ -2,7 +2,6 @@ package kr.kro.dearmoment.image.application.service
 
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.longs.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.every
@@ -44,23 +43,27 @@ class ImageServiceTest : BehaviorSpec({
         val userId = 123L
         val file = mockk<org.springframework.web.multipart.MultipartFile>()
         val saveImageCommand = SaveImageCommand(file, userId)
-        val uploadedImage =
-            Image(
-                imageId = 1L,
-                userId = userId,
-                url = "localhost:8080/image",
-                fileName = "image.jpg",
-            )
-        val expectedImageId = 456L
+        val uploadedImage = Image(
+            imageId = 1L,
+            userId = userId,
+            url = "localhost:8080/image",
+            fileName = "image.jpg"
+        )
+        val expectedImage = Image(
+            imageId = 456L,
+            userId = userId,
+            url = "localhost:8080/image",
+            fileName = "image.jpg"
+        )
 
         every { uploadImagePort.upload(file, userId) } returns uploadedImage
-        every { saveImagePort.save(uploadedImage) } returns expectedImageId
+        every { saveImagePort.save(uploadedImage) } returns expectedImage
 
         When("이미지를 저장하면") {
             val result = imageService.save(saveImageCommand)
 
-            Then("이미지를 저장하고 이미지 ID를 반환한다.") {
-                result shouldBeExactly expectedImageId
+            Then("이미지를 저장하고 이미지 객체를 반환한다.") {
+                result shouldBe expectedImage
                 verify(exactly = 1) { uploadImagePort.upload(file, userId) }
                 verify(exactly = 1) { saveImagePort.save(uploadedImage) }
             }
@@ -70,23 +73,21 @@ class ImageServiceTest : BehaviorSpec({
     Given("이미지 ID를 제공했을 때") {
         val userId = 123L
         val imageId = 1L
-        val image =
-            Image(
-                userId = userId,
-                imageId = imageId,
-                url = "localhost:8080/image",
-                parId = "parId",
-                fileName = "image.jpg",
-            )
+        val image = Image(
+            userId = userId,
+            imageId = imageId,
+            url = "localhost:8080/image",
+            parId = "parId",
+            fileName = "image.jpg",
+        )
 
-        val updatedImage =
-            Image(
-                userId = userId,
-                imageId = imageId,
-                url = "localhost:8080/image/change",
-                parId = "changedParId",
-                fileName = "image.jpg",
-            )
+        val updatedImage = Image(
+            userId = userId,
+            imageId = imageId,
+            url = "localhost:8080/image/change",
+            parId = "changedParId",
+            fileName = "image.jpg",
+        )
 
         When("이미지를 조회하면") {
             every { getImagePort.findOne(imageId) } returns image
@@ -114,23 +115,22 @@ class ImageServiceTest : BehaviorSpec({
     Given("유저 ID를 제공했을 때") {
         val userId = 123L
 
-        val images =
-            listOf(
-                Image(
-                    userId = 123L,
-                    imageId = 1L,
-                    url = "localhost:8080/image",
-                    fileName = "image.jpg",
-                    urlExpireTime = LocalDateTime.now().plusDays(1L),
-                ),
-                Image(
-                    userId = 123L,
-                    imageId = 2L,
-                    url = "localhost:8080/image",
-                    fileName = "image22.jpg",
-                    urlExpireTime = LocalDateTime.now().plusDays(1L),
-                ),
-            )
+        val images = listOf(
+            Image(
+                userId = 123L,
+                imageId = 1L,
+                url = "localhost:8080/image",
+                fileName = "image.jpg",
+                urlExpireTime = LocalDateTime.now().plusDays(1L),
+            ),
+            Image(
+                userId = 123L,
+                imageId = 2L,
+                url = "localhost:8080/image",
+                fileName = "image22.jpg",
+                urlExpireTime = LocalDateTime.now().plusDays(1L),
+            ),
+        )
         every { getImagePort.findUserImages(userId) } returns images
         every { getImageFromObjectStoragePort.getImageWithUrl(any()) } returns Image(userId = 1, fileName = "")
 
