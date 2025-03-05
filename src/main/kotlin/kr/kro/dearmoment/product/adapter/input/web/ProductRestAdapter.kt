@@ -11,7 +11,6 @@ import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
 import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -38,11 +37,8 @@ class ProductRestAdapter(
     )
     fun createProduct(
         @ModelAttribute request: CreateProductRequest,
-    ): ResponseEntity<ProductResponse> {
-        val productResponse = createProductUseCase.saveProduct(request)
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(productResponse)
+    ): ProductResponse {
+        return createProductUseCase.saveProduct(request)
     }
 
     @PutMapping(
@@ -53,9 +49,8 @@ class ProductRestAdapter(
     fun updateProduct(
         @PathVariable id: Long,
         @ModelAttribute request: UpdateProductRequest,
-    ): ResponseEntity<ProductResponse> {
-        val updatedProduct = updateProductUseCase.updateProduct(request.copy(productId = id))
-        return ResponseEntity.ok().body(updatedProduct)
+    ): ProductResponse {
+        return updateProductUseCase.updateProduct(request.copy(productId = id))
     }
 
     @DeleteMapping("/{id}")
@@ -72,9 +67,8 @@ class ProductRestAdapter(
     )
     fun getProduct(
         @PathVariable id: Long,
-    ): ResponseEntity<ProductResponse> {
-        val product = getProductUseCase.getProductById(id)
-        return ResponseEntity.ok(product)
+    ): ProductResponse {
+        return getProductUseCase.getProductById(id)
     }
 
     @GetMapping(
@@ -84,9 +78,8 @@ class ProductRestAdapter(
     fun getMainPageProducts(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
-    ): ResponseEntity<PagedResponse<ProductResponse>> {
-        val pagedProducts = productSearchUseCase.getMainPageProducts(page, size)
-        return ResponseEntity.ok(pagedProducts)
+    ): PagedResponse<ProductResponse> {
+        return productSearchUseCase.getMainPageProducts(page, size)
     }
 
     @GetMapping(
@@ -100,8 +93,7 @@ class ProductRestAdapter(
         @RequestParam(required = false) sortBy: String?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
-    ): ResponseEntity<PagedResponse<ProductResponse>> {
-        val searchResult = productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
-        return ResponseEntity.ok(searchResult)
+    ): PagedResponse<ProductResponse> {
+        return productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
     }
 }

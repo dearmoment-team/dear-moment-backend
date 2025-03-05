@@ -56,6 +56,9 @@ dependencies {
     implementation("com.oracle.database.security:osdt_core:21.17.0.0")
     implementation("com.oracle.database.security:osdt_cert:21.17.0.0")
 
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
+    implementation("io.swagger.core.v3:swagger-annotations:2.2.28")
+
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     // H2

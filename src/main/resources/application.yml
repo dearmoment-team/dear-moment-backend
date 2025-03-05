@@ -3,3 +3,14 @@ spring:
     name: dearmoment
   profiles:
     default: local
+
+springdoc:
+  packages-to-scan:
+    - kr.kro.dearmoment  # 스캔할 패키지를 지정하세요.
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    enabled: true
+    path: /v3/swagger  # swagger-ui 경로
+  api-docs:
+    path: /v3/api-docs  # JSON charset을 포함한 엔드포인트로 사용하려면 이처럼 설정합니다.
