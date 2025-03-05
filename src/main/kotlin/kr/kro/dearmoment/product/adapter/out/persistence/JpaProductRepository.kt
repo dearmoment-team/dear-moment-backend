@@ -18,8 +18,8 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
         """
     SELECT p FROM ProductEntity p
     WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
-      AND (:productType IS NULL OR p.productType = :productType)
-      AND (:shootingPlace IS NULL OR p.shootingPlace = :shootingPlace)
+  AND (:productType IS NULL OR p.productType = :productType)
+  AND (:shootingPlace IS NULL OR p.shootingPlace = :shootingPlace)
     ORDER BY 
       CASE WHEN :sortBy = 'created-desc' THEN p.createdDate END DESC,
       CASE WHEN :sortBy = 'created-asc' THEN p.createdDate END ASC

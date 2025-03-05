@@ -57,9 +57,12 @@ class CreateProductUseCaseImpl(
         // 상품 저장
         val savedProduct = productPersistencePort.save(product)
 
-        // 옵션 생성 - 각 옵션을 ProductOptionUseCase를 통해 저장
-        request.options.forEach { dto ->
-            productOptionUseCase.saveProductOption(savedProduct.productId, dto)
+        try {
+            request.options.forEach { optionDto ->
+                productOptionUseCase.saveProductOption(savedProduct.productId, optionDto)
+            }
+        } catch (e: Exception) {
+            throw IllegalStateException("상품 옵션 저장 중 문제가 발생했습니다. 옵션 저장에 실패하였습니다.", e)
         }
 
         return ProductResponse.fromDomain(savedProduct)

@@ -80,8 +80,13 @@ data class CreateProductRequest(
             subImagesUrls: List<String> = emptyList(),
             additionalImagesUrls: List<String> = emptyList(),
         ): Product {
-            val productTypeEnum = ProductType.valueOf(req.productType)
-            val shootingPlaceEnum = ShootingPlace.valueOf(req.shootingPlace)
+            val productTypeEnum =
+                ProductType.entries.find { it.name == req.productType }
+                    ?: throw IllegalArgumentException("Invalid productType: ${req.productType}")
+
+            val shootingPlaceEnum =
+                ShootingPlace.entries.find { it.name == req.shootingPlace }
+                    ?: throw IllegalArgumentException("Invalid shootingPlace: ${req.shootingPlace}")
 
             val seasonSet = req.availableSeasons.map { ShootingSeason.valueOf(it) }.toSet()
             val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
