@@ -6,8 +6,8 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.util.PaginationUtil

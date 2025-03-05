@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.search
 
 import andDocument
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.common.dto.ResponseWrapper
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
@@ -10,7 +11,6 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase

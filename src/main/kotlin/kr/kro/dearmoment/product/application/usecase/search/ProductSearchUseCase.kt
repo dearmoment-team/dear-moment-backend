@@ -1,6 +1,6 @@
 package kr.kro.dearmoment.product.application.usecase.search
 
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 
 interface ProductSearchUseCase {

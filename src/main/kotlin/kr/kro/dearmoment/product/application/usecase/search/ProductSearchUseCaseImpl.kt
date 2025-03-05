@@ -1,6 +1,6 @@
 package kr.kro.dearmoment.product.application.usecase.search
 
-import kr.kro.dearmoment.product.application.dto.response.PagedResponse
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.util.PaginationUtil
