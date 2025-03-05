@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component
 class ImagePersistenceAdapter(
     private val imageRepository: JpaImageRepository,
 ) : SaveImagePort, UpdateImagePort, DeleteImageFromDBPort, GetImagePort {
-    override fun save(image: Image): Long {
+    override fun save(image: Image): Image {
         val entity = ImageEntity.from(image)
-        return imageRepository.save(entity).id
+        return imageRepository.save(entity).toDomain()
     }
 
     override fun saveAll(images: List<Image>): List<Long> {
