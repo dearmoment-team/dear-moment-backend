@@ -62,7 +62,7 @@ jobs:
             echo "==== Logging into GHCR... ===="
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
             echo "==== Pulling the latest image from GHCR... ===="
-            docker pull ghcr.io/${{ github.repository }}/dearmoment-backend:latest
+            docker pull ghcr.io/${{ github.repository }}/dearmoment-backend:${{ github.event.workflow_run.head_sha }}
             echo "==== Shutting down existing containers ===="
             docker compose down
             echo "==== Starting containers (using the new image + updated .env) ===="
