@@ -1,13 +1,20 @@
 package kr.kro.dearmoment.like.application.port.output
 
-import kr.kro.dearmoment.like.domain.Like
+import kr.kro.dearmoment.like.domain.ProductOptionLike
+import kr.kro.dearmoment.like.domain.StudioLike
 
 interface GetLikePort {
-    fun loadLikes(userId: Long): List<Like>
+    fun findUserStudioLikes(userId: Long): List<StudioLike>
 
-    fun existLike(
+    fun findUserProductLikes(userId: Long): List<ProductOptionLike>
+
+    fun existStudioLike(
         userId: Long,
-        targetId: Long,
-        type: String,
+        studioId: Long,
+    ): Boolean
+
+    fun existProductOptionLike(
+        userId: Long,
+        productOptionId: Long,
     ): Boolean
 }

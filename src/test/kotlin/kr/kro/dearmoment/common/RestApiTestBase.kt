@@ -10,6 +10,7 @@ import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
 import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
+import kr.kro.dearmoment.like.application.service.LikeQueryService
 import kr.kro.dearmoment.studio.adapter.input.StudioRestAdapter
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
@@ -48,6 +49,9 @@ abstract class RestApiTestBase {
 
     @MockkBean
     protected lateinit var likeUseCase: LikeUseCase
+
+    @MockkBean
+    protected lateinit var likeQueryService: LikeQueryService
 
     @MockkBean
     protected lateinit var createInquiryUseCase: CreateInquiryUseCase

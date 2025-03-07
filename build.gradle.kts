@@ -28,6 +28,7 @@ repositories {
 }
 
 val ociSdkVersion by extra("3.55.3")
+val fixtureMonkeyVersion by extra("1.1.9")
 
 dependencies {
     // Spring Boot
@@ -78,6 +79,10 @@ dependencies {
     // Kotest Assertions (선택적, 다양한 assert 기능 제공)
     testImplementation("io.kotest:kotest-assertions-core:5.7.0")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
+
+    // Fixture
+    testImplementation("com.navercorp.fixturemonkey:fixture-monkey-kotlin:$fixtureMonkeyVersion")
+    testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter-kotlin:$fixtureMonkeyVersion")
 
     // 코루틴
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
