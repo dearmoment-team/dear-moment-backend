@@ -47,7 +47,7 @@ class ProductOptionInquiryRestAdapter(
         ],
     )
     @PostMapping
-    fun writeProductInquiry(
+    fun writeProductOptionInquiry(
         @Parameter(description = "생성할 상품 옵션 문의 정보", required = true)
         @RequestBody request: CreateProductOptionInquiryRequest,
     ): CreateInquiryResponse = createInquiryUseCase.createProductInquiry(request.toCommand())
@@ -63,9 +63,10 @@ class ProductOptionInquiryRestAdapter(
         ],
     )
     @GetMapping("/{userId}")
-    fun getProductInquiries(
+    fun getProductOptionInquiries(
         @Parameter(description = "조회할 유저의 식별자", required = true)
         @PathVariable userId: Long,
+        @Parameter(description = "페이징 정보", required = true)
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
     ): PagedResponse<GetProductOptionInquiryResponse> {
         val query = GetProductInquiresQuery(userId, pageable)
@@ -83,7 +84,7 @@ class ProductOptionInquiryRestAdapter(
     )
     @DeleteMapping("/{inquiryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun removeProductInquiry(
+    fun removeProductOptionInquiry(
         @Parameter(description = "삭제할 상품 옵션 문의 식별자 식별자", required = true)
         @PathVariable inquiryId: Long,
     ): Unit = removeInquiryUseCase.removeProductOptionInquiry(inquiryId)
