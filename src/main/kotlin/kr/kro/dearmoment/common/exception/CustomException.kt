@@ -5,5 +5,5 @@ class CustomException(val errorCode: ErrorCode) : RuntimeException() {
         return this // 스택 트레이스 생성을 막음
     }
 
-    override fun toString(): String = "CustomException: code = {${errorCode.name}}, message = {${errorCode.message}}"
+    override fun toString(): String = "CustomException(code=${errorCode.name}, status=${errorCode.status}, message='${errorCode.message}')"
 }
