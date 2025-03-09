@@ -2,6 +2,7 @@ package kr.kro.dearmoment.studio.application.service
 
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
+import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
 import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
@@ -28,10 +29,10 @@ class StudioService(
         return StudioResponse.from(saveStudioPort.save(studio))
     }
 
-    override fun getStudio(studioId: Long): StudioResponse {
+    override fun getStudio(studioId: Long): GetStudioResponse {
         val studio = getStudioPort.findById(studioId)
 
-        return StudioResponse.from(studio)
+        return GetStudioResponse.from(studio)
     }
 
     @Transactional
