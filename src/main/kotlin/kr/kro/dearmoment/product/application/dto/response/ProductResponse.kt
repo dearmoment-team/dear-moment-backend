@@ -23,13 +23,13 @@ data class ProductResponse(
     @Schema(
         description = "상품 유형 (도메인: ProductType)",
         example = "WEDDING_SNAP",
-        allowableValues = ["WEDDING_SNAP"]
+        allowableValues = ["WEDDING_SNAP"],
     )
     val productType: String,
     @Schema(
         description = "촬영 장소 (도메인: ShootingPlace)",
         example = "JEJU",
-        allowableValues = ["JEJU"]
+        allowableValues = ["JEJU"],
     )
     val shootingPlace: String,
     @Schema(description = "상품 제목", example = "예쁜 웨딩 사진 촬영")
@@ -38,29 +38,33 @@ data class ProductResponse(
     val description: String?,
     @Schema(
         description = "촬영 가능 시기 (도메인: ShootingSeason)",
-        example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]"
+        example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
     )
     val availableSeasons: List<String>,
     @Schema(
         description = "카메라 종류 (도메인: CameraType)",
-        example = "[\"DIGITAL\", \"FILM\"]"
+        example = "[\"DIGITAL\", \"FILM\"]",
     )
     val cameraTypes: List<String>,
     @Schema(
         description = "보정 스타일 (도메인: RetouchStyle)",
-        example = "[\"MODERN\", \"VINTAGE\"]"
+        example = "[\"MODERN\", \"VINTAGE\"]",
     )
     val retouchStyles: List<String>,
     @Schema(description = "대표 이미지 URL", example = "http://example.com/main.jpg")
     val mainImage: String,
     @Schema(
         description = "서브 이미지 URL 목록",
-        example = "[\"http://example.com/sub1.jpg\", \"http://example.com/sub2.jpg\", \"http://example.com/sub3.jpg\", \"http://example.com/sub4.jpg\"]"
+        example =
+            "[\"http://example.com/sub1.jpg\", " +
+                "\"http://example.com/sub2.jpg\", " +
+                "\"http://example.com/sub3.jpg\", " +
+                "\"http://example.com/sub4.jpg\"]",
     )
     val subImages: List<String>,
     @Schema(
         description = "추가 이미지 URL 목록",
-        example = "[\"http://example.com/add1.jpg\", \"http://example.com/add2.jpg\"]"
+        example = "[\"http://example.com/add1.jpg\", \"http://example.com/add2.jpg\"]",
     )
     val additionalImages: List<String>,
     @Schema(description = "상세 정보", example = "연락처: 010-1234-5678, 문의는 이메일", nullable = true)
@@ -72,7 +76,7 @@ data class ProductResponse(
     @Schema(description = "수정 일시", example = "2025-03-09T12:00:00", nullable = true)
     val updatedAt: LocalDateTime?,
     @Schema(description = "상품 옵션 목록")
-    val options: List<ProductOptionResponse>
+    val options: List<ProductOptionResponse>,
 ) {
     companion object {
         fun fromDomain(prod: Product): ProductResponse {
@@ -109,30 +113,33 @@ data class ProductResponse(
             availableSeasons = this.availableSeasons.map { ShootingSeason.valueOf(it) }.toSet(),
             cameraTypes = this.cameraTypes.map { CameraType.valueOf(it) }.toSet(),
             retouchStyles = this.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet(),
-            mainImage = Image(
-                userId = this.userId,
-                fileName = this.mainImage.substringAfterLast('/'),
-                url = this.mainImage
-            ),
-            subImages = this.subImages.map { url ->
+            mainImage =
                 Image(
                     userId = this.userId,
-                    fileName = url.substringAfterLast('/'),
-                    url = url
-                )
-            },
-            additionalImages = this.additionalImages.map { url ->
-                Image(
-                    userId = this.userId,
-                    fileName = url.substringAfterLast('/'),
-                    url = url
-                )
-            },
+                    fileName = this.mainImage.substringAfterLast('/'),
+                    url = this.mainImage,
+                ),
+            subImages =
+                this.subImages.map { url ->
+                    Image(
+                        userId = this.userId,
+                        fileName = url.substringAfterLast('/'),
+                        url = url,
+                    )
+                },
+            additionalImages =
+                this.additionalImages.map { url ->
+                    Image(
+                        userId = this.userId,
+                        fileName = url.substringAfterLast('/'),
+                        url = url,
+                    )
+                },
             detailedInfo = this.detailedInfo ?: "",
             contactInfo = this.contactInfo ?: "",
             createdAt = this.createdAt ?: LocalDateTime.now(),
             updatedAt = this.updatedAt ?: LocalDateTime.now(),
-            options = this.options.map { it.toDomain() }
+            options = this.options.map { it.toDomain() },
         )
     }
 }
@@ -148,7 +155,7 @@ data class ProductOptionResponse(
     @Schema(
         description = "옵션 타입 (도메인: OptionType)",
         example = "SINGLE",
-        allowableValues = ["SINGLE", "PACKAGE"]
+        allowableValues = ["SINGLE", "PACKAGE"],
     )
     val optionType: String,
     @Schema(description = "할인 적용 여부", example = "false")
@@ -174,7 +181,7 @@ data class ProductOptionResponse(
     @Schema(description = "생성 일시", example = "2025-03-09T12:00:00", nullable = true)
     val createdAt: LocalDateTime?,
     @Schema(description = "수정 일시", example = "2025-03-09T12:00:00", nullable = true)
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
 ) {
     companion object {
         fun fromDomain(opt: ProductOption): ProductOptionResponse {
@@ -194,7 +201,7 @@ data class ProductOptionResponse(
                 retouchedCount = opt.retouchedCount,
                 partnerShops = opt.partnerShops.map { PartnerShopResponse.fromDomain(it) },
                 createdAt = opt.createdAt,
-                updatedAt = opt.updatedAt
+                updatedAt = opt.updatedAt,
             )
         }
     }
@@ -217,7 +224,7 @@ data class ProductOptionResponse(
             originalProvided = true,
             partnerShops = this.partnerShops.map { it.toDomain() },
             createdAt = this.createdAt,
-            updatedAt = this.updatedAt
+            updatedAt = this.updatedAt,
         )
     }
 }
@@ -227,20 +234,20 @@ data class PartnerShopResponse(
     @Schema(
         description = "파트너샵 카테고리 (도메인: PartnerShopCategory)",
         example = "HAIR_MAKEUP",
-        allowableValues = ["HAIR_MAKEUP", "DRESS", "MENS_SUIT", "BOUQUET", "VIDEO", "STUDIO", "ETC"]
+        allowableValues = ["HAIR_MAKEUP", "DRESS", "MENS_SUIT", "BOUQUET", "VIDEO", "STUDIO", "ETC"],
     )
     val category: String,
     @Schema(description = "파트너샵 이름", example = "샘플샵")
     val name: String,
     @Schema(description = "파트너샵 링크", example = "http://example.com")
-    val link: String
+    val link: String,
 ) {
     companion object {
         fun fromDomain(ps: PartnerShop): PartnerShopResponse {
             return PartnerShopResponse(
                 category = ps.category.name,
                 name = ps.name,
-                link = ps.link
+                link = ps.link,
             )
         }
     }
@@ -249,7 +256,7 @@ data class PartnerShopResponse(
         return PartnerShop(
             category = PartnerShopCategory.valueOf(this.category),
             name = this.name,
-            link = this.link
+            link = this.link,
         )
     }
 }

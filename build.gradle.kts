@@ -89,43 +89,13 @@ tasks.test {
     finalizedBy("koverHtmlReport")
 }
 
-// OpenAPI 설정
-openapi3 {
-    setServer("http://localhost:8080")
-    title = "My API"
-    description = "My API description"
-    version = "0.1.0"
-    format = "json"
-}
-
 // ktlint 설정
 ktlint {
     verbose.set(true)
 }
 
-// Swagger 문서 복사 태스크 등록
-tasks.register<Copy>("copyOasToSwagger") {
-    dependsOn("openapi3") // openapi3 태스크가 먼저 실행되도록 설정
-
-    doFirst {
-        val sourceFile = layout.buildDirectory.file("api-spec/openapi3.json").get().asFile
-        println("Copying OAS file from: ${sourceFile.path}")
-        delete("src/main/resources/static/swagger-ui/openapi3.json")
-    }
-
-    from(layout.buildDirectory.file("api-spec/openapi3.json").get().asFile)
-    into("src/main/resources/static/swagger-ui/")
-}
-
-// build 태스크가 끝난 후 Swagger 문서 복사 태스크 실행
-tasks.named("build") {
-    finalizedBy("copyOasToSwagger")
-}
-
 // bootRun 태스크가 Swagger 문서 복사 태스크에 의존하도록 설정 + 디버그 옵션 적용
 tasks.named<BootRun>("bootRun") {
-    dependsOn("copyOasToSwagger")
-
     // JVM 디버그 옵션 설정
     jvmArgs =
         listOf(

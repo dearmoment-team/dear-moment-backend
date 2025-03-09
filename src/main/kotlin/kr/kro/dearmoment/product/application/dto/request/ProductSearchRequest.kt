@@ -16,19 +16,19 @@ data class ProductSearchRequest(
     @Schema(
         description = "검색할 상품 유형 (도메인: ProductType)",
         example = "WEDDING_SNAP",
-        allowableValues = ["WEDDING_SNAP"]
+        allowableValues = ["WEDDING_SNAP"],
     )
     val productType: String? = null,
     @Schema(
         description = "검색할 촬영 장소 (도메인: ShootingPlace)",
         example = "JEJU",
-        allowableValues = ["JEJU"]
+        allowableValues = ["JEJU"],
     )
     val shootingPlace: String? = null,
     @Schema(
         description = "정렬 조건",
         example = "created-desc",
-        allowableValues = ["created-desc", "created-asc"]
+        allowableValues = ["created-desc", "created-asc"],
     )
     val sortBy: String? = null,
     @Schema(description = "페이지 번호 (0부터 시작)", example = "0")

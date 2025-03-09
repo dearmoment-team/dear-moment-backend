@@ -2,11 +2,11 @@ package kr.kro.dearmoment.product.adapter.input.web
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
@@ -39,16 +39,15 @@ class ProductRestAdapter(
     private val getProductUseCase: GetProductUseCase,
     private val productSearchUseCase: ProductSearchUseCase,
 ) {
-
     @Operation(summary = "상품 생성", description = "새로운 상품을 생성합니다.")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
                 description = "상품 생성 성공",
-                content = [Content(schema = Schema(implementation = ProductResponse::class))]
-            )
-        ]
+                content = [Content(schema = Schema(implementation = ProductResponse::class))],
+            ),
+        ],
     )
     @PostMapping(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
@@ -67,9 +66,9 @@ class ProductRestAdapter(
             ApiResponse(
                 responseCode = "200",
                 description = "상품 수정 성공",
-                content = [Content(schema = Schema(implementation = ProductResponse::class))]
-            )
-        ]
+                content = [Content(schema = Schema(implementation = ProductResponse::class))],
+            ),
+        ],
     )
     @PutMapping(
         value = ["/{id}"],
@@ -88,8 +87,8 @@ class ProductRestAdapter(
     @Operation(summary = "상품 삭제", description = "상품을 삭제합니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "204", description = "상품 삭제 성공")
-        ]
+            ApiResponse(responseCode = "204", description = "상품 삭제 성공"),
+        ],
     )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -106,9 +105,9 @@ class ProductRestAdapter(
             ApiResponse(
                 responseCode = "200",
                 description = "상품 조회 성공",
-                content = [Content(schema = Schema(implementation = ProductResponse::class))]
-            )
-        ]
+                content = [Content(schema = Schema(implementation = ProductResponse::class))],
+            ),
+        ],
     )
     @GetMapping(
         value = ["/{id}"],
@@ -127,9 +126,9 @@ class ProductRestAdapter(
             ApiResponse(
                 responseCode = "200",
                 description = "메인 페이지 상품 조회 성공",
-                content = [Content(schema = Schema(implementation = PagedResponse::class))]
-            )
-        ]
+                content = [Content(schema = Schema(implementation = PagedResponse::class))],
+            ),
+        ],
     )
     @GetMapping(
         value = ["/main"],
@@ -148,9 +147,9 @@ class ProductRestAdapter(
             ApiResponse(
                 responseCode = "200",
                 description = "상품 검색 성공",
-                content = [Content(schema = Schema(implementation = PagedResponse::class))]
-            )
-        ]
+                content = [Content(schema = Schema(implementation = PagedResponse::class))],
+            ),
+        ],
     )
     @GetMapping(
         value = ["/search"],

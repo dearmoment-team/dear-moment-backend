@@ -36,13 +36,13 @@ data class UpdateProductRequest(
     @Schema(
         description = "상품 유형 (도메인: ProductType)",
         example = "WEDDING_SNAP",
-        allowableValues = ["WEDDING_SNAP"]
+        allowableValues = ["WEDDING_SNAP"],
     )
     val productType: String,
     @Schema(
         description = "촬영 장소 (도메인: ShootingPlace)",
         example = "JEJU",
-        allowableValues = ["JEJU"]
+        allowableValues = ["JEJU"],
     )
     val shootingPlace: String,
     @Schema(description = "상품 제목", example = "예쁜 웨딩 사진 촬영", required = true)
@@ -51,17 +51,17 @@ data class UpdateProductRequest(
     val description: String? = null,
     @Schema(
         description = "촬영 가능 시기 (여러 값 가능, 도메인: ShootingSeason)",
-        example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]"
+        example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
     )
     val availableSeasons: List<String> = emptyList(),
     @Schema(
         description = "카메라 종류 (여러 값 가능, 도메인: CameraType)",
-        example = "[\"DIGITAL\", \"FILM\"]"
+        example = "[\"DIGITAL\", \"FILM\"]",
     )
     val cameraTypes: List<String> = emptyList(),
     @Schema(
         description = "보정 스타일 (여러 값 가능, 도메인: RetouchStyle)",
-        example = "[\"MODERN\", \"VINTAGE\"]"
+        example = "[\"MODERN\", \"VINTAGE\"]",
     )
     val retouchStyles: List<String> = emptyList(),
     @Schema(description = "교체할 새 대표 이미지 파일 (없으면 null)", required = false)
@@ -94,9 +94,10 @@ data class UpdateProductRequest(
             val cameraSet = req.cameraTypes.map { CameraType.valueOf(it) }.toSet()
             val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
 
-            val domainOptions = req.options.map {
-                UpdateProductOptionRequest.toDomain(it, req.productId)
-            }
+            val domainOptions =
+                req.options.map {
+                    UpdateProductOptionRequest.toDomain(it, req.productId)
+                }
 
             return Product(
                 productId = req.productId,
@@ -187,7 +188,7 @@ data class UpdateProductOptionRequest(
         description = "옵션 타입 (도메인: OptionType)",
         example = "SINGLE",
         allowableValues = ["SINGLE", "PACKAGE"],
-        required = true
+        required = true,
     )
     val optionType: String,
     @Schema(description = "할인 적용 여부", example = "false")
@@ -236,13 +237,14 @@ data class UpdateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
-                partnerShops = dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                partnerShops =
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )
@@ -259,7 +261,7 @@ data class UpdatePartnerShopRequest(
         description = "파트너샵 카테고리 (도메인: PartnerShopCategory)",
         example = "HAIR_MAKEUP",
         allowableValues = ["HAIR_MAKEUP", "DRESS", "MENS_SUIT", "BOUQUET", "VIDEO", "STUDIO", "ETC"],
-        required = true
+        required = true,
     )
     val category: String,
     @Schema(description = "파트너샵 이름", example = "샘플샵", required = true)

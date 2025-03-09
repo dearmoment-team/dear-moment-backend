@@ -40,7 +40,7 @@ data class CreateProductRequest(
      */
     @Schema(
         description = "촬영 가능 시기 (여러 값 가능, 도메인: ShootingSeason)",
-        example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]"
+        example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
     )
     val availableSeasons: List<String> = emptyList(),
     /**
@@ -48,7 +48,7 @@ data class CreateProductRequest(
      */
     @Schema(
         description = "카메라 종류 (여러 값 가능, 도메인: CameraType)",
-        example = "[\"DIGITAL\", \"FILM\"]"
+        example = "[\"DIGITAL\", \"FILM\"]",
     )
     val cameraTypes: List<String> = emptyList(),
     /**
@@ -56,7 +56,7 @@ data class CreateProductRequest(
      */
     @Schema(
         description = "보정 스타일 (여러 값 가능, 도메인: RetouchStyle)",
-        example = "[\"MODERN\", \"VINTAGE\"]"
+        example = "[\"MODERN\", \"VINTAGE\"]",
     )
     val retouchStyles: List<String> = emptyList(),
     /**
@@ -217,13 +217,13 @@ data class CreateProductOptionRequest(
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
                 partnerShops =
-                dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )
@@ -241,7 +241,7 @@ data class CreatePartnerShopRequest(
         required = true,
         // 여러 값을 허용하는 경우 allowableValues 속성을 사용하여 값을 나열합니다.
         allowableValues = ["HAIR_MAKEUP", "DRESS", "MENS_SUIT", "BOUQUET", "VIDEO", "STUDIO", "ETC"],
-        example = "HAIR_MAKEUP"
+        example = "HAIR_MAKEUP",
     )
     val category: String,
     @Schema(description = "파트너샵 이름", example = "샘플샵", required = true)
