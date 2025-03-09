@@ -38,7 +38,7 @@ data class RegisterStudioRequest(
     val reservationNotice: String,
     @Schema(description = "취소 및 환불 정책", example = "환불은 불가능합니다.")
     val cancellationPolicy: String,
-    @Schema(description = "파트너샵 정보", example = "[{name: 'Shop A', url: 'https://shop.com'}]")
+    @Schema(description = "파트너샵 정보")
     val partnerShops: List<StudioPartnerShopDto>,
     @Schema(
         description = "스튜디오 상태",

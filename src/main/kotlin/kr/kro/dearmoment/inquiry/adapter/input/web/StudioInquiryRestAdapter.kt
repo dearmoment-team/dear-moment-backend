@@ -47,7 +47,7 @@ class StudioInquiryRestAdapter(
         @RequestBody request: CreateStudioInquiryRequest,
     ): CreateInquiryResponse = createInquiryUseCase.createStudioInquiry(request.toCommand())
 
-    @Operation(summary = "유저 스튜디오 문의 조히", description = "유저가 등록한 스튜디오 문의를 모두 조회합니다.")
+    @Operation(summary = "유저 스튜디오 문의 조회", description = "유저가 등록한 스튜디오 문의를 모두 조회합니다.")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -61,6 +61,16 @@ class StudioInquiryRestAdapter(
     fun getStudioInquiries(
         @Parameter(description = "조회할 유저의 식별자", required = true)
         @PathVariable userId: Long,
+        @Parameter(
+            description = "페이징 정보",
+            example = """{
+              "page": 0,
+              "size": 10,
+              "sort": "createdDate",
+              "direction": "DESC"
+            }""",
+            required = true,
+        )
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
     ): PagedResponse<GetStudioInquiryResponse> {
         val query = GetStudioInquiresQuery(userId, pageable)
