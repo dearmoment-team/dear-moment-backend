@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
-import kr.kro.dearmoment.like.domain.CreateStudioLike
 import kr.kro.dearmoment.like.domain.Like
 import kr.kro.dearmoment.like.domain.StudioLike
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
@@ -28,16 +27,6 @@ class StudioLikeEntity(
     @JoinColumn(name = "studio_id")
     val studio: StudioEntity? = null,
 ) : Auditable() {
-    fun toCreateDomain(): Like {
-        check(studio != null) { "스튜디오는 널이 될 수 없습니다." }
-
-        return CreateStudioLike(
-            id = id,
-            userId = userId,
-            studioId = studio.id,
-        )
-    }
-
     fun toDomain(): StudioLike {
         val notNullStudio = requireNotNull(studio)
         return StudioLike(
