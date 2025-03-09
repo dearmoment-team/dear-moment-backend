@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/inquiries/product-options")
+class ProductOptionInquiryRestAdapter(
 class ProductInquiryRestAdapter(
     private val createInquiryUseCase: CreateInquiryUseCase,
     private val getInquiryUseCase: GetInquiryUseCase,
