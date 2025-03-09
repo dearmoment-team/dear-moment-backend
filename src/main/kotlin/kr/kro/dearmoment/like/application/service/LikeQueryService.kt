@@ -9,24 +9,21 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class LikeQueryService(
     private val getLikePort: GetLikePort,
 ) : LikeQueryUseCase {
-    @Transactional(readOnly = true)
     override fun getUserStudioLikes(userId: Long): List<GetStudioLikeResponse> =
         getLikePort.findUserStudioLikes(userId).map {
             GetStudioLikeResponse.from(it)
         }
 
-    @Transactional(readOnly = true)
     override fun getUserProductOptionLikes(userId: Long): List<GetProductOptionLikeResponse> =
         getLikePort.findUserProductLikes(userId).map {
             GetProductOptionLikeResponse.from(it)
         }
 
-    @Transactional(readOnly = true)
     override fun isStudioLike(query: ExistLikeQuery): Boolean = getLikePort.existStudioLike(query.userId, query.targetId)
 
-    @Transactional(readOnly = true)
     override fun isProductOptionLike(query: ExistLikeQuery): Boolean = getLikePort.existProductOptionLike(query.userId, query.targetId)
 }

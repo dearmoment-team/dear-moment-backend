@@ -37,12 +37,12 @@ class LikePersistenceAdapterTest(
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
 
-            val studioLike = CreateStudioLike(userId = userId, studioId = 1L)
+            val studioLike = CreateStudioLike(userId = userId, studioId = savedStudio.id)
             val studioLikeId = adapter.saveStudioLike(studioLike)
 
             val productOptionLike =
                 CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId!!)
-            val productLikeId = adapter.saveProductOptionLike(productOptionLike)
+            val productOptionLikeId = adapter.saveProductOptionLike(productOptionLike)
 
             context("저장하려는 스튜디오 좋아요 도메인이 전달되면") {
                 it("DB에 저장한다.") {
@@ -52,26 +52,28 @@ class LikePersistenceAdapterTest(
 
             context("저장하려는 상품 좋아요 도메인이 전달되면") {
                 it("DB에 저장한다.") {
-                    productLikeId shouldBeGreaterThan 0
+                    productOptionLikeId shouldBeGreaterThan 0
                 }
             }
 
             context("user ID와 studio ID가 전달되면") {
                 it("좋아요가 존재하는지 알 수있다") {
-                    adapter.existStudioLike(studioLike.userId, studioLikeId) shouldBe true
+                    val isLike = adapter.existStudioLike(studioLike.userId, savedStudio.id)
+                    isLike shouldBe true
                 }
             }
 
             context("user ID와 product ID가 전달되면") {
                 it("좋아요가 존재하는지 알 수있다") {
-                    adapter.existProductOptionLike(productOptionLike.userId, productLikeId) shouldBe true
+                    val isLike = adapter.existProductOptionLike(productOptionLike.userId, savedProductOption.optionId!!)
+                    isLike shouldBe true
                 }
             }
 
             context("like ID가 전달되면") {
                 it("like ID에 해당하는 데이터를 db에서 삭제한다. ") {
                     shouldNotThrow<Throwable> { adapter.deleteStudioLike(studioLikeId) }
-                    shouldNotThrow<Throwable> { adapter.deleteProductOptionLike(studioLikeId) }
+                    shouldNotThrow<Throwable> { adapter.deleteProductOptionLike(productOptionLikeId) }
                 }
             }
         }

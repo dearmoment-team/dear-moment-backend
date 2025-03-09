@@ -18,7 +18,7 @@ class LikeServiceTest : DescribeSpec({
 
     val saveLikePort = mockk<SaveLikePort>()
     val deleteLikePort = mockk<DeleteLikePort>()
-    val likeService = LikeService(saveLikePort, deleteLikePort)
+    val likeCommandService = LikeCommandService(saveLikePort, deleteLikePort)
 
     describe("studioLike()는") {
         context("유효한 command를 전달 받으면") {
@@ -32,7 +32,7 @@ class LikeServiceTest : DescribeSpec({
 
             every { saveLikePort.saveStudioLike(any()) } returns like.id
             it("likeEntity를 저장하고 like를 반환한다.") {
-                val response = likeService.studioLike(command)
+                val response = likeCommandService.studioLike(command)
                 response.likeId shouldBe like.id
                 verify(exactly = 1) { saveLikePort.saveStudioLike(any()) }
             }
@@ -51,7 +51,7 @@ class LikeServiceTest : DescribeSpec({
 
             every { saveLikePort.saveProductOptionLike(any()) } returns like.id
             it("likeEntity를 저장하고 like를 반환한다.") {
-                val response = likeService.productOptionsLike(command)
+                val response = likeCommandService.productOptionsLike(command)
                 response.likeId shouldBe like.id
                 verify(exactly = 1) { saveLikePort.saveProductOptionLike(any()) }
             }
@@ -64,7 +64,7 @@ class LikeServiceTest : DescribeSpec({
 
             every { deleteLikePort.deleteStudioLike(likeId) } just Runs
             it("like를 삭제한다.") {
-                shouldNotThrow<Throwable> { likeService.studioUnlike(likeId) }
+                shouldNotThrow<Throwable> { likeCommandService.studioUnlike(likeId) }
                 verify(exactly = 1) { deleteLikePort.deleteStudioLike(likeId) }
             }
         }
@@ -76,7 +76,7 @@ class LikeServiceTest : DescribeSpec({
 
             every { deleteLikePort.deleteProductOptionLike(likeId) } just Runs
             it("like를 삭제한다.") {
-                shouldNotThrow<Throwable> { likeService.productOptionUnlike(likeId) }
+                shouldNotThrow<Throwable> { likeCommandService.productOptionUnlike(likeId) }
                 verify(exactly = 1) { deleteLikePort.deleteProductOptionLike(likeId) }
             }
         }

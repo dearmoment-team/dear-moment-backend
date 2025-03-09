@@ -1,10 +1,9 @@
 package kr.kro.dearmoment.inquiry.adapter.input.web
 
 import kr.kro.dearmoment.common.dto.PagedResponse
-import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
-import kr.kro.dearmoment.inquiry.application.dto.CreateProductInquiryRequest
-import kr.kro.dearmoment.inquiry.application.dto.GetProductInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.CreateProductOptionInquiryRequest
+import kr.kro.dearmoment.inquiry.application.dto.GetProductOptionInquiryResponse
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/inquiries/products")
+@RequestMapping("/api/inquiries/product-options")
 class ProductInquiryRestAdapter(
     private val createInquiryUseCase: CreateInquiryUseCase,
     private val getInquiryUseCase: GetInquiryUseCase,
@@ -31,24 +30,16 @@ class ProductInquiryRestAdapter(
 ) {
     @PostMapping
     fun writeProductInquiry(
-        @RequestBody request: CreateProductInquiryRequest,
-    ): CreateInquiryResponse {
-        val command =
-            CreateProductInquiryCommand(
-                userId = request.userId,
-                productId = request.productId,
-            )
-
-        return createInquiryUseCase.createProductInquiry(command)
-    }
+        @RequestBody request: CreateProductOptionInquiryRequest,
+    ): CreateInquiryResponse = createInquiryUseCase.createProductInquiry(request.toCommand())
 
     @GetMapping("/{userId}")
     fun getProductInquiries(
         @PathVariable userId: Long,
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
-    ): PagedResponse<GetProductInquiryResponse> {
+    ): PagedResponse<GetProductOptionInquiryResponse> {
         val query = GetProductInquiresQuery(userId, pageable)
-        return getInquiryUseCase.getProductInquiries(query)
+        return getInquiryUseCase.getProductOptionInquiries(query)
     }
 
     @DeleteMapping("/{inquiryId}")

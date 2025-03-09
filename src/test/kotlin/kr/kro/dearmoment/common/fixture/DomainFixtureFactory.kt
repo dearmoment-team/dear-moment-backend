@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.common.fixture
 
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
+import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import kr.kro.dearmoment.like.domain.ProductOptionLike
 import kr.kro.dearmoment.like.domain.StudioLike
 import kr.kro.dearmoment.product.domain.model.OptionType
@@ -64,4 +65,9 @@ fun productOptionLikeFixture(userId: Long): ProductOptionLike =
         .setExp(ProductOptionLike::userId, userId)
         .setExp(ProductOptionLike::product, productFixture())
         .setExp(ProductOptionLike::productOptionId, 1L)
+        .sample()
+
+fun productOptionInquiryFixture(userId: Long): ProductOptionInquiry =
+    fixtureBuilder.giveMeKotlinBuilder<ProductOptionInquiry>()
+        .setExp(ProductOptionInquiry::userId, userId)
         .sample()

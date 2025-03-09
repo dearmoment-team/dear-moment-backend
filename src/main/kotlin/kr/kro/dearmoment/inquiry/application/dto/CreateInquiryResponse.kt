@@ -1,5 +1,5 @@
 package kr.kro.dearmoment.inquiry.application.dto
 
-data class CreateInquiryResponse(
+class CreateInquiryResponse(
     val inquiryId: Long,
 )

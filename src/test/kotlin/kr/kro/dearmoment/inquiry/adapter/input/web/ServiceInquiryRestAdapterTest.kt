@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.inquiry.adapter.input.web.service
+package kr.kro.dearmoment.inquiry.adapter.input.web
 
 import andDocument
 import io.mockk.every

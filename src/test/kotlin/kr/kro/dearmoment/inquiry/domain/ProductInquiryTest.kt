@@ -8,8 +8,8 @@ class ProductInquiryTest : DescribeSpec({
         context("생성 시 상품 ID가 음수면 ") {
             it("예외를 발생시킨다.") {
                 shouldThrow<IllegalArgumentException> {
-                    ProductInquiry(
-                        productId = -1,
+                    CreateProductOptionInquiry(
+                        productOptionId = -1,
                     )
                 }
             }

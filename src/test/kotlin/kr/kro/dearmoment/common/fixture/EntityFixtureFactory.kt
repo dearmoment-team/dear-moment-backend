@@ -8,15 +8,15 @@ import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 
-fun studioEntityFixture(userId: Long): StudioEntity =
+fun studioEntityFixture(userId: Long = 12345L): StudioEntity =
     fixtureBuilder.giveMeKotlinBuilder<StudioEntity>()
         .setExp(StudioEntity::id, 0L)
         .setExp(StudioEntity::userId, userId)
         .sample()
 
 fun productEntityFixture(
-    userId: Long,
-    studioEntity: StudioEntity,
+    userId: Long = 12345L,
+    studioEntity: StudioEntity = studioEntityFixture(userId),
 ): ProductEntity =
     fixtureBuilder.giveMeKotlinBuilder<ProductEntity>()
         .setNull(ProductEntity::productId)
@@ -31,15 +31,15 @@ fun productEntityFixture(
 
 fun partnerShopEmbeddableFixture(): PartnerShopEmbeddable =
     fixtureBuilder.giveMeKotlinBuilder<PartnerShopEmbeddable>()
-        .setExp(PartnerShopEmbeddable::category, PartnerShopCategory.HAIR_MAKEUP) // 기본값 설정
+        .setExp(PartnerShopEmbeddable::category, PartnerShopCategory.HAIR_MAKEUP)
         .setExp(PartnerShopEmbeddable::name, "Test Shop")
         .setExp(PartnerShopEmbeddable::link, "http://testshop.com")
         .sample()
 
-fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntity {
+fun productOptionEntityFixture(productEntity: ProductEntity = productEntityFixture()): ProductOptionEntity {
     return fixtureBuilder.giveMeKotlinBuilder<ProductOptionEntity>()
         .setNull(ProductOptionEntity::optionId)
         .setExp(ProductOptionEntity::product, productEntity)
-        .setExp(ProductOptionEntity::partnerShops, listOf(partnerShopEmbeddableFixture())) // PartnerShopEmbeddable 컬럼 값 설정
+        .setExp(ProductOptionEntity::partnerShops, listOf(partnerShopEmbeddableFixture()))
         .sample()
 }

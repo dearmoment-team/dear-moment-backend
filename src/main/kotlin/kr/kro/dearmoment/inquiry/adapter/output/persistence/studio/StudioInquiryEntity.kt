@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.inquiry.adapter.output.persistence.artist
+package kr.kro.dearmoment.inquiry.adapter.output.persistence.studio
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -7,11 +7,11 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
-import kr.kro.dearmoment.inquiry.domain.ArtistInquiry
+import kr.kro.dearmoment.inquiry.domain.StudioInquiry
 
 @Entity
-@Table(name = "artist_inquires")
-class ArtistInquiryEntity(
+@Table(name = "studio_inquires")
+class StudioInquiryEntity(
     @Id
     @Column(name = "inquiry_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ class ArtistInquiryEntity(
     val content: String,
 ) : Auditable() {
     fun toDomain() =
-        ArtistInquiry(
+        StudioInquiry(
             id = id,
             userId = userId,
             title = title,
@@ -33,8 +33,8 @@ class ArtistInquiryEntity(
         )
 
     companion object {
-        fun from(inquiry: ArtistInquiry) =
-            ArtistInquiryEntity(
+        fun from(inquiry: StudioInquiry) =
+            StudioInquiryEntity(
                 userId = inquiry.userId,
                 title = inquiry.title,
                 content = inquiry.content,

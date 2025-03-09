@@ -2,7 +2,7 @@ package kr.kro.dearmoment.inquiry.domain
 
 import java.time.LocalDateTime
 
-class ArtistInquiry(
+class StudioInquiry(
     id: Long = 0L,
     userId: Long = 0L,
     val title: String,

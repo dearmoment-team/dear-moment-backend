@@ -1,14 +1,14 @@
 package kr.kro.dearmoment.inquiry.application.command
 
-import kr.kro.dearmoment.inquiry.domain.ProductInquiry
+import kr.kro.dearmoment.inquiry.domain.CreateProductOptionInquiry
 
 data class CreateProductInquiryCommand(
     val userId: Long,
     val productId: Long,
 ) {
     fun toDomain() =
-        ProductInquiry(
+        CreateProductOptionInquiry(
             userId = userId,
-            productId = productId,
+            productOptionId = productId,
         )
 }

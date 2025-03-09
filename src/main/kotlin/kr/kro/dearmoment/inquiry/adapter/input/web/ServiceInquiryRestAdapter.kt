@@ -1,6 +1,5 @@
 package kr.kro.dearmoment.inquiry.adapter.input.web
 
-import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateServiceInquiryRequest
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
@@ -19,15 +18,5 @@ class ServiceInquiryRestAdapter(
     @PostMapping
     fun writeServiceInquiry(
         @RequestBody request: CreateServiceInquiryRequest,
-    ): CreateInquiryResponse {
-        val command =
-            CreateServiceInquiryCommand(
-                userId = request.userId,
-                type = request.type,
-                content = request.content,
-                email = request.email,
-            )
-
-        return createInquiryUseCase.createServiceInquiry(command)
-    }
+    ): CreateInquiryResponse = createInquiryUseCase.createServiceInquiry(request.toCommand())
 }

@@ -9,28 +9,25 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class LikeService(
+@Transactional
+class LikeCommandService(
     private val saveLikePort: SaveLikePort,
     private val deleteLikePort: DeleteLikePort,
 ) : LikeUseCase {
-    @Transactional
     override fun studioLike(command: SaveLikeCommand): LikeResponse {
         val like = command.toStudioLikeDomain()
         return LikeResponse(saveLikePort.saveStudioLike(like))
     }
 
-    @Transactional
     override fun productOptionsLike(command: SaveLikeCommand): LikeResponse {
         val like = command.toProductOptionLikeDomain()
         return LikeResponse(saveLikePort.saveProductOptionLike(like))
     }
 
-    @Transactional
     override fun studioUnlike(likeId: Long) {
         deleteLikePort.deleteStudioLike(likeId)
     }
 
-    @Transactional
     override fun productOptionUnlike(likeId: Long) {
         deleteLikePort.deleteProductOptionLike(likeId)
     }

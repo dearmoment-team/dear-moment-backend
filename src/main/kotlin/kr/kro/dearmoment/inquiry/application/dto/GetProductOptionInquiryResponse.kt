@@ -1,19 +1,21 @@
 package kr.kro.dearmoment.inquiry.application.dto
 
-import kr.kro.dearmoment.inquiry.domain.ProductInquiry
+import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import java.time.LocalDateTime
 
-data class GetProductInquiryResponse(
+data class GetProductOptionInquiryResponse(
     val inquiryId: Long,
-    val productId: Long,
+    val studioName: String,
+    val optionName: String,
     val thumbnailUrl: String,
     val createdDate: LocalDateTime,
 ) {
     companion object {
-        fun from(inquiry: ProductInquiry) =
-            GetProductInquiryResponse(
+        fun from(inquiry: ProductOptionInquiry) =
+            GetProductOptionInquiryResponse(
                 inquiryId = inquiry.id,
-                productId = inquiry.productId,
+                studioName = inquiry.studioName,
+                optionName = inquiry.optionName,
                 thumbnailUrl = inquiry.thumbnailUrl,
                 createdDate = inquiry.createdDate,
             )
