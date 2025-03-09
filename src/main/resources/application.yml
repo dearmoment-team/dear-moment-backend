@@ -32,3 +32,6 @@ springdoc:
     path: /v3/swagger  # swagger-ui 경로
   api-docs:
     path: /v3/api-docs  # JSON charset을 포함한 엔드포인트로 사용하려면 이처럼 설정합니다.
+
+sentry:
+  enabled: false
