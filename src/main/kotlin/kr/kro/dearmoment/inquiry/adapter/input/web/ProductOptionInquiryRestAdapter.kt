@@ -29,12 +29,12 @@ class ProductOptionInquiryRestAdapter(
     private val removeInquiryUseCase: RemoveInquiryUseCase,
 ) {
     @PostMapping
-    fun writeProductInquiry(
+    fun writeProductOptionInquiry(
         @RequestBody request: CreateProductOptionInquiryRequest,
     ): CreateInquiryResponse = createInquiryUseCase.createProductInquiry(request.toCommand())
 
     @GetMapping("/{userId}")
-    fun getProductInquiries(
+    fun getProductOptionInquiries(
         @PathVariable userId: Long,
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
     ): PagedResponse<GetProductOptionInquiryResponse> {
@@ -44,7 +44,7 @@ class ProductOptionInquiryRestAdapter(
 
     @DeleteMapping("/{inquiryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun removeProductInquiry(
+    fun removeProductOptionInquiry(
         @PathVariable inquiryId: Long,
     ): Unit = removeInquiryUseCase.removeProductInquiry(inquiryId)
 }
