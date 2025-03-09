@@ -1,11 +1,17 @@
 package kr.kro.dearmoment.like.adapter.input.web
 
+import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.like.application.dto.GetProductOptionLikeResponse
 import kr.kro.dearmoment.like.application.dto.GetStudioLikeResponse
 import kr.kro.dearmoment.like.application.dto.LikeRequest
 import kr.kro.dearmoment.like.application.dto.LikeResponse
 import kr.kro.dearmoment.like.application.port.input.LikeQueryUseCase
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
+import kr.kro.dearmoment.like.application.query.GetUserProductOptionLikeQuery
+import kr.kro.dearmoment.like.application.query.GetUserStudioLikeQuery
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -35,12 +41,20 @@ class LikeRestAdapter(
     @GetMapping("/studios/{userId}")
     fun getMyStudioLikes(
         @PathVariable userId: Long,
-    ): List<GetStudioLikeResponse> = likeQueryUseCase.getUserStudioLikes(userId)
+        @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
+    ): PagedResponse<GetStudioLikeResponse> {
+        val query = GetUserStudioLikeQuery(userId, pageable)
+        return likeQueryUseCase.getUserStudioLikes(query)
+    }
 
     @GetMapping("/product-options/{userId}")
     fun getMyProductOptionLikes(
         @PathVariable userId: Long,
-    ): List<GetProductOptionLikeResponse> = likeQueryUseCase.getUserProductOptionLikes(userId)
+        @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
+    ): PagedResponse<GetProductOptionLikeResponse> {
+        val query = GetUserProductOptionLikeQuery(userId, pageable)
+        return likeQueryUseCase.getUserProductOptionLikes(query)
+    }
 
     @DeleteMapping("/studios/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -7,11 +7,23 @@ import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
+import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 
 fun studioEntityFixture(userId: Long = 12345L): StudioEntity =
     fixtureBuilder.giveMeKotlinBuilder<StudioEntity>()
         .setExp(StudioEntity::id, 0L)
+        .setExp(StudioEntity::name, "스튜디오 디어모먼트")
         .setExp(StudioEntity::userId, userId)
+        .setExp(StudioEntity::status, "ACTIVE")
+        .setExp(StudioEntity::partnerShops, setOf(studioPartnerShopEmbeddableFixture()))
+        .sample()
+
+fun studioPartnerShopEmbeddableFixture(): StudioPartnerShopEmbeddable =
+    fixtureBuilder.giveMeKotlinBuilder<StudioPartnerShopEmbeddable>()
+        .setExp(StudioPartnerShopEmbeddable::category, StudioPartnerShopCategory.HAIR_MAKEUP.name)
+        .setExp(StudioPartnerShopEmbeddable::name, "Test Shop")
+        .setExp(StudioPartnerShopEmbeddable::urlLink, "http://testshop.com")
         .sample()
 
 fun productEntityFixture(

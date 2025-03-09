@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.like.adapter.output.persistence
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -22,5 +24,6 @@ interface ProductOptionLikeJpaRepository : JpaRepository<ProductOptionLikeEntity
     )
     fun getUserLikes(
         @Param("userId") userId: Long,
-    ): List<ProductOptionLikeEntity>
+        pageable: Pageable,
+    ): Page<ProductOptionLikeEntity>
 }
