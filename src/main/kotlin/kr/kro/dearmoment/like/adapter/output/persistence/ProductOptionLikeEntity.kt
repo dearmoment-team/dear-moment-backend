@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
-import kr.kro.dearmoment.like.domain.CreateProductOptionLike
 import kr.kro.dearmoment.like.domain.Like
 import kr.kro.dearmoment.like.domain.ProductOptionLike
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
@@ -28,15 +27,6 @@ class ProductOptionLikeEntity(
     @JoinColumn(name = "option_id")
     val option: ProductOptionEntity? = null,
 ) : Auditable() {
-    fun toCreateDomain(): Like {
-        check(option != null) { "상품은 널이 될 수 없습니다." }
-        return CreateProductOptionLike(
-            id = id,
-            userId = userId,
-            productOptionId = requireNotNull(option.optionId),
-        )
-    }
-
     fun toDomain(): ProductOptionLike {
         check(option != null) { "상품 옵션은 널이 될 수 없습니다." }
         val product = requireNotNull(option.product)
