@@ -84,6 +84,7 @@ class ProductOptionInquiryRestAdapter(
     @DeleteMapping("/{inquiryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeProductInquiry(
+        @Parameter(description = "삭제할 상품 옵션 문의 식별자 식별자", required = true)
         @PathVariable inquiryId: Long,
-    ): Unit = removeInquiryUseCase.removeProductInquiry(inquiryId)
+    ): Unit = removeInquiryUseCase.removeProductOptionInquiry(inquiryId)
 }

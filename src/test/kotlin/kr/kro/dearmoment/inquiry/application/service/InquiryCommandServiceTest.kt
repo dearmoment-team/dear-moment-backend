@@ -94,7 +94,7 @@ class InquiryCommandServiceTest : DescribeSpec({
             val inquiryId = 1L
             every { deletePort.deleteProductOptionInquiry(inquiryId) } just Runs
             it("해당 문의를 삭제한다") {
-                shouldNotThrow<Throwable> { service.removeProductInquiry(inquiryId) }
+                shouldNotThrow<Throwable> { service.removeProductOptionInquiry(inquiryId) }
             }
         }
     }

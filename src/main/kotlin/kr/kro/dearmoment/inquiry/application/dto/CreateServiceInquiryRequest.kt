@@ -14,11 +14,8 @@ data class CreateServiceInquiryRequest(
     val userId: Long,
     @Schema(
         description = "서비스 피드백 타입",
-        example =
-            "[SERVICE_COMPLIMENT(디어모먼트 서비스 칭찬)" +
-                "SERVICE_SUGGESTION(디어모먼트 서비스 불편/제안)" +
-                "SYSTEM_IMPROVEMENT(시스템 개선 의견)" +
-                "SYSTEM_ERROR_REPORT(시스템 오류 제보),]",
+        example = "[SERVICE_COMPLIMENT",
+        allowableValues = ["SYSTEM_IMPROVEMENT", "SERVICE_SUGGESTION, SYSTEM_IMPROVEMENT", "SYSTEM_IMPROVEMENT"],
     )
     @field:NotBlank(message = "서비스 피드백 타입은 빈 문자열이 될 수 없습니다.")
     val type: String,

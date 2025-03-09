@@ -117,7 +117,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
                 GetProductOptionLikeResponse(
                     likeId = 1L,
                     optionName = "상품 옵션 A",
-                    productId = 1L,
+                    productOptionId = 1L,
                     studioName = "스튜디오 B",
                     price = 1_000_000L,
                     thumbnailUrl = "thumbnailA.url.com",
@@ -130,7 +130,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
                 GetProductOptionLikeResponse(
                     likeId = 2L,
                     optionName = "상품 옵션 B",
-                    productId = 2L,
+                    productOptionId = 2L,
                     studioName = "스튜디오 B",
                     price = 800_000L,
                     thumbnailUrl = "thumbnailB.url.com",
@@ -177,7 +177,7 @@ class LikeRestAdapterTest : RestApiTestBase() {
                     "data.content" type ARRAY means "유저 상품 옵션 좋아요 리스트",
                     "data.content[].likeId" type NUMBER means "좋아요 ID",
                     "data.content[].optionName" type STRING means "상품 옵션 이름",
-                    "data.content[].productId" type NUMBER means "상품 ID",
+                    "data.content[].productOptionId" type NUMBER means "상품 ID",
                     "data.content[].studioName" type STRING means "스튜디오 이름",
                     "data.content[].price" type NUMBER means "상품 옵션 가격",
                     "data.content[].thumbnailUrl" type STRING means "상품 옵션 썸네일 URL",
