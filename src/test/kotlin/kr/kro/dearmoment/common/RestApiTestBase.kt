@@ -2,7 +2,7 @@ package kr.kro.dearmoment.common
 
 import com.ninjasquad.springmockk.MockkBean
 import kr.kro.dearmoment.TestEnvironment
-import kr.kro.dearmoment.inquiry.adapter.input.web.ProductInquiryRestAdapter
+import kr.kro.dearmoment.inquiry.adapter.input.web.ProductOptionInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.adapter.input.web.ServiceInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.adapter.input.web.StudioInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
@@ -38,7 +38,7 @@ import org.springframework.web.filter.CharacterEncodingFilter
     controllers = [
         LikeRestAdapter::class,
         StudioInquiryRestAdapter::class,
-        ProductInquiryRestAdapter::class,
+        ProductOptionInquiryRestAdapter::class,
         ServiceInquiryRestAdapter::class,
         StudioRestAdapter::class,
     ],
