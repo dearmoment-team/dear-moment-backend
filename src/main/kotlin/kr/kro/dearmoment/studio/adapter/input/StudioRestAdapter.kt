@@ -2,6 +2,7 @@ package kr.kro.dearmoment.studio.adapter.input
 
 import kr.kro.dearmoment.studio.application.dto.request.ModifyStudioRequest
 import kr.kro.dearmoment.studio.application.dto.request.RegisterStudioRequest
+import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
 import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
@@ -37,15 +38,10 @@ class StudioRestAdapter(
         @RequestBody request: ModifyStudioRequest,
     ): StudioResponse = modifyStudioUseCase.modify(request.toCommand(studioId))
 
-//    @GetMapping("/{userId}")
-//    fun getStudios(
-//        @PathVariable userId: Long,
-//    ): List<GetStudioResponse> = getStudioUseCase.getUserStudios(userId)
-
     @GetMapping("/{studioId}")
     fun getStudio(
         @PathVariable studioId: Long,
-    ): StudioResponse = getStudioUseCase.getStudio(studioId)
+    ): GetStudioResponse = getStudioUseCase.getStudio(studioId)
 
     @DeleteMapping("/{studioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

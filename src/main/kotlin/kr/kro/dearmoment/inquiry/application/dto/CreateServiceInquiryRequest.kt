@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import org.jetbrains.annotations.NotNull
 
 data class CreateServiceInquiryRequest(
@@ -17,4 +18,12 @@ data class CreateServiceInquiryRequest(
     val content: String,
     @field:Email(message = "올바른 이메일 형식이 아닙니다.")
     val email: String,
-)
+) {
+    fun toCommand() =
+        CreateServiceInquiryCommand(
+            userId = userId,
+            type = type,
+            content = content,
+            email = email,
+        )
+}

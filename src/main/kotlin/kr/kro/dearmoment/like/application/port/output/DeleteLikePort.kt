@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.like.application.port.output
 
 interface DeleteLikePort {
-    fun delete(likeId: Long)
+    fun deleteStudioLike(likeId: Long)
+
+    fun deleteProductOptionLike(likeId: Long)
 }

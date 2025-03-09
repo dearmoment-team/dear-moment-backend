@@ -1,6 +1,6 @@
 package kr.kro.dearmoment.like.application.dto
 
-import jakarta.validation.constraints.NotBlank
+import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import org.jetbrains.annotations.NotNull
 
 data class LikeRequest(
@@ -8,9 +8,10 @@ data class LikeRequest(
     val userId: Long,
     @field:NotNull(value = "좋아요 대상 ID는 널이 될 수 없습니다.")
     val targetId: Long,
-    /***
-     * LikeType 참고
-     */
-    @field:NotBlank(message = "좋아요 타입은 빈 문자열이 될 수 없습니다.")
-    val type: String,
-)
+) {
+    fun toCommand() =
+        SaveLikeCommand(
+            userId = userId,
+            targetId = targetId,
+        )
+}
