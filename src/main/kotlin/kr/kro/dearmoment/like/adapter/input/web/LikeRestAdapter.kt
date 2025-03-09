@@ -82,7 +82,16 @@ class LikeRestAdapter(
     fun getMyStudioLikes(
         @Parameter(description = "유저 식별자", required = true)
         @PathVariable userId: Long,
-        @Parameter(description = "페이지 정보", required = true)
+        @Parameter(
+            description = "페이징 정보",
+            example = """{
+              "page": 0,
+              "size": 10,
+              "sort": "createdDate",
+              "direction": "DESC"
+            }""",
+            required = true,
+        )
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
     ): PagedResponse<GetStudioLikeResponse> {
         val query = GetUserStudioLikeQuery(userId, pageable)
@@ -103,7 +112,16 @@ class LikeRestAdapter(
     fun getMyProductOptionLikes(
         @Parameter(description = "유저 식별자", required = true)
         @PathVariable userId: Long,
-        @Parameter(description = "페이지 정보", required = true)
+        @Parameter(
+            description = "페이징 정보",
+            example = """{
+              "page": 0,
+              "size": 10,
+              "sort": "createdDate",
+              "direction": "DESC"
+            }""",
+            required = true,
+        )
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
     ): PagedResponse<GetProductOptionLikeResponse> {
         val query = GetUserProductOptionLikeQuery(userId, pageable)
