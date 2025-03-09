@@ -11,6 +11,8 @@ import kr.kro.dearmoment.like.domain.ProductOptionLike
 import kr.kro.dearmoment.like.domain.StudioLike
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -39,10 +41,17 @@ class LikePersistenceAdapter(
         return productOptionLikeRepository.save(entity).id
     }
 
-    override fun findUserStudioLikes(userId: Long): List<StudioLike> = studioLikeRepository.getUserLikes(userId).map { it.toDomain() }
+    override fun findUserStudioLikes(
+        userId: Long,
+        pageable: Pageable,
+    ): Page<StudioLike> {
+        return studioLikeRepository.getUserLikes(userId, pageable).map { it.toDomain() }
+    }
 
-    override fun findUserProductLikes(userId: Long): List<ProductOptionLike> =
-        productOptionLikeRepository.getUserLikes(userId).map { it.toDomain() }
+    override fun findUserProductOptionLikes(
+        userId: Long,
+        pageable: Pageable,
+    ): Page<ProductOptionLike> = productOptionLikeRepository.getUserLikes(userId, pageable).map { it.toDomain() }
 
     override fun existStudioLike(
         userId: Long,

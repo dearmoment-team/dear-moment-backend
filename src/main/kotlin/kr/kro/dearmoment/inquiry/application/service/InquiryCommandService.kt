@@ -49,5 +49,5 @@ class InquiryCommandService(
         return CreateInquiryResponse(savedInquiryId)
     }
 
-    override fun removeProductInquiry(inquiryId: Long): Unit = deleteInquiryPort.deleteProductOptionInquiry(inquiryId)
+    override fun removeProductOptionInquiry(inquiryId: Long): Unit = deleteInquiryPort.deleteProductOptionInquiry(inquiryId)
 }

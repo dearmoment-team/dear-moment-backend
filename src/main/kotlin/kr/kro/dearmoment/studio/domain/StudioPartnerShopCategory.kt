@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.studio.domain
 
 enum class StudioPartnerShopCategory {
+    WEDDING_SHOP,
     HAIR_MAKEUP,
     DRESS,
     MENS_SUIT,

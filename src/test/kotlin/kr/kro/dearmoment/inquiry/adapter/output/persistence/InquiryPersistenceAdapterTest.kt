@@ -98,9 +98,9 @@ class InquiryPersistenceAdapterTest(
 
                     result.totalElements shouldBe inquiries.size.toLong()
                     result.content.size shouldBe inquiries.size
-                    result.totalPages shouldBe 1
-                    result.number shouldBe 0
-                    result.size shouldBe 10
+                    result.totalPages shouldBe (inquiries.size / pageable.pageSize) + if (inquiries.size % pageable.pageSize > 0) 1 else 0
+                    result.number shouldBe pageable.pageNumber
+                    result.size shouldBe pageable.pageSize
                 }
             }
         }
@@ -126,9 +126,9 @@ class InquiryPersistenceAdapterTest(
 
                     result.totalElements shouldBe inquiries.size.toLong()
                     result.content.size shouldBe inquiries.size
-                    result.totalPages shouldBe 1
-                    result.number shouldBe 0
-                    result.size shouldBe 10
+                    result.totalPages shouldBe (inquiries.size / pageable.pageSize) + if (inquiries.size % pageable.pageSize > 0) 1 else 0
+                    result.number shouldBe pageable.pageNumber
+                    result.size shouldBe pageable.pageSize
                 }
             }
         }
