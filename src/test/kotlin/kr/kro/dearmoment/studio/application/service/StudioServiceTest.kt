@@ -17,7 +17,6 @@ import kr.kro.dearmoment.studio.application.port.output.DeleteStudioPort
 import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
 import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
-import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 
@@ -51,21 +50,7 @@ class StudioServiceTest : DescribeSpec({
                     partnerShops = listOf(partnerShopCommand),
                 )
 
-            val expected =
-                Studio(
-                    id = 1L,
-                    userId = registerCommand.userId,
-                    name = registerCommand.name,
-                    contact = registerCommand.contact,
-                    studioIntro = registerCommand.studioIntro,
-                    artistsIntro = registerCommand.artistsIntro,
-                    instagramUrl = registerCommand.instagramUrl,
-                    kakaoChannelUrl = registerCommand.kakaoChannelUrl,
-                    reservationNotice = registerCommand.reservationNotice,
-                    cancellationPolicy = registerCommand.cancellationPolicy,
-                    status = StudioStatus.from(registerCommand.status),
-                    partnerShops = listOf(partnerShopCommand.toDomain()),
-                )
+            val expected = registerCommand.toDomain()
 
             every { saveStudioPort.save(any()) } returns expected
             it("스튜디오를 저장하고 반환한다.") {
@@ -110,21 +95,7 @@ class StudioServiceTest : DescribeSpec({
                     partnerShops = listOf(partnerShopCommand),
                 )
 
-            val expected =
-                Studio(
-                    id = 1L,
-                    userId = modifyCommand.userId,
-                    name = modifyCommand.name,
-                    contact = modifyCommand.contact,
-                    studioIntro = modifyCommand.studioIntro,
-                    artistsIntro = modifyCommand.artistsIntro,
-                    instagramUrl = modifyCommand.instagramUrl,
-                    kakaoChannelUrl = modifyCommand.kakaoChannelUrl,
-                    reservationNotice = modifyCommand.reservationNotice,
-                    cancellationPolicy = modifyCommand.cancellationPolicy,
-                    status = StudioStatus.from(modifyCommand.status),
-                    partnerShops = listOf(partnerShopCommand.toDomain()),
-                )
+            val expected = modifyCommand.toDomain()
 
             every { updateStudioPort.update(any()) } returns expected
             it("스튜디오를 저장하고 반환한다.") {

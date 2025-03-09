@@ -12,9 +12,13 @@ import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.studio.domain.Studio
 
-fun studioFixture(): Studio =
+fun studioFixture(
+    id: Long = 1L,
+    userId: Long = 1L,
+): Studio =
     fixtureBuilder.giveMeKotlinBuilder<Studio>()
-        .setExp(Studio::id, 1L)
+        .setExp(Studio::id, id)
+        .setExp(Studio::userId, userId)
         .setExp(Studio::products, listOf(productFixture()))
         .setExp(Studio::name, "스튜디오 A")
         .setExp(Studio::contact, "010-1234-5678")
