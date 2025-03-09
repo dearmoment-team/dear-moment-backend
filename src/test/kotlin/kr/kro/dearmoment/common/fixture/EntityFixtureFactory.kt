@@ -14,6 +14,8 @@ fun studioEntityFixture(userId: Long = 12345L): StudioEntity =
     fixtureBuilder.giveMeKotlinBuilder<StudioEntity>()
         .setExp(StudioEntity::id, 0L)
         .setExp(StudioEntity::name, "스튜디오 디어모먼트")
+        .setExp(StudioEntity::studioIntro, "소개글")
+        .setExp(StudioEntity::artistsIntro, "스튜디오 A 작가 입니다.")
         .setExp(StudioEntity::userId, userId)
         .setExp(StudioEntity::status, "ACTIVE")
         .setExp(StudioEntity::partnerShops, setOf(studioPartnerShopEmbeddableFixture()))
