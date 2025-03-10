@@ -1,5 +1,6 @@
 package kr.kro.dearmoment
 
+import com.linecorp.kotlinjdsl.support.spring.data.jpa.autoconfigure.KotlinJdslAutoConfiguration
 import kr.kro.dearmoment.common.config.JpaConfig
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.SpringBootTest
@@ -19,6 +20,10 @@ annotation class TestEnvironment
 @TestEnvironment
 @Import(JpaConfig::class)
 annotation class RepositoryTest
+
+@RepositoryTest
+@Import(KotlinJdslAutoConfiguration::class)
+annotation class ReadOnlyRepositoryTest
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
