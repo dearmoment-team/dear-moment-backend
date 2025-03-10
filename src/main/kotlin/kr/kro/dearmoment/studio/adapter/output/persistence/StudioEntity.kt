@@ -17,6 +17,10 @@ import kr.kro.dearmoment.studio.domain.StudioStatus
 @Entity
 @Table(name = "studios")
 class StudioEntity(
+    @Id
+    @Column(name = "studio_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0L,
     name: String,
     userId: Long,
     contact: String,
@@ -29,11 +33,6 @@ class StudioEntity(
     status: String,
     partnerShops: MutableSet<StudioPartnerShopEmbeddable>,
 ) : Auditable() {
-    @Id
-    @Column(name = "studio_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
-
     @Column(nullable = false)
     val userId: Long = userId
 

@@ -8,15 +8,15 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.fixture.studioFixture
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.command.StudioPartnerShopCommand
-import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
+import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
 import kr.kro.dearmoment.studio.application.port.output.DeleteStudioPort
 import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
 import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
-import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 
@@ -50,21 +50,7 @@ class StudioServiceTest : DescribeSpec({
                     partnerShops = listOf(partnerShopCommand),
                 )
 
-            val expected =
-                Studio(
-                    id = 1L,
-                    userId = registerCommand.userId,
-                    name = registerCommand.name,
-                    contact = registerCommand.contact,
-                    studioIntro = registerCommand.studioIntro,
-                    artistsIntro = registerCommand.artistsIntro,
-                    instagramUrl = registerCommand.instagramUrl,
-                    kakaoChannelUrl = registerCommand.kakaoChannelUrl,
-                    reservationNotice = registerCommand.reservationNotice,
-                    cancellationPolicy = registerCommand.cancellationPolicy,
-                    status = StudioStatus.from(registerCommand.status),
-                    partnerShops = listOf(partnerShopCommand.toDomain()),
-                )
+            val expected = registerCommand.toDomain()
 
             every { saveStudioPort.save(any()) } returns expected
             it("스튜디오를 저장하고 반환한다.") {
@@ -75,21 +61,8 @@ class StudioServiceTest : DescribeSpec({
         }
 
         context("studioId를 전달하면") {
-            val studio =
-                Studio(
-                    userId = 1L,
-                    name = "스튜디오",
-                    contact = "010-1234-5678",
-                    studioIntro = "스튜디오 소개글",
-                    artistsIntro = "작가 소개글",
-                    instagramUrl = "인스타 url",
-                    kakaoChannelUrl = "카카오톡 채널 url",
-                    reservationNotice = "",
-                    cancellationPolicy = "",
-                    status = StudioStatus.ACTIVE,
-                )
-
-            val expected = StudioResponse.from(studio)
+            val studio = studioFixture()
+            val expected = GetStudioResponse.from(studio)
 
             every { getStudioPort.findById(studio.id) } returns studio
             it("studioId에 해당하는 스튜디오를 반환한다.") {
@@ -122,21 +95,7 @@ class StudioServiceTest : DescribeSpec({
                     partnerShops = listOf(partnerShopCommand),
                 )
 
-            val expected =
-                Studio(
-                    id = 1L,
-                    userId = modifyCommand.userId,
-                    name = modifyCommand.name,
-                    contact = modifyCommand.contact,
-                    studioIntro = modifyCommand.studioIntro,
-                    artistsIntro = modifyCommand.artistsIntro,
-                    instagramUrl = modifyCommand.instagramUrl,
-                    kakaoChannelUrl = modifyCommand.kakaoChannelUrl,
-                    reservationNotice = modifyCommand.reservationNotice,
-                    cancellationPolicy = modifyCommand.cancellationPolicy,
-                    status = StudioStatus.from(modifyCommand.status),
-                    partnerShops = listOf(partnerShopCommand.toDomain()),
-                )
+            val expected = modifyCommand.toDomain()
 
             every { updateStudioPort.update(any()) } returns expected
             it("스튜디오를 저장하고 반환한다.") {

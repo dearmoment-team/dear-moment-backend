@@ -28,6 +28,7 @@ repositories {
 }
 
 val ociSdkVersion by extra("3.55.3")
+val fixtureMonkeyVersion by extra("1.1.9")
 
 dependencies {
     // Spring Boot
@@ -79,6 +80,10 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:5.7.0")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
 
+    // Fixture
+    testImplementation("com.navercorp.fixturemonkey:fixture-monkey-kotlin:$fixtureMonkeyVersion")
+    testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter-kotlin:$fixtureMonkeyVersion")
+
     // 코루틴
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }
@@ -89,43 +94,13 @@ tasks.test {
     finalizedBy("koverHtmlReport")
 }
 
-// OpenAPI 설정
-openapi3 {
-    setServer("http://localhost:8080")
-    title = "My API"
-    description = "My API description"
-    version = "0.1.0"
-    format = "json"
-}
-
 // ktlint 설정
 ktlint {
     verbose.set(true)
 }
 
-// Swagger 문서 복사 태스크 등록
-tasks.register<Copy>("copyOasToSwagger") {
-    dependsOn("openapi3") // openapi3 태스크가 먼저 실행되도록 설정
-
-    doFirst {
-        val sourceFile = layout.buildDirectory.file("api-spec/openapi3.json").get().asFile
-        println("Copying OAS file from: ${sourceFile.path}")
-        delete("src/main/resources/static/swagger-ui/openapi3.json")
-    }
-
-    from(layout.buildDirectory.file("api-spec/openapi3.json").get().asFile)
-    into("src/main/resources/static/swagger-ui/")
-}
-
-// build 태스크가 끝난 후 Swagger 문서 복사 태스크 실행
-tasks.named("build") {
-    finalizedBy("copyOasToSwagger")
-}
-
 // bootRun 태스크가 Swagger 문서 복사 태스크에 의존하도록 설정 + 디버그 옵션 적용
 tasks.named<BootRun>("bootRun") {
-    dependsOn("copyOasToSwagger")
-
     // JVM 디버그 옵션 설정
     jvmArgs =
         listOf(

@@ -19,6 +19,7 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.application.dto.request.ModifyStudioRequest
 import kr.kro.dearmoment.studio.application.dto.request.RegisterStudioRequest
+import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
 import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
@@ -59,20 +60,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
 
         val expected =
-            StudioResponse(
-                id = 1L,
-                userId = requestBody.userId,
-                name = requestBody.name,
-                contact = requestBody.contact,
-                studioIntro = requestBody.studioIntro,
-                artistsIntro = requestBody.artistsIntro,
-                instagramUrl = requestBody.instagramUrl,
-                kakaoChannelUrl = requestBody.kakaoChannelUrl,
-                reservationNotice = requestBody.reservationNotice,
-                cancellationPolicy = requestBody.cancellationPolicy,
-                status = requestBody.status,
-                partnerShops = requestBody.partnerShops,
-            )
+            StudioResponse(id = 1L)
 
         every { registerStudioUseCase.register(requestBody.toCommand()) } returns expected
 
@@ -106,21 +94,6 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 responseBody(
                     "data" type OBJECT means "응답 데이터",
                     "data.id" type NUMBER means "등록된 스튜디오 ID",
-                    "data.userId" type NUMBER means "유저 ID",
-                    "data.name" type STRING means "스튜디오 이름",
-                    "data.contact" type STRING means "연락처",
-                    "data.studioIntro" type STRING means "스튜디오 소개",
-                    "data.artistsIntro" type STRING means "작가 소개",
-                    "data.instagramUrl" type STRING means "인스타그램 URL",
-                    "data.kakaoChannelUrl" type STRING means "카카오 채널 URL",
-                    "data.reservationNotice" type STRING means "예약 안내",
-                    "data.cancellationPolicy" type STRING means "취소 및 환불 정책",
-                    "data.status" type STRING means "스튜디오 상태 (ACTIVE, INACTIVE)",
-                    "data.partnerShops" type ARRAY means "제휴 업체 목록",
-                    "data.partnerShops[].category" type STRING means "제휴 업체 구분 " +
-                        "(HAIR_MAKEUP, DRESS, MENS_SUIT, BOUQUET, VIDEO, STUDIO, ETC)",
-                    "data.partnerShops[].name" type STRING means "제휴 업체 이름",
-                    "data.partnerShops[].urlLink" type STRING means "제휴 업체 링크",
                     "success" type BOOLEAN means "성공 여부",
                     "code" type NUMBER means "HTTP 상태 코드",
                 ),
@@ -145,7 +118,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
 
         val expected =
-            StudioResponse(
+            GetStudioResponse(
                 id = existedStudioId,
                 userId = 1L,
                 name = "디어모먼트 스튜디오(수정)",
@@ -228,20 +201,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
 
         val expected =
-            StudioResponse(
-                id = existedStudioId,
-                userId = requestBody.userId,
-                name = requestBody.name,
-                contact = requestBody.contact,
-                studioIntro = requestBody.studioIntro,
-                artistsIntro = requestBody.artistsIntro,
-                instagramUrl = requestBody.instagramUrl,
-                kakaoChannelUrl = requestBody.kakaoChannelUrl,
-                reservationNotice = requestBody.reservationNotice,
-                cancellationPolicy = requestBody.cancellationPolicy,
-                status = requestBody.status,
-                partnerShops = requestBody.partnerShops,
-            )
+            StudioResponse(id = existedStudioId)
 
         every { modifyStudioUseCase.modify(requestBody.toCommand(existedStudioId)) } returns expected
 
@@ -276,21 +236,6 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 responseBody(
                     "data" type OBJECT means "응답 데이터",
                     "data.id" type NUMBER means "등록된 스튜디오 ID",
-                    "data.userId" type NUMBER means "유저 ID",
-                    "data.name" type STRING means "스튜디오 이름",
-                    "data.contact" type STRING means "연락처",
-                    "data.studioIntro" type STRING means "스튜디오 소개",
-                    "data.artistsIntro" type STRING means "작가 소개",
-                    "data.instagramUrl" type STRING means "인스타그램 URL",
-                    "data.kakaoChannelUrl" type STRING means "카카오 채널 URL",
-                    "data.reservationNotice" type STRING means "예약 안내",
-                    "data.cancellationPolicy" type STRING means "취소 및 환불 정책",
-                    "data.status" type STRING means "스튜디오 상태 (ACTIVE, INACTIVE)",
-                    "data.partnerShops" type ARRAY means "제휴 업체 목록",
-                    "data.partnerShops[].category" type STRING means "제휴 업체 구분 " +
-                        "(HAIR_MAKEUP, DRESS, MENS_SUIT, BOUQUET, VIDEO, STUDIO, ETC)",
-                    "data.partnerShops[].name" type STRING means "제휴 업체 이름",
-                    "data.partnerShops[].urlLink" type STRING means "제휴 업체 링크",
                     "success" type BOOLEAN means "성공 여부",
                     "code" type NUMBER means "HTTP 상태 코드",
                 ),

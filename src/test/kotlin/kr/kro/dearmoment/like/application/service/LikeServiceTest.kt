@@ -10,84 +10,74 @@ import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
-import kr.kro.dearmoment.like.application.port.output.GetLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
-import kr.kro.dearmoment.like.application.query.ExistLikeQuery
-import kr.kro.dearmoment.like.application.query.GetLikesQuery
-import kr.kro.dearmoment.like.domain.Like
-import kr.kro.dearmoment.like.domain.LikeType
+import kr.kro.dearmoment.like.domain.CreateProductOptionLike
+import kr.kro.dearmoment.like.domain.CreateStudioLike
 
 class LikeServiceTest : DescribeSpec({
 
     val saveLikePort = mockk<SaveLikePort>()
     val deleteLikePort = mockk<DeleteLikePort>()
-    val getLikePort = mockk<GetLikePort>()
-    val likeService = LikeService(saveLikePort, deleteLikePort, getLikePort)
+    val likeCommandService = LikeCommandService(saveLikePort, deleteLikePort)
 
-    describe("like()는") {
+    describe("studioLike()는") {
         context("유효한 command를 전달 받으면") {
-            val command = SaveLikeCommand(userId = 1L, targetId = 2L, type = LikeType.ARTIST.value)
+            val command = SaveLikeCommand(userId = 1L, targetId = 2L)
             val like =
-                Like(
+                CreateStudioLike(
                     id = 1L,
                     userId = command.userId,
-                    targetId = command.targetId,
-                    type = LikeType.from(command.type),
+                    studioId = command.targetId,
                 )
 
-            every { saveLikePort.save(any()) } returns like.id
+            every { saveLikePort.saveStudioLike(any()) } returns like.id
             it("likeEntity를 저장하고 like를 반환한다.") {
-                val response = likeService.like(command)
+                val response = likeCommandService.studioLike(command)
                 response.likeId shouldBe like.id
-                verify(exactly = 1) { saveLikePort.save(any()) }
+                verify(exactly = 1) { saveLikePort.saveStudioLike(any()) }
             }
         }
     }
 
-    describe("unlike()는") {
+    describe("productLike()는") {
+        context("유효한 command를 전달 받으면") {
+            val command = SaveLikeCommand(userId = 1L, targetId = 2L)
+            val like =
+                CreateProductOptionLike(
+                    id = 1L,
+                    userId = command.userId,
+                    productOptionId = command.targetId,
+                )
+
+            every { saveLikePort.saveProductOptionLike(any()) } returns like.id
+            it("likeEntity를 저장하고 like를 반환한다.") {
+                val response = likeCommandService.productOptionsLike(command)
+                response.likeId shouldBe like.id
+                verify(exactly = 1) { saveLikePort.saveProductOptionLike(any()) }
+            }
+        }
+    }
+
+    describe("studioUnlike()는") {
         context("좋아요 ID를 전달 받으면") {
             val likeId = 1L
 
-            every { deleteLikePort.delete(likeId) } just Runs
+            every { deleteLikePort.deleteStudioLike(likeId) } just Runs
             it("like를 삭제한다.") {
-                shouldNotThrow<Throwable> { likeService.unlike(likeId) }
-                verify(exactly = 1) { deleteLikePort.delete(likeId) }
+                shouldNotThrow<Throwable> { likeCommandService.studioUnlike(likeId) }
+                verify(exactly = 1) { deleteLikePort.deleteStudioLike(likeId) }
             }
         }
     }
 
-    describe("getLikes()는") {
-        context("GetLikesQuery가 전달되면") {
-            val query =
-                GetLikesQuery(
-                    userId = 1L,
-                    likeType = LikeType.ARTIST.value,
-                )
+    describe("productUnlike()는") {
+        context("좋아요 ID를 전달 받으면") {
+            val likeId = 1L
 
-            val likes =
-                listOf(
-                    Like(userId = query.userId, targetId = 1L, type = LikeType.ARTIST),
-                    Like(userId = query.userId, targetId = 2L, type = LikeType.ARTIST),
-                    Like(userId = query.userId, targetId = 3L, type = LikeType.ARTIST),
-                    Like(userId = query.userId, targetId = 1L, type = LikeType.PRODUCT),
-                    Like(userId = query.userId, targetId = 2L, type = LikeType.PRODUCT),
-                )
-
-            every { getLikePort.loadLikes(query.userId) } returns likes
-            it("쿼리의 좋아요 타입에 해당하는 좋아요를 모두 조회한다.") {
-                likeService.getLikes(query).size shouldBe 3
-            }
-        }
-    }
-
-    describe("isLike()는") {
-        context("ExistLikeQuery가 전달되면") {
-            val query = ExistLikeQuery(userId = 1L, targetId = 1L, type = LikeType.ARTIST.value)
-            every { getLikePort.existLike(query.userId, query.targetId, query.type) } returns true
-
-            it("좋아요가 존재하는지 알 수 있다.") {
-                shouldNotThrow<Throwable> { likeService.isLike(query) }
-                verify(exactly = 1) { getLikePort.existLike(query.userId, query.targetId, query.type) }
+            every { deleteLikePort.deleteProductOptionLike(likeId) } just Runs
+            it("like를 삭제한다.") {
+                shouldNotThrow<Throwable> { likeCommandService.productOptionUnlike(likeId) }
+                verify(exactly = 1) { deleteLikePort.deleteProductOptionLike(likeId) }
             }
         }
     }
