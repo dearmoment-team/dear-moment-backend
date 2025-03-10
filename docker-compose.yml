@@ -1,13 +1,48 @@
-version: "3.8"
-
 services:
-  dear-moment-backend:
-    build:              # 부모 디렉터리(프로젝트 루트)를 빌드 컨텍스트로 지정
-      dockerfile: Dockerfile  # docker 폴더 내의 Dockerfile을 사용
-    restart: always
+  db:
+    image: gvenzl/oracle-free:slim
+    container_name: oracle-db
+    ports:
+      - "50060:1521"
+    env_file:
+      - .env
+    environment:
+      ORACLE_PASSWORD: "${ORACLE_PASSWORD}"
+      APP_USER: "${APP_USER}"
+      APP_USER_PASSWORD: "${APP_USER_PASSWORD}"
+    volumes:
+      - db_data:/opt/oracle/oradata
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-app
     ports:
       - "8080:8080"
+      - "5005:5005"
     volumes:
-      - "${HOME}/adb_wallet:/app/wallet:ro"
+      - ./src:/app/src
+      - ./build.gradle.kts:/app/build.gradle.kts
+      - ./settings.gradle.kts:/app/settings.gradle.kts
+      - ${HOME}/.oci:/root/.oci
     env_file:
-      - .env                    # docker 폴더 내의 .env 파일을 로드 (docker-compose.yml과 같은 디렉터리에 위치)
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: "${SPRING_DATASOURCE_URL}"
+      SPRING_DATASOURCE_USERNAME: "${SPRING_DATASOURCE_USERNAME}"
+      SPRING_DATASOURCE_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: "${SPRING_DATASOURCE_DRIVER_CLASS_NAME}"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "${SPRING_JPA_HIBERNATE_DDL_AUTO}"
+      SPRING_JPA_SHOW_SQL: "${SPRING_JPA_SHOW_SQL}"
+      SPRING_JPA_DATABASE_PLATFORM: "${SPRING_JPA_DATABASE_PLATFORM}"
+      SPRING_PROFILES_ACTIVE: "${SPRING_PROFILES_ACTIVE}"
+      OBJECT_STORAGE_BUCKET_NAME: "${OBJECT_STORAGE_BUCKET_NAME}"
+      OBJECT_STORAGE_NAMESPACE_NAME: "${OBJECT_STORAGE_NAMESPACE_NAME}"
+      OBJECT_STORAGE_IMAGE_DIR: "${OBJECT_STORAGE_IMAGE_DIR}"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+    driver: local

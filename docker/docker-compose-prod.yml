@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  dear-moment-backend:
+    build:              # 부모 디렉터리(프로젝트 루트)를 빌드 컨텍스트로 지정
+      context: ..
+      dockerfile: Dockerfile-prod  # docker 폴더 내의 Dockerfile-prod 을 사용
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/home/kbu/adb_wallet:/app/wallet:ro"
+    env_file:
+      - .env                    # docker 폴더 내의 .env 파일을 로드 (docker-compose.yml과 같은 디렉터리에 위치)
