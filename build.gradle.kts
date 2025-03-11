@@ -65,6 +65,7 @@ dependencies {
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$jdslVersion")
     implementation("com.linecorp.kotlin-jdsl:jpql-render:$jdslVersion")
     implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$jdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:hibernate-support:$jdslVersion")
 
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")

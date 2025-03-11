@@ -18,12 +18,8 @@ annotation class TestEnvironment
 @Retention(AnnotationRetention.RUNTIME)
 @DataJpaTest
 @TestEnvironment
-@Import(JpaConfig::class)
+@Import(JpaConfig::class, KotlinJdslAutoConfiguration::class)
 annotation class RepositoryTest
-
-@RepositoryTest
-@Import(KotlinJdslAutoConfiguration::class)
-annotation class ReadOnlyRepositoryTest
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

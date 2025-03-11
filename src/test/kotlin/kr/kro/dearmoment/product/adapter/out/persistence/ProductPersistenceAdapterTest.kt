@@ -7,25 +7,19 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.throwable.shouldHaveMessage
-import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.context.annotation.Import
-import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDateTime
 
-@DataJpaTest
-@Import(ProductPersistenceAdapter::class)
-@ActiveProfiles("test")
+@RepositoryTest
 class ProductPersistenceAdapterTest(
-    @Autowired private val productPersistencePort: ProductPersistencePort,
-    @Autowired private val jpaProductRepository: JpaProductRepository,
-    @Autowired private val jpaProductOptionRepository: JpaProductOptionRepository,
+    private val jpaProductRepository: JpaProductRepository,
+    private val jpaProductOptionRepository: JpaProductOptionRepository,
 ) : DescribeSpec({
+        val adapter = ProductPersistenceAdapter(jpaProductRepository, jpaProductOptionRepository)
 
         describe("ProductPersistenceAdapter 테스트") {
 
@@ -119,7 +113,7 @@ class ProductPersistenceAdapterTest(
                         )
 
                     // When
-                    val savedProduct = productPersistencePort.save(sampleProduct)
+                    val savedProduct = adapter.save(sampleProduct)
                     jpaProductRepository.flush()
 
                     // Then
@@ -161,7 +155,7 @@ class ProductPersistenceAdapterTest(
                                 productType = ProductType.WEDDING_SNAP,
                                 shootingPlace = ShootingPlace.JEJU,
                             ),
-                        ).map { productPersistencePort.save(it) }
+                        ).map { adapter.save(it) }
                     jpaProductRepository.flush()
                 }
 
@@ -169,7 +163,7 @@ class ProductPersistenceAdapterTest(
                     // testProducts를 이용하여 기대값 생성
                     val expectedTitles = testProducts.filter { it.title.contains("스냅") }.map { it.title }
                     val results =
-                        productPersistencePort.searchByCriteria(
+                        adapter.searchByCriteria(
                             title = "스냅",
                             productType = null,
                             shootingPlace = null,
