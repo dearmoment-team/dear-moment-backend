@@ -24,6 +24,8 @@ fun studioEntityFixture(userId: Long = 12345L): StudioEntity =
         .setExp(StudioEntity::artistsIntro, "스튜디오 A 작가 입니다.")
         .setExp(StudioEntity::userId, userId)
         .setExp(StudioEntity::status, "ACTIVE")
+        .setExp(StudioEntity::instagramUrl, "instagram.com")
+        .setExp(StudioEntity::kakaoChannelUrl, "kakaotalk.com")
         .setExp(StudioEntity::partnerShops, setOf(studioPartnerShopEmbeddableFixture()))
         .sample()
 
