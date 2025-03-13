@@ -10,12 +10,6 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
-import kr.kro.dearmoment.product.application.dto.request.AdditionalImageFinalRequest
-import kr.kro.dearmoment.product.application.dto.request.SubImageFinalRequest
-import kr.kro.dearmoment.product.application.dto.request.UpdateAdditionalImageAction
-import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
-import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
-import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
@@ -25,7 +19,9 @@ import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
 import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.BDDMockito.given
+import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -40,6 +36,9 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+/**
+ * [상품 업데이트] Controller 테스트 예시
+ */
 @ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
 @Import(ResponseWrapper::class)
@@ -66,7 +65,54 @@ class UpdateProductRestAdapterTest {
 
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
-        // given
+        // 1) 업데이트 요청 DTO를 JSON으로 만들기
+        //    실제로는 Jackson 등을 이용해 객체 -> JSON 직렬화 가능
+        val requestJson =
+            """
+            {
+              "productId": 1,
+              "userId": 10,
+              "productType": "WEDDING_SNAP",
+              "shootingPlace": "JEJU",
+              "title": "Updated Product Title",
+              "description": "Updated Description",
+              "availableSeasons": ["YEAR_2025_SECOND_HALF"],
+              "cameraTypes": ["DIGITAL"],
+              "retouchStyles": ["CALM"],
+              "subImagesFinal": [
+                { "action": "KEEP", "imageId": 200 },
+                { "action": "DELETE", "imageId": 201 },
+                { "action": "UPLOAD", "imageId": null },
+                { "action": "UPLOAD", "imageId": null }
+              ],
+              "additionalImagesFinal": [
+                { "action": "DELETE", "imageId": 300 },
+                { "action": "UPLOAD", "imageId": null }
+              ],
+              "detailedInfo": "Updated Detailed Info",
+              "contactInfo": "updated-contact@example.com",
+              "options": [
+                {
+                  "optionId": 1,
+                  "name": "New Option 1",
+                  "optionType": "SINGLE",
+                  "discountAvailable": true,
+                  "originalPrice": 10000,
+                  "discountPrice": 7000,
+                  "description": "Updated Option Desc",
+                  "costumeCount": 1,
+                  "shootingLocationCount": 1,
+                  "shootingHours": 2,
+                  "shootingMinutes": 0,
+                  "retouchedCount": 3,
+                  "originalProvided": true,
+                  "partnerShops": []
+                }
+              ]
+            }
+            """.trimIndent()
+
+        // 2) 대표 이미지, 서브 이미지, 추가 이미지 (파일) 준비
         val mainImageFile =
             MockMultipartFile(
                 "mainImageFile",
@@ -76,73 +122,27 @@ class UpdateProductRestAdapterTest {
             )
         val subImageFile1 =
             MockMultipartFile(
-                "subImagesFinal[2].file",
+                "subImageFiles",
                 "sub3.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 "new sub image content #3".toByteArray(),
             )
         val subImageFile2 =
             MockMultipartFile(
-                "subImagesFinal[3].file",
+                "subImageFiles",
                 "sub4.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 "new sub image content #4".toByteArray(),
             )
         val additionalImageFile =
             MockMultipartFile(
-                "additionalImagesFinal[1].file",
+                "additionalImageFiles",
                 "add2.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 "new additional image content".toByteArray(),
             )
 
-        val request =
-            UpdateProductRequest(
-                productId = 1L,
-                userId = 10L,
-                productType = "WEDDING_SNAP",
-                shootingPlace = "JEJU",
-                title = "Updated Product Title",
-                description = "Updated Description",
-                availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
-                cameraTypes = listOf("DIGITAL"),
-                retouchStyles = listOf("CALM"),
-                mainImageFile = mainImageFile,
-                subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 200L, null),
-                        SubImageFinalRequest(UpdateSubImageAction.DELETE, 201L, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, subImageFile1),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, null, subImageFile2),
-                    ),
-                additionalImagesFinal =
-                    listOf(
-                        AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, 300L, null),
-                        AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, null, additionalImageFile),
-                    ),
-                detailedInfo = "Updated Detailed Info",
-                contactInfo = "updated-contact@example.com",
-                options =
-                    listOf(
-                        UpdateProductOptionRequest(
-                            optionId = 1L,
-                            name = "New Option 1",
-                            optionType = "SINGLE",
-                            discountAvailable = true,
-                            originalPrice = 10000,
-                            discountPrice = 7000,
-                            description = "Updated Option Desc",
-                            costumeCount = 1,
-                            shootingLocationCount = 1,
-                            shootingHours = 2,
-                            shootingMinutes = 0,
-                            retouchedCount = 3,
-                            originalProvided = true,
-                            partnerShops = emptyList(),
-                        ),
-                    ),
-            )
-
+        // 3) 수정 결과(응답) 예시
         val updatedResponse =
             ProductResponse(
                 productId = 1L,
@@ -157,6 +157,9 @@ class UpdateProductRestAdapterTest {
                 mainImage = "http://image-server.com/updated_main.jpg",
                 subImages =
                     listOf(
+                        // KEEP된 건 http://~KEPT.jpg
+                        // DELETE된 건 제외
+                        // UPLOAD된 건 http://~UPLOADED.jpg
                         "http://image-server.com/subImage1_KEPT.jpg",
                         "http://image-server.com/subImage3_UPLOADED.jpg",
                         "http://image-server.com/subImage4_UPLOADED.jpg",
@@ -189,10 +192,32 @@ class UpdateProductRestAdapterTest {
                     ),
             )
 
-        given(updateProductUseCase.updateProduct(request)).willReturn(updatedResponse)
+        // 4) updateProductUseCase 모킹
+        //    → 이때 시그니처: updateProduct(productId, rawRequest, mainImageFile, subImageFiles, additionalImageFiles)
+        given(
+            updateProductUseCase.updateProduct(
+                eq(1L),
+                any(),
+                any(),
+                any(),
+                any(),
+            ),
+        ).willReturn(updatedResponse)
+
+        // 5) MockMvc를 이용해 multipart/form-data PUT 요청
+        //    5.1) "request" 파트에 JSON 넣기
+        val requestPart =
+            MockMultipartFile(
+                "request",
+                "request.json",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestJson.toByteArray(),
+            )
 
         val requestBuilder =
-            MockMvcRequestBuilders.multipart("/api/products/{id}", 1L)
+            MockMvcRequestBuilders
+                .multipart("/api/products/{id}", 1L)
+                .file(requestPart)
                 .file(mainImageFile)
                 .file(subImageFile1)
                 .file(subImageFile2)
@@ -201,43 +226,10 @@ class UpdateProductRestAdapterTest {
                     req.method = HttpMethod.PUT.toString()
                     req
                 }
-                .param("productId", request.productId.toString())
-                .param("userId", request.userId.toString())
-                .param("productType", request.productType)
-                .param("shootingPlace", request.shootingPlace)
-                .param("title", request.title)
-                .param("description", request.description)
-                .param("availableSeasons", "YEAR_2025_SECOND_HALF")
-                .param("cameraTypes", "DIGITAL")
-                .param("retouchStyles", "CALM")
-                .param("detailedInfo", request.detailedInfo)
-                .param("contactInfo", request.contactInfo)
-                .param("options[0].optionId", "1")
-                .param("options[0].name", "New Option 1")
-                .param("options[0].optionType", "SINGLE")
-                .param("options[0].discountAvailable", "true")
-                .param("options[0].originalPrice", "10000")
-                .param("options[0].discountPrice", "7000")
-                .param("options[0].description", "Updated Option Desc")
-                .param("options[0].costumeCount", "1")
-                .param("options[0].shootingLocationCount", "1")
-                .param("options[0].shootingHours", "2")
-                .param("options[0].shootingMinutes", "0")
-                .param("options[0].retouchedCount", "3")
-                .param("options[0].originalProvided", "true")
-                .param("subImagesFinal[0].action", "KEEP")
-                .param("subImagesFinal[0].imageId", "200")
-                .param("subImagesFinal[1].action", "DELETE")
-                .param("subImagesFinal[1].imageId", "201")
-                .param("subImagesFinal[2].action", "UPLOAD")
-                .param("subImagesFinal[3].action", "UPLOAD")
-                .param("additionalImagesFinal[0].action", "DELETE")
-                .param("additionalImagesFinal[0].imageId", "300")
-                .param("additionalImagesFinal[1].action", "UPLOAD")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
 
+        // 6) 요청 실행 + 문서화
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(

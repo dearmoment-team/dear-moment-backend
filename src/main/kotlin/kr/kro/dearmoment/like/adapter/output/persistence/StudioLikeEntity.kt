@@ -9,13 +9,17 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.like.domain.Like
 import kr.kro.dearmoment.like.domain.StudioLike
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 
 @Entity
-@Table(name = "studio_likes")
+@Table(
+    name = "studio_likes",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "studio_id"])],
+)
 class StudioLikeEntity(
     @Id
     @Column(name = "like_id")

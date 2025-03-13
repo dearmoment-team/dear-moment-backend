@@ -64,7 +64,7 @@ data class CreateProductRequest(
      */
     @field:NotNull(message = "대표 이미지는 필수입니다.")
     @Schema(description = "대표 이미지 파일", required = true)
-    val mainImageFile: MultipartFile?,
+    val mainImageFile: MultipartFile? = null,
     /**
      * 서브 이미지(필수 4장)
      */
@@ -239,7 +239,6 @@ data class CreatePartnerShopRequest(
     @Schema(
         description = "파트너샵 카테고리 (도메인: PartnerShopCategory)",
         required = true,
-        // 여러 값을 허용하는 경우 allowableValues 속성을 사용하여 값을 나열합니다.
         allowableValues = ["HAIR_MAKEUP", "DRESS", "MENS_SUIT", "BOUQUET", "VIDEO", "STUDIO", "ETC"],
         example = "HAIR_MAKEUP",
     )

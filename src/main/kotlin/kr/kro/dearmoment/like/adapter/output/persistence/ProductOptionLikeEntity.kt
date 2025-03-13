@@ -9,13 +9,17 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.like.domain.Like
 import kr.kro.dearmoment.like.domain.ProductOptionLike
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
 
 @Entity
-@Table(name = "product_option_likes")
+@Table(
+    name = "product_option_likes",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "option_id"])],
+)
 class ProductOptionLikeEntity(
     @Id
     @Column(name = "like_id")

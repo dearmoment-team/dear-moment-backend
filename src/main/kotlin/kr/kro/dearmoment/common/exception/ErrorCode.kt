@@ -22,6 +22,9 @@ enum class ErrorCode(
     PRODUCT_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상품 옵션입니다."),
     PRODUCT_OPTION_ID_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "상품 옵션 ID가 널입니다."),
 
+    // 좋아요
+    LIKE_DUPLICATED(HttpStatus.BAD_REQUEST, "이미 좋아요가 존재합니다."),
+
     // 요청 오류
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다."),
 }

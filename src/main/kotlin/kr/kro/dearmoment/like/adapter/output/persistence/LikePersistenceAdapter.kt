@@ -3,33 +3,33 @@ package kr.kro.dearmoment.like.adapter.output.persistence
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
-import kr.kro.dearmoment.like.application.port.output.GetLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
 import kr.kro.dearmoment.like.domain.CreateStudioLike
-import kr.kro.dearmoment.like.domain.ProductOptionLike
-import kr.kro.dearmoment.like.domain.StudioLike
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class LikePersistenceAdapter(
     private val studioLikeRepository: StudioLikeJpaRepository,
     private val productOptionLikeRepository: ProductOptionLikeJpaRepository,
     private val studioRepository: StudioJpaRepository,
     private val productOptionRepository: JpaProductOptionRepository,
-) : SaveLikePort, DeleteLikePort, GetLikePort {
+) : SaveLikePort, DeleteLikePort {
     override fun saveStudioLike(like: CreateStudioLike): Long {
         val studio =
             studioRepository.findByIdOrNull(like.studioId)
                 ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
         val entity = StudioLikeEntity.from(like, studio)
 
-        return studioLikeRepository.save(entity).id
+        return try {
+            studioLikeRepository.save(entity).id
+        } catch (e: DataIntegrityViolationException) {
+            throw CustomException(ErrorCode.LIKE_DUPLICATED)
+        }
     }
 
     override fun saveProductOptionLike(like: CreateProductOptionLike): Long {
@@ -38,30 +38,12 @@ class LikePersistenceAdapter(
                 ?: throw CustomException(ErrorCode.PRODUCT_OPTION_NOT_FOUND)
         val entity = ProductOptionLikeEntity.from(like, option)
 
-        return productOptionLikeRepository.save(entity).id
+        return try {
+            productOptionLikeRepository.save(entity).id
+        } catch (e: DataIntegrityViolationException) {
+            throw CustomException(ErrorCode.LIKE_DUPLICATED)
+        }
     }
-
-    override fun findUserStudioLikes(
-        userId: Long,
-        pageable: Pageable,
-    ): Page<StudioLike> {
-        return studioLikeRepository.getUserLikes(userId, pageable).map { it.toDomain() }
-    }
-
-    override fun findUserProductOptionLikes(
-        userId: Long,
-        pageable: Pageable,
-    ): Page<ProductOptionLike> = productOptionLikeRepository.getUserLikes(userId, pageable).map { it.toDomain() }
-
-    override fun existStudioLike(
-        userId: Long,
-        studioId: Long,
-    ): Boolean = studioLikeRepository.existsByUserIdAndStudioId(userId, studioId)
-
-    override fun existProductOptionLike(
-        userId: Long,
-        productOptionId: Long,
-    ): Boolean = productOptionLikeRepository.existsByUserIdAndOptionOptionId(userId, productOptionId)
 
     override fun deleteStudioLike(likeId: Long) {
         studioLikeRepository.deleteById(likeId)

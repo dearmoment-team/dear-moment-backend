@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.create
 
 import andDocument
+import com.fasterxml.jackson.databind.ObjectMapper
 import kr.kro.dearmoment.common.dto.ResponseWrapper
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
@@ -10,9 +11,6 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
-import kr.kro.dearmoment.product.application.dto.request.CreatePartnerShopRequest
-import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
-import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
@@ -24,6 +22,7 @@ import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
+import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -46,11 +45,14 @@ class CreateProductRestAdapterTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 
-    @MockitoBean
-    lateinit var updateProductUseCase: UpdateProductUseCase
+    @Autowired
+    lateinit var objectMapper: ObjectMapper
 
     @MockitoBean
     lateinit var createProductUseCase: CreateProductUseCase
+
+    @MockitoBean
+    lateinit var updateProductUseCase: UpdateProductUseCase
 
     @MockitoBean
     lateinit var deleteProductUseCase: DeleteProductUseCase
@@ -63,7 +65,7 @@ class CreateProductRestAdapterTest {
 
     @Test
     fun `상품 생성 API 테스트`() {
-        // given
+        // main image 파일
         val mainImage =
             MockMultipartFile(
                 "mainImageFile",
@@ -71,6 +73,8 @@ class CreateProductRestAdapterTest {
                 MediaType.IMAGE_JPEG_VALUE,
                 "main image content".toByteArray(),
             )
+
+        // sub image 파일 4장
         val subImage1 =
             MockMultipartFile(
                 "subImageFiles",
@@ -100,65 +104,70 @@ class CreateProductRestAdapterTest {
                 "sub image 4".toByteArray(),
             )
 
-        // 요청 객체 세팅
-        val request =
-            CreateProductRequest(
-                userId = 1L,
-                productType = "WEDDING_SNAP",
-                shootingPlace = "JEJU",
-                title = "New Product",
-                description = "Product description",
-                availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
-                cameraTypes = listOf("DIGITAL"),
-                retouchStyles = listOf("MODERN"),
-                mainImageFile = mainImage,
-                subImageFiles = listOf(subImage1, subImage2, subImage3, subImage4),
-                additionalImageFiles = emptyList(),
-                detailedInfo = "Detailed product information",
-                contactInfo = "contact@example.com",
-                options =
+        // additional image 파일은 이 테스트에서 빈 리스트를 전달 (필수 아님)
+
+        // CreateProductRequest를 표현하는 JSON 파트 생성
+        val requestMap =
+            mapOf(
+                "userId" to 1L,
+                "productType" to "WEDDING_SNAP",
+                "shootingPlace" to "JEJU",
+                "title" to "New Product",
+                "description" to "Product description",
+                "availableSeasons" to listOf("YEAR_2025_FIRST_HALF"),
+                "cameraTypes" to listOf("DIGITAL"),
+                "retouchStyles" to listOf("MODERN"),
+                "detailedInfo" to "Detailed product information",
+                "contactInfo" to "contact@example.com",
+                "options" to
                     listOf(
-                        CreateProductOptionRequest(
-                            name = "Option 1",
-                            optionType = "SINGLE",
-                            discountAvailable = false,
-                            originalPrice = 10000,
-                            discountPrice = 1000,
-                            description = "Extra option",
-                            costumeCount = 1,
-                            shootingLocationCount = 1,
-                            shootingHours = 1,
-                            shootingMinutes = 30,
-                            retouchedCount = 1,
-                            originalProvided = true,
-                            partnerShops =
+                        mapOf(
+                            "name" to "Option 1",
+                            "optionType" to "SINGLE",
+                            "discountAvailable" to false,
+                            "originalPrice" to 10000,
+                            "discountPrice" to 1000,
+                            "description" to "Extra option",
+                            "costumeCount" to 1,
+                            "shootingLocationCount" to 1,
+                            "shootingHours" to 1,
+                            "shootingMinutes" to 30,
+                            "retouchedCount" to 1,
+                            "partnerShops" to
                                 listOf(
-                                    CreatePartnerShopRequest("DRESS", "Shop A", "http://shopA.com"),
-                                    CreatePartnerShopRequest("DRESS", "Shop B", "http://shopB.com"),
+                                    mapOf("category" to "DRESS", "name" to "Shop A", "link" to "http://shopA.com"),
+                                    mapOf("category" to "DRESS", "name" to "Shop B", "link" to "http://shopB.com"),
                                 ),
                         ),
-                        CreateProductOptionRequest(
-                            name = "Option 2",
-                            optionType = "PACKAGE",
-                            discountAvailable = true,
-                            originalPrice = 20000,
-                            discountPrice = 15000,
-                            description = "Package option",
-                            costumeCount = 0,
-                            shootingLocationCount = 0,
-                            shootingHours = 0,
-                            shootingMinutes = 0,
-                            retouchedCount = 0,
-                            originalProvided = false,
-                            partnerShops =
+                        mapOf(
+                            "name" to "Option 2",
+                            "optionType" to "PACKAGE",
+                            "discountAvailable" to true,
+                            "originalPrice" to 20000,
+                            "discountPrice" to 15000,
+                            "description" to "Package option",
+                            "costumeCount" to 0,
+                            "shootingLocationCount" to 0,
+                            "shootingHours" to 0,
+                            "shootingMinutes" to 0,
+                            "retouchedCount" to 0,
+                            "partnerShops" to
                                 listOf(
-                                    CreatePartnerShopRequest("DRESS", "Shop C", "http://shopC.com"),
+                                    mapOf("category" to "DRESS", "name" to "Shop C", "link" to "http://shopC.com"),
                                 ),
                         ),
                     ),
             )
+        val jsonRequest = objectMapper.writeValueAsString(requestMap)
+        val requestPart =
+            MockMultipartFile(
+                "request",
+                "request.json",
+                MediaType.APPLICATION_JSON_VALUE,
+                jsonRequest.toByteArray(),
+            )
 
-        // 응답 객체 세팅
+        // 응답 객체 설정
         val productOptionResponse1 =
             ProductOptionResponse(
                 optionId = 1L,
@@ -182,7 +191,6 @@ class CreateProductRestAdapterTest {
                 createdAt = null,
                 updatedAt = null,
             )
-
         val productOptionResponse2 =
             ProductOptionResponse(
                 optionId = 2L,
@@ -205,7 +213,6 @@ class CreateProductRestAdapterTest {
                 createdAt = null,
                 updatedAt = null,
             )
-
         val productResponse =
             ProductResponse(
                 productId = 1L,
@@ -233,32 +240,23 @@ class CreateProductRestAdapterTest {
                 options = listOf(productOptionResponse1, productOptionResponse2),
             )
 
-        // createProductUseCase mock 동작 설정
-        given(createProductUseCase.saveProduct(request)).willReturn(productResponse)
+        // createProductUseCase 모의 동작 설정
+        given(createProductUseCase.saveProduct(any())).willReturn(productResponse)
 
-        // when
+        // multipart 요청 빌드 (JSON request 파트와 파일 파트 포함)
         val requestBuilder =
             multipart("/api/products")
+                .file(requestPart)
                 .file(mainImage)
                 .file(subImage1)
                 .file(subImage2)
                 .file(subImage3)
                 .file(subImage4)
-                .param("userId", "1")
-                .param("productType", "WEDDING_SNAP")
-                .param("shootingPlace", "JEJU")
-                .param("title", "New Product")
-                .param("description", "Product description")
-                .param("availableSeasons", "YEAR_2025_FIRST_HALF")
-                .param("cameraTypes", "DIGITAL")
-                .param("retouchStyles", "MODERN")
-                .param("detailedInfo", "Detailed product information")
-                .param("contactInfo", "contact@example.com")
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // then
+        // 요청 실행 및 응답 검증 + 문서화
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(
