@@ -33,25 +33,25 @@ class LikePersistenceAdapterTest(
                 productOptionRepository,
             )
 
-        describe("LikePersistenceAdapter는") {
+        describe("saveStudioLike() 는") {
             val userId = 1L
-            val savedStudio = studioRepository.save(studioEntityFixture(userId))
-            val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
-            val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
-
+            val savedStudio = studioRepository.save(studioEntityFixture())
             val studioLike = CreateStudioLike(userId = userId, studioId = savedStudio.id)
             val studioLikeId = adapter.saveStudioLike(studioLike)
-
-            val productOptionLike =
-                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId!!)
-            val productOptionLikeId = adapter.saveProductOptionLike(productOptionLike)
 
             context("저장하려는 스튜디오 좋아요 도메인이 전달되면") {
                 it("DB에 저장한다.") {
                     studioLikeId shouldBeGreaterThan 0
                 }
             }
+        }
 
+        describe("[예외] saveStudioLike() 는") {
+            val userId = 1L
+            val savedStudio = studioRepository.save(studioEntityFixture())
+            val studioLike = CreateStudioLike(userId = userId, studioId = savedStudio.id)
+
+            adapter.saveStudioLike(studioLike)
             context("동일 유저가 동일 스튜디오에 대한 좋아요를 저장하려고 시도하면 ") {
                 it("예외를 발생 시킨다.") {
                     shouldThrow<CustomException> {
@@ -61,12 +61,32 @@ class LikePersistenceAdapterTest(
                     }
                 }
             }
+        }
+
+        describe("saveProductOptionLike()는") {
+            val userId = 1L
+            val savedStudio = studioRepository.save(studioEntityFixture(userId))
+            val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
+            val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
+            val productOptionLike =
+                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId!!)
+            val productOptionLikeId = adapter.saveProductOptionLike(productOptionLike)
 
             context("저장하려는 상품 좋아요 도메인이 전달되면") {
                 it("DB에 저장한다.") {
                     productOptionLikeId shouldBeGreaterThan 0
                 }
             }
+        }
+
+        describe("[예외] saveProductOptionLike()는") {
+            val userId = 1L
+            val savedStudio = studioRepository.save(studioEntityFixture(userId))
+            val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
+            val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
+            val productOptionLike =
+                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId!!)
+            adapter.saveProductOptionLike(productOptionLike)
 
             context("동일 유저가 동일 상품 옵션에 대한 좋아요를 저장하려고 시도하면") {
                 it("예외를 발생 시킨다.") {
@@ -77,11 +97,13 @@ class LikePersistenceAdapterTest(
                     }
                 }
             }
+        }
 
+        describe("deleteXXXLike()는") {
             context("like ID가 전달되면") {
                 it("like ID에 해당하는 데이터를 db에서 삭제한다. ") {
-                    shouldNotThrow<Throwable> { adapter.deleteStudioLike(studioLikeId) }
-                    shouldNotThrow<Throwable> { adapter.deleteProductOptionLike(productOptionLikeId) }
+                    shouldNotThrow<Throwable> { adapter.deleteStudioLike(1L) }
+                    shouldNotThrow<Throwable> { adapter.deleteProductOptionLike(1L) }
                 }
             }
         }

@@ -11,9 +11,9 @@ import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class LikeReadOnlyPersistenceAdapter(
     private val productOptionLikeJpaRepository: ProductOptionLikeJpaRepository,
     private val studioLikeJpaRepository: StudioLikeJpaRepository,
@@ -30,6 +30,8 @@ class LikeReadOnlyPersistenceAdapter(
             ).from(
                 entity(StudioLikeEntity::class),
                 fetchJoin(StudioLikeEntity::studio),
+            ).where(
+                path(StudioLikeEntity::userId).eq(userId),
             )
         }.map { it?.toDomain() }
     }
@@ -44,6 +46,8 @@ class LikeReadOnlyPersistenceAdapter(
             ).from(
                 entity(ProductOptionLikeEntity::class),
                 fetchJoin(ProductOptionLikeEntity::option),
+            ).where(
+                path(ProductOptionLikeEntity::userId).eq(userId),
             )
         }.map { it?.toDomain() }
     }

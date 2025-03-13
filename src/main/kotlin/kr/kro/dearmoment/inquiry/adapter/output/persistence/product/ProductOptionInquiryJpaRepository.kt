@@ -1,14 +1,6 @@
 package kr.kro.dearmoment.inquiry.adapter.output.persistence.product
 
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
 
-@Repository
-interface ProductOptionInquiryJpaRepository : JpaRepository<ProductOptionInquiryEntity, Long> {
-    fun findByUserId(
-        userId: Long,
-        pageable: Pageable,
-    ): Page<ProductOptionInquiryEntity>
-}
+interface ProductOptionInquiryJpaRepository : JpaRepository<ProductOptionInquiryEntity, Long>, KotlinJdslJpqlExecutor

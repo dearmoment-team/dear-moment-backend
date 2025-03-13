@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
+import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
@@ -15,6 +16,7 @@ import kr.kro.dearmoment.product.domain.model.ProductOption
 class ProductOptionRepositoryAdapterTest(
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
+    private val productOptionLikeJpaRepository: ProductOptionLikeJpaRepository,
 ) : DescribeSpec({
         val adapter = ProductOptionRepositoryAdapter(jpaProductOptionRepository, jpaProductRepository)
 
@@ -23,6 +25,7 @@ class ProductOptionRepositoryAdapterTest(
             lateinit var testProductDomain: Product
 
             beforeEach {
+                productOptionLikeJpaRepository.deleteAllInBatch()
                 // 테스트용 ProductEntity 생성
                 testProductEntity =
                     jpaProductRepository.save(

@@ -9,25 +9,21 @@ import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInqui
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.studio.StudioInquiryEntity
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.studio.StudioInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
-import kr.kro.dearmoment.inquiry.application.port.output.GetInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.domain.CreateProductOptionInquiry
-import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiry
 import kr.kro.dearmoment.inquiry.domain.StudioInquiry
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class InquiryPersistenceAdapter(
     private val studioInquiryJpaRepository: StudioInquiryJpaRepository,
     private val productOptionInquiryJpaRepository: ProductOptionInquiryJpaRepository,
     private val serviceInquiryJpaRepository: ServiceInquiryJpaRepository,
     private val productOptionRepository: JpaProductOptionRepository,
-) : SaveInquiryPort, GetInquiryPort, DeleteInquiryPort {
+) : SaveInquiryPort, DeleteInquiryPort {
     override fun saveProductOptionInquiry(inquiry: CreateProductOptionInquiry): Long {
         val optionEntity =
             productOptionRepository.findByIdOrNull(inquiry.productOptionId)
@@ -45,22 +41,6 @@ class InquiryPersistenceAdapter(
     override fun saveServiceInquiry(inquiry: ServiceInquiry): Long {
         val entity = ServiceInquiryEntity.from(inquiry)
         return serviceInquiryJpaRepository.save(entity).id
-    }
-
-    override fun findUserStudioInquiries(
-        userId: Long,
-        pageable: Pageable,
-    ): Page<StudioInquiry> {
-        val entities = studioInquiryJpaRepository.findByUserId(userId, pageable)
-        return entities.map { it.toDomain() }
-    }
-
-    override fun findUserProductOptionInquiries(
-        userId: Long,
-        pageable: Pageable,
-    ): Page<ProductOptionInquiry> {
-        val entities = productOptionInquiryJpaRepository.findByUserId(userId, pageable)
-        return entities.map { it.toDomain() }
     }
 
     override fun deleteProductOptionInquiry(inquiryId: Long): Unit = productOptionInquiryJpaRepository.deleteById(inquiryId)

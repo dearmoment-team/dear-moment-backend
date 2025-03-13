@@ -10,9 +10,9 @@ import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionReposit
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class LikePersistenceAdapter(
     private val studioLikeRepository: StudioLikeJpaRepository,
     private val productOptionLikeRepository: ProductOptionLikeJpaRepository,
