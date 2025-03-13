@@ -28,12 +28,11 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
+
 
 @Entity
 @Table(name = "PRODUCTS")
-@EntityListeners(AuditingEntityListener::class)
-open class ProductEntity(
+class ProductEntity(
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,

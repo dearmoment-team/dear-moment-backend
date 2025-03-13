@@ -24,8 +24,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
-@EntityListeners(AuditingEntityListener::class)
-open class ProductOptionEntity(
+class ProductOptionEntity(
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,
