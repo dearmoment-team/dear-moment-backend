@@ -27,7 +27,6 @@ class InquiryPersistenceAdapterTest(
     private val productRepository: JpaProductRepository,
     private val studioRepository: StudioJpaRepository,
 ) : DescribeSpec({
-
         val adapter =
             InquiryPersistenceAdapter(
                 studioInquiryJpaRepository,

@@ -27,9 +27,10 @@ class ProductOptionInquiryEntity(
     val userId: Long,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_id")
-    val option: ProductOptionEntity,
+    val option: ProductOptionEntity? = null,
 ) : Auditable() {
     fun toDomain(): ProductOptionInquiry {
+        check(option != null) { "상품 옵션은 널이 될 수 없습니다." }
         val product = option.product ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
         val studio = product.studio ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
 
