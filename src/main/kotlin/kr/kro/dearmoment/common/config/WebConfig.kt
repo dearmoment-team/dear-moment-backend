@@ -44,7 +44,9 @@ class WebConfig(
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOriginPatterns("*")
+            .allowedOrigins("https://dearmoment.kro.kr")
             .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
+            .allowCredentials(true)
+            .maxAge(3600)
     }
 }
