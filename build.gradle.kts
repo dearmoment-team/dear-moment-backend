@@ -79,6 +79,7 @@ dependencies {
     // Kotest Assertions (선택적, 다양한 assert 기능 제공)
     testImplementation("io.kotest:kotest-assertions-core:5.7.0")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 
     // Fixture
     testImplementation("com.navercorp.fixturemonkey:fixture-monkey-kotlin:$fixtureMonkeyVersion")
