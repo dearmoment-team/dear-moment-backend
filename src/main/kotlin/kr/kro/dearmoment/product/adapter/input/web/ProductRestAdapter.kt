@@ -45,16 +45,17 @@ class ProductRestAdapter(
         summary = "상품 생성",
         description = "새로운 상품을 생성합니다.",
         // Swagger 에서 멀티파트로 받는다는 것을 정확히 인식하려면 다음과 같이 requestBody 를 설정합니다.
-        requestBody = RequestBody(
-            required = true,
-            description = "multipart/form-data 형식으로 요청합니다.",
-            content = [
-                Content(
-                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                    schema = Schema(implementation = CreateProductRequest::class)
-                )
-            ]
-        )
+        requestBody =
+            RequestBody(
+                required = true,
+                description = "multipart/form-data 형식으로 요청합니다.",
+                content = [
+                    Content(
+                        mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                        schema = Schema(implementation = CreateProductRequest::class),
+                    ),
+                ],
+            ),
     )
     @ApiResponses(
         value = [
@@ -64,11 +65,11 @@ class ProductRestAdapter(
                 content = [
                     Content(
                         mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ProductResponse::class)
-                    )
-                ]
+                        schema = Schema(implementation = ProductResponse::class),
+                    ),
+                ],
             ),
-        ]
+        ],
     )
     @PostMapping(
         // 파일 업로드를 다루려면 반드시 consumes 에 multipart/form-data 를 명시합니다.
@@ -78,21 +79,19 @@ class ProductRestAdapter(
     fun createProduct(
         @RequestPart("request", required = true)
         request: CreateProductRequest,
-
         @RequestPart("mainImageFile", required = false)
         mainImageFile: MultipartFile?,
-
         @RequestPart("subImageFiles", required = false)
         subImageFiles: List<MultipartFile>?,
-
         @RequestPart("additionalImageFiles", required = false)
         additionalImageFiles: List<MultipartFile>?,
     ): ProductResponse {
-        val mergedRequest = request.copy(
-            mainImageFile = mainImageFile,
-            subImageFiles = subImageFiles ?: emptyList(),
-            additionalImageFiles = additionalImageFiles ?: emptyList(),
-        )
+        val mergedRequest =
+            request.copy(
+                mainImageFile = mainImageFile,
+                subImageFiles = subImageFiles ?: emptyList(),
+                additionalImageFiles = additionalImageFiles ?: emptyList(),
+            )
         return createProductUseCase.saveProduct(mergedRequest)
     }
 
