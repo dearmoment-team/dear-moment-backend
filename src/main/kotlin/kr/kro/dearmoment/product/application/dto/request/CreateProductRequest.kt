@@ -17,6 +17,7 @@ import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import org.springframework.web.multipart.MultipartFile
 
+
 /**
  * [상품 등록] 시 사용하는 요청 DTO
  */
