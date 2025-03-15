@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets
 class WebConfig(
     private val objectMapper: ObjectMapper,
 ) : WebMvcConfigurer {
-
     @Bean
     fun multipartResolver(): MultipartResolver {
         return StandardServletMultipartResolver()

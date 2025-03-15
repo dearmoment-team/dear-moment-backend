@@ -199,13 +199,14 @@ data class CreateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
-                partnerShops = dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                partnerShops =
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )

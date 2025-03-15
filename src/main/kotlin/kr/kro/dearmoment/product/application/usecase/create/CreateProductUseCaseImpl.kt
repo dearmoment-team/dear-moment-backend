@@ -48,8 +48,9 @@ class CreateProductUseCaseImpl(
         validateForCreation(product)
         val savedProduct = productPersistencePort.save(product)
 
-        val completeProduct = productPersistencePort.findById(savedProduct.productId)
-            ?: throw IllegalStateException("저장된 상품을 찾을 수 없습니다: ${savedProduct.productId}")
+        val completeProduct =
+            productPersistencePort.findById(savedProduct.productId)
+                ?: throw IllegalStateException("저장된 상품을 찾을 수 없습니다: ${savedProduct.productId}")
 
         return ProductResponse.fromDomain(completeProduct)
     }

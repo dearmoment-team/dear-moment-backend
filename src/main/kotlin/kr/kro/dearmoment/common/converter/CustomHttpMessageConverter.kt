@@ -5,16 +5,16 @@ import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 
 class CustomHttpMessageConverter(
-    objectMapper: ObjectMapper
+    objectMapper: ObjectMapper,
 ) : MappingJackson2HttpMessageConverter(objectMapper) {
-
     init {
         // 지원하는 미디어 타입 확장 - multipart 내부 JSON 처리를 위해 octet-stream 포함
-        supportedMediaTypes = listOf(
-            MediaType.APPLICATION_JSON,
-            MediaType("application", "*+json"),
-            MediaType.APPLICATION_OCTET_STREAM  // multipart 내부 JSON 처리용
-        )
+        supportedMediaTypes =
+            listOf(
+                MediaType.APPLICATION_JSON,
+                MediaType("application", "*+json"),
+                MediaType.APPLICATION_OCTET_STREAM, // multipart 내부 JSON 처리용
+            )
     }
 
     override fun supports(clazz: Class<*>): Boolean {
@@ -31,12 +31,12 @@ class CustomHttpMessageConverter(
     // 기본 타입 확인 (스웨거가 주로 사용하는 타입들)
     private fun isBasicType(clazz: Class<*>): Boolean {
         return clazz == String::class.java ||
-                clazz == Int::class.java || clazz == Integer::class.java ||
-                clazz == Long::class.java ||
-                clazz == Boolean::class.java ||
-                clazz == Double::class.java ||
-                clazz == Float::class.java ||
-                Map::class.java.isAssignableFrom(clazz) ||
-                Collection::class.java.isAssignableFrom(clazz)
+            clazz == Int::class.java || clazz == Integer::class.java ||
+            clazz == Long::class.java ||
+            clazz == Boolean::class.java ||
+            clazz == Double::class.java ||
+            clazz == Float::class.java ||
+            Map::class.java.isAssignableFrom(clazz) ||
+            Collection::class.java.isAssignableFrom(clazz)
     }
 }

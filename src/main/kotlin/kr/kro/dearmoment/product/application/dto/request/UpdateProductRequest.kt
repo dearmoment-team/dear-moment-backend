@@ -12,20 +12,23 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
-import org.springframework.web.multipart.MultipartFile
 
 /**
  * [상품 수정] 시 사용하는 요청 DTO
  *
  * - 서브 이미지는 `subImagesFinal`로 총 4개를 전달받으며,
- *   각 항목에 [action], [imageId], [newFile]을 조합하여 최종 상태를 나타냅니다.
+ *   각 항목에 [action], [imageId]를 조합하여 최종 상태를 나타냅니다.
+ *   (파일 관련 정보는 별도의 MultipartFile 파트로 전달)
  * - 추가 이미지는 `additionalImagesFinal`로 최대 5개를 전달받으며,
- *   서브 이미지와 동일하게 [action], [imageId], [newFile] 조합을 사용합니다.
+ *   서브 이미지와 동일하게 [action], [imageId]를 사용합니다.
  *
  * ### action 사용 예시
- * - KEEP: 기존 이미지를 그대로 사용 (imageId != null, newFile = null)
- * - DELETE: 기존 이미지를 삭제 (imageId != null, newFile = null)
- * - UPLOAD: 새 이미지를 업로드 (imageId = null, newFile != null)
+ * - KEEP: 기존 이미지를 그대로 사용 (imageId != null, 파일 없음)
+ * - DELETE: 기존 이미지를 삭제 (imageId != null, 파일 없음)
+ * - UPLOAD: 새 이미지를 업로드 (imageId = null, 파일은 별도 처리)
+ *
+ * 컨트롤러에서는 대표 이미지 및 이미지 파일들을 별도의 MultipartFile 파트로 받아 처리하며,
+ * 이 DTO는 JSON 직렬화 대상이므로 파일 관련 필드는 포함하지 않습니다.
  */
 @Schema(description = "상품 수정 요청 DTO")
 data class UpdateProductRequest(
@@ -64,8 +67,7 @@ data class UpdateProductRequest(
         example = "[\"MODERN\", \"VINTAGE\"]",
     )
     val retouchStyles: List<String> = emptyList(),
-    @Schema(description = "교체할 새 대표 이미지 파일 (없으면 null)", required = false)
-    val mainImageFile: MultipartFile? = null,
+    // mainImageFile는 JSON 직렬화 대상에서 제거됨 (파일은 별도의 MultipartFile 파트로 처리)
     @Schema(description = "최종 서브 이미지 목록 (정확히 4개)", required = true)
     val subImagesFinal: List<SubImageFinalRequest> = emptyList(),
     @Schema(description = "최종 추가 이미지 목록 (0~최대 5개)", required = false)
@@ -74,19 +76,20 @@ data class UpdateProductRequest(
     val detailedInfo: String? = null,
     @Schema(description = "연락처 정보", example = "010-1234-5678")
     val contactInfo: String? = null,
-    @Schema(description = "상품 옵션 목록")
-    val options: List<UpdateProductOptionRequest> = emptyList(),
 ) {
     companion object {
         /**
          * 파일 업로드 처리 후, 실제 [Image]가 결정된 상태에서
          * 최종 [Product] 도메인 객체를 만들기 위한 메서드.
+         *
+         * @param options 별도로 전달된 상품 옵션 목록
          */
         fun toDomain(
             req: UpdateProductRequest,
             mainImage: Image,
             subImages: List<Image>,
             additionalImages: List<Image>,
+            options: List<UpdateProductOptionRequest> = emptyList(),
         ): Product {
             val productTypeEnum = ProductType.valueOf(req.productType)
             val shootingPlaceEnum = ShootingPlace.valueOf(req.shootingPlace)
@@ -95,7 +98,7 @@ data class UpdateProductRequest(
             val styleSet = req.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet()
 
             val domainOptions =
-                req.options.map {
+                options.map {
                     UpdateProductOptionRequest.toDomain(it, req.productId)
                 }
 
@@ -135,7 +138,7 @@ enum class UpdateSubImageAction {
  *
  * - [action] : KEEP / DELETE / UPLOAD
  * - [imageId] : 기존 이미지의 ID (KEEP/DELETE 시 필요)
- * - [newFile] : 새로 업로드할 파일 (UPLOAD 시 필요)
+ * - 파일 관련 정보는 컨트롤러에서 별도의 MultipartFile 파트로 처리합니다.
  */
 @Schema(description = "최종 서브 이미지 정보 DTO")
 data class SubImageFinalRequest(
@@ -143,8 +146,6 @@ data class SubImageFinalRequest(
     val action: UpdateSubImageAction,
     @Schema(description = "기존 이미지 ID (KEEP/DELETE 시 필요)", example = "10")
     val imageId: Long?,
-    @Schema(description = "새로 업로드할 파일 (UPLOAD 시 필요)")
-    val newFile: MultipartFile? = null,
 )
 
 /**
@@ -162,7 +163,7 @@ enum class UpdateAdditionalImageAction {
  *
  * - [action] : KEEP / DELETE / UPLOAD
  * - [imageId] : 기존 이미지의 ID (KEEP/DELETE 시 필요)
- * - [newFile] : 새로 업로드할 파일 (UPLOAD 시 필요)
+ * - 파일 관련 정보는 컨트롤러에서 별도의 MultipartFile 파트로 처리합니다.
  */
 @Schema(description = "최종 추가 이미지 정보 DTO")
 data class AdditionalImageFinalRequest(
@@ -170,8 +171,6 @@ data class AdditionalImageFinalRequest(
     val action: UpdateAdditionalImageAction,
     @Schema(description = "기존 이미지 ID (KEEP/DELETE 시 필요)", example = "20")
     val imageId: Long?,
-    @Schema(description = "새로 업로드할 파일 (UPLOAD 시 필요)")
-    val newFile: MultipartFile? = null,
 )
 
 /**

@@ -65,8 +65,7 @@ class UpdateProductRestAdapterTest {
 
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
-        // 1) 업데이트 요청 DTO를 JSON으로 만들기
-        //    실제로는 Jackson 등을 이용해 객체 -> JSON 직렬화 가능
+        // 1) 업데이트 요청 DTO를 JSON 문자열로 생성
         val requestJson =
             """
             {
@@ -112,7 +111,7 @@ class UpdateProductRestAdapterTest {
             }
             """.trimIndent()
 
-        // 2) 대표 이미지, 서브 이미지, 추가 이미지 (파일) 준비
+        // 2) 대표 이미지, 서브 이미지, 추가 이미지 파일 준비
         val mainImageFile =
             MockMultipartFile(
                 "mainImageFile",
@@ -157,9 +156,6 @@ class UpdateProductRestAdapterTest {
                 mainImage = "http://image-server.com/updated_main.jpg",
                 subImages =
                     listOf(
-                        // KEEP된 건 http://~KEPT.jpg
-                        // DELETE된 건 제외
-                        // UPLOAD된 건 http://~UPLOADED.jpg
                         "http://image-server.com/subImage1_KEPT.jpg",
                         "http://image-server.com/subImage3_UPLOADED.jpg",
                         "http://image-server.com/subImage4_UPLOADED.jpg",
@@ -192,8 +188,7 @@ class UpdateProductRestAdapterTest {
                     ),
             )
 
-        // 4) updateProductUseCase 모킹
-        //    → 이때 시그니처: updateProduct(productId, rawRequest, mainImageFile, subImageFiles, additionalImageFiles)
+        // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
         given(
             updateProductUseCase.updateProduct(
                 eq(1L),
@@ -201,11 +196,11 @@ class UpdateProductRestAdapterTest {
                 any(),
                 any(),
                 any(),
+                any(),
             ),
         ).willReturn(updatedResponse)
 
-        // 5) MockMvc를 이용해 multipart/form-data PUT 요청
-        //    5.1) "request" 파트에 JSON 넣기
+        // 5) "request" 파트에 JSON을 포함시켜 multipart/form-data PUT 요청 생성
         val requestPart =
             MockMultipartFile(
                 "request",
@@ -229,7 +224,7 @@ class UpdateProductRestAdapterTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 6) 요청 실행 + 문서화
+        // 6) 요청 실행, 상태 검증 및 REST Docs 문서화
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(

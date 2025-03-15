@@ -104,7 +104,7 @@ open class ProductEntity(
         mappedBy = "product",
         cascade = [CascadeType.ALL],
         orphanRemoval = true,
-        fetch = FetchType.EAGER
+        fetch = FetchType.EAGER,
     )
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
     @Column(nullable = false)

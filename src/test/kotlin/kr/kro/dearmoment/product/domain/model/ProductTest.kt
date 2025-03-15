@@ -136,11 +136,11 @@ internal class ProductTest : StringSpec({
         shouldThrow<IllegalArgumentException> {
             createProduct(
                 retouchStyles =
-                setOf(
-                    RetouchStyle.MODERN,
-                    RetouchStyle.NATURAL,
-                    RetouchStyle.VINTAGE,
-                ),
+                    setOf(
+                        RetouchStyle.MODERN,
+                        RetouchStyle.NATURAL,
+                        RetouchStyle.VINTAGE,
+                    ),
             )
         }.message shouldBe "보정 스타일은 최대 2개까지만 선택할 수 있습니다."
     }
@@ -163,13 +163,13 @@ internal class ProductTest : StringSpec({
                     name = "기존 패키지 옵션",
                     optionType = OptionType.PACKAGE,
                     partnerShops =
-                    listOf(
-                        PartnerShop(
-                            category = PartnerShopCategory.DRESS,
-                            name = "드레스샵",
-                            link = "http://dress.com",
+                        listOf(
+                            PartnerShop(
+                                category = PartnerShopCategory.DRESS,
+                                name = "드레스샵",
+                                link = "http://dress.com",
+                            ),
                         ),
-                    ),
                 ),
             )
         val product = createProduct(options = existingOptions)
@@ -185,13 +185,13 @@ internal class ProductTest : StringSpec({
                     name = "새로운 패키지 옵션",
                     optionType = OptionType.PACKAGE,
                     partnerShops =
-                    listOf(
-                        PartnerShop(
-                            category = PartnerShopCategory.VIDEO,
-                            name = "영상업체",
-                            link = "http://video.com",
+                        listOf(
+                            PartnerShop(
+                                category = PartnerShopCategory.VIDEO,
+                                name = "영상업체",
+                                link = "http://video.com",
+                            ),
                         ),
-                    ),
                 ),
             )
 
@@ -199,10 +199,10 @@ internal class ProductTest : StringSpec({
 
         // updatedOptions => 기존 1번 옵션 갱신 + 신규 삽입
         result.updatedOptions shouldContainExactly
-                listOf(
-                    existingOptions[0].copy(originalPrice = 120_000L, productId = 1L),
-                    newOptions[1].copy(productId = 1L),
-                )
+            listOf(
+                existingOptions[0].copy(originalPrice = 120_000L, productId = 1L),
+                newOptions[1].copy(productId = 1L),
+            )
 
         // deletedOptionIds => 2번 옵션은 새 목록에 없으므로 삭제 대상
         result.deletedOptionIds shouldContainExactly setOf(2L)
