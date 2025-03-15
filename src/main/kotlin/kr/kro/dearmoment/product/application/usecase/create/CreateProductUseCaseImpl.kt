@@ -5,7 +5,6 @@ import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
-import kr.kro.dearmoment.product.application.usecase.option.ProductOptionUseCase
 import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile
 class CreateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val imageService: ImageService,
-    private val productOptionUseCase: ProductOptionUseCase,
 ) : CreateProductUseCase {
     @Transactional
     override fun saveProduct(
@@ -38,7 +36,7 @@ class CreateProductUseCaseImpl(
         val subImgs = subImageFiles.map { imageService.save(SaveImageCommand(it, request.userId)) }
         val additionalImgs = additionalImageFiles.map { imageService.save(SaveImageCommand(it, request.userId)) }
 
-        // 도메인 객체 생성
+        // 도메인 객체 생성 (옵션은 DTO 변환에서 이미 포함됨)
         val product =
             CreateProductRequest.toDomain(
                 req = request,
@@ -50,12 +48,10 @@ class CreateProductUseCaseImpl(
         validateForCreation(product)
         val savedProduct = productPersistencePort.save(product)
 
-        // 옵션 저장
-        request.options.forEach {
-            productOptionUseCase.saveProductOption(savedProduct.productId, it)
-        }
+        val completeProduct = productPersistencePort.findById(savedProduct.productId)
+            ?: throw IllegalStateException("저장된 상품을 찾을 수 없습니다: ${savedProduct.productId}")
 
-        return ProductResponse.fromDomain(savedProduct)
+        return ProductResponse.fromDomain(completeProduct)
     }
 
     private fun validateForCreation(product: Product) {

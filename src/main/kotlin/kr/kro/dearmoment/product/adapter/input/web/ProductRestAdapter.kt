@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.adapter.input.web
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
@@ -52,38 +53,56 @@ class ProductRestAdapter(
         @Parameter(
             description = "상품 정보(JSON)",
             required = true,
-            content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)]
+            content = [Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = Schema(implementation = CreateProductRequest::class)
+            )]
         )
         @RequestPart("request") request: CreateProductRequest,
 
         @Parameter(
             description = "대표 이미지 파일",
             required = true,
-            content = [Content(mediaType = "image/*")]
+            content = [Content(
+                mediaType = "image/*",
+                schema = Schema(type = "string", format = "binary")
+            )]
         )
         @RequestPart("mainImageFile") mainImageFile: MultipartFile,
 
         @Parameter(
             description = "서브 이미지 파일 (4장)",
             required = true,
-            content = [Content(mediaType = "image/*")]
+            content = [Content(
+                mediaType = "image/*",
+                array = ArraySchema(
+                    schema = Schema(type = "string", format = "binary")
+                )
+            )]
         )
         @RequestPart("subImageFiles") subImageFiles: List<MultipartFile>,
 
         @Parameter(
             description = "추가 이미지 파일 (선택적, 최대 5장)",
             required = false,
-            content = [Content(mediaType = "image/*")]
+            content = [Content(
+                mediaType = "image/*",
+                array = ArraySchema(
+                    schema = Schema(type = "string", format = "binary")
+                )
+            )]
         )
-        @RequestPart(value = "additionalImageFiles", required = false) additionalImageFiles: List<MultipartFile>?
+        @RequestPart(value = "additionalImageFiles", required = false)
+        additionalImageFiles: List<MultipartFile> = emptyList()
     ): ProductResponse {
         return createProductUseCase.saveProduct(
             request = request,
             mainImageFile = mainImageFile,
             subImageFiles = subImageFiles,
-            additionalImageFiles = additionalImageFiles ?: emptyList()
+            additionalImageFiles = additionalImageFiles
         )
     }
+
 
     @Operation(summary = "상품 수정", description = "기존 상품 정보를 수정합니다.")
     @ApiResponses(

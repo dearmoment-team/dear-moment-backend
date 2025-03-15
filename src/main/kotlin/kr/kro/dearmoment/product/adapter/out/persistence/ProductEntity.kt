@@ -100,7 +100,12 @@ open class ProductEntity(
     var detailedInfo: String? = null,
     @Column(name = "CONTACT_INFO")
     var contactInfo: String? = null,
-    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "product",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.EAGER
+    )
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
     @Column(nullable = false)
     open var version: Long = 0L,

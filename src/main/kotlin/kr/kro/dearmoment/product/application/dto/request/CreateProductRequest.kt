@@ -118,7 +118,8 @@ data class CreateProductRequest(
                     )
                 }
 
-            val domainOptions = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
+            // 옵션 요청을 도메인 모델로 변환하여 포함
+            val optionList = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
 
             return Product(
                 productId = 0L,
@@ -135,7 +136,7 @@ data class CreateProductRequest(
                 additionalImages = addImgList,
                 detailedInfo = req.detailedInfo ?: "",
                 contactInfo = req.contactInfo ?: "",
-                options = domainOptions,
+                options = optionList,
             )
         }
     }
@@ -198,14 +199,13 @@ data class CreateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
-                partnerShops =
-                    dto.partnerShops.map {
-                        PartnerShop(
-                            category = PartnerShopCategory.valueOf(it.category),
-                            name = it.name,
-                            link = it.link,
-                        )
-                    },
+                partnerShops = dto.partnerShops.map {
+                    PartnerShop(
+                        category = PartnerShopCategory.valueOf(it.category),
+                        name = it.name,
+                        link = it.link,
+                    )
+                },
                 createdAt = null,
                 updatedAt = null,
             )
