@@ -66,195 +66,180 @@ class CreateProductRestAdapterTest {
     @Test
     fun `상품 생성 API 테스트`() {
         // main image 파일
-        val mainImage =
-            MockMultipartFile(
-                "mainImageFile",
-                "mainImage.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "main image content".toByteArray(),
-            )
+        val mainImage = MockMultipartFile(
+            "mainImageFile",
+            "mainImage.jpg",
+            MediaType.IMAGE_JPEG_VALUE,
+            "main image content".toByteArray()
+        )
 
         // sub image 파일 4장
-        val subImage1 =
-            MockMultipartFile(
-                "subImageFiles",
-                "subImage1.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "sub image 1".toByteArray(),
-            )
-        val subImage2 =
-            MockMultipartFile(
-                "subImageFiles",
-                "subImage2.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "sub image 2".toByteArray(),
-            )
-        val subImage3 =
-            MockMultipartFile(
-                "subImageFiles",
-                "subImage3.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "sub image 3".toByteArray(),
-            )
-        val subImage4 =
-            MockMultipartFile(
-                "subImageFiles",
-                "subImage4.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                "sub image 4".toByteArray(),
-            )
+        val subImage1 = MockMultipartFile(
+            "subImageFiles",
+            "subImage1.jpg",
+            MediaType.IMAGE_JPEG_VALUE,
+            "sub image 1".toByteArray()
+        )
+        val subImage2 = MockMultipartFile(
+            "subImageFiles",
+            "subImage2.jpg",
+            MediaType.IMAGE_JPEG_VALUE,
+            "sub image 2".toByteArray()
+        )
+        val subImage3 = MockMultipartFile(
+            "subImageFiles",
+            "subImage3.jpg",
+            MediaType.IMAGE_JPEG_VALUE,
+            "sub image 3".toByteArray()
+        )
+        val subImage4 = MockMultipartFile(
+            "subImageFiles",
+            "subImage4.jpg",
+            MediaType.IMAGE_JPEG_VALUE,
+            "sub image 4".toByteArray()
+        )
 
-        // additional image 파일은 이 테스트에서 빈 리스트를 전달 (필수 아님)
+        // 추가 이미지 파일은 테스트에서 생략하여, 컨트롤러에서 빈 리스트로 처리됨
 
         // CreateProductRequest를 표현하는 JSON 파트 생성
-        val requestMap =
-            mapOf(
-                "userId" to 1L,
-                "productType" to "WEDDING_SNAP",
-                "shootingPlace" to "JEJU",
-                "title" to "New Product",
-                "description" to "Product description",
-                "availableSeasons" to listOf("YEAR_2025_FIRST_HALF"),
-                "cameraTypes" to listOf("DIGITAL"),
-                "retouchStyles" to listOf("MODERN"),
-                "detailedInfo" to "Detailed product information",
-                "contactInfo" to "contact@example.com",
-                "options" to
-                    listOf(
-                        mapOf(
-                            "name" to "Option 1",
-                            "optionType" to "SINGLE",
-                            "discountAvailable" to false,
-                            "originalPrice" to 10000,
-                            "discountPrice" to 1000,
-                            "description" to "Extra option",
-                            "costumeCount" to 1,
-                            "shootingLocationCount" to 1,
-                            "shootingHours" to 1,
-                            "shootingMinutes" to 30,
-                            "retouchedCount" to 1,
-                            "partnerShops" to
-                                listOf(
-                                    mapOf("category" to "DRESS", "name" to "Shop A", "link" to "http://shopA.com"),
-                                    mapOf("category" to "DRESS", "name" to "Shop B", "link" to "http://shopB.com"),
-                                ),
-                        ),
-                        mapOf(
-                            "name" to "Option 2",
-                            "optionType" to "PACKAGE",
-                            "discountAvailable" to true,
-                            "originalPrice" to 20000,
-                            "discountPrice" to 15000,
-                            "description" to "Package option",
-                            "costumeCount" to 0,
-                            "shootingLocationCount" to 0,
-                            "shootingHours" to 0,
-                            "shootingMinutes" to 0,
-                            "retouchedCount" to 0,
-                            "partnerShops" to
-                                listOf(
-                                    mapOf("category" to "DRESS", "name" to "Shop C", "link" to "http://shopC.com"),
-                                ),
-                        ),
-                    ),
+        val requestMap = mapOf(
+            "userId" to 1L,
+            "productType" to "WEDDING_SNAP",
+            "shootingPlace" to "JEJU",
+            "title" to "New Product",
+            "description" to "Product description",
+            "availableSeasons" to listOf("YEAR_2025_FIRST_HALF"),
+            "cameraTypes" to listOf("DIGITAL"),
+            "retouchStyles" to listOf("MODERN"),
+            "detailedInfo" to "Detailed product information",
+            "contactInfo" to "contact@example.com",
+            "options" to listOf(
+                mapOf(
+                    "name" to "Option 1",
+                    "optionType" to "SINGLE",
+                    "discountAvailable" to false,
+                    "originalPrice" to 10000,
+                    "discountPrice" to 1000,
+                    "description" to "Extra option",
+                    "costumeCount" to 1,
+                    "shootingLocationCount" to 1,
+                    "shootingHours" to 1,
+                    "shootingMinutes" to 30,
+                    "retouchedCount" to 1,
+                    "partnerShops" to listOf(
+                        mapOf("category" to "DRESS", "name" to "Shop A", "link" to "http://shopA.com"),
+                        mapOf("category" to "DRESS", "name" to "Shop B", "link" to "http://shopB.com")
+                    )
+                ),
+                mapOf(
+                    "name" to "Option 2",
+                    "optionType" to "PACKAGE",
+                    "discountAvailable" to true,
+                    "originalPrice" to 20000,
+                    "discountPrice" to 15000,
+                    "description" to "Package option",
+                    "costumeCount" to 0,
+                    "shootingLocationCount" to 0,
+                    "shootingHours" to 0,
+                    "shootingMinutes" to 0,
+                    "retouchedCount" to 0,
+                    "partnerShops" to listOf(
+                        mapOf("category" to "DRESS", "name" to "Shop C", "link" to "http://shopC.com")
+                    )
+                )
             )
+        )
         val jsonRequest = objectMapper.writeValueAsString(requestMap)
-        val requestPart =
-            MockMultipartFile(
-                "request",
-                "request.json",
-                MediaType.APPLICATION_JSON_VALUE,
-                jsonRequest.toByteArray(),
-            )
+        val requestPart = MockMultipartFile(
+            "request",
+            "request.json",
+            MediaType.APPLICATION_JSON_VALUE,
+            jsonRequest.toByteArray()
+        )
 
         // 응답 객체 설정
-        val productOptionResponse1 =
-            ProductOptionResponse(
-                optionId = 1L,
-                productId = 1L,
-                name = "Option 1",
-                optionType = "SINGLE",
-                discountAvailable = false,
-                originalPrice = 10000,
-                discountPrice = 1000,
-                description = "Extra option",
-                costumeCount = 1,
-                shootingLocationCount = 1,
-                shootingHours = 1,
-                shootingMinutes = 30,
-                retouchedCount = 1,
-                partnerShops =
-                    listOf(
-                        PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
-                        PartnerShopResponse("DRESS", "Shop B", "http://shopB.com"),
-                    ),
-                createdAt = null,
-                updatedAt = null,
-            )
-        val productOptionResponse2 =
-            ProductOptionResponse(
-                optionId = 2L,
-                productId = 1L,
-                name = "Option 2",
-                optionType = "PACKAGE",
-                discountAvailable = true,
-                originalPrice = 20000,
-                discountPrice = 15000,
-                description = "Package option",
-                costumeCount = 0,
-                shootingLocationCount = 0,
-                shootingHours = 0,
-                shootingMinutes = 0,
-                retouchedCount = 0,
-                partnerShops =
-                    listOf(
-                        PartnerShopResponse("DRESS", "Shop C", "http://shopC.com"),
-                    ),
-                createdAt = null,
-                updatedAt = null,
-            )
-        val productResponse =
-            ProductResponse(
-                productId = 1L,
-                userId = 1L,
-                productType = "WEDDING_SNAP",
-                shootingPlace = "JEJU",
-                title = "New Product",
-                description = "Product description",
-                availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
-                cameraTypes = listOf("DIGITAL"),
-                retouchStyles = listOf("MODERN"),
-                mainImage = "http://image-server.com/mainImage.jpg",
-                subImages =
-                    listOf(
-                        "http://image-server.com/subImage1.jpg",
-                        "http://image-server.com/subImage2.jpg",
-                        "http://image-server.com/subImage3.jpg",
-                        "http://image-server.com/subImage4.jpg",
-                    ),
-                additionalImages = emptyList(),
-                detailedInfo = "Detailed product information",
-                contactInfo = "contact@example.com",
-                createdAt = null,
-                updatedAt = null,
-                options = listOf(productOptionResponse1, productOptionResponse2),
-            )
+        val productOptionResponse1 = ProductOptionResponse(
+            optionId = 1L,
+            productId = 1L,
+            name = "Option 1",
+            optionType = "SINGLE",
+            discountAvailable = false,
+            originalPrice = 10000,
+            discountPrice = 1000,
+            description = "Extra option",
+            costumeCount = 1,
+            shootingLocationCount = 1,
+            shootingHours = 1,
+            shootingMinutes = 30,
+            retouchedCount = 1,
+            partnerShops = listOf(
+                PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
+                PartnerShopResponse("DRESS", "Shop B", "http://shopB.com")
+            ),
+            createdAt = null,
+            updatedAt = null
+        )
+        val productOptionResponse2 = ProductOptionResponse(
+            optionId = 2L,
+            productId = 1L,
+            name = "Option 2",
+            optionType = "PACKAGE",
+            discountAvailable = true,
+            originalPrice = 20000,
+            discountPrice = 15000,
+            description = "Package option",
+            costumeCount = 0,
+            shootingLocationCount = 0,
+            shootingHours = 0,
+            shootingMinutes = 0,
+            retouchedCount = 0,
+            partnerShops = listOf(
+                PartnerShopResponse("DRESS", "Shop C", "http://shopC.com")
+            ),
+            createdAt = null,
+            updatedAt = null
+        )
+        val productResponse = ProductResponse(
+            productId = 1L,
+            userId = 1L,
+            productType = "WEDDING_SNAP",
+            shootingPlace = "JEJU",
+            title = "New Product",
+            description = "Product description",
+            availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
+            cameraTypes = listOf("DIGITAL"),
+            retouchStyles = listOf("MODERN"),
+            mainImage = "http://image-server.com/mainImage.jpg",
+            subImages = listOf(
+                "http://image-server.com/subImage1.jpg",
+                "http://image-server.com/subImage2.jpg",
+                "http://image-server.com/subImage3.jpg",
+                "http://image-server.com/subImage4.jpg"
+            ),
+            additionalImages = emptyList(),
+            detailedInfo = "Detailed product information",
+            contactInfo = "contact@example.com",
+            createdAt = null,
+            updatedAt = null,
+            options = listOf(productOptionResponse1, productOptionResponse2)
+        )
 
         // createProductUseCase 모의 동작 설정
-        given(createProductUseCase.saveProduct(any())).willReturn(productResponse)
+        given(createProductUseCase.saveProduct(any(), any(), any(), any())).willReturn(productResponse)
 
         // multipart 요청 빌드 (JSON request 파트와 파일 파트 포함)
-        val requestBuilder =
-            multipart("/api/products")
-                .file(requestPart)
-                .file(mainImage)
-                .file(subImage1)
-                .file(subImage2)
-                .file(subImage3)
-                .file(subImage4)
-                .characterEncoding("UTF-8")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .accept(MediaType.APPLICATION_JSON)
+        val requestBuilder = multipart("/api/products")
+            .file(requestPart)
+            .file(mainImage)
+            .file(subImage1)
+            .file(subImage2)
+            .file(subImage3)
+            .file(subImage4)
+            .characterEncoding("UTF-8")
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .accept(MediaType.APPLICATION_JSON)
+
+        // 추가 이미지 파일 파트를 생략하면 컨트롤러에서 null 처리 후 빈 리스트로 변환됨
 
         // 요청 실행 및 응답 검증 + 문서화
         mockMvc.perform(requestBuilder)
@@ -300,8 +285,8 @@ class CreateProductRestAdapterTest {
                     "data.options[].partnerShops[].name" type STRING means "제휴 업체 이름",
                     "data.options[].partnerShops[].link" type STRING means "제휴 업체 링크",
                     "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
-                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
-                ),
+                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간"
+                )
             )
     }
 }

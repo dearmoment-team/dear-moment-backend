@@ -4,7 +4,6 @@ import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
@@ -20,11 +19,10 @@ import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
-class ProductOptionEntity(
+open class ProductOptionEntity(
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,

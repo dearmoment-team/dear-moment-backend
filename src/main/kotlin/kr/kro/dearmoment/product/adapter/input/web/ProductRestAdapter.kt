@@ -42,57 +42,47 @@ class ProductRestAdapter(
     private val productSearchUseCase: ProductSearchUseCase,
 ) {
     @Operation(
-        summary = "상품 생성",
-        description = "새로운 상품을 생성합니다.",
-        // Swagger 에서 멀티파트로 받는다는 것을 정확히 인식하려면 다음과 같이 requestBody 를 설정합니다.
-        requestBody =
-            RequestBody(
-                required = true,
-                description = "multipart/form-data 형식으로 요청합니다.",
-                content = [
-                    Content(
-                        mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                        schema = Schema(implementation = CreateProductRequest::class),
-                    ),
-                ],
-            ),
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "상품 생성 성공",
-                content = [
-                    Content(
-                        mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ProductResponse::class),
-                    ),
-                ],
-            ),
-        ],
+        summary = "상품 생성"
     )
     @PostMapping(
-        // 파일 업로드를 다루려면 반드시 consumes 에 multipart/form-data 를 명시합니다.
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun createProduct(
-        @RequestPart("request", required = true)
-        request: CreateProductRequest,
-        @RequestPart("mainImageFile", required = false)
-        mainImageFile: MultipartFile?,
-        @RequestPart("subImageFiles", required = false)
-        subImageFiles: List<MultipartFile>?,
-        @RequestPart("additionalImageFiles", required = false)
-        additionalImageFiles: List<MultipartFile>?,
+        @Parameter(
+            description = "상품 정보(JSON)",
+            required = true,
+            content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)]
+        )
+        @RequestPart("request") request: CreateProductRequest,
+
+        @Parameter(
+            description = "대표 이미지 파일",
+            required = true,
+            content = [Content(mediaType = "image/*")]
+        )
+        @RequestPart("mainImageFile") mainImageFile: MultipartFile,
+
+        @Parameter(
+            description = "서브 이미지 파일 (4장)",
+            required = true,
+            content = [Content(mediaType = "image/*")]
+        )
+        @RequestPart("subImageFiles") subImageFiles: List<MultipartFile>,
+
+        @Parameter(
+            description = "추가 이미지 파일 (선택적, 최대 5장)",
+            required = false,
+            content = [Content(mediaType = "image/*")]
+        )
+        @RequestPart(value = "additionalImageFiles", required = false) additionalImageFiles: List<MultipartFile>?
     ): ProductResponse {
-        val mergedRequest =
-            request.copy(
-                mainImageFile = mainImageFile,
-                subImageFiles = subImageFiles ?: emptyList(),
-                additionalImageFiles = additionalImageFiles ?: emptyList(),
-            )
-        return createProductUseCase.saveProduct(mergedRequest)
+        return createProductUseCase.saveProduct(
+            request = request,
+            mainImageFile = mainImageFile,
+            subImageFiles = subImageFiles,
+            additionalImageFiles = additionalImageFiles ?: emptyList()
+        )
     }
 
     @Operation(summary = "상품 수정", description = "기존 상품 정보를 수정합니다.")

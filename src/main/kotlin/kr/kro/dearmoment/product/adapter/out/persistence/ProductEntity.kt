@@ -8,7 +8,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
@@ -29,10 +28,9 @@ import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 
-
 @Entity
 @Table(name = "PRODUCTS")
-class ProductEntity(
+open class ProductEntity(
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,

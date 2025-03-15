@@ -36,8 +36,8 @@ class CreateProductUseCaseTest : BehaviorSpec({
 
     val dummyMainFile = MockMultipartFile("mainImageFile", "main.jpg", "image/jpeg", "dummy".toByteArray())
     val dummySubFiles =
-        List(4) {
-            MockMultipartFile("subImageFiles", "sub$it.jpg", "image/jpeg", "dummy".toByteArray())
+        List(4) { index ->
+            MockMultipartFile("subImageFiles", "sub$index.jpg", "image/jpeg", "dummy".toByteArray())
         }
     val dummyAdditionalFiles =
         listOf(
@@ -54,9 +54,6 @@ class CreateProductUseCaseTest : BehaviorSpec({
             availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
             cameraTypes = listOf("FILM"),
             retouchStyles = listOf("NATURAL"),
-            mainImageFile = dummyMainFile,
-            subImageFiles = dummySubFiles,
-            additionalImageFiles = dummyAdditionalFiles,
             detailedInfo = "Test Info",
             contactInfo = "Test Contact",
             options =
@@ -94,13 +91,13 @@ class CreateProductUseCaseTest : BehaviorSpec({
                 )
             } returns true
 
-            // 이미지 업로드 성공 모킹 (save 메서드 사용)
+            // 이미지 업로드 성공 모킹
             every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
 
             Then("IllegalArgumentException 발생") {
                 val exception =
                     shouldThrow<IllegalArgumentException> {
-                        useCase.saveProduct(validRequest)
+                        useCase.saveProduct(validRequest, dummyMainFile, dummySubFiles, dummyAdditionalFiles)
                     }
 
                 exception shouldHaveMessage "동일 제목의 상품이 이미 존재합니다: Unique Product"
@@ -114,15 +111,11 @@ class CreateProductUseCaseTest : BehaviorSpec({
 
     Given("이미지 개수 검증 시나리오") {
         When("서브 이미지가 4장 미만일 경우") {
-            val invalidRequest =
-                validRequest.copy(
-                    subImageFiles = dummySubFiles.take(3),
-                )
-
+            val invalidSubFiles = dummySubFiles.take(3)
             Then("IllegalArgumentException 발생") {
                 val exception =
                     shouldThrow<IllegalArgumentException> {
-                        useCase.saveProduct(invalidRequest)
+                        useCase.saveProduct(validRequest, dummyMainFile, invalidSubFiles, dummyAdditionalFiles)
                     }
 
                 exception.message shouldBe "서브 이미지는 정확히 4장이어야 합니다. 현재 3장입니다."
@@ -130,15 +123,11 @@ class CreateProductUseCaseTest : BehaviorSpec({
         }
 
         When("추가 이미지가 5장 초과일 경우") {
-            val invalidRequest =
-                validRequest.copy(
-                    additionalImageFiles = List(6) { dummyAdditionalFiles[0] },
-                )
-
+            val invalidAdditionalFiles = List(6) { dummyAdditionalFiles[0] }
             Then("IllegalArgumentException 발생") {
                 val exception =
                     shouldThrow<IllegalArgumentException> {
-                        useCase.saveProduct(invalidRequest)
+                        useCase.saveProduct(validRequest, dummyMainFile, dummySubFiles, invalidAdditionalFiles)
                     }
 
                 exception.message shouldBe "추가 이미지는 최대 5장까지만 가능합니다. 현재 6장입니다."
@@ -173,7 +162,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
         every { productPersistencePort.save(any()) } returns dummyProduct
 
         When("모든 조건을 만족할 경우") {
-            val result = useCase.saveProduct(validRequest)
+            val result = useCase.saveProduct(validRequest, dummyMainFile, dummySubFiles, dummyAdditionalFiles)
 
             Then("상품 저장 및 옵션 생성 로직 수행") {
                 verify(exactly = 1) {
