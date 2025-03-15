@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
- * [상품 업데이트] Controller 테스트 예시
+ * [상품 업데이트] Controller 테스트 예시 (PATCH 방식)
  */
 @ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
@@ -65,7 +65,7 @@ class UpdateProductRestAdapterTest {
 
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
-        // 1) 업데이트 요청 DTO를 JSON 문자열로 생성
+        // 1) 업데이트 요청 DTO를 JSON 문자열로 생성 (subImagesFinal에 index 필드를 추가)
         val requestJson =
             """
             {
@@ -79,10 +79,10 @@ class UpdateProductRestAdapterTest {
               "cameraTypes": ["DIGITAL"],
               "retouchStyles": ["CALM"],
               "subImagesFinal": [
-                { "action": "KEEP", "imageId": 200 },
-                { "action": "DELETE", "imageId": 201 },
-                { "action": "UPLOAD", "imageId": null },
-                { "action": "UPLOAD", "imageId": null }
+                { "action": "KEEP", "index": 0, "imageId": 200 },
+                { "action": "DELETE", "index": 1, "imageId": 201 },
+                { "action": "UPLOAD", "index": 2, "imageId": null },
+                { "action": "UPLOAD", "index": 3, "imageId": null }
               ],
               "additionalImagesFinal": [
                 { "action": "DELETE", "imageId": 300 },
@@ -117,28 +117,28 @@ class UpdateProductRestAdapterTest {
                 "mainImageFile",
                 "updated_main.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "updated main image content".toByteArray(),
+                "updated main image content".toByteArray()
             )
         val subImageFile1 =
             MockMultipartFile(
                 "subImageFiles",
                 "sub3.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "new sub image content #3".toByteArray(),
+                "new sub image content #3".toByteArray()
             )
         val subImageFile2 =
             MockMultipartFile(
                 "subImageFiles",
                 "sub4.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "new sub image content #4".toByteArray(),
+                "new sub image content #4".toByteArray()
             )
         val additionalImageFile =
             MockMultipartFile(
                 "additionalImageFiles",
                 "add2.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "new additional image content".toByteArray(),
+                "new additional image content".toByteArray()
             )
 
         // 3) 수정 결과(응답) 예시
@@ -155,37 +155,37 @@ class UpdateProductRestAdapterTest {
                 retouchStyles = listOf("CALM"),
                 mainImage = "http://image-server.com/updated_main.jpg",
                 subImages =
-                    listOf(
-                        "http://image-server.com/subImage1_KEPT.jpg",
-                        "http://image-server.com/subImage3_UPLOADED.jpg",
-                        "http://image-server.com/subImage4_UPLOADED.jpg",
-                    ),
+                listOf(
+                    "http://image-server.com/subImage1_KEPT.jpg",
+                    "http://image-server.com/subImage3_UPLOADED.jpg",
+                    "http://image-server.com/subImage4_UPLOADED.jpg"
+                ),
                 additionalImages = listOf("http://image-server.com/additionalImage2_UPLOADED.jpg"),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 createdAt = null,
                 updatedAt = null,
                 options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = 1L,
-                            name = "New Option 1",
-                            optionType = "SINGLE",
-                            discountAvailable = true,
-                            originalPrice = 10000,
-                            discountPrice = 7000,
-                            description = "Updated Option Desc",
-                            costumeCount = 1,
-                            shootingLocationCount = 1,
-                            shootingHours = 2,
-                            shootingMinutes = 0,
-                            retouchedCount = 3,
-                            partnerShops = emptyList(),
-                            createdAt = null,
-                            updatedAt = null,
-                        ),
-                    ),
+                listOf(
+                    ProductOptionResponse(
+                        optionId = 1L,
+                        productId = 1L,
+                        name = "New Option 1",
+                        optionType = "SINGLE",
+                        discountAvailable = true,
+                        originalPrice = 10000,
+                        discountPrice = 7000,
+                        description = "Updated Option Desc",
+                        costumeCount = 1,
+                        shootingLocationCount = 1,
+                        shootingHours = 2,
+                        shootingMinutes = 0,
+                        retouchedCount = 3,
+                        partnerShops = emptyList(),
+                        createdAt = null,
+                        updatedAt = null
+                    )
+                )
             )
 
         // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
@@ -196,17 +196,17 @@ class UpdateProductRestAdapterTest {
                 any(),
                 any(),
                 any(),
-                any(),
-            ),
+                any()
+            )
         ).willReturn(updatedResponse)
 
-        // 5) "request" 파트에 JSON을 포함시켜 multipart/form-data PUT 요청 생성
+        // 5) "request" 파트에 JSON을 포함시켜 multipart/form-data PATCH 요청 생성
         val requestPart =
             MockMultipartFile(
                 "request",
                 "request.json",
                 MediaType.APPLICATION_JSON_VALUE,
-                requestJson.toByteArray(),
+                requestJson.toByteArray()
             )
 
         val requestBuilder =
@@ -218,7 +218,7 @@ class UpdateProductRestAdapterTest {
                 .file(subImageFile2)
                 .file(additionalImageFile)
                 .with { req ->
-                    req.method = HttpMethod.PUT.toString()
+                    req.method = HttpMethod.PATCH.toString()
                     req
                 }
                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -265,8 +265,8 @@ class UpdateProductRestAdapterTest {
                     "data.options[].retouchedCount" type NUMBER means "보정본 수",
                     "data.options[].partnerShops" type ARRAY means "제휴 업체 목록",
                     "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
-                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
-                ),
+                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간"
+                )
             )
     }
 }

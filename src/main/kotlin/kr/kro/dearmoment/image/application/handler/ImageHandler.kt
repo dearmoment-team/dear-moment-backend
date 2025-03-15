@@ -30,59 +30,53 @@ class ImageHandler(
     }
 
     /**
-     * 서브 이미지 최종 처리 (정확히 4장)
+     * 서브 이미지 부분 업데이트 처리
      *
      * @param currentSubImages 현재 DB에 저장된 서브 이미지 목록
-     * @param finalRequests 요청된 서브 이미지 항목 (액션 및 기존 이미지 ID 정보만 포함)
+     * @param finalRequests 부분 업데이트할 서브 이미지 항목 목록 (각 항목에 인덱스와 액션 정보 포함)
      * @param subImageFiles 업로드된 서브 이미지 파일 목록 (UPLOAD 액션에 해당하는 파일들)
      * @param userId 요청자 ID
      */
-    fun processSubImagesFinal(
+    fun processSubImagesPartial(
         currentSubImages: List<Image>,
         finalRequests: List<SubImageFinalRequest>,
         subImageFiles: List<MultipartFile>,
         userId: Long,
     ): List<Image> {
-        if (finalRequests.size != 4) {
-            throw IllegalArgumentException("서브 이미지는 정확히 4장이어야 합니다. 현재 ${finalRequests.size}장입니다.")
-        }
-        val currentMap = currentSubImages.associateBy { it.imageId }
-        val result = mutableListOf<Image>()
+        // 기존 이미지 목록을 mutable하게 복사
+        val result = currentSubImages.toMutableList()
 
-        // UPLOAD 액션인 요청과 업로드된 파일 수가 일치하는지 확인
-        val uploadRequests = finalRequests.filter { it.action == UpdateSubImageAction.UPLOAD }
-        if (uploadRequests.size != subImageFiles.size) {
-            throw IllegalArgumentException("서브 이미지(UPLOAD) 요청 수(${uploadRequests.size})와 업로드된 파일 수(${subImageFiles.size})가 일치하지 않습니다.")
+        // UPLOAD 요청 수와 업로드된 파일 수 검증
+        val uploadCount = finalRequests.count { it.action == UpdateSubImageAction.UPLOAD }
+        if (uploadCount != subImageFiles.size) {
+            throw IllegalArgumentException("서브 이미지(UPLOAD) 요청 수($uploadCount)와 업로드된 파일 수(${subImageFiles.size})가 일치하지 않습니다.")
         }
         var fileIndex = 0
 
         finalRequests.forEach { req ->
+            if (req.index < 0 || req.index >= result.size) {
+                throw IllegalArgumentException("잘못된 이미지 인덱스: ${req.index}")
+            }
             when (req.action) {
                 UpdateSubImageAction.KEEP -> {
-                    requireNotNull(req.imageId) { "KEEP 액션일 경우 imageId는 필수입니다." }
-                    val existingImg =
-                        currentMap[req.imageId]
-                            ?: throw IllegalArgumentException("존재하지 않는 서브 이미지 ID: ${req.imageId}")
-                    result.add(existingImg)
+                    // KEEP인 경우 별도의 처리 없이 기존 이미지 유지
+                    if (req.imageId != null && req.imageId != result[req.index].imageId) {
+                        throw IllegalArgumentException("제공된 imageId(${req.imageId})와 기존 이미지가 일치하지 않습니다.")
+                    }
                 }
                 UpdateSubImageAction.DELETE -> {
-                    requireNotNull(req.imageId) { "DELETE 액션일 경우 imageId는 필수입니다." }
-                    val existingImg =
-                        currentMap[req.imageId]
-                            ?: throw IllegalArgumentException("존재하지 않는 서브 이미지 ID: ${req.imageId}")
-                    imageService.delete(existingImg.imageId)
-                    // 삭제 시 결과 목록에 추가하지 않음
+                    // DELETE 액션은 단독으로 사용할 수 없으며, UPLOAD와 함께 사용해야 합니다.
+                    throw IllegalArgumentException("DELETE 액션은 단독으로 사용할 수 없습니다. UPLOAD와 함께 사용하세요.")
                 }
                 UpdateSubImageAction.UPLOAD -> {
                     val file = subImageFiles[fileIndex++]
                     val newImg = imageService.save(SaveImageCommand(file = file, userId = userId))
-                    // 기존 이미지가 있었다면 삭제 (교체)
                     req.imageId?.let { oldId ->
-                        currentMap[oldId]?.let { oldImg ->
-                            imageService.delete(oldImg.imageId)
+                        if (result[req.index].imageId == oldId) {
+                            imageService.delete(oldId)
                         }
                     }
-                    result.add(newImg)
+                    result[req.index] = newImg
                 }
             }
         }

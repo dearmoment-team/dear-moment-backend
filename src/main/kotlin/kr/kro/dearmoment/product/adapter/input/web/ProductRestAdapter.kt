@@ -22,9 +22,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
@@ -110,13 +110,13 @@ class ProductRestAdapter(
         )
     }
 
-    @Operation(summary = "상품 수정", description = "기존 상품 정보를 수정합니다.")
+    @Operation(summary = "상품 부분 수정", description = "상품 정보 중 일부만 수정합니다.")
     @ApiResponse(
         responseCode = "200",
         description = "상품 수정 성공",
         content = [Content(schema = Schema(implementation = ProductResponse::class))],
     )
-    @PutMapping(
+    @PatchMapping(
         value = ["/{id}"],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
@@ -130,9 +130,9 @@ class ProductRestAdapter(
         @Parameter(description = "대표 이미지 파일", required = false)
         @RequestPart(value = "mainImageFile", required = false)
         mainImageFile: MultipartFile?,
-        @Parameter(description = "서브 이미지 파일 목록", required = true)
-        @RequestPart(value = "subImageFiles", required = true)
-        subImageFiles: List<MultipartFile>,
+        @Parameter(description = "서브 이미지 파일 목록", required = false)
+        @RequestPart(value = "subImageFiles", required = false)
+        subImageFiles: List<MultipartFile>?,
         @Parameter(description = "추가 이미지 파일 목록", required = false)
         @RequestPart(value = "additionalImageFiles", required = false)
         additionalImageFiles: List<MultipartFile>?,

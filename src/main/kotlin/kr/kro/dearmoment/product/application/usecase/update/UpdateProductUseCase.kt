@@ -10,7 +10,7 @@ interface UpdateProductUseCase {
         productId: Long,
         rawRequest: UpdateProductRequest,
         mainImageFile: MultipartFile?,
-        subImageFiles: List<MultipartFile>,
+        subImageFiles: List<MultipartFile>?,
         additionalImageFiles: List<MultipartFile>?,
         options: List<UpdateProductOptionRequest>,
     ): ProductResponse

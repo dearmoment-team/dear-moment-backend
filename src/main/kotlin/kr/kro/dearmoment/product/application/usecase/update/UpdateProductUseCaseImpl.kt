@@ -29,7 +29,7 @@ class UpdateProductUseCaseImpl(
         productId: Long,
         rawRequest: UpdateProductRequest,
         mainImageFile: MultipartFile?,
-        subImageFiles: List<MultipartFile>,
+        subImageFiles: List<MultipartFile>?,
         additionalImageFiles: List<MultipartFile>?,
         options: List<UpdateProductOptionRequest>,
     ): ProductResponse {
@@ -44,28 +44,31 @@ class UpdateProductUseCaseImpl(
                 imageHandler.updateMainImage(file, rawRequest.userId, existingProduct.mainImage)
             } ?: existingProduct.mainImage
 
-        // 3) 서브 이미지 처리: 파일과 메타데이터를 함께 처리 (메타데이터는 DTO의 subImagesFinal에서 전달)
+        // 3) 서브 이미지 처리: 부분 업데이트를 지원
         val updatedSubImages =
-            imageHandler.processSubImagesFinal(
-                currentSubImages = existingProduct.subImages,
-                finalRequests = rawRequest.subImagesFinal,
-                subImageFiles = subImageFiles,
-                userId = rawRequest.userId,
-            )
+            rawRequest.subImagesFinal?.let { finalRequests ->
+                imageHandler.processSubImagesPartial(
+                    currentSubImages = existingProduct.subImages,
+                    finalRequests = finalRequests,
+                    subImageFiles = subImageFiles ?: emptyList(),
+                    userId = rawRequest.userId,
+                )
+            } ?: existingProduct.subImages
 
         // 4) 추가 이미지 처리: 파일과 메타데이터를 함께 처리 (메타데이터는 DTO의 additionalImagesFinal에서 전달)
         val updatedAdditionalImages =
             imageHandler.processAdditionalImagesFinal(
                 currentAdditionalImages = existingProduct.additionalImages,
-                finalRequests = rawRequest.additionalImagesFinal,
+                finalRequests = rawRequest.additionalImagesFinal ?: emptyList(),
                 additionalImageFiles = additionalImageFiles,
                 userId = rawRequest.userId,
             )
 
-        // 5) DTO -> 도메인 객체 변환 (옵션 정보는 별도로 전달)
+        // 5) DTO -> 도메인 객체 변환 (기존 Product와 병합)
         val productFromReq =
             UpdateProductRequest.toDomain(
                 req = rawRequest,
+                existingProduct = existingProduct,
                 mainImage = newMainImage,
                 subImages = updatedSubImages,
                 additionalImages = updatedAdditionalImages,
@@ -76,6 +79,7 @@ class UpdateProductUseCaseImpl(
         // 6) 기존 Entity의 필드 업데이트
         val existingEntity =
             ProductEntity.fromDomain(existingProduct).apply {
+                // 병합된 결과로 업데이트 (필요에 따라 null 처리된 필드는 기존 값 유지)
                 userId = productFromReq.userId
                 productType = productFromReq.productType
                 shootingPlace = productFromReq.shootingPlace
