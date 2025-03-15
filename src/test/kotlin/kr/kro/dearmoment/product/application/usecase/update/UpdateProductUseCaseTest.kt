@@ -109,17 +109,17 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             cameraTypes = listOf("DIGITAL"),
             retouchStyles = listOf("CALM"),
             subImagesFinal =
-            listOf(
-                SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, 200L),
-                SubImageFinalRequest(UpdateSubImageAction.DELETE, 1, 200L),
-                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
-                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
-            ),
+                listOf(
+                    SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, 200L),
+                    SubImageFinalRequest(UpdateSubImageAction.DELETE, 1, 200L),
+                    SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
+                    SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
+                ),
             additionalImagesFinal =
-            listOf(
-                AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, 300L),
-                AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, null),
-            ),
+                listOf(
+                    AdditionalImageFinalRequest(UpdateAdditionalImageAction.DELETE, 300L),
+                    AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, null),
+                ),
             detailedInfo = "Updated Detailed Info",
             contactInfo = "Updated Contact",
         )
@@ -281,18 +281,18 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
 
             every { productPersistencePort.save(any()) } returns
-                    existingProduct.copy(
-                        title = "Updated Title",
-                        description = "Updated Description",
-                        availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
-                        cameraTypes = setOf(CameraType.DIGITAL),
-                        retouchStyles = setOf(RetouchStyle.CALM),
-                        mainImage = dummyNewMainImage,
-                        subImages = listOf(dummyExistingSubImage, dummyNewSubImage1, dummyNewSubImage2, dummyExistingSubImage),
-                        additionalImages = listOf(dummyNewAdditionalImage),
-                        detailedInfo = "Updated Detailed Info",
-                        contactInfo = "Updated Contact",
-                    )
+                existingProduct.copy(
+                    title = "Updated Title",
+                    description = "Updated Description",
+                    availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
+                    cameraTypes = setOf(CameraType.DIGITAL),
+                    retouchStyles = setOf(RetouchStyle.CALM),
+                    mainImage = dummyNewMainImage,
+                    subImages = listOf(dummyExistingSubImage, dummyNewSubImage1, dummyNewSubImage2, dummyExistingSubImage),
+                    additionalImages = listOf(dummyNewAdditionalImage),
+                    detailedInfo = "Updated Detailed Info",
+                    contactInfo = "Updated Contact",
+                )
 
             val result =
                 useCase.updateProduct(
@@ -324,12 +324,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val oneChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 1, dummyExistingSubImage2.imageId),
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 2, dummyExistingSubImage3.imageId),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, 1, dummyExistingSubImage2.imageId),
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, 2, dummyExistingSubImage3.imageId),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
@@ -359,12 +359,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyExistingSubImage2,
-                        dummyExistingSubImage3,
-                        dummyNewSubImageD,
-                    ),
+                        listOf(
+                            dummyExistingSubImage1,
+                            dummyExistingSubImage2,
+                            dummyExistingSubImage3,
+                            dummyNewSubImageD,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }
@@ -391,12 +391,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val twoChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 1, dummyExistingSubImage2.imageId),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, 1, dummyExistingSubImage2.imageId),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
@@ -426,12 +426,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyExistingSubImage2,
-                        dummyNewSubImageC,
-                        dummyNewSubImageD,
-                    ),
+                        listOf(
+                            dummyExistingSubImage1,
+                            dummyExistingSubImage2,
+                            dummyNewSubImageC,
+                            dummyNewSubImageD,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }
@@ -460,12 +460,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val threeChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 1, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 1, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
@@ -495,12 +495,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
-                    listOf(
-                        dummyExistingSubImage1,
-                        dummyNewSubImageA,
-                        dummyNewSubImageB,
-                        dummyNewSubImageC,
-                    ),
+                        listOf(
+                            dummyExistingSubImage1,
+                            dummyNewSubImageA,
+                            dummyNewSubImageB,
+                            dummyNewSubImageC,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }
@@ -529,12 +529,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val allChangeRequest =
                 baseUpdateRequest.copy(
                     subImagesFinal =
-                    listOf(
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 0, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 1, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
-                        SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
-                    ),
+                        listOf(
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 0, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 1, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 2, null),
+                            SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
+                        ),
                 )
 
             every { productPersistencePort.findById(999L) } returns existingProduct
@@ -648,19 +648,19 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 imageHandler.processAdditionalImagesFinal(any(), any(), any(), any())
             } returns listOf(dummyExistingAdditionalImage)
             every { productPersistencePort.save(any()) } returns
-                    existingProduct.copy(
-                        title = "Updated Title",
-                        description = "Updated Description",
-                        availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
-                        cameraTypes = setOf(CameraType.DIGITAL),
-                        retouchStyles = setOf(RetouchStyle.CALM),
-                        mainImage = dummyNewMainImage,
-                        subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
-                        additionalImages = listOf(dummyExistingAdditionalImage),
-                        detailedInfo = "Updated Detailed Info",
-                        contactInfo = "Updated Contact",
-                        options = optionRequestList.map { UpdateProductOptionRequest.toDomain(it, 999L) },
-                    )
+                existingProduct.copy(
+                    title = "Updated Title",
+                    description = "Updated Description",
+                    availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
+                    cameraTypes = setOf(CameraType.DIGITAL),
+                    retouchStyles = setOf(RetouchStyle.CALM),
+                    mainImage = dummyNewMainImage,
+                    subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
+                    additionalImages = listOf(dummyExistingAdditionalImage),
+                    detailedInfo = "Updated Detailed Info",
+                    contactInfo = "Updated Contact",
+                    options = optionRequestList.map { UpdateProductOptionRequest.toDomain(it, 999L) },
+                )
 
             val result =
                 useCase.updateProduct(

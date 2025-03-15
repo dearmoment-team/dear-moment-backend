@@ -117,28 +117,28 @@ class UpdateProductRestAdapterTest {
                 "mainImageFile",
                 "updated_main.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "updated main image content".toByteArray()
+                "updated main image content".toByteArray(),
             )
         val subImageFile1 =
             MockMultipartFile(
                 "subImageFiles",
                 "sub3.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "new sub image content #3".toByteArray()
+                "new sub image content #3".toByteArray(),
             )
         val subImageFile2 =
             MockMultipartFile(
                 "subImageFiles",
                 "sub4.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "new sub image content #4".toByteArray()
+                "new sub image content #4".toByteArray(),
             )
         val additionalImageFile =
             MockMultipartFile(
                 "additionalImageFiles",
                 "add2.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "new additional image content".toByteArray()
+                "new additional image content".toByteArray(),
             )
 
         // 3) 수정 결과(응답) 예시
@@ -155,37 +155,37 @@ class UpdateProductRestAdapterTest {
                 retouchStyles = listOf("CALM"),
                 mainImage = "http://image-server.com/updated_main.jpg",
                 subImages =
-                listOf(
-                    "http://image-server.com/subImage1_KEPT.jpg",
-                    "http://image-server.com/subImage3_UPLOADED.jpg",
-                    "http://image-server.com/subImage4_UPLOADED.jpg"
-                ),
+                    listOf(
+                        "http://image-server.com/subImage1_KEPT.jpg",
+                        "http://image-server.com/subImage3_UPLOADED.jpg",
+                        "http://image-server.com/subImage4_UPLOADED.jpg",
+                    ),
                 additionalImages = listOf("http://image-server.com/additionalImage2_UPLOADED.jpg"),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 createdAt = null,
                 updatedAt = null,
                 options =
-                listOf(
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = 1L,
-                        name = "New Option 1",
-                        optionType = "SINGLE",
-                        discountAvailable = true,
-                        originalPrice = 10000,
-                        discountPrice = 7000,
-                        description = "Updated Option Desc",
-                        costumeCount = 1,
-                        shootingLocationCount = 1,
-                        shootingHours = 2,
-                        shootingMinutes = 0,
-                        retouchedCount = 3,
-                        partnerShops = emptyList(),
-                        createdAt = null,
-                        updatedAt = null
-                    )
-                )
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "New Option 1",
+                            optionType = "SINGLE",
+                            discountAvailable = true,
+                            originalPrice = 10000,
+                            discountPrice = 7000,
+                            description = "Updated Option Desc",
+                            costumeCount = 1,
+                            shootingLocationCount = 1,
+                            shootingHours = 2,
+                            shootingMinutes = 0,
+                            retouchedCount = 3,
+                            partnerShops = emptyList(),
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
             )
 
         // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
@@ -196,8 +196,8 @@ class UpdateProductRestAdapterTest {
                 any(),
                 any(),
                 any(),
-                any()
-            )
+                any(),
+            ),
         ).willReturn(updatedResponse)
 
         // 5) "request" 파트에 JSON을 포함시켜 multipart/form-data PATCH 요청 생성
@@ -206,7 +206,7 @@ class UpdateProductRestAdapterTest {
                 "request",
                 "request.json",
                 MediaType.APPLICATION_JSON_VALUE,
-                requestJson.toByteArray()
+                requestJson.toByteArray(),
             )
 
         val requestBuilder =
@@ -265,8 +265,8 @@ class UpdateProductRestAdapterTest {
                     "data.options[].retouchedCount" type NUMBER means "보정본 수",
                     "data.options[].partnerShops" type ARRAY means "제휴 업체 목록",
                     "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
-                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간"
-                )
+                    "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
+                ),
             )
     }
 }
