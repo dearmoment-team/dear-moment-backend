@@ -18,7 +18,6 @@ class DeleteProductUseCaseImpl(
 
         // 이미지 삭제
         (listOf(product.mainImage) + product.subImages + product.additionalImages).forEach {
-            println("######################imageId: ${it.imageId}")
             imageService.delete(it.imageId)
         }
 
