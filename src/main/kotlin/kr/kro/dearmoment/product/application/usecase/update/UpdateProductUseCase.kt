@@ -12,6 +12,6 @@ interface UpdateProductUseCase {
         mainImageFile: MultipartFile?,
         subImageFiles: List<MultipartFile>?,
         additionalImageFiles: List<MultipartFile>?,
-        options: List<UpdateProductOptionRequest>,
+        options: List<UpdateProductOptionRequest>?,
     ): ProductResponse
 }

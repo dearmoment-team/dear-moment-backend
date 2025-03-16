@@ -31,6 +31,8 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
  *
  * 컨트롤러에서는 대표 이미지 및 이미지 파일들을 별도의 MultipartFile 파트로 받아 처리하며,
  * 이 DTO는 JSON 직렬화 대상이므로 파일 관련 필드는 포함하지 않습니다.
+ *
+ * 참고: 현재 productId는 Path Parameter로 전달되며, 로그인 관련 처리가 구현되지 않아 userId는 DTO에 포함되어 있습니다.
  */
 @Schema(description = "상품 부분 수정 요청 DTO")
 data class UpdateProductRequest(
@@ -79,12 +81,15 @@ data class UpdateProductRequest(
          * 최종 [Product] 도메인 객체를 만들기 위한 메서드.
          * 기존 Product 객체의 값을 기반으로, 요청으로 전달된 값이 있을 경우 업데이트합니다.
          *
+         * CreateProductRequest의 toDomain 매핑 로직을 참고하여 이미지 객체를 새로 매핑합니다.
+         *
          * @param req 부분 수정 요청 DTO
          * @param existingProduct 기존의 Product 도메인 객체
          * @param mainImage 새 대표 이미지 (없으면 기존 유지)
          * @param subImages 새 서브 이미지 목록 (없으면 기존 유지)
          * @param additionalImages 새 추가 이미지 목록 (없으면 기존 유지)
          * @param options 업데이트할 상품 옵션 목록 (없으면 기존 유지)
+         * @param userId 사용자 ID (현재 DTO에도 포함되어 있으므로 그대로 사용)
          */
         fun toDomain(
             req: UpdateProductRequest,
@@ -93,12 +98,42 @@ data class UpdateProductRequest(
             subImages: List<Image>,
             additionalImages: List<Image>,
             options: List<UpdateProductOptionRequest> = emptyList(),
+            userId: Long = req.userId
         ): Product {
             val productTypeEnum = req.productType?.let { ProductType.valueOf(it) } ?: existingProduct.productType
             val shootingPlaceEnum = req.shootingPlace?.let { ShootingPlace.valueOf(it) } ?: existingProduct.shootingPlace
             val seasonSet = req.availableSeasons?.map { ShootingSeason.valueOf(it) }?.toSet() ?: existingProduct.availableSeasons
             val cameraSet = req.cameraTypes?.map { CameraType.valueOf(it) }?.toSet() ?: existingProduct.cameraTypes
             val styleSet = req.retouchStyles?.map { RetouchStyle.valueOf(it) }?.toSet() ?: existingProduct.retouchStyles
+
+            // CreateProductRequest와 동일한 방식으로 이미지 객체를 새롭게 매핑
+            val mainImg = Image(
+                userId = userId,
+                imageId = mainImage.imageId,
+                fileName = mainImage.fileName,
+                parId = mainImage.parId,
+                url = mainImage.url,
+            )
+
+            val subImgList = subImages.map { image ->
+                Image(
+                    userId = userId,
+                    imageId = image.imageId,
+                    fileName = image.fileName,
+                    parId = image.parId,
+                    url = image.url,
+                )
+            }
+
+            val addImgList = additionalImages.map { image ->
+                Image(
+                    userId = userId,
+                    imageId = image.imageId,
+                    fileName = image.fileName,
+                    parId = image.parId,
+                    url = image.url,
+                )
+            }
 
             val domainOptions =
                 if (options.isNotEmpty()) {
@@ -111,7 +146,7 @@ data class UpdateProductRequest(
 
             return Product(
                 productId = req.productId,
-                userId = req.userId,
+                userId = userId,
                 productType = productTypeEnum,
                 shootingPlace = shootingPlaceEnum,
                 title = req.title ?: existingProduct.title,
@@ -119,9 +154,9 @@ data class UpdateProductRequest(
                 availableSeasons = seasonSet,
                 cameraTypes = cameraSet,
                 retouchStyles = styleSet,
-                mainImage = mainImage,
-                subImages = subImages,
-                additionalImages = additionalImages,
+                mainImage = mainImg,
+                subImages = subImgList,
+                additionalImages = addImgList,
                 detailedInfo = req.detailedInfo ?: existingProduct.detailedInfo,
                 contactInfo = req.contactInfo ?: existingProduct.contactInfo,
                 options = domainOptions,
@@ -248,13 +283,13 @@ data class UpdateProductOptionRequest(
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
                 partnerShops =
-                    dto.partnerShops.map {
-                        PartnerShop(
-                            category = PartnerShopCategory.valueOf(it.category),
-                            name = it.name,
-                            link = it.link,
-                        )
-                    },
+                dto.partnerShops.map {
+                    PartnerShop(
+                        category = PartnerShopCategory.valueOf(it.category),
+                        name = it.name,
+                        link = it.link,
+                    )
+                },
                 createdAt = null,
                 updatedAt = null,
             )

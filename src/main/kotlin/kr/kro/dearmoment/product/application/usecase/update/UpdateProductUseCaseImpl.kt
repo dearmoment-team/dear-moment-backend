@@ -23,6 +23,10 @@ class UpdateProductUseCaseImpl(
 ) : UpdateProductUseCase {
     /**
      * 업데이트 요청 시 파일 파라미터(대표, 서브, 추가 이미지 파일)는 컨트롤러에서 별도로 전달받습니다.
+     * 옵션(request)은 선택사항입니다.
+     *
+     * 이미지 업로드 로직 변경 사항(CreateProductRequest의 toDomain 참고)을 반영하여,
+     * 새롭게 매핑된 이미지 객체를 생성한 후 DTO -> 도메인 변환을 수행합니다.
      */
     @Transactional
     override fun updateProduct(
@@ -31,7 +35,7 @@ class UpdateProductUseCaseImpl(
         mainImageFile: MultipartFile?,
         subImageFiles: List<MultipartFile>?,
         additionalImageFiles: List<MultipartFile>?,
-        options: List<UpdateProductOptionRequest>,
+        options: List<UpdateProductOptionRequest>?,
     ): ProductResponse {
         // 1) DB에서 기존 Product 조회
         val existingProduct =
@@ -64,15 +68,45 @@ class UpdateProductUseCaseImpl(
                 userId = rawRequest.userId,
             )
 
+        // 새 이미지 업로드 로직 (CreateProductRequest와 동일한 매핑 로직)
+        val mappedMainImage =
+            Image(
+                userId = rawRequest.userId,
+                imageId = newMainImage.imageId,
+                fileName = newMainImage.fileName,
+                parId = newMainImage.parId,
+                url = newMainImage.url,
+            )
+        val mappedSubImages =
+            updatedSubImages.map { image ->
+                Image(
+                    userId = rawRequest.userId,
+                    imageId = image.imageId,
+                    fileName = image.fileName,
+                    parId = image.parId,
+                    url = image.url,
+                )
+            }
+        val mappedAdditionalImages =
+            updatedAdditionalImages.map { image ->
+                Image(
+                    userId = rawRequest.userId,
+                    imageId = image.imageId,
+                    fileName = image.fileName,
+                    parId = image.parId,
+                    url = image.url,
+                )
+            }
+
         // 5) DTO -> 도메인 객체 변환 (기존 Product와 병합)
         val productFromReq =
             UpdateProductRequest.toDomain(
                 req = rawRequest,
                 existingProduct = existingProduct,
-                mainImage = newMainImage,
-                subImages = updatedSubImages,
-                additionalImages = updatedAdditionalImages,
-                options = options,
+                mainImage = mappedMainImage,
+                subImages = mappedSubImages,
+                additionalImages = mappedAdditionalImages,
+                options = options ?: emptyList(),
             )
         productFromReq.validateForUpdate()
 
@@ -96,13 +130,15 @@ class UpdateProductUseCaseImpl(
                 detailedInfo = productFromReq.detailedInfo.takeIf { it.isNotBlank() }
                 contactInfo = productFromReq.contactInfo.takeIf { it.isNotBlank() }
 
-                // 서브 및 추가 이미지 업데이트 (각 이미지의 액션 처리 결과 반영)
-                subImages = updatedSubImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
-                additionalImages = updatedAdditionalImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
+                // 서브 및 추가 이미지 업데이트 (새롭게 매핑된 이미지 객체 사용)
+                subImages = mappedSubImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
+                additionalImages = mappedAdditionalImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
             }
 
-        // 7) 옵션 동기화: 기존 옵션과의 차이를 비교하여 업데이트, 신규 옵션 추가, 또는 삭제 처리
-        productOptionUseCase.synchronizeOptions(existingProduct, options)
+        // 7) 옵션 동기화: 옵션 요청이 있을 경우에만 업데이트 및 신규 옵션 추가 처리 (삭제는 별도 API 포인트에서 처리)
+        options?.let {
+            productOptionUseCase.synchronizeOptions(existingProduct, it)
+        }
 
         // 8) 최종 저장 및 응답 객체 변환
         val updatedProduct = productPersistencePort.save(existingEntity.toDomain())

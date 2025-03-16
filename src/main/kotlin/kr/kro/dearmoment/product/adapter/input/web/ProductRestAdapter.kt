@@ -9,8 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.common.dto.PagedResponse
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
@@ -112,20 +110,28 @@ class ProductRestAdapter(
         )
     }
 
-    @Operation(summary = "상품 부분 수정", description = "상품 정보 중 일부만 수정합니다.")
+    @Operation(
+        summary = "상품 부분 수정",
+        description = "상품 정보 중 일부만 수정합니다.",
+    )
     @ApiResponse(
         responseCode = "200",
         description = "상품 수정 성공",
         content = [Content(schema = Schema(implementation = ProductResponse::class))],
     )
     @PatchMapping(
-        value = ["/"],
+        value = ["/{id}"],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun updateProduct(
-        @Parameter(description = "상품 수정 요청 정보 (기본정보 및 메타데이터)", required = false)
-        @RequestPart("request")
+        @Parameter(description = "상품 식별자", required = true)
+        @PathVariable("id") id: Long,
+        @Parameter(
+            description = "상품 수정 요청 정보 (기본정보 및 메타데이터)",
+            required = false,
+        )
+        @RequestPart(value = "request", required = false)
         rawRequest: UpdateProductRequest?,
         @Parameter(description = "대표 이미지 파일", required = false)
         @RequestPart(value = "mainImageFile", required = false)
@@ -140,11 +146,15 @@ class ProductRestAdapter(
         @RequestPart(value = "options", required = false)
         options: List<UpdateProductOptionRequest>?,
     ): ProductResponse {
-        val productId = rawRequest?.productId ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+        val updateRequest =
+            rawRequest ?: UpdateProductRequest(
+                productId = id,
+                userId = 0L,
+            )
 
         return updateProductUseCase.updateProduct(
-            productId = productId,
-            rawRequest = rawRequest,
+            productId = id,
+            rawRequest = updateRequest,
             mainImageFile = mainImageFile,
             subImageFiles = subImageFiles,
             additionalImageFiles = additionalImageFiles,
