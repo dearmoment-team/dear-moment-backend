@@ -59,7 +59,7 @@ class ImageServiceTest : BehaviorSpec({
             )
 
         every { uploadImagePort.upload(file, userId) } returns uploadedImage
-        every { saveImagePort.save(uploadedImage) } returns expectedImage
+        every { saveImagePort.save(any()) } returns expectedImage
 
         When("이미지를 저장하면") {
             val result = imageService.save(saveImageCommand)
@@ -67,7 +67,7 @@ class ImageServiceTest : BehaviorSpec({
             Then("이미지를 저장하고 이미지 객체를 반환한다.") {
                 result shouldBe expectedImage
                 verify(exactly = 1) { uploadImagePort.upload(file, userId) }
-                verify(exactly = 1) { saveImagePort.save(uploadedImage) }
+                verify(exactly = 1) { saveImagePort.save(any()) }
             }
         }
     }

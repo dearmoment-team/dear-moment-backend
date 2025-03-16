@@ -34,7 +34,7 @@ class ImageService(
         val image = Image(
             imageId = uploadedImage.imageId,
             userId = uploadedImage.userId,
-            parId = saveImageCommand.parId,
+            parId = uploadedImage.parId,
             fileName = uploadedImage.fileName,
             url = uploadedImage.url,
             urlExpireTime = uploadedImage.urlExpireTime
