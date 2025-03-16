@@ -141,8 +141,8 @@ class ProductPersistenceAdapterTest(
                     // Given: 옵션을 포함한 상품
                     val dummyOption =
                         ProductOption(
-                            optionId = 0L, // 신규 옵션이므로 0L로 설정 (저장 시 ID 할당)
-                            productId = 0L, // 아직 저장 전이므로 0L
+                            optionId = 0L,
+                            productId = 0L,
                             name = "옵션 테스트",
                             optionType = OptionType.SINGLE,
                             discountAvailable = false,

@@ -13,7 +13,8 @@ class CustomHttpMessageConverter(
             listOf(
                 MediaType.APPLICATION_JSON,
                 MediaType("application", "*+json"),
-                MediaType.APPLICATION_OCTET_STREAM, // multipart 내부 JSON 처리용
+                // multipart 내부 JSON 처리용
+                MediaType.APPLICATION_OCTET_STREAM,
             )
     }
 
