@@ -1,13 +1,14 @@
 package kr.kro.dearmoment.image.application.service
 
-import io.kotest.assertions.throwables.shouldNotThrow
-import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.image.adapter.input.web.dto.GetImageResponse
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
@@ -17,135 +18,200 @@ import kr.kro.dearmoment.image.application.port.output.GetImagePort
 import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
-class ImageServiceTest : BehaviorSpec({
+class ImageServiceTest : FunSpec({
 
+    // 모의 객체(Mockk)로 의존성 선언
     val uploadImagePort = mockk<UploadImagePort>()
     val saveImagePort = mockk<SaveImagePort>()
     val getImagePort = mockk<GetImagePort>()
     val updateImagePort = mockk<UpdateImagePort>()
-    val deleteImageFromDbPort = mockk<DeleteImageFromDBPort>()
-    val deleteImageFromObjectStoragePort = mockk<DeleteImageFromObjectStoragePort>()
-    val getImageFromObjectStoragePort = mockk<GetImageFromObjectStoragePort>()
-    val imageService =
-        ImageService(
-            uploadImagePort,
-            saveImagePort,
-            getImagePort,
-            updateImagePort,
-            deleteImageFromDbPort,
-            getImageFromObjectStoragePort,
-            deleteImageFromObjectStoragePort,
-        )
+    val deleteImageFromDBPort = mockk<DeleteImageFromDBPort>()
+    val getImageFromObjectStorage = mockk<GetImageFromObjectStoragePort>()
+    val deleteImageFromObjectStorage = mockk<DeleteImageFromObjectStoragePort>()
 
-    Given("파일과 유저 ID를 포함한 저장 명령을 제공했을 때") {
-        val userId = 123L
-        val file = mockk<org.springframework.web.multipart.MultipartFile>()
-        val saveImageCommand = SaveImageCommand(file, userId)
-        val uploadedImage =
-            Image(
-                imageId = 1L,
-                userId = userId,
-                url = "localhost:8080/image",
-                fileName = "image.jpg",
-            )
-        val expectedImage =
-            Image(
-                imageId = 456L,
-                userId = userId,
-                url = "localhost:8080/image",
-                fileName = "image.jpg",
-            )
+    // 테스트 대상 서비스 생성
+    val imageService = ImageService(
+        uploadImagePort,
+        saveImagePort,
+        getImagePort,
+        updateImagePort,
+        deleteImageFromDBPort,
+        getImageFromObjectStorage,
+        deleteImageFromObjectStorage
+    )
+
+    beforeTest {
+        // 각 테스트 시작 전 모든 모의 객체 초기화
+        clearAllMocks()
+    }
+
+    test("save 메서드는 이미지를 업로드한 후 DB에 저장하고, DTO 변환 결과를 검증한다") {
+        // Given
+        val file = mockk<MultipartFile>()
+        val userId = 1L
+        val command = SaveImageCommand(file, userId)
+        val uploadedImage = Image(
+            imageId = 100L,
+            userId = userId,
+            parId = "dummyParId",
+            fileName = "dummyFileName",
+            url = "dummyUrl",
+            // 미래 시간으로 고정 (예: 2025-03-17 12:00)
+            urlExpireTime = LocalDateTime.of(2025, 3, 17, 12, 0)
+        )
+        val savedImage = uploadedImage.copy(imageId = 101L)
 
         every { uploadImagePort.upload(file, userId) } returns uploadedImage
-        every { saveImagePort.save(any()) } returns expectedImage
+        every { saveImagePort.save(uploadedImage) } returns savedImage
 
-        When("이미지를 저장하면") {
-            val result = imageService.save(saveImageCommand)
+        // When
+        val result = imageService.save(command)
 
-            Then("이미지를 저장하고 이미지 객체를 반환한다.") {
-                result shouldBe expectedImage
-                verify(exactly = 1) { uploadImagePort.upload(file, userId) }
-                verify(exactly = 1) { saveImagePort.save(any()) }
-            }
-        }
+        // Then
+        result shouldBe savedImage
+        // DTO 변환 검증
+        val dto = GetImageResponse.from(result)
+        dto.imageId shouldBe savedImage.imageId
+        dto.url shouldBe savedImage.url
+
+        verify { uploadImagePort.upload(file, userId) }
+        verify { saveImagePort.save(uploadedImage) }
     }
 
-    Given("이미지 ID를 제공했을 때") {
-        val userId = 123L
-        val imageId = 1L
-        val image =
-            Image(
-                userId = userId,
-                imageId = imageId,
-                url = "localhost:8080/image",
-                parId = "parId",
-                fileName = "image.jpg",
-            )
+    test("getOne 메서드는 URL이 만료된 경우 갱신된 URL 정보를 포함하는 DTO를 반환해야 한다") {
+        // Given
+        val imageId = 200L
+        // 만료된 URL: 2025-03-15 12:00 (현재보다 이전)
+        val expiredImage = Image(
+            imageId = imageId,
+            userId = 2L,
+            parId = "expiredParId",
+            fileName = "expiredFileName",
+            url = "oldUrl",
+            urlExpireTime = LocalDateTime.of(2025, 3, 15, 12, 0)
+        )
+        // 갱신된 이미지: 미래 시간 (2025-03-17 12:00)
+        val renewedImage = expiredImage.copy(
+            parId = "newParId",
+            url = "newUrl",
+            urlExpireTime = LocalDateTime.of(2025, 3, 17, 12, 0)
+        )
 
-        val updatedImage =
-            Image(
-                userId = userId,
-                imageId = imageId,
-                url = "localhost:8080/image/change",
-                parId = "changedParId",
-                fileName = "image.jpg",
-            )
+        every { getImagePort.findOne(imageId) } returns expiredImage
+        every { getImageFromObjectStorage.getImageWithUrl(expiredImage) } returns renewedImage
+        every { updateImagePort.updateUrlInfo(renewedImage) } returns renewedImage
 
-        When("이미지를 조회하면") {
-            every { getImagePort.findOne(imageId) } returns image
-            every { getImageFromObjectStoragePort.getImageWithUrl(image) } returns updatedImage
-            every { updateImagePort.updateUrlInfo(updatedImage) } returns updatedImage
+        // When
+        val response = imageService.getOne(imageId)
 
-            val result = imageService.getOne(imageId)
+        // Then
+        response.imageId shouldBe renewedImage.imageId
+        response.url shouldBe renewedImage.url
 
-            Then("이미지 정보에 대한 응답을 반환한다.") {
-                result.imageId shouldBe image.imageId
-                result.url shouldBe updatedImage.url
-                verify(exactly = 1) { getImagePort.findOne(imageId) }
-            }
-        }
-
-        When("이미지를 삭제하면") {
-            every { deleteImageFromDbPort.delete(imageId) } just Runs
-            every { deleteImageFromObjectStoragePort.delete(image) } just Runs
-            Then("해당 이미지를 객체 스토리지와 DB에서 삭제한다.") {
-                shouldNotThrow<Throwable> { imageService.delete(imageId) }
-            }
-        }
+        verify { getImagePort.findOne(imageId) }
+        verify { getImageFromObjectStorage.getImageWithUrl(expiredImage) }
+        verify { updateImagePort.updateUrlInfo(renewedImage) }
     }
 
-    Given("유저 ID를 제공했을 때") {
-        val userId = 123L
+    test("getOne 메서드는 URL이 유효한 경우 그대로 DTO로 반환해야 한다") {
+        // Given
+        val imageId = 300L
+        // 유효한 URL: 2025-03-17 12:00 (현재보다 확실히 미래)
+        val validImage = Image(
+            imageId = imageId,
+            userId = 3L,
+            parId = "validParId",
+            fileName = "validFileName",
+            url = "validUrl",
+            urlExpireTime = LocalDateTime.of(2025, 3, 17, 12, 0)
+        )
 
-        val images =
-            listOf(
-                Image(
-                    userId = 123L,
-                    imageId = 1L,
-                    url = "localhost:8080/image",
-                    fileName = "image.jpg",
-                    urlExpireTime = LocalDateTime.now().plusDays(1L),
-                ),
-                Image(
-                    userId = 123L,
-                    imageId = 2L,
-                    url = "localhost:8080/image",
-                    fileName = "image22.jpg",
-                    urlExpireTime = LocalDateTime.now().plusDays(1L),
-                ),
-            )
-        every { getImagePort.findUserImages(userId) } returns images
-        every { getImageFromObjectStoragePort.getImageWithUrl(any()) } returns Image(userId = 1, fileName = "")
+        every { getImagePort.findOne(imageId) } returns validImage
 
-        When("이미지를 조회하면") {
-            val result = imageService.getAll(userId)
+        // When
+        val response = imageService.getOne(imageId)
 
-            Then("해당 유저의 모든 이미지 정보에 대한 응답을 반환한다.") {
-                result.images.size shouldBe images.size
-                verify(exactly = 1) { getImagePort.findUserImages(userId) }
-            }
-        }
+        // Then
+        response.imageId shouldBe validImage.imageId
+        response.url shouldBe validImage.url
+
+        verify { getImagePort.findOne(imageId) }
+        // 갱신 로직이 호출되지 않아야 함
+        verify(exactly = 0) { getImageFromObjectStorage.getImageWithUrl(any()) }
+        verify(exactly = 0) { updateImagePort.updateUrlInfo(any()) }
+    }
+
+    test("getAll 메서드는 만료된 이미지의 경우 갱신 후, 모든 이미지를 DTO 목록으로 반환해야 한다") {
+        // Given
+        val userId = 4L
+        // 만료된 이미지: 2025-03-15 12:00
+        val expiredImage = Image(
+            imageId = 400L,
+            userId = userId,
+            parId = "expiredParId",
+            fileName = "expiredFileName",
+            url = "oldUrl",
+            urlExpireTime = LocalDateTime.of(2025, 3, 15, 12, 0)
+        )
+        // 유효한 이미지: 2025-03-17 12:00
+        val validImage = Image(
+            imageId = 401L,
+            userId = userId,
+            parId = "validParId",
+            fileName = "validFileName",
+            url = "validUrl",
+            urlExpireTime = LocalDateTime.of(2025, 3, 17, 12, 0)
+        )
+        val renewedImage = expiredImage.copy(
+            parId = "newParId",
+            url = "newUrl",
+            urlExpireTime = LocalDateTime.of(2025, 3, 17, 12, 0)
+        )
+
+        every { getImagePort.findUserImages(userId) } returns listOf(expiredImage, validImage)
+        every { getImageFromObjectStorage.getImageWithUrl(expiredImage) } returns renewedImage
+
+        // When
+        val response = imageService.getAll(userId)
+
+        // Then
+        response.images.size shouldBe 2
+        // 갱신된 이미지의 DTO 검증
+        val expiredDto = response.images.find { it.imageId == expiredImage.imageId }
+        expiredDto?.url shouldBe renewedImage.url
+        // 유효한 이미지의 DTO 검증
+        val validDto = response.images.find { it.imageId == validImage.imageId }
+        validDto?.url shouldBe validImage.url
+
+        verify { getImagePort.findUserImages(userId) }
+        verify { getImageFromObjectStorage.getImageWithUrl(expiredImage) }
+    }
+
+    test("delete 메서드는 이미지 스토리지와 DB에서 이미지를 삭제해야 한다") {
+        // Given
+        val imageId = 500L
+        val image = Image(
+            imageId = imageId,
+            userId = 5L,
+            parId = "dummyParId",
+            fileName = "dummyFileName",
+            url = "dummyUrl",
+            urlExpireTime = LocalDateTime.of(2025, 3, 17, 12, 0)
+        )
+
+        every { getImagePort.findOne(imageId) } returns image
+        every { deleteImageFromObjectStorage.delete(image) } just Runs
+        every { deleteImageFromDBPort.delete(imageId) } just Runs
+
+        // When
+        imageService.delete(imageId)
+
+        // Then
+        verify { getImagePort.findOne(imageId) }
+        verify { deleteImageFromObjectStorage.delete(image) }
+        verify { deleteImageFromDBPort.delete(imageId) }
     }
 })
