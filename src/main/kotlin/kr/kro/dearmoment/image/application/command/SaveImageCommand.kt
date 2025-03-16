@@ -5,5 +5,4 @@ import org.springframework.web.multipart.MultipartFile
 data class SaveImageCommand(
     val file: MultipartFile,
     val userId: Long,
-    val parId: String = ""
 )

@@ -40,9 +40,9 @@ class CreateProductUseCaseImpl(
         val product =
             CreateProductRequest.toDomain(
                 req = request,
-                mainImageUrl = mainImg.url,
-                subImagesUrls = subImgs.map { it.url },
-                additionalImagesUrls = additionalImgs.map { it.url },
+                mainImage = mainImg,
+                subImages = subImgs,
+                additionalImages = additionalImgs,
             )
 
         validateForCreation(product)

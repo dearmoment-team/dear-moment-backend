@@ -8,12 +8,19 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class DeleteProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
+    private val imageService: ImageService,
 ) : DeleteProductUseCase {
     @Transactional
     override fun deleteProduct(productId: Long) {
         val product =
             productPersistencePort.findById(productId)
                 ?: throw IllegalArgumentException("삭제할 상품이 존재하지 않습니다. ID: $productId")
+
+        // 이미지 삭제
+        (listOf(product.mainImage) + product.subImages + product.additionalImages).forEach {
+            println("######################imageId: ${it.imageId}")
+            imageService.delete(it.imageId)
+        }
 
         productPersistencePort.deleteById(productId)
     }

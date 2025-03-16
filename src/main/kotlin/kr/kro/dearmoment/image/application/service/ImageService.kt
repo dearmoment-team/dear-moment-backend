@@ -27,19 +27,10 @@ class ImageService(
     private val getImageFromObjectStorage: GetImageFromObjectStoragePort,
     private val deleteImageFromObjectStorage: DeleteImageFromObjectStoragePort,
 ) : SaveImageUseCase, DeleteImageUseCase, GetImageUseCase {
-
     @Transactional
     override fun save(saveImageCommand: SaveImageCommand): Image {
         val uploadedImage = uploadImagePort.upload(saveImageCommand.file, saveImageCommand.userId)
-        val image = Image(
-            imageId = uploadedImage.imageId,
-            userId = uploadedImage.userId,
-            parId = uploadedImage.parId,
-            fileName = uploadedImage.fileName,
-            url = uploadedImage.url,
-            urlExpireTime = uploadedImage.urlExpireTime
-        )
-        return saveImagePort.save(image)
+        return saveImagePort.save(uploadedImage)
     }
 
     @Transactional

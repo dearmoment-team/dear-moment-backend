@@ -53,9 +53,9 @@ data class CreateProductRequest(
     companion object {
         fun toDomain(
             req: CreateProductRequest,
-            mainImageUrl: String,
-            subImagesUrls: List<String>,
-            additionalImagesUrls: List<String>,
+            mainImage: Image,
+            subImages: List<Image>,
+            additionalImages: List<Image>,
         ): Product {
             val productTypeEnum =
                 ProductType.entries.find { it.name == req.productType }
@@ -96,25 +96,31 @@ data class CreateProductRequest(
             val mainImg =
                 Image(
                     userId = req.userId,
-                    fileName = mainImageUrl.substringAfterLast('/'),
-                    url = mainImageUrl,
+                    imageId = mainImage.imageId,
+                    fileName = mainImage.fileName,
+                    parId = mainImage.parId,
+                    url = mainImage.url,
                 )
 
             val subImgList =
-                subImagesUrls.map { url ->
+                subImages.map { image ->
                     Image(
                         userId = req.userId,
-                        fileName = url.substringAfterLast('/'),
-                        url = url,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
                     )
                 }
 
             val addImgList =
-                additionalImagesUrls.map { url ->
+                additionalImages.map { image ->
                     Image(
                         userId = req.userId,
-                        fileName = url.substringAfterLast('/'),
-                        url = url,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
                     )
                 }
 
