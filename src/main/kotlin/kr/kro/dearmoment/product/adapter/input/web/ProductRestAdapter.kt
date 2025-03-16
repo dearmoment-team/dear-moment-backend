@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.common.dto.PagedResponse
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
@@ -117,16 +119,14 @@ class ProductRestAdapter(
         content = [Content(schema = Schema(implementation = ProductResponse::class))],
     )
     @PatchMapping(
-        value = ["/{id}"],
+        value = ["/"],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun updateProduct(
-        @Parameter(description = "수정할 상품의 식별자", required = true)
-        @PathVariable id: Long,
-        @Parameter(description = "상품 수정 요청 정보 (기본정보 및 메타데이터)", required = true)
+        @Parameter(description = "상품 수정 요청 정보 (기본정보 및 메타데이터)", required = false)
         @RequestPart("request")
-        rawRequest: UpdateProductRequest,
+        rawRequest: UpdateProductRequest?,
         @Parameter(description = "대표 이미지 파일", required = false)
         @RequestPart(value = "mainImageFile", required = false)
         mainImageFile: MultipartFile?,
@@ -140,8 +140,10 @@ class ProductRestAdapter(
         @RequestPart(value = "options", required = false)
         options: List<UpdateProductOptionRequest>?,
     ): ProductResponse {
+        val productId = rawRequest?.productId ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+
         return updateProductUseCase.updateProduct(
-            productId = id,
+            productId = productId,
             rawRequest = rawRequest,
             mainImageFile = mainImageFile,
             subImageFiles = subImageFiles,

@@ -25,13 +25,11 @@ class OracleObjectStorageAdapter(
     private val objectStorageUtil: OracleObjectStorageUtil,
 ) : UploadImagePort, DeleteImageFromObjectStoragePort, GetImageFromObjectStoragePort {
 
+    // 프로퍼티
     private val baseUrl = "https://" + objectStorageProperties.namespaceName +
             ".objectstorage." + Region.AP_CHUNCHEON_1.regionId + ".oci.customer-oci.com"
 
-    companion object {
-        private const val ONE_YEAR_FOR_SECONDS = 24L * 60L * 60L * 1000L * 365L
-    }
-
+    // public 함수들
     override fun upload(file: MultipartFile, userId: Long): Image {
         val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"
@@ -128,6 +126,7 @@ class OracleObjectStorageAdapter(
         )
     }
 
+    // private 함수들
     private fun deletePreAuth(parId: String) {
         if (parId.isEmpty()) {
             println("No preauthenticated request to delete because parId is empty.")
@@ -147,5 +146,10 @@ class OracleObjectStorageAdapter(
             println("Failed to delete preauthenticated request for parId: $parId. Exception: ${e.message}")
             // 예외를 무시하여 계속 진행
         }
+    }
+
+    // companion object
+    companion object {
+        private const val ONE_YEAR_FOR_SECONDS = 24L * 60L * 60L * 1000L * 365L
     }
 }
