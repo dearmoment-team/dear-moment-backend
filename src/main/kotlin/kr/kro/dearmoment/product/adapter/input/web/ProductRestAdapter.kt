@@ -20,14 +20,15 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 @Tag(name = "Product API", description = "상품과 관련된 API")
 @RestController
@@ -54,10 +55,26 @@ class ProductRestAdapter(
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun createProduct(
-        @Parameter(description = "생성할 상품 정보", required = true)
-        @ModelAttribute request: CreateProductRequest,
+        @Parameter(description = "생성할 상품 정보(JSON)", required = true)
+        @RequestPart("request")
+        request: CreateProductRequest,
+        @Parameter(description = "대표 이미지 파일", required = false)
+        @RequestPart("mainImageFile", required = false)
+        mainImageFile: MultipartFile?,
+        @Parameter(description = "서브 이미지 파일 목록 (정확히 4장)", required = false)
+        @RequestPart("subImageFiles", required = false)
+        subImageFiles: List<MultipartFile>?,
+        @Parameter(description = "추가 이미지 파일 목록 (최대 5장)", required = false)
+        @RequestPart("additionalImageFiles", required = false)
+        additionalImageFiles: List<MultipartFile>?,
     ): ProductResponse {
-        return createProductUseCase.saveProduct(request)
+        val mergedRequest =
+            request.copy(
+                mainImageFile = mainImageFile,
+                subImageFiles = subImageFiles ?: emptyList(),
+                additionalImageFiles = additionalImageFiles ?: emptyList(),
+            )
+        return createProductUseCase.saveProduct(mergedRequest)
     }
 
     @Operation(summary = "상품 수정", description = "기존 상품 정보를 수정합니다.")
@@ -78,18 +95,29 @@ class ProductRestAdapter(
     fun updateProduct(
         @Parameter(description = "수정할 상품의 식별자", required = true)
         @PathVariable id: Long,
-        @Parameter(description = "수정할 상품 정보", required = true)
-        @ModelAttribute request: UpdateProductRequest,
+        @Parameter(description = "수정할 상품 정보(JSON)", required = true)
+        @RequestPart("request")
+        rawRequest: UpdateProductRequest,
+        @Parameter(description = "새 대표 이미지 파일 (없으면 null)", required = false)
+        @RequestPart(value = "mainImageFile", required = false)
+        mainImageFile: MultipartFile?,
+        @Parameter(description = "새로 업로드할 서브 이미지 파일들(최대 4개)", required = false)
+        @RequestPart(value = "subImageFiles", required = false)
+        subImageFiles: List<MultipartFile>?,
+        @Parameter(description = "새로 업로드할 추가 이미지 파일들(최대 5개)", required = false)
+        @RequestPart(value = "additionalImageFiles", required = false)
+        additionalImageFiles: List<MultipartFile>?,
     ): ProductResponse {
-        return updateProductUseCase.updateProduct(request.copy(productId = id))
+        // 컨트롤러는 받은 파라미터를 그대로 UseCase로 넘김
+        return updateProductUseCase.updateProduct(
+            productId = id,
+            rawRequest = rawRequest,
+            mainImageFile = mainImageFile,
+            subImageFiles = subImageFiles,
+            additionalImageFiles = additionalImageFiles,
+        )
     }
 
-    @Operation(summary = "상품 삭제", description = "상품을 삭제합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "204", description = "상품 삭제 성공"),
-        ],
-    )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteProduct(

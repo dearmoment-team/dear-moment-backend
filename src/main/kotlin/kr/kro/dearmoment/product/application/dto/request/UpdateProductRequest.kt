@@ -199,7 +199,7 @@ data class UpdateProductOptionRequest(
     val discountPrice: Long = 0,
     @Schema(description = "옵션 설명", example = "옵션에 대한 상세 설명")
     val description: String? = null,
-    // 단품용 필드
+    // 단품용
     @Schema(description = "의상 수량 (단품인 경우 1 이상)", example = "1")
     val costumeCount: Int = 0,
     @Schema(description = "촬영 장소 수 (단품인 경우 1 이상)", example = "1")
@@ -212,7 +212,7 @@ data class UpdateProductOptionRequest(
     val retouchedCount: Int = 0,
     @Schema(description = "원본 제공 여부", example = "true")
     val originalProvided: Boolean = false,
-    // 패키지용 필드
+    // 패키지용
     @Schema(description = "파트너샵 목록")
     val partnerShops: List<UpdatePartnerShopRequest> = emptyList(),
 ) {

@@ -12,6 +12,7 @@ import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.option.ProductOptionUseCase
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 class UpdateProductUseCaseImpl(
@@ -20,78 +21,87 @@ class UpdateProductUseCaseImpl(
     private val productOptionUseCase: ProductOptionUseCase,
 ) : UpdateProductUseCase {
     @Transactional
-    override fun updateProduct(request: UpdateProductRequest): ProductResponse {
+    override fun updateProduct(
+        productId: Long,
+        rawRequest: UpdateProductRequest,
+        mainImageFile: MultipartFile?,
+        subImageFiles: List<MultipartFile>?,
+        additionalImageFiles: List<MultipartFile>?,
+    ): ProductResponse {
+        // 1) DB에서 기존 Product 조회
         val existingProduct =
-            productPersistencePort.findById(request.productId)
+            productPersistencePort.findById(productId)
                 ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
-        // 새 mainImage 계산
+        // 2) 이미지 핸들러를 이용해, rawRequest + 파일 목록들을 최종 UpdateProductRequest로 merge
+        val mergedRequest =
+            imageHandler.mergeUpdateRequest(
+                productId = productId,
+                rawRequest = rawRequest,
+                mainImageFile = mainImageFile,
+                subImageFiles = subImageFiles,
+                additionalImageFiles = additionalImageFiles,
+            )
+
+        // 3) 대표 이미지 교체 (있다면)
         val newMainImage: Image =
-            request.mainImageFile?.let { file ->
-                imageHandler.updateMainImage(file, request.userId, existingProduct.mainImage)
+            mergedRequest.mainImageFile?.let { file ->
+                imageHandler.updateMainImage(file, mergedRequest.userId, existingProduct.mainImage)
             } ?: existingProduct.mainImage
 
-        // 서브 및 추가 이미지 처리
-        val updatedSubImages: List<Image> =
+        // 4) 서브/추가 이미지 최종 처리
+        val updatedSubImages =
             imageHandler.processSubImagesFinal(
                 currentSubImages = existingProduct.subImages,
-                finalRequests = request.subImagesFinal,
-                userId = request.userId,
+                finalRequests = mergedRequest.subImagesFinal,
+                userId = mergedRequest.userId,
             )
-        val updatedAdditionalImages: List<Image> =
+        val updatedAdditionalImages =
             imageHandler.processAdditionalImagesFinal(
                 currentAdditionalImages = existingProduct.additionalImages,
-                finalRequests = request.additionalImagesFinal,
-                userId = request.userId,
+                finalRequests = mergedRequest.additionalImagesFinal,
+                userId = mergedRequest.userId,
             )
 
+        // 5) DTO -> 도메인
         val productFromReq =
             UpdateProductRequest.toDomain(
-                req = request,
+                req = mergedRequest,
                 mainImage = newMainImage,
                 subImages = updatedSubImages,
                 additionalImages = updatedAdditionalImages,
             )
         productFromReq.validateForUpdate()
 
-        // 기존 Entity를 도메인 객체에서 재생성
-        val existingEntity = ProductEntity.fromDomain(existingProduct)
+        // 6) 기존 Entity 기반으로 필드 업데이트
+        val existingEntity =
+            ProductEntity.fromDomain(existingProduct).apply {
+                userId = productFromReq.userId
+                productType = productFromReq.productType
+                shootingPlace = productFromReq.shootingPlace
+                title = productFromReq.title
+                description = productFromReq.description.takeIf { it.isNotBlank() }
 
-        // 업데이트 적용
-        existingEntity.apply {
-            userId = productFromReq.userId
-            productType = productFromReq.productType
-            shootingPlace = productFromReq.shootingPlace
-            title = productFromReq.title
-            description = productFromReq.description.takeIf { it.isNotBlank() }
+                mainImage = ImageEmbeddable.fromDomainImage(productFromReq.mainImage)
 
-            // 새 mainImage 반영
-            mainImage = ImageEmbeddable.fromDomainImage(productFromReq.mainImage)
+                availableSeasons.clear()
+                availableSeasons.addAll(productFromReq.availableSeasons)
+                cameraTypes.clear()
+                cameraTypes.addAll(productFromReq.cameraTypes)
+                retouchStyles.clear()
+                retouchStyles.addAll(productFromReq.retouchStyles)
+                detailedInfo = productFromReq.detailedInfo.takeIf { it.isNotBlank() }
+                contactInfo = productFromReq.contactInfo.takeIf { it.isNotBlank() }
 
-            availableSeasons.clear()
-            availableSeasons.addAll(productFromReq.availableSeasons)
-            cameraTypes.clear()
-            cameraTypes.addAll(productFromReq.cameraTypes)
-            retouchStyles.clear()
-            retouchStyles.addAll(productFromReq.retouchStyles)
-            detailedInfo = productFromReq.detailedInfo.takeIf { it.isNotBlank() }
-            contactInfo = productFromReq.contactInfo.takeIf { it.isNotBlank() }
-        }
+                // 서브/추가 이미지 교체
+                subImages = updatedSubImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
+                additionalImages = updatedAdditionalImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
+            }
 
-        // 서브/추가 이미지 필드 업데이트
-        existingEntity.subImages =
-            updatedSubImages
-                .map { ImageEmbeddable.fromDomainImage(it) }
-                .toMutableList()
-        existingEntity.additionalImages =
-            updatedAdditionalImages
-                .map { ImageEmbeddable.fromDomainImage(it) }
-                .toMutableList()
+        // 7) 옵션 동기화
+        productOptionUseCase.synchronizeOptions(existingProduct, mergedRequest.options)
 
-        // 옵션 동기화 (옵션 삭제 포함)
-        productOptionUseCase.synchronizeOptions(existingProduct, request.options)
-
-        // 최종 저장 후, 도메인 객체를 응답 DTO로 변환
+        // 8) 최종 저장 & 응답
         val updatedProduct = productPersistencePort.save(existingEntity.toDomain())
         return ProductResponse.fromDomain(updatedProduct)
     }
