@@ -100,6 +100,7 @@
     { "action": "UPLOAD", "imageId": null }
   ]
 }
+```
 
 ## 2. 옵션 업데이트
 
