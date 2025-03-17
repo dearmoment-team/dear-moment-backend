@@ -4,24 +4,28 @@ import jakarta.persistence.*
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.user.domain.User
 import java.time.LocalDateTime
+import java.util.UUID
+import org.hibernate.annotations.UuidGenerator
+import org.hibernate.type.SqlTypes
+import org.hibernate.annotations.JdbcTypeCode
 
 @Entity
 @Table(name = "users")
 class UserEntity(
+    @Id
+    @UuidGenerator
+    @GeneratedValue
+    @Column(name = "user_id", columnDefinition = "RAW(16)")
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    var id: UUID? = null,  // nullable
+
     loginId: String,
     password: String,
     name: String,
-    isStudio: Boolean,
+    var isStudio: Boolean? = false,
     createdAt: LocalDateTime,
-    updatedAt: LocalDateTime,
-    createdUser: String,
-    updatedUser: String,
+    updatedAt: LocalDateTime? = null
 ) : Auditable() {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    val id: Long = 0L
 
     @Column(nullable = false, unique = true)
     var loginId: String = loginId
@@ -36,33 +40,13 @@ class UserEntity(
         protected set
 
     @Column(nullable = false)
-    var isStudio: Boolean = isStudio
-        protected set
-
-    @Column(nullable = false)
     var createdAt: LocalDateTime = createdAt
         protected set
 
-    @Column(nullable = false)
-    var updatedAt: LocalDateTime = updatedAt
+    @Column
+    var updatedAt: LocalDateTime? = updatedAt
         protected set
 
-    /**
-     * UserEntity 업데이트 메서드
-     * 필요한 경우에만 사용 (ex: 서비스에서 수정 시)
-     */
-    fun update(entity: UserEntity) {
-        this.loginId = entity.loginId
-        this.password = entity.password
-        this.name = entity.name
-        this.isStudio = entity.isStudio
-        this.createdAt = entity.createdAt
-        this.updatedAt = entity.updatedAt
-    }
-
-    /**
-     * 엔티티 -> 도메인 변환
-     */
     fun toDomain(): User {
         return User(
             id = this.id,
@@ -76,20 +60,25 @@ class UserEntity(
     }
 
     companion object {
-        /**
-         * 도메인 -> 엔티티 변환
-         */
         fun from(domain: User): UserEntity {
             return UserEntity(
+                id = domain.id,
                 loginId = domain.loginId,
                 password = domain.password,
                 name = domain.name,
                 isStudio = domain.isStudio,
                 createdAt = domain.createdAt,
-                updatedAt = domain.updatedAt,
-                createdUser = domain.createUser,
-                updatedUser = domain.updatedUser
+                updatedAt = domain.updatedAt
             )
         }
+    }
+
+    fun update(entity: UserEntity) {
+        this.loginId = entity.loginId
+        this.password = entity.password
+        this.name = entity.name
+        this.isStudio = entity.isStudio
+        this.createdAt = entity.createdAt
+        this.updatedAt = entity.updatedAt
     }
 }
