@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.image.application.service
 
 import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -8,6 +9,8 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
@@ -112,6 +115,19 @@ class ImageServiceTest : BehaviorSpec({
             every { deleteImageFromObjectStoragePort.delete(image) } just Runs
             Then("해당 이미지를 객체 스토리지와 DB에서 삭제한다.") {
                 shouldNotThrow<Throwable> { imageService.delete(imageId) }
+            }
+        }
+
+        When("이미지 삭제시 객체 스토리지 삭제에 실패하면") {
+            every { getImagePort.findOne(imageId) } returns image
+            every { deleteImageFromObjectStoragePort.delete(image) } throws CustomException(ErrorCode.IMAGE_DELETE_FAIL_FROM_OBJECT_STORAGE)
+
+            Then("예외를 발생시키고 DB 삭제가 실행되지 않는다.") {
+                shouldThrow<CustomException> { imageService.delete(imageId) }
+
+                verify(exactly = 1) { getImagePort.findOne(imageId) }
+                verify(exactly = 1) { deleteImageFromObjectStoragePort.delete(image) }
+                verify(exactly = 0) { deleteImageFromDbPort.delete(imageId) } // DB 삭제가 실행되지 않아야 함
             }
         }
     }
