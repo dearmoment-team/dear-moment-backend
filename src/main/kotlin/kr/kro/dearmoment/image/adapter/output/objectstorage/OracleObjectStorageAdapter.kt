@@ -34,7 +34,7 @@ class OracleObjectStorageAdapter(
     ): Image {
         val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"
-        val fileName = "$fileDir/${UUID.randomUUID()}"
+        val fileName = "$fileDir/${UUID.randomUUID()}.${file.contentType?.takeLast(3) ?: "JPG"}"
         val contentType = "img/${file.contentType?.takeLast(3) ?: "JPG"}"
 
         val putRequest =
