@@ -10,8 +10,10 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
+import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -55,6 +57,9 @@ class GetProductRestAdapterTest {
     @MockitoBean
     lateinit var productSearchUseCase: ProductSearchUseCase
 
+    @MockitoBean
+    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
+
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
@@ -69,13 +74,13 @@ class GetProductRestAdapterTest {
                 availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("MODERN"),
-                mainImage = "http://image-server.com/mainImage.jpg",
+                mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/mainImage.jpg"),
                 subImages =
                     listOf(
-                        "http://image-server.com/subImage1.jpg",
-                        "http://image-server.com/subImage2.jpg",
-                        "http://image-server.com/subImage3.jpg",
-                        "http://image-server.com/subImage4.jpg",
+                        ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
+                        ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
+                        ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
+                        ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
                     ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
@@ -110,9 +115,15 @@ class GetProductRestAdapterTest {
                     "data.availableSeasons" type ARRAY means "촬영 가능 시기 목록",
                     "data.cameraTypes" type ARRAY means "카메라 종류 목록",
                     "data.retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.mainImage" type STRING means "대표 이미지 URL",
-                    "data.subImages" type ARRAY means "서브 이미지 URL",
-                    "data.additionalImages" type ARRAY means "추가 이미지 URL",
+                    "data.mainImage" type OBJECT means "대표 이미지",
+                    "data.mainImage.imageId" type NUMBER means "대표 이미지 ID",
+                    "data.mainImage.url" type STRING means "대표 이미지 URL",
+                    "data.subImages" type ARRAY means "서브 이미지 목록",
+                    "data.subImages[].imageId" type NUMBER means "서브 이미지 ID",
+                    "data.subImages[].url" type STRING means "서브 이미지 URL",
+                    "data.additionalImages" type ARRAY means "추가 이미지 목록",
+                    "data.additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
+                    "data.additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.detailedInfo" type STRING means "상세 정보",
                     "data.contactInfo" type STRING means "연락처",
                     "data.createdAt" type OBJECT means "생성 시간",

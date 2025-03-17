@@ -87,7 +87,13 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             cameraTypes = setOf(CameraType.FILM),
             retouchStyles = setOf(RetouchStyle.NATURAL),
             mainImage = dummyExistingMainImage,
-            subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
+            subImages =
+                listOf(
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                ),
             additionalImages = listOf(dummyExistingAdditionalImage),
             detailedInfo = "Existing Detailed Info",
             contactInfo = "Existing Contact",
@@ -124,11 +130,35 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             contactInfo = "Updated Contact",
         )
 
-    // 더미 파일(UseCase로 전달할 MultipartFile)
-    val mainImageFileTest = MockMultipartFile("mainImageFile", "new_main.jpg", "image/jpeg", "new main content".toByteArray())
-    val subImageFileForUpload1 = MockMultipartFile("subImageFiles", "sub3.jpg", "image/jpeg", "sub3-content".toByteArray())
-    val subImageFileForUpload2 = MockMultipartFile("subImageFiles", "sub4.jpg", "image/jpeg", "sub4-content".toByteArray())
-    val additionalImageFileTest = MockMultipartFile("additionalImageFiles", "add2.jpg", "image/jpeg", "add2-content".toByteArray())
+    // 더미 파일
+    val mainImageFileTest =
+        MockMultipartFile(
+            "mainImageFile",
+            "new_main.jpg",
+            "image/jpeg",
+            "new main content".toByteArray(),
+        )
+    val subImageFileForUpload1 =
+        MockMultipartFile(
+            "subImageFiles",
+            "sub3.jpg",
+            "image/jpeg",
+            "sub3-content".toByteArray(),
+        )
+    val subImageFileForUpload2 =
+        MockMultipartFile(
+            "subImageFiles",
+            "sub4.jpg",
+            "image/jpeg",
+            "sub4-content".toByteArray(),
+        )
+    val additionalImageFileTest =
+        MockMultipartFile(
+            "additionalImageFiles",
+            "add2.jpg",
+            "image/jpeg",
+            "add2-content".toByteArray(),
+        )
 
     val dummyNewMainImage =
         Image(
@@ -163,10 +193,9 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             url = "http://example.com/add2.jpg",
         )
 
-    // baseUpdateRequest: 파일 관련 필드는 별도 전달되므로 그대로 사용
     val baseUpdateRequest = updateRequest
 
-    // 서브 이미지 관련 추가 더미 파일들 (각 테스트별로 사용)
+    // 서브 이미지 추가 더미 파일들
     val mockSubFileA = MockMultipartFile("subImageFiles", "subA.jpg", "image/jpeg", "subA-content".toByteArray())
     val mockSubFileB = MockMultipartFile("subImageFiles", "subB.jpg", "image/jpeg", "subB-content".toByteArray())
     val mockSubFileC = MockMultipartFile("subImageFiles", "subC.jpg", "image/jpeg", "subC-content".toByteArray())
@@ -253,10 +282,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
         When("정상 요청 시") {
             every { productPersistencePort.findById(999L) } returns existingProduct
             every {
-                imageHandler.updateMainImage(
-                    mainImageFileTest, updateRequest.userId,
-                    existingProduct.mainImage,
-                )
+                imageHandler.updateMainImage(mainImageFileTest, updateRequest.userId, existingProduct.mainImage)
             } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -265,7 +291,13 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     subImageFiles = listOf(subImageFileForUpload1, subImageFileForUpload2),
                     userId = updateRequest.userId,
                 )
-            } returns listOf(dummyExistingSubImage, dummyNewSubImage1, dummyNewSubImage2, dummyExistingSubImage)
+            } returns
+                listOf(
+                    dummyExistingSubImage,
+                    dummyNewSubImage1,
+                    dummyNewSubImage2,
+                    dummyExistingSubImage,
+                )
             every {
                 imageHandler.processAdditionalImagesFinal(
                     currentAdditionalImages = existingProduct.additionalImages,
@@ -288,7 +320,13 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     cameraTypes = setOf(CameraType.DIGITAL),
                     retouchStyles = setOf(RetouchStyle.CALM),
                     mainImage = dummyNewMainImage,
-                    subImages = listOf(dummyExistingSubImage, dummyNewSubImage1, dummyNewSubImage2, dummyExistingSubImage),
+                    subImages =
+                        listOf(
+                            dummyExistingSubImage,
+                            dummyNewSubImage1,
+                            dummyNewSubImage2,
+                            dummyExistingSubImage,
+                        ),
                     additionalImages = listOf(dummyNewAdditionalImage),
                     detailedInfo = "Updated Detailed Info",
                     contactInfo = "Updated Contact",
@@ -308,7 +346,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 result.title shouldBe "Updated Title"
                 result.availableSeasons shouldHaveSize 1
                 result.retouchStyles.first() shouldBe "CALM"
-                result.mainImage shouldBe "http://example.com/new_main.jpg"
+                result.mainImage.url shouldBe "http://example.com/new_main.jpg"
             }
 
             Then("상호작용 검증") {
@@ -341,7 +379,13 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     listOf(mockSubFileD),
                     updateRequest.userId,
                 )
-            } returns listOf(dummyExistingSubImage1, dummyExistingSubImage2, dummyExistingSubImage3, dummyNewSubImageD)
+            } returns
+                listOf(
+                    dummyExistingSubImage1,
+                    dummyExistingSubImage2,
+                    dummyExistingSubImage3,
+                    dummyNewSubImageD,
+                )
             every {
                 imageHandler.processAdditionalImagesFinal(
                     any(),
@@ -381,7 +425,11 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             Then("서브 이미지 4개 중 3개는 기존 그대로, 1개만 새로운 이미지로 교체") {
                 result.subImages shouldHaveSize 4
-                result.subImages.last() shouldBe dummyNewSubImageD.url
+                // [중요] url 필드와 비교해야 함
+                result.subImages[0].url shouldBe dummyExistingSubImage1.url
+                result.subImages[1].url shouldBe dummyExistingSubImage2.url
+                result.subImages[2].url shouldBe dummyExistingSubImage3.url
+                result.subImages[3].url shouldBe dummyNewSubImageD.url
             }
 
             unmockkObject(ProductEntity.Companion)
@@ -408,7 +456,13 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     listOf(mockSubFileC, mockSubFileD),
                     updateRequest.userId,
                 )
-            } returns listOf(dummyExistingSubImage1, dummyExistingSubImage2, dummyNewSubImageC, dummyNewSubImageD)
+            } returns
+                listOf(
+                    dummyExistingSubImage1,
+                    dummyExistingSubImage2,
+                    dummyNewSubImageC,
+                    dummyNewSubImageD,
+                )
             every {
                 imageHandler.processAdditionalImagesFinal(
                     any(),
@@ -447,10 +501,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             Then("서브 이미지 4개 중 2개는 기존 그대로, 2개가 새 파일로 업로드된다") {
-                result.subImages[0] shouldBe dummyExistingSubImage1.url
-                result.subImages[1] shouldBe dummyExistingSubImage2.url
-                result.subImages[2] shouldBe dummyNewSubImageC.url
-                result.subImages[3] shouldBe dummyNewSubImageD.url
+                result.subImages[0].url shouldBe dummyExistingSubImage1.url
+                result.subImages[1].url shouldBe dummyExistingSubImage2.url
+                result.subImages[2].url shouldBe dummyNewSubImageC.url
+                result.subImages[3].url shouldBe dummyNewSubImageD.url
             }
 
             unmockkObject(ProductEntity.Companion)
@@ -477,14 +531,15 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     listOf(mockSubFileA, mockSubFileB, mockSubFileC),
                     updateRequest.userId,
                 )
-            } returns listOf(dummyExistingSubImage1, dummyNewSubImageA, dummyNewSubImageB, dummyNewSubImageC)
-            every {
-                imageHandler.processAdditionalImagesFinal(
-                    any(),
-                    any(),
-                    any(),
-                    updateRequest.userId,
+            } returns
+                listOf(
+                    dummyExistingSubImage1,
+                    dummyNewSubImageA,
+                    dummyNewSubImageB,
+                    dummyNewSubImageC,
                 )
+            every {
+                imageHandler.processAdditionalImagesFinal(any(), any(), any(), any())
             } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
@@ -516,10 +571,11 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             Then("서브 이미지 4개 중 1개는 기존 그대로, 3개가 새로운 이미지로 교체된다") {
-                result.subImages[0] shouldBe dummyExistingSubImage1.url
-                result.subImages[1] shouldBe dummyNewSubImageA.url
-                result.subImages[2] shouldBe dummyNewSubImageB.url
-                result.subImages[3] shouldBe dummyNewSubImageC.url
+                // url 필드 비교
+                result.subImages[0].url shouldBe dummyExistingSubImage1.url
+                result.subImages[1].url shouldBe dummyNewSubImageA.url
+                result.subImages[2].url shouldBe dummyNewSubImageB.url
+                result.subImages[3].url shouldBe dummyNewSubImageC.url
             }
 
             unmockkObject(ProductEntity.Companion)
@@ -546,14 +602,15 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     listOf(mockSubFileA, mockSubFileB, mockSubFileC, mockSubFileD),
                     updateRequest.userId,
                 )
-            } returns listOf(dummyNewSubImageA, dummyNewSubImageB, dummyNewSubImageC, dummyNewSubImageD)
-            every {
-                imageHandler.processAdditionalImagesFinal(
-                    any(),
-                    any(),
-                    any(),
-                    updateRequest.userId,
+            } returns
+                listOf(
+                    dummyNewSubImageA,
+                    dummyNewSubImageB,
+                    dummyNewSubImageC,
+                    dummyNewSubImageD,
                 )
+            every {
+                imageHandler.processAdditionalImagesFinal(any(), any(), any(), any())
             } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
@@ -563,7 +620,13 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             every { productPersistencePort.save(any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
-                    subImages = listOf(dummyNewSubImageA, dummyNewSubImageB, dummyNewSubImageC, dummyNewSubImageD),
+                    subImages =
+                        listOf(
+                            dummyNewSubImageA,
+                            dummyNewSubImageB,
+                            dummyNewSubImageC,
+                            dummyNewSubImageD,
+                        ),
                     updatedAt = LocalDateTime.now(),
                 )
             }
@@ -579,17 +642,17 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             Then("4개 모두 새로운 이미지로 교체된다") {
-                result.subImages[0] shouldBe dummyNewSubImageA.url
-                result.subImages[1] shouldBe dummyNewSubImageB.url
-                result.subImages[2] shouldBe dummyNewSubImageC.url
-                result.subImages[3] shouldBe dummyNewSubImageD.url
+                result.subImages[0].url shouldBe dummyNewSubImageA.url
+                result.subImages[1].url shouldBe dummyNewSubImageB.url
+                result.subImages[2].url shouldBe dummyNewSubImageC.url
+                result.subImages[3].url shouldBe dummyNewSubImageD.url
             }
 
             unmockkObject(ProductEntity.Companion)
         }
 
-        // 옵션 관련 시나리오: 옵션 수정, 신규 옵션 추가, 옵션 삭제 케이스
-        When("옵션 수정/추가/삭제 시나리오") {
+        // 옵션 관련 시나리오: 수정 + 신규 추가
+        When("옵션 수정 및 신규 옵션 추가 시나리오") {
             val partnerShopRequest =
                 UpdatePartnerShopRequest(
                     category = "DRESS",
@@ -630,23 +693,25 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     originalProvided = false,
                     partnerShops = listOf(partnerShopRequest),
                 )
-            val optionRequestList: List<UpdateProductOptionRequest> = listOf(updatedOption1, newOption)
-            // 예상값은 응답 DTO로 변환하여 생성 (ProductOptionResponse.fromDomain 사용)
+            val optionRequestList = listOf(updatedOption1, newOption)
             val expectedOptionResponses =
                 optionRequestList.map {
-                    ProductOptionResponse.fromDomain(
-                        UpdateProductOptionRequest.toDomain(it, 999L),
-                    )
+                    ProductOptionResponse.fromDomain(UpdateProductOptionRequest.toDomain(it, 999L))
                 }
 
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
-            every {
-                imageHandler.processSubImagesPartial(any(), any(), any(), any())
-            } returns listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage)
-            every {
-                imageHandler.processAdditionalImagesFinal(any(), any(), any(), any())
-            } returns listOf(dummyExistingAdditionalImage)
+            every { imageHandler.processSubImagesPartial(any(), any(), any(), any()) } returns
+                listOf(
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                    dummyExistingSubImage,
+                )
+            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns
+                listOf(
+                    dummyExistingAdditionalImage,
+                )
             every { productPersistencePort.save(any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",
@@ -655,11 +720,20 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     cameraTypes = setOf(CameraType.DIGITAL),
                     retouchStyles = setOf(RetouchStyle.CALM),
                     mainImage = dummyNewMainImage,
-                    subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
+                    subImages =
+                        listOf(
+                            dummyExistingSubImage,
+                            dummyExistingSubImage,
+                            dummyExistingSubImage,
+                            dummyExistingSubImage,
+                        ),
                     additionalImages = listOf(dummyExistingAdditionalImage),
                     detailedInfo = "Updated Detailed Info",
                     contactInfo = "Updated Contact",
-                    options = optionRequestList.map { UpdateProductOptionRequest.toDomain(it, 999L) },
+                    options =
+                        optionRequestList.map {
+                            UpdateProductOptionRequest.toDomain(it, 999L)
+                        },
                 )
 
             val result =
@@ -672,7 +746,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     options = optionRequestList,
                 )
 
-            Then("옵션 동기화가 호출되어 옵션들이 수정된다") {
+            Then("옵션 동기화가 호출되어 옵션들이 수정/추가된다") {
                 verify(exactly = 1) { productOptionUseCase.synchronizeOptions(existingProduct, optionRequestList) }
                 result.options shouldBe expectedOptionResponses
             }

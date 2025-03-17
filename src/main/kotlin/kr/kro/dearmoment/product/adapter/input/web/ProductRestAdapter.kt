@@ -14,6 +14,7 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -41,10 +42,10 @@ class ProductRestAdapter(
     private val deleteProductUseCase: DeleteProductUseCase,
     private val getProductUseCase: GetProductUseCase,
     private val productSearchUseCase: ProductSearchUseCase,
+    private val deleteProductOptionUseCase: DeleteProductOptionUseCase,
 ) {
-    @Operation(
-        summary = "상품 생성",
-    )
+    // 1. 상품 생성
+    @Operation(summary = "상품 생성")
     @PostMapping(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
@@ -78,10 +79,7 @@ class ProductRestAdapter(
             content = [
                 Content(
                     mediaType = "image/*",
-                    array =
-                        ArraySchema(
-                            schema = Schema(type = "string", format = "binary"),
-                        ),
+                    array = ArraySchema(schema = Schema(type = "string", format = "binary")),
                 ),
             ],
         )
@@ -92,10 +90,7 @@ class ProductRestAdapter(
             content = [
                 Content(
                     mediaType = "image/*",
-                    array =
-                        ArraySchema(
-                            schema = Schema(type = "string", format = "binary"),
-                        ),
+                    array = ArraySchema(schema = Schema(type = "string", format = "binary")),
                 ),
             ],
         )
@@ -110,6 +105,7 @@ class ProductRestAdapter(
         )
     }
 
+    // 2. 상품 부분 수정
     @Operation(
         summary = "상품 부분 수정",
         description = "상품 정보 중 일부만 수정합니다.",
@@ -162,6 +158,7 @@ class ProductRestAdapter(
         )
     }
 
+    // 3. 상품 삭제
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteProduct(
@@ -171,6 +168,7 @@ class ProductRestAdapter(
         deleteProductUseCase.deleteProduct(id)
     }
 
+    // 4. 상품 상세 조회
     @Operation(summary = "상품 상세 조회", description = "특정 상품을 상세 조회합니다.")
     @ApiResponses(
         value = [
@@ -192,6 +190,7 @@ class ProductRestAdapter(
         return getProductUseCase.getProductById(id)
     }
 
+    // 5. 메인 페이지 상품 조회
     @Operation(summary = "메인 페이지 상품 조회", description = "메인 페이지에 노출할 상품 목록을 조회합니다.")
     @ApiResponses(
         value = [
@@ -213,6 +212,7 @@ class ProductRestAdapter(
         return productSearchUseCase.getMainPageProducts(page, size)
     }
 
+    // 6. 상품 검색
     @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
     @ApiResponses(
         value = [
@@ -236,5 +236,20 @@ class ProductRestAdapter(
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
     ): PagedResponse<ProductResponse> {
         return productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
+    }
+
+    @Operation(summary = "상품 옵션 삭제", description = "특정 상품에 속한 옵션을 삭제합니다.")
+    @ApiResponse(
+        responseCode = "204",
+        description = "옵션 삭제 성공",
+        content = [Content(schema = Schema())],
+    )
+    @DeleteMapping("/{productId}/options/{optionId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteOption(
+        @Parameter(description = "상품 ID") @PathVariable productId: Long,
+        @Parameter(description = "옵션 ID") @PathVariable optionId: Long,
+    ) {
+        deleteProductOptionUseCase.deleteOption(productId, optionId)
     }
 }

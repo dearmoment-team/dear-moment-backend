@@ -10,9 +10,11 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
+import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -62,6 +64,9 @@ class UpdateProductRestAdapterTest {
 
     @MockitoBean
     lateinit var productSearchUseCase: ProductSearchUseCase
+
+    @MockitoBean
+    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
 
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
@@ -153,14 +158,17 @@ class UpdateProductRestAdapterTest {
                 availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("CALM"),
-                mainImage = "http://image-server.com/updated_main.jpg",
+                mainImage = ImageResponse(imageId = 101L, url = "http://image-server.com/updated_main.jpg"),
                 subImages =
                     listOf(
-                        "http://image-server.com/subImage1_KEPT.jpg",
-                        "http://image-server.com/subImage3_UPLOADED.jpg",
-                        "http://image-server.com/subImage4_UPLOADED.jpg",
+                        ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
+                        ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
+                        ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg"),
                     ),
-                additionalImages = listOf("http://image-server.com/additionalImage2_UPLOADED.jpg"),
+                additionalImages =
+                    listOf(
+                        ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
+                    ),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 createdAt = null,
@@ -242,9 +250,15 @@ class UpdateProductRestAdapterTest {
                     "data.availableSeasons" type ARRAY means "촬영 가능 시기 목록",
                     "data.cameraTypes" type ARRAY means "카메라 종류 목록",
                     "data.retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.mainImage" type STRING means "대표 이미지 URL",
-                    "data.subImages" type ARRAY means "서브 이미지 URL 리스트",
-                    "data.additionalImages" type ARRAY means "추가 이미지 URL 리스트",
+                    "data.mainImage" type OBJECT means "대표 이미지",
+                    "data.mainImage.imageId" type NUMBER means "대표 이미지 ID",
+                    "data.mainImage.url" type STRING means "대표 이미지 URL",
+                    "data.subImages" type ARRAY means "서브 이미지 목록",
+                    "data.subImages[].imageId" type NUMBER means "서브 이미지 ID",
+                    "data.subImages[].url" type STRING means "서브 이미지 URL",
+                    "data.additionalImages" type ARRAY means "추가 이미지 목록",
+                    "data.additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
+                    "data.additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.detailedInfo" type STRING means "상세 정보",
                     "data.contactInfo" type STRING means "연락처",
                     "data.createdAt" type OBJECT means "생성 일자",

@@ -11,8 +11,10 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
+import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -56,6 +58,9 @@ class SearchProductRestAdapterTest {
     @MockitoBean
     lateinit var productSearchUseCase: ProductSearchUseCase
 
+    @MockitoBean
+    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
+
     @Test
     fun `상품 검색 API 테스트 - 정상 검색`() {
         // given
@@ -70,8 +75,11 @@ class SearchProductRestAdapterTest {
                 availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
                 cameraTypes = listOf("FILM"),
                 retouchStyles = listOf("NATURAL"),
-                mainImage = "http://image-server.com/main1.jpg",
-                subImages = listOf("http://image-server.com/sub1.jpg"),
+                mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/main1.jpg"),
+                subImages =
+                    listOf(
+                        ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Info1",
                 contactInfo = "Contact1",
@@ -91,8 +99,11 @@ class SearchProductRestAdapterTest {
                 availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("CALM"),
-                mainImage = "http://image-server.com/main2.jpg",
-                subImages = listOf("http://image-server.com/sub2.jpg"),
+                mainImage = ImageResponse(imageId = 3L, url = "http://image-server.com/main2.jpg"),
+                subImages =
+                    listOf(
+                        ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Info2",
                 contactInfo = "Contact2",
@@ -153,9 +164,15 @@ class SearchProductRestAdapterTest {
                     "data.content[].availableSeasons" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].cameraTypes" type ARRAY means "카메라 종류 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].mainImage" type STRING means "대표 이미지 URL",
-                    "data.content[].subImages" type ARRAY means "서브 이미지 URL 리스트",
-                    "data.content[].additionalImages" type ARRAY means "추가 이미지 URL 리스트",
+                    "data.content[].mainImage" type OBJECT means "대표 이미지",
+                    "data.content[].mainImage.imageId" type NUMBER means "대표 이미지 ID",
+                    "data.content[].mainImage.url" type STRING means "대표 이미지 URL",
+                    "data.content[].subImages" type ARRAY means "서브 이미지 목록",
+                    "data.content[].subImages[].imageId" type NUMBER means "서브 이미지 ID",
+                    "data.content[].subImages[].url" type STRING means "서브 이미지 URL",
+                    "data.content[].additionalImages" type ARRAY means "추가 이미지 목록",
+                    "data.content[].additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
+                    "data.content[].additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.content[].detailedInfo" type STRING means "상세 정보",
                     "data.content[].contactInfo" type STRING means "연락처",
                     "data.content[].createdAt" type OBJECT means "생성 일자",
@@ -184,8 +201,11 @@ class SearchProductRestAdapterTest {
                 availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("NATURAL"),
-                mainImage = "http://image-server.com/main.jpg",
-                subImages = listOf("http://image-server.com/sub1.jpg"),
+                mainImage = ImageResponse(imageId = 11L, url = "http://image-server.com/main.jpg"),
+                subImages =
+                    listOf(
+                        ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg"),
+                    ),
                 additionalImages = listOf(),
                 detailedInfo = "Some info",
                 contactInfo = "contact@example.com",
@@ -232,9 +252,15 @@ class SearchProductRestAdapterTest {
                     "data.content[].availableSeasons" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].cameraTypes" type ARRAY means "카메라 종류 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].mainImage" type STRING means "대표 이미지 URL",
-                    "data.content[].subImages" type ARRAY means "서브 이미지 URL 리스트",
-                    "data.content[].additionalImages" type ARRAY means "추가 이미지 URL 리스트",
+                    "data.content[].mainImage" type OBJECT means "대표 이미지",
+                    "data.content[].mainImage.imageId" type NUMBER means "대표 이미지 ID",
+                    "data.content[].mainImage.url" type STRING means "대표 이미지 URL",
+                    "data.content[].subImages" type ARRAY means "서브 이미지 목록",
+                    "data.content[].subImages[].imageId" type NUMBER means "서브 이미지 ID",
+                    "data.content[].subImages[].url" type STRING means "서브 이미지 URL",
+                    "data.content[].additionalImages" type ARRAY means "추가 이미지 목록",
+                    "data.content[].additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
+                    "data.content[].additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.content[].detailedInfo" type STRING means "상세 정보",
                     "data.content[].contactInfo" type STRING means "연락처",
                     "data.content[].createdAt" type OBJECT means "생성 일자",

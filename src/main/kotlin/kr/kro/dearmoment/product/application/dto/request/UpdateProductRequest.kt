@@ -98,7 +98,7 @@ data class UpdateProductRequest(
             subImages: List<Image>,
             additionalImages: List<Image>,
             options: List<UpdateProductOptionRequest> = emptyList(),
-            userId: Long = req.userId
+            userId: Long = req.userId,
         ): Product {
             val productTypeEnum = req.productType?.let { ProductType.valueOf(it) } ?: existingProduct.productType
             val shootingPlaceEnum = req.shootingPlace?.let { ShootingPlace.valueOf(it) } ?: existingProduct.shootingPlace
@@ -107,33 +107,36 @@ data class UpdateProductRequest(
             val styleSet = req.retouchStyles?.map { RetouchStyle.valueOf(it) }?.toSet() ?: existingProduct.retouchStyles
 
             // CreateProductRequest와 동일한 방식으로 이미지 객체를 새롭게 매핑
-            val mainImg = Image(
-                userId = userId,
-                imageId = mainImage.imageId,
-                fileName = mainImage.fileName,
-                parId = mainImage.parId,
-                url = mainImage.url,
-            )
-
-            val subImgList = subImages.map { image ->
+            val mainImg =
                 Image(
                     userId = userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
+                    imageId = mainImage.imageId,
+                    fileName = mainImage.fileName,
+                    parId = mainImage.parId,
+                    url = mainImage.url,
                 )
-            }
 
-            val addImgList = additionalImages.map { image ->
-                Image(
-                    userId = userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
-                )
-            }
+            val subImgList =
+                subImages.map { image ->
+                    Image(
+                        userId = userId,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
+                    )
+                }
+
+            val addImgList =
+                additionalImages.map { image ->
+                    Image(
+                        userId = userId,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
+                    )
+                }
 
             val domainOptions =
                 if (options.isNotEmpty()) {
@@ -283,13 +286,13 @@ data class UpdateProductOptionRequest(
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
                 partnerShops =
-                dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )
