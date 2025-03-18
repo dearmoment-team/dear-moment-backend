@@ -29,11 +29,14 @@ import kotlin.reflect.KClass
 annotation class NotBlankIfPresent(
     val message: String = "빈 값이 될 수 없습니다. 값이 제공된 경우 공백이 아니어야 합니다.",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<out Payload>> = []
+    val payload: Array<KClass<out Payload>> = [],
 )
 
 class NotBlankIfPresentValidator : ConstraintValidator<NotBlankIfPresent, String?> {
-    override fun isValid(value: String?, context: ConstraintValidatorContext): Boolean {
+    override fun isValid(
+        value: String?,
+        context: ConstraintValidatorContext,
+    ): Boolean {
         return value == null || value.trim().isNotEmpty()
     }
 }
@@ -49,58 +52,46 @@ data class UpdateProductRequest(
     @field:NotNull(message = "상품 ID는 필수입니다.")
     @Schema(description = "상품 ID", example = "100", required = true)
     val productId: Long,
-
     @field:NotNull(message = "사용자 ID는 필수입니다.")
     @Schema(description = "사용자 ID", example = "1", required = true)
     val userId: Long,
-
     @Schema(description = "상품 유형 (도메인: ProductType)", example = "WEDDING_SNAP", required = false)
     val productType: String? = null,
-
     @Schema(description = "촬영 장소 (도메인: ShootingPlace)", example = "JEJU", required = false)
     val shootingPlace: String? = null,
-
     @field:NotBlankIfPresent(message = "상품 제목이 빈 값일 수 없습니다.")
     @Schema(description = "상품 제목", example = "예쁜 웨딩 사진 촬영", required = false)
     val title: String? = null,
-
     @field:NotBlankIfPresent(message = "상품 설명이 빈 값일 수 없습니다.")
     @Schema(description = "상품 설명", example = "신랑, 신부의 아름다운 순간을 담은 웨딩 사진", required = false)
     val description: String? = null,
-
     @Schema(
         description = "촬영 가능 시기 (여러 값 가능, 도메인: ShootingSeason)",
         example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
         required = false,
     )
     val availableSeasons: List<String>? = null,
-
     @Schema(
         description = "카메라 종류 (여러 값 가능, 도메인: CameraType)",
         example = "[\"DIGITAL\", \"FILM\"]",
         required = false,
     )
     val cameraTypes: List<String>? = null,
-
     @Schema(
         description = "보정 스타일 (여러 값 가능, 도메인: RetouchStyle)",
         example = "[\"MODERN\", \"VINTAGE\"]",
         required = false,
     )
     val retouchStyles: List<String>? = null,
-
     @field:Valid
     @Schema(description = "수정할 서브 이미지 정보 목록 (부분 업데이트 가능, 각 항목에 인덱스와 액션 정보 포함)", required = false)
     val subImagesFinal: List<SubImageFinalRequest>? = null,
-
     @field:Valid
     @Schema(description = "최종 추가 이미지 목록 (0~최대 5개)", required = false)
     val additionalImagesFinal: List<AdditionalImageFinalRequest>? = null,
-
     @field:NotBlankIfPresent(message = "상세 정보가 빈 값일 수 없습니다.")
     @Schema(description = "상세 정보", example = "연락처: 010-1234-5678, 상세 문의는 이메일로", required = false)
     val detailedInfo: String? = null,
-
     @field:NotBlankIfPresent(message = "연락처 정보가 빈 값일 수 없습니다.")
     @Schema(description = "연락처 정보", example = "010-1234-5678", required = false)
     val contactInfo: String? = null,
@@ -125,39 +116,43 @@ data class UpdateProductRequest(
             val cameraSet = req.cameraTypes?.map { CameraType.valueOf(it) }?.toSet() ?: existingProduct.cameraTypes
             val styleSet = req.retouchStyles?.map { RetouchStyle.valueOf(it) }?.toSet() ?: existingProduct.retouchStyles
 
-            val mainImg = Image(
-                userId = userId,
-                imageId = mainImage.imageId,
-                fileName = mainImage.fileName,
-                parId = mainImage.parId,
-                url = mainImage.url,
-            )
-
-            val subImgList = subImages.map { image ->
+            val mainImg =
                 Image(
                     userId = userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
+                    imageId = mainImage.imageId,
+                    fileName = mainImage.fileName,
+                    parId = mainImage.parId,
+                    url = mainImage.url,
                 )
-            }
 
-            val addImgList = additionalImages.map { image ->
-                Image(
-                    userId = userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
-                )
-            }
+            val subImgList =
+                subImages.map { image ->
+                    Image(
+                        userId = userId,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
+                    )
+                }
 
-            val domainOptions = if (options.isNotEmpty()) {
-                options.map { UpdateProductOptionRequest.toDomain(it, req.productId) }
-            } else {
-                existingProduct.options
-            }
+            val addImgList =
+                additionalImages.map { image ->
+                    Image(
+                        userId = userId,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
+                    )
+                }
+
+            val domainOptions =
+                if (options.isNotEmpty()) {
+                    options.map { UpdateProductOptionRequest.toDomain(it, req.productId) }
+                } else {
+                    existingProduct.options
+                }
 
             return Product(
                 productId = req.productId,
@@ -231,11 +226,9 @@ data class AdditionalImageFinalRequest(
 data class UpdateProductOptionRequest(
     @Schema(description = "옵션 ID (옵션 삭제의 경우 null)", example = "0")
     val optionId: Long?,
-
     @field:NotBlank(message = "옵션명은 필수입니다.")
     @Schema(description = "옵션명", example = "옵션1", required = true)
     val name: String,
-
     @field:NotBlank(message = "옵션 타입은 필수입니다.")
     @Schema(
         description = "옵션 타입 (도메인: OptionType)",
@@ -244,38 +237,27 @@ data class UpdateProductOptionRequest(
         required = true,
     )
     val optionType: String,
-
     @Schema(description = "할인 적용 여부", example = "false")
     val discountAvailable: Boolean = false,
-
     @Schema(description = "정상 가격", example = "100000")
     val originalPrice: Long = 0,
-
     @Schema(description = "할인 가격", example = "80000")
     val discountPrice: Long = 0,
-
     @Schema(description = "옵션 설명", example = "옵션에 대한 상세 설명")
     val description: String? = null,
-
     // 단품용
     @Schema(description = "의상 수량 (단품인 경우 1 이상)", example = "1")
     val costumeCount: Int = 0,
-
     @Schema(description = "촬영 장소 수 (단품인 경우 1 이상)", example = "1")
     val shootingLocationCount: Int = 0,
-
     @Schema(description = "촬영 시간 (시)", example = "2")
     val shootingHours: Int = 0,
-
     @Schema(description = "촬영 시간 (분)", example = "30")
     val shootingMinutes: Int = 0,
-
     @Schema(description = "보정된 사진 수 (단품인 경우 1 이상)", example = "1")
     val retouchedCount: Int = 0,
-
     @Schema(description = "원본 제공 여부", example = "true")
     val originalProvided: Boolean = false,
-
     // 패키지용
     @field:Valid
     @Schema(description = "파트너샵 목록")
@@ -302,13 +284,14 @@ data class UpdateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
-                partnerShops = dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                partnerShops =
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )
@@ -329,11 +312,9 @@ data class UpdatePartnerShopRequest(
         required = true,
     )
     val category: String,
-
     @field:NotBlank(message = "파트너샵 이름은 필수입니다.")
     @Schema(description = "파트너샵 이름", example = "샘플샵", required = true)
     val name: String,
-
     @field:NotBlank(message = "파트너샵 링크는 필수입니다.")
     @Schema(description = "파트너샵 링크", example = "http://example.com", required = true)
     val link: String,

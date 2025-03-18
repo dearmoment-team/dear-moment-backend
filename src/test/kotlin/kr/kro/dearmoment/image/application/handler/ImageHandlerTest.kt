@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile
 
 class ImageHandlerTest : StringSpec({
 
-    // 목 인스턴스 생성 (각 테스트 전에 초기화)
     lateinit var imageService: ImageService
     lateinit var imageHandler: ImageHandler
 
@@ -60,27 +59,29 @@ class ImageHandlerTest : StringSpec({
     }
 
     // --- 서브 이미지 부분 업데이트 (processSubImagesPartial) 테스트 ---
-    "processSubImagesPartial - 요청된 인덱스가 범위를 벗어나면 예외" {
+    "processSubImagesPartial - 인덱스 범위 벗어나면 예외" {
         val userId = 1L
+        // 서브 이미지는 반드시 4장이어야 함
         val currentSubImages =
             listOf(
                 Image(11L, userId, "sub1.jpg", "url1", ""),
                 Image(12L, userId, "sub2.jpg", "url2", ""),
+                Image(13L, userId, "sub3.jpg", "url3", ""),
+                Image(14L, userId, "sub4.jpg", "url4", ""),
             )
-        // finalRequests에서 인덱스 2는 currentSubImages의 범위를 벗어남
+        // finalRequests에서 인덱스 4는 유효 범위(0~3)를 벗어남
         val finalRequests =
             listOf(
                 SubImageFinalRequest(UpdateSubImageAction.KEEP, index = 0, imageId = 11L),
-                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, index = 2, imageId = null),
+                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, index = 4, imageId = null),
             )
         val subImageFiles = listOf(mockk<MultipartFile>())
         shouldThrow<IllegalArgumentException> {
             imageHandler.processSubImagesPartial(currentSubImages, finalRequests, subImageFiles, userId)
-        }.message shouldBe "잘못된 이미지 인덱스: 2"
+        }.message shouldBe "서브 이미지는 인덱스 0..3 범위만 허용됩니다. (index=4)"
     }
 
     "processSubImagesPartial - ALL KEEP" {
-        // Given
         val userId = 1L
         val currentSubImages =
             listOf(
@@ -93,74 +94,80 @@ class ImageHandlerTest : StringSpec({
             currentSubImages.mapIndexed { index, img ->
                 SubImageFinalRequest(UpdateSubImageAction.KEEP, index = index, imageId = img.imageId)
             }
-        // When
         val result = imageHandler.processSubImagesPartial(currentSubImages, finalRequests, emptyList(), userId)
-        // Then
         result shouldHaveSize 4
         result shouldBe currentSubImages
     }
 
     "processSubImagesPartial - DELETE 액션 단독 호출 시 예외 발생" {
-        // Given
         val userId = 1L
         val currentSubImages =
             listOf(
                 Image(11L, userId, "sub1.jpg", "url1", ""),
                 Image(12L, userId, "sub2.jpg", "url2", ""),
+                Image(13L, userId, "sub3.jpg", "url3", ""),
+                Image(14L, userId, "sub4.jpg", "url4", ""),
             )
+        // 인덱스 0에 대해 DELETE 단독 호출 (UPLOAD와 함께 사용하지 않음)
         val finalRequests =
-            currentSubImages.mapIndexed { index, img ->
-                SubImageFinalRequest(UpdateSubImageAction.DELETE, index = index, imageId = img.imageId)
-            }
+            listOf(
+                SubImageFinalRequest(UpdateSubImageAction.DELETE, index = 0, imageId = 11L),
+            )
         shouldThrow<IllegalArgumentException> {
             imageHandler.processSubImagesPartial(currentSubImages, finalRequests, emptyList(), userId)
-        }.message shouldBe "DELETE 액션은 단독으로 사용할 수 없습니다. UPLOAD와 함께 사용하세요."
+        }.message shouldBe "DELETE 액션은 단독으로 사용할 수 없습니다. UPLOAD와 함께 사용하세요. (index=0)"
     }
 
     "processSubImagesPartial - KEEP와 UPLOAD 액션 정상 수행" {
-        // Given
         val userId = 1L
-        val existingImg1 = Image(imageId = 11L, userId = userId, fileName = "sub1.jpg", url = "url1", parId = "")
-        val existingImg2 = Image(imageId = 22L, userId = userId, fileName = "sub2.jpg", url = "url2", parId = "")
-        val existingImg3 = Image(imageId = 33L, userId = userId, fileName = "sub3.jpg", url = "url3", parId = "")
-        val existingImg4 = Image(imageId = 44L, userId = userId, fileName = "sub4.jpg", url = "url4", parId = "")
+        val existingImg1 = Image(11L, userId, "sub1.jpg", "url1", "")
+        val existingImg2 = Image(22L, userId, "sub2.jpg", "url2", "")
+        val existingImg3 = Image(33L, userId, "sub3.jpg", "url3", "")
+        val existingImg4 = Image(44L, userId, "sub4.jpg", "url4", "")
         val currentSubImages = listOf(existingImg1, existingImg2, existingImg3, existingImg4)
-        // 요청: 인덱스 0은 KEEP, 인덱스 1는 KEEP, 인덱스 2는 UPLOAD (기존 33 교체), 인덱스 3은 UPLOAD (새로 업로드)
+
+        // 요청:
+        // index 0: KEEP
+        // index 1: KEEP
+        // index 2: DELETE + UPLOAD (기존 이미지 교체)
+        // index 3: UPLOAD (새 이미지 업로드)
         val newFileForIdx2 = mockk<MultipartFile>()
         val newFileForIdx3 = mockk<MultipartFile>()
-        val uploadedImageForIdx2 = Image(imageId = 55L, userId = userId, fileName = "sub_new.jpg", url = "url_new", parId = "")
-        val uploadedImageForIdx3 = Image(imageId = 66L, userId = userId, fileName = "sub_new2.jpg", url = "url_new2", parId = "")
+        val uploadedImageForIdx2 = Image(55L, userId, "sub_new.jpg", "url_new", "")
+        val uploadedImageForIdx3 = Image(66L, userId, "sub_new2.jpg", "url_new2", "")
+
         every { imageService.save(match { it.file == newFileForIdx2 && it.userId == userId }) } returns uploadedImageForIdx2
         every { imageService.save(match { it.file == newFileForIdx3 && it.userId == userId }) } returns uploadedImageForIdx3
-        justRun { imageService.delete(existingImg3.imageId) } // UPLOAD 교체 시 기존 이미지 삭제
+        justRun { imageService.delete(existingImg3.imageId) }
+
         val finalRequests =
             listOf(
-                SubImageFinalRequest(UpdateSubImageAction.KEEP, index = 0, imageId = 11L),
-                SubImageFinalRequest(UpdateSubImageAction.KEEP, index = 1, imageId = 22L),
-                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, index = 2, imageId = 33L),
+                SubImageFinalRequest(UpdateSubImageAction.KEEP, index = 0, imageId = existingImg1.imageId),
+                SubImageFinalRequest(UpdateSubImageAction.KEEP, index = 1, imageId = existingImg2.imageId),
+                SubImageFinalRequest(UpdateSubImageAction.DELETE, index = 2, imageId = existingImg3.imageId),
+                SubImageFinalRequest(UpdateSubImageAction.UPLOAD, index = 2, imageId = existingImg3.imageId),
                 SubImageFinalRequest(UpdateSubImageAction.UPLOAD, index = 3, imageId = null),
             )
-        // 업로드 파일 리스트는 순서대로 newFileForIdx2, newFileForIdx3
         val subImageFiles = listOf(newFileForIdx2, newFileForIdx3)
-        // When
+
         val result = imageHandler.processSubImagesPartial(currentSubImages, finalRequests, subImageFiles, userId)
-        // Then
-        // 결과는 인덱스 0,1는 기존 그대로, 인덱스 2와 3는 새 파일로 업데이트됨
+
         result.size shouldBe 4
         result[0] shouldBe existingImg1
         result[1] shouldBe existingImg2
         result[2] shouldBe uploadedImageForIdx2
         result[3] shouldBe uploadedImageForIdx3
+
         verify(exactly = 1) { imageService.delete(existingImg3.imageId) }
         verify(exactly = 1) { imageService.save(match { it.file == newFileForIdx2 && it.userId == userId }) }
         verify(exactly = 1) { imageService.save(match { it.file == newFileForIdx3 && it.userId == userId }) }
     }
 
     // --- 추가 이미지 최종 처리 (processAdditionalImagesFinal) 테스트 ---
-    "processAdditionalImagesFinal - 요청된 추가 이미지 수가 최대 개수(5장)를 초과하면 예외" {
+    "processAdditionalImagesFinal - 추가 이미지 결과 개수가 최대 개수(5장)를 초과하면 예외" {
         val userId = 1L
         val currentAdditionalImages = emptyList<Image>()
-        // 6개의 UPLOAD 요청
+        // 6개의 UPLOAD 요청 생성
         val finalRequests =
             List(6) {
                 AdditionalImageFinalRequest(
@@ -168,9 +175,11 @@ class ImageHandlerTest : StringSpec({
                     imageId = null,
                 )
             }
+        // UPLOAD 요청 수와 동일하게 6개의 파일 제공
+        val additionalImageFiles = List(6) { mockk<MultipartFile>() }
         shouldThrow<IllegalArgumentException> {
-            imageHandler.processAdditionalImagesFinal(currentAdditionalImages, finalRequests, null, userId)
-        }.message shouldBe "추가 이미지는 최대 5 장까지만 가능합니다. 현재 6장입니다."
+            imageHandler.processAdditionalImagesFinal(currentAdditionalImages, finalRequests, additionalImageFiles, userId)
+        }.message shouldBe "추가 이미지는 최대 5 장까지만 가능합니다. (현재=6장)"
     }
 
     "processAdditionalImagesFinal - ALL KEEP" {
@@ -205,12 +214,11 @@ class ImageHandlerTest : StringSpec({
     }
 
     "processAdditionalImagesFinal - KEEP, DELETE, UPLOAD 액션 정상 수행" {
-        // Given
         val userId = 1L
         val existingAdd1 = Image(imageId = 1001L, userId = userId, fileName = "add1.jpg", url = "addUrl1", parId = "")
         val existingAdd2 = Image(imageId = 1002L, userId = userId, fileName = "add2.jpg", url = "addUrl2", parId = "")
         val currentAdditionalImages = listOf(existingAdd1, existingAdd2)
-        // 요청 3개: 1) KEEP(1001), 2) DELETE(1002), 3) UPLOAD(새 이미지)
+        // 요청: 1) KEEP(1001), 2) DELETE(1002), 3) UPLOAD(새 이미지)
         val newFile = mockk<MultipartFile>()
         val uploadedAdd =
             Image(
@@ -229,9 +237,7 @@ class ImageHandlerTest : StringSpec({
                 AdditionalImageFinalRequest(UpdateAdditionalImageAction.UPLOAD, imageId = null),
             )
         val additionalImageFiles = listOf(newFile)
-        // When
         val result = imageHandler.processAdditionalImagesFinal(currentAdditionalImages, finalRequests, additionalImageFiles, userId)
-        // Then
         result.size shouldBe 2
         result[0] shouldBe existingAdd1
         result[1] shouldBe uploadedAdd

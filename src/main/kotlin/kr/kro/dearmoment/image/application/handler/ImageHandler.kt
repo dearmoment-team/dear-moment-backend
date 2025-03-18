@@ -70,19 +70,16 @@ class ImageHandler(
             val hasUpload = actions.any { it.action == UpdateSubImageAction.UPLOAD }
             val keepAction = actions.find { it.action == UpdateSubImageAction.KEEP }
 
-            // 1) KEEP only
             if (actions.size == 1 && keepAction != null) {
                 // 아무것도 안 함 (기존 유지)
                 val requestImgId = keepAction.imageId
                 // 검증: 요청의 imageId와 실제 currentSubImages[index]가 같은지
                 if (requestImgId != null && requestImgId != resultMap[index]?.imageId) {
                     throw IllegalArgumentException(
-                        "KEEP 액션이지만 imageId($requestImgId) != currentImageId(${resultMap[index]?.imageId})"
+                        "KEEP 액션이지만 imageId($requestImgId) != currentImageId(${resultMap[index]?.imageId})",
                     )
                 }
-            }
-            // 2) DELETE + UPLOAD => 교체
-            else if (hasDelete && hasUpload) {
+            } else if (hasDelete && hasUpload) {
                 if (filePointer >= subImageFiles.size) {
                     throw IllegalArgumentException("서브 이미지 업로드 파일이 부족합니다. (index=$index)")
                 }
@@ -96,15 +93,11 @@ class ImageHandler(
                 imageService.delete(oldImg.imageId)
 
                 resultMap[index] = newImg
-            }
-            // 3) DELETE alone -> 금지
-            else if (hasDelete && !hasUpload) {
+            } else if (hasDelete && !hasUpload) {
                 throw IllegalArgumentException(
-                    "DELETE 액션은 단독으로 사용할 수 없습니다. UPLOAD와 함께 사용하세요. (index=$index)"
+                    "DELETE 액션은 단독으로 사용할 수 없습니다. UPLOAD와 함께 사용하세요. (index=$index)",
                 )
-            }
-            // 4) UPLOAD alone => 교체(기존 삭제)
-            else if (hasUpload && !hasDelete) {
+            } else if (hasUpload && !hasDelete) {
                 if (filePointer >= subImageFiles.size) {
                     throw IllegalArgumentException("서브 이미지 업로드 파일이 부족합니다. (index=$index)")
                 }
@@ -116,16 +109,13 @@ class ImageHandler(
                 imageService.delete(oldImg.imageId)
 
                 resultMap[index] = newImg
-            }
-            // 5) 기타 조합 (예: KEEP + DELETE 등)
-            else {
+            } else {
                 throw IllegalArgumentException(
-                    "서브 이미지 액션 조합이 올바르지 않습니다. (index=$index, actions=$actions)"
+                    "서브 이미지 액션 조합이 올바르지 않습니다. (index=$index, actions=$actions)",
                 )
             }
         }
 
-        // 항상 index=0..3 각각 Image 존재
         return (0..3).map { idx -> resultMap[idx]!! }
     }
 
@@ -140,7 +130,7 @@ class ImageHandler(
         finalRequests: List<AdditionalImageFinalRequest>,
         additionalImageFiles: List<MultipartFile>?,
         userId: Long,
-        maxCount: Int = 5
+        maxCount: Int = 5,
     ): List<Image> {
         // ***기존에 있던: if (finalRequests.size > maxCount) { ... } 제거***
         val currentMap = currentAdditionalImages.associateBy { it.imageId }
@@ -151,7 +141,7 @@ class ImageHandler(
         val files = additionalImageFiles.orEmpty()
         if (uploadRequests.size != files.size) {
             throw IllegalArgumentException(
-                "추가 이미지(UPLOAD) 요청 수(${uploadRequests.size})와 업로드된 파일 수(${files.size})가 일치하지 않습니다."
+                "추가 이미지(UPLOAD) 요청 수(${uploadRequests.size})와 업로드된 파일 수(${files.size})가 일치하지 않습니다.",
             )
         }
 
@@ -161,15 +151,17 @@ class ImageHandler(
             when (req.action) {
                 UpdateAdditionalImageAction.KEEP -> {
                     requireNotNull(req.imageId) { "KEEP 액션이면 imageId는 필수입니다." }
-                    val existingImg = currentMap[req.imageId]
-                        ?: throw IllegalArgumentException("존재하지 않는 추가 이미지 ID: ${req.imageId}")
+                    val existingImg =
+                        currentMap[req.imageId]
+                            ?: throw IllegalArgumentException("존재하지 않는 추가 이미지 ID: ${req.imageId}")
                     result.add(existingImg)
                 }
 
                 UpdateAdditionalImageAction.DELETE -> {
                     requireNotNull(req.imageId) { "DELETE 액션이면 imageId는 필수입니다." }
-                    val existingImg = currentMap[req.imageId]
-                        ?: throw IllegalArgumentException("존재하지 않는 추가 이미지 ID: ${req.imageId}")
+                    val existingImg =
+                        currentMap[req.imageId]
+                            ?: throw IllegalArgumentException("존재하지 않는 추가 이미지 ID: ${req.imageId}")
 
                     // DB/스토리지에서 삭제
                     imageService.delete(existingImg.imageId)
@@ -191,7 +183,7 @@ class ImageHandler(
         // 최종 개수 체크: 5장 초과 시 예외
         if (result.size > maxCount) {
             throw IllegalArgumentException(
-                "추가 이미지는 최대 $maxCount 장까지만 가능합니다. (현재=${result.size}장)"
+                "추가 이미지는 최대 $maxCount 장까지만 가능합니다. (현재=${result.size}장)",
             )
         }
 
