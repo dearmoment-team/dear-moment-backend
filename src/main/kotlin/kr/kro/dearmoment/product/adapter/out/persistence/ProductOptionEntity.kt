@@ -37,7 +37,7 @@ class ProductOptionEntity(
     var optionId: Long = 0L,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID", nullable = false)
-    var product: ProductEntity, 
+    var product: ProductEntity,
     @Column(name = "NAME", nullable = false)
     var name: String = "",
     @Enumerated(EnumType.STRING)
