@@ -17,35 +17,29 @@ class UserEntity(
     @GeneratedValue
     @Column(name = "user_id", columnDefinition = "RAW(16)")
     @JdbcTypeCode(SqlTypes.VARBINARY)
-    var id: UUID? = null,  // nullable
+    var id: UUID? = null,
 
-    loginId: String,
-    password: String,
-    name: String,
+    @Column(nullable = true)
+    var loginId: String? = null,
+
+    @Column(nullable = true)
+    var password: String? = null,
+
+    @Column(nullable = false)
+    var name: String,
+
     var isStudio: Boolean? = false,
-    createdAt: LocalDateTime,
-    updatedAt: LocalDateTime? = null
-) : Auditable() {
 
-    @Column(nullable = false, unique = true)
-    var loginId: String = loginId
-        protected set
+    // 카카오 OAuth 식별자 (중복 가입 방지를 위해 unique 권장)
+    @Column(nullable = true, unique = true)
+    var kakaoId: Long? = null,
 
     @Column(nullable = false)
-    var password: String = password
-        protected set
-
-    @Column(nullable = false)
-    var name: String = name
-        protected set
-
-    @Column(nullable = false)
-    var createdAt: LocalDateTime = createdAt
-        protected set
+    var createdAt: LocalDateTime,
 
     @Column
-    var updatedAt: LocalDateTime? = updatedAt
-        protected set
+    var updatedAt: LocalDateTime? = null
+) : Auditable() {
 
     fun toDomain(): User {
         return User(
@@ -55,7 +49,8 @@ class UserEntity(
             name = this.name,
             isStudio = this.isStudio,
             createdAt = this.createdAt,
-            updatedAt = this.updatedAt
+            updatedAt = this.updatedAt,
+            kakaoId = this.kakaoId
         )
     }
 
@@ -67,6 +62,7 @@ class UserEntity(
                 password = domain.password,
                 name = domain.name,
                 isStudio = domain.isStudio,
+                kakaoId = domain.kakaoId,
                 createdAt = domain.createdAt,
                 updatedAt = domain.updatedAt
             )
@@ -78,6 +74,7 @@ class UserEntity(
         this.password = entity.password
         this.name = entity.name
         this.isStudio = entity.isStudio
+        this.kakaoId = entity.kakaoId
         this.createdAt = entity.createdAt
         this.updatedAt = entity.updatedAt
     }

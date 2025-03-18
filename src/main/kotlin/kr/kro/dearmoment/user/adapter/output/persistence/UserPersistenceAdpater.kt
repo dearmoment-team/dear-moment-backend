@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.user.adapter.output.persistence
 
 import kr.kro.dearmoment.user.application.port.output.GetUserByIdPort
+import kr.kro.dearmoment.user.application.port.output.GetUserByKakaoIdPort
 import kr.kro.dearmoment.user.application.port.output.SaveUserPort
 import kr.kro.dearmoment.user.domain.User
 import org.springframework.stereotype.Component
@@ -9,7 +10,7 @@ import java.util.UUID
 @Component
 class UserPersistenceAdapter(
     private val userJpaRepository: UserJpaRepository
-) : SaveUserPort, GetUserByIdPort {
+) : SaveUserPort, GetUserByIdPort, GetUserByKakaoIdPort {
 
     override fun save(user: User): User {
         val entity = UserEntity.from(user)
@@ -24,6 +25,11 @@ class UserPersistenceAdapter(
 
     override fun findByLoginId(loginId: String): User? {
         val entity = userJpaRepository.findByLoginId(loginId)
+        return entity?.toDomain()
+    }
+
+    override fun findByKakaoId(kakaoId: Long): User? {
+        val entity = userJpaRepository.findByKakaoId(kakaoId)
         return entity?.toDomain()
     }
 }

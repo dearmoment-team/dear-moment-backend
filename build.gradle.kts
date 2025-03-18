@@ -101,6 +101,8 @@ dependencies {
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:2.3.1")
 //    compileOnly('org.projectlombok:lombok')
+
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
 
 tasks.test {

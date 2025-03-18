@@ -4,10 +4,6 @@ object-storage:
   namespace-name: ${OBJECT_STORAGE_NAMESPACE_NAME_LOCAL}
   photo-image-dir: ${OBJECT_STORAGE_IMAGE_DIR_LOCAL}
 
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
-
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -23,6 +19,13 @@ spring:
     driver-class-name: oracle.jdbc.OracleDriver
     username: user
     url: jdbc:oracle:thin:@db:1521/FREEPDB1
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
+  oauth:
+    kakao:
+      client-id: ${OAUTH_KAKAO_CLIENT_ID}
+      redirect-uri: ${OAUTH_KAKAO_REDIRECT_URI_LOCAL}
 
 springdoc:
   packages-to-scan:

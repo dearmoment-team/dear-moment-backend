@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.user.domain
 
-import java.util.UUID
 import java.time.LocalDateTime
+import java.util.UUID
 
 /**
  * 유저 도메인 모델
@@ -11,19 +11,24 @@ import java.time.LocalDateTime
  * - name: 이름
  * - isStudio: 스튜디오 유저 여부
  * - createdAt, updatedAt: 생성/수정 시각
+ * - kakaoId: 카카오 로그인 고유식별 id
  */
 data class User(
     val id: UUID? = null,
-    val loginId: String,
-    val password: String,
+    val loginId: String? = null,
+    val password: String? = null,
     val name: String,
     val isStudio: Boolean? = false,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime? = null,
+    val kakaoId: Long? = null       // 추후 null 불가
 ) {
     init {
-        require(loginId.isNotBlank()) { "로그인 아이디(loginId)는 비어있을 수 없습니다." }
-        require(password.isNotBlank()) { "비밀번호(password)는 비어있을 수 없습니다." }
+        // 이메일 가입 유저인 경우, loginId/password가 필수
+        if (kakaoId == null) {
+            require(!loginId.isNullOrBlank()) { "로그인 아이디(loginId)는 비어있을 수 없습니다. (이메일 가입)" }
+            require(!password.isNullOrBlank()) { "비밀번호(password)는 비어있을 수 없습니다. (이메일 가입)" }
+        }
         require(name.isNotBlank()) { "이름(name)은 비어있을 수 없습니다." }
 
         // createdAt < updatedAt 검증
@@ -34,16 +39,10 @@ data class User(
         }
     }
 
-    /**
-     * 비밀번호 검증 메서드 (실제로는 해싱 로직 필요)
-     */
     fun checkPassword(rawPassword: String): Boolean {
         return this.password == rawPassword
     }
 
-    /**
-     * userName, updatedAt 등을 수정하는 예시 메서드
-     */
     fun updateName(newName: String, now: LocalDateTime): User {
         require(newName.isNotBlank()) { "새로운 이름은 비어있을 수 없습니다." }
         require(!createdAt.isAfter(now)) { "수정 시점이 생성 시점보다 이를 수 없습니다." }

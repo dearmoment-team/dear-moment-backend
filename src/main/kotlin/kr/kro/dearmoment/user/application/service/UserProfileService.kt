@@ -1,13 +1,12 @@
 package kr.kro.dearmoment.user.application.service
 
-import kr.kro.dearmoment.user.application.dto.response.UserResponse
 import kr.kro.dearmoment.user.application.port.output.GetUserByIdPort
 import kr.kro.dearmoment.user.application.port.output.SaveUserPort
 import kr.kro.dearmoment.user.domain.User
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 class UserProfileService(

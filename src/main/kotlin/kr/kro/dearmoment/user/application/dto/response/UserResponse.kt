@@ -6,7 +6,7 @@ import java.util.UUID
 
 data class UserResponse(
     val id: UUID?,
-    val loginId: String,
+    val loginId: String?,
     val name: String,
     val isStudio: Boolean?,
     val createdAt: LocalDateTime,
@@ -16,7 +16,7 @@ data class UserResponse(
         fun from(user: User): UserResponse {
             return UserResponse(
                 id = user.id,
-                loginId = user.loginId,
+                loginId = user.loginId, // null 가능
                 name = user.name,
                 isStudio = user.isStudio,
                 createdAt = user.createdAt,

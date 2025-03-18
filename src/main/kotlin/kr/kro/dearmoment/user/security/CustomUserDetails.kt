@@ -9,7 +9,7 @@ import java.util.UUID
 class CustomUserDetails(private val user: User) : UserDetails {
 
     val id: UUID
-        get() = user.id as UUID
+        get() = user.id ?: throw IllegalStateException("User ID가 존재하지 않습니다.")
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return if (user.isStudio == true) {
@@ -19,15 +19,14 @@ class CustomUserDetails(private val user: User) : UserDetails {
         }
     }
 
-    override fun getPassword(): String = user.password
+    override fun getPassword(): String = user.password ?: ""
 
-    // 로그인 시에는 기존 loginId를 사용 (사용자 이름으로도 활용 가능)
-    override fun getUsername(): String = user.loginId
+    override fun getUsername(): String = user.loginId ?: ""
 
-    override fun isAccountNonExpired(): Boolean = true
-    override fun isAccountNonLocked(): Boolean = true
-    override fun isCredentialsNonExpired(): Boolean = true
-    override fun isEnabled(): Boolean = true
+    override fun isAccountNonExpired() = true
+    override fun isAccountNonLocked() = true
+    override fun isCredentialsNonExpired() = true
+    override fun isEnabled() = true
 
     fun getUser(): User = user
 }

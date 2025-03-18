@@ -35,20 +35,14 @@ class UserCommandService(
             name = command.name,
             isStudio = true,  // 초기값
             createdAt = LocalDateTime.now(),
-            updatedAt = null
+            updatedAt = null,
+            kakaoId = null // 이메일 가입이므로 null
         )
 
         // 4. 저장
         val saved = saveUserPort.save(user)
 
         // 5. Response 반환
-        return UserResponse(
-            id = saved.id,
-            loginId = saved.loginId,
-            name = saved.name,
-            isStudio = saved.isStudio,
-            createdAt = saved.createdAt,
-            updatedAt = saved.updatedAt
-        )
+        return UserResponse.from(saved)
     }
 }
