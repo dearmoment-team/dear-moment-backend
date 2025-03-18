@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.product.application.usecase.option
+package kr.kro.dearmoment.product.application.usecase.delete
 
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
