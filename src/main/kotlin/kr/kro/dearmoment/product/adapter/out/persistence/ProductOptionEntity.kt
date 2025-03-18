@@ -57,7 +57,7 @@ class ProductOptionEntity(
     var discountPrice: Long = 0L,
 
     @Column(name = "DESCRIPTION")
-    var description: String = "",  // null 대신 빈 문자열
+    var description: String = "",
 
     // 단품 필드들
     @Column(name = "COSTUME_COUNT")

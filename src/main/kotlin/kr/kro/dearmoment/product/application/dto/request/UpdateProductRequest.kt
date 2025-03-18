@@ -1,13 +1,10 @@
 package kr.kro.dearmoment.product.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.Constraint
-import jakarta.validation.ConstraintValidator
-import jakarta.validation.ConstraintValidatorContext
-import jakarta.validation.Payload
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import kr.kro.dearmoment.common.validation.NotBlankIfPresent
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.OptionType
@@ -19,27 +16,6 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
-import kotlin.reflect.KClass
-
-// -- 커스텀 어노테이션: 값이 null이면 검증하지 않고, 값이 있으면 공백이 아니어야 함.
-@MustBeDocumented
-@Constraint(validatedBy = [NotBlankIfPresentValidator::class])
-@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class NotBlankIfPresent(
-    val message: String = "빈 값이 될 수 없습니다. 값이 제공된 경우 공백이 아니어야 합니다.",
-    val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<out Payload>> = [],
-)
-
-class NotBlankIfPresentValidator : ConstraintValidator<NotBlankIfPresent, String?> {
-    override fun isValid(
-        value: String?,
-        context: ConstraintValidatorContext,
-    ): Boolean {
-        return value == null || value.trim().isNotEmpty()
-    }
-}
 
 /**
  * [상품 부분 수정] 시 사용하는 요청 DTO
