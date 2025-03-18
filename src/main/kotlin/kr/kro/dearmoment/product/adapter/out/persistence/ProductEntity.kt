@@ -36,83 +36,68 @@ class ProductEntity(
     @SequenceGenerator(name = "products_seq", sequenceName = "PRODUCTS_SEQ", allocationSize = 1)
     @Column(name = "PRODUCT_ID")
     var productId: Long? = null,
-
     @Column(name = "USER_ID", nullable = false)
     var userId: Long,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "PRODUCT_TYPE", nullable = false)
     var productType: ProductType,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "SHOOTING_PLACE", nullable = false)
     var shootingPlace: ShootingPlace,
-
     @Column(name = "TITLE", nullable = false)
     var title: String = "",
-
     @Column(name = "DESCRIPTION")
     var description: String = "",
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_AVAILABLE_SEASONS", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
     @Enumerated(EnumType.STRING)
     @Column(name = "SEASON")
     var availableSeasons: MutableSet<ShootingSeason> = mutableSetOf(),
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_CAMERA_TYPES", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
     @Enumerated(EnumType.STRING)
     @Column(name = "CAMERA_TYPE")
     var cameraTypes: MutableSet<CameraType> = mutableSetOf(),
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_RETOUCH_STYLES", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
     @Enumerated(EnumType.STRING)
     @Column(name = "RETOUCH_STYLE")
     var retouchStyles: MutableSet<RetouchStyle> = mutableSetOf(),
-
     @Embedded
     @AttributeOverrides(AttributeOverride(name = "userId", column = Column(name = "MAIN_IMAGE_USER_ID")))
     var mainImage: ImageEmbeddable = ImageEmbeddable(),
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_SUB_IMAGES", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
     var subImages: MutableList<ImageEmbeddable> = mutableListOf(),
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_ADDITIONAL_IMAGES", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
     var additionalImages: MutableList<ImageEmbeddable> = mutableListOf(),
-
     @Column(name = "DETAILED_INFO")
     var detailedInfo: String = "",
-
     @Column(name = "CONTACT_INFO")
     var contactInfo: String = "",
-
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var options: MutableList<ProductOptionEntity> = mutableListOf(),
-
     @Column(nullable = false)
     var version: Long = 0L,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studio_id")
     var studio: StudioEntity? = null,
 ) : Auditable() {
     companion object {
         fun fromDomain(product: Product): ProductEntity {
-            val productEntity = ProductEntity(
-                productId = if (product.productId == 0L) null else product.productId,
-                userId = product.userId,
-                productType = product.productType,
-                shootingPlace = product.shootingPlace,
-                title = product.title,
-                description = product.description.takeIf { it.isNotBlank() } ?: "",
-                mainImage = ImageEmbeddable.fromDomainImage(product.mainImage),
-                detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() } ?: "",
-                contactInfo = product.contactInfo.takeIf { it.isNotBlank() } ?: ""
-            )
+            val productEntity =
+                ProductEntity(
+                    productId = if (product.productId == 0L) null else product.productId,
+                    userId = product.userId,
+                    productType = product.productType,
+                    shootingPlace = product.shootingPlace,
+                    title = product.title,
+                    description = product.description.takeIf { it.isNotBlank() } ?: "",
+                    mainImage = ImageEmbeddable.fromDomainImage(product.mainImage),
+                    detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() } ?: "",
+                    contactInfo = product.contactInfo.takeIf { it.isNotBlank() } ?: "",
+                )
             productEntity.availableSeasons.addAll(product.availableSeasons)
             productEntity.cameraTypes.addAll(product.cameraTypes)
             productEntity.retouchStyles.addAll(product.retouchStyles)

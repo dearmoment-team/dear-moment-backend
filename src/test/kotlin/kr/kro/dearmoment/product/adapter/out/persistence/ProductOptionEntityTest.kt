@@ -8,11 +8,14 @@ import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
-import java.time.LocalDateTime
 import java.lang.reflect.Field
+import java.time.LocalDateTime
 
 // 클래스 계층 전체에서 필드를 찾는 유틸리티 함수
-private fun getFieldFromHierarchy(clazz: Class<*>, fieldName: String): Field {
+private fun getFieldFromHierarchy(
+    clazz: Class<*>,
+    fieldName: String,
+): Field {
     var current: Class<*>? = clazz
     while (current != null) {
         try {
@@ -27,7 +30,11 @@ private fun getFieldFromHierarchy(clazz: Class<*>, fieldName: String): Field {
 }
 
 // Auditable 클래스에 정의된 필드명 "createdDate", "updateDate"를 사용하여 auditing 필드를 리플렉션으로 설정합니다.
-private fun setAuditing(entity: ProductOptionEntity, created: LocalDateTime, updated: LocalDateTime) {
+private fun setAuditing(
+    entity: ProductOptionEntity,
+    created: LocalDateTime,
+    updated: LocalDateTime,
+) {
     val createdDateField: Field = getFieldFromHierarchy(ProductOptionEntity::class.java, "createdDate")
     createdDateField.set(entity, created)
 
@@ -39,35 +46,37 @@ class ProductOptionEntityTest : StringSpec({
 
     "ProductOptionEntity는 단품 옵션 도메인 모델에서 올바르게 변환되어야 한다" {
         // given
-        val productEntity = ProductEntity(
-            productId = 1L,
-            userId = 123L,
-            productType = ProductType.WEDDING_SNAP,
-            shootingPlace = ShootingPlace.JEJU,
-            title = "샘플 상품",
-        )
+        val productEntity =
+            ProductEntity(
+                productId = 1L,
+                userId = 123L,
+                productType = ProductType.WEDDING_SNAP,
+                shootingPlace = ShootingPlace.JEJU,
+                title = "샘플 상품",
+            )
 
         val fixedCreatedAt = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
         val fixedUpdatedAt = LocalDateTime.of(2023, 1, 1, 12, 0, 0)
 
-        val singleOption = ProductOption(
-            optionId = 1L,
-            productId = 1L,
-            name = "단품 옵션",
-            optionType = OptionType.SINGLE,
-            discountAvailable = false,
-            originalPrice = 500L,
-            discountPrice = 0L,
-            description = "단품 옵션 설명",
-            costumeCount = 2,
-            shootingLocationCount = 1,
-            shootingHours = 0,
-            shootingMinutes = 60,
-            retouchedCount = 1,
-            partnerShops = emptyList(),
-            createdAt = fixedCreatedAt,
-            updatedAt = fixedUpdatedAt,
-        )
+        val singleOption =
+            ProductOption(
+                optionId = 1L,
+                productId = 1L,
+                name = "단품 옵션",
+                optionType = OptionType.SINGLE,
+                discountAvailable = false,
+                originalPrice = 500L,
+                discountPrice = 0L,
+                description = "단품 옵션 설명",
+                costumeCount = 2,
+                shootingLocationCount = 1,
+                shootingHours = 0,
+                shootingMinutes = 60,
+                retouchedCount = 1,
+                partnerShops = emptyList(),
+                createdAt = fixedCreatedAt,
+                updatedAt = fixedUpdatedAt,
+            )
 
         // when
         val optionEntity = ProductOptionEntity.fromDomain(singleOption, productEntity)
@@ -94,48 +103,51 @@ class ProductOptionEntityTest : StringSpec({
 
     "ProductOptionEntity는 패키지 옵션 도메인 모델로 올바르게 변환되어야 한다" {
         // given
-        val productEntity = ProductEntity(
-            productId = 2L,
-            userId = 456L,
-            productType = ProductType.WEDDING_SNAP,
-            shootingPlace = ShootingPlace.JEJU,
-            title = "샘플 상품2",
-        )
+        val productEntity =
+            ProductEntity(
+                productId = 2L,
+                userId = 456L,
+                productType = ProductType.WEDDING_SNAP,
+                shootingPlace = ShootingPlace.JEJU,
+                title = "샘플 상품2",
+            )
 
-        val partnerShopsEmbeddable = listOf(
-            PartnerShopEmbeddable(
-                category = PartnerShopCategory.HAIR_MAKEUP,
-                name = "헤어메이크업1",
-                link = "http://hm1.com",
-            ),
-            PartnerShopEmbeddable(
-                category = PartnerShopCategory.DRESS,
-                name = "드레스샵A",
-                link = "http://dressA.com",
-            ),
-        )
+        val partnerShopsEmbeddable =
+            listOf(
+                PartnerShopEmbeddable(
+                    category = PartnerShopCategory.HAIR_MAKEUP,
+                    name = "헤어메이크업1",
+                    link = "http://hm1.com",
+                ),
+                PartnerShopEmbeddable(
+                    category = PartnerShopCategory.DRESS,
+                    name = "드레스샵A",
+                    link = "http://dressA.com",
+                ),
+            )
 
         val fixedCreatedAt = LocalDateTime.of(2023, 2, 2, 10, 0, 0)
         val fixedUpdatedAt = LocalDateTime.of(2023, 2, 2, 12, 0, 0)
 
         // 직접 ProductOptionEntity 인스턴스를 생성
-        val optionEntity = ProductOptionEntity(
-            optionId = 10L,
-            product = productEntity,
-            name = "패키지 옵션",
-            optionType = OptionType.PACKAGE,
-            discountAvailable = false,
-            originalPrice = 1500L,
-            discountPrice = 0L,
-            description = "패키지 옵션 설명",
-            costumeCount = 0,
-            shootingLocationCount = 0,
-            shootingHours = 0,
-            shootingMinutes = 0,
-            retouchedCount = 0,
-            partnerShops = partnerShopsEmbeddable,
-            version = 0L
-        )
+        val optionEntity =
+            ProductOptionEntity(
+                optionId = 10L,
+                product = productEntity,
+                name = "패키지 옵션",
+                optionType = OptionType.PACKAGE,
+                discountAvailable = false,
+                originalPrice = 1500L,
+                discountPrice = 0L,
+                description = "패키지 옵션 설명",
+                costumeCount = 0,
+                shootingLocationCount = 0,
+                shootingHours = 0,
+                shootingMinutes = 0,
+                retouchedCount = 0,
+                partnerShops = partnerShopsEmbeddable,
+                version = 0L,
+            )
 
         // auditing 필드 설정 (Auditable의 "createdDate", "updateDate" 사용)
         setAuditing(optionEntity, fixedCreatedAt, fixedUpdatedAt)
@@ -162,7 +174,7 @@ class ProductOptionEntityTest : StringSpec({
         packageOption.partnerShops.map { it.name } shouldContainExactly listOf("헤어메이크업1", "드레스샵A")
         packageOption.partnerShops.map { it.link } shouldContainExactly listOf("http://hm1.com", "http://dressA.com")
         packageOption.partnerShops.map { it.category } shouldContainExactly
-                listOf(PartnerShopCategory.HAIR_MAKEUP, PartnerShopCategory.DRESS)
+            listOf(PartnerShopCategory.HAIR_MAKEUP, PartnerShopCategory.DRESS)
 
         packageOption.createdAt shouldBe fixedCreatedAt
         packageOption.updatedAt shouldBe fixedUpdatedAt

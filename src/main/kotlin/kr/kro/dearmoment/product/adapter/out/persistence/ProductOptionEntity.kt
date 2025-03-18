@@ -26,67 +26,52 @@ class ProductOptionEntity(
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,
-        generator = "product_options_seq"
+        generator = "product_options_seq",
     )
     @SequenceGenerator(
         name = "product_options_seq",
         sequenceName = "PRODUCT_OPTIONS_SEQ",
-        allocationSize = 1
+        allocationSize = 1,
     )
     @Column(name = "OPTION_ID")
-    var optionId: Long = 0L,  // 기본값 0L 사용
-
+    var optionId: Long = 0L,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID", nullable = false)
-    var product: ProductEntity,  // null 사용 제거
-
+    var product: ProductEntity, 
     @Column(name = "NAME", nullable = false)
     var name: String = "",
-
     @Enumerated(EnumType.STRING)
     @Column(name = "OPTION_TYPE", nullable = false)
     var optionType: OptionType = OptionType.SINGLE,
-
     @Column(name = "DISCOUNT_AVAILABLE", nullable = false)
     var discountAvailable: Boolean = false,
-
     @Column(name = "ORIGINAL_PRICE", nullable = false)
     var originalPrice: Long = 0L,
-
     @Column(name = "DISCOUNT_PRICE", nullable = false)
     var discountPrice: Long = 0L,
-
     @Column(name = "DESCRIPTION")
     var description: String = "",
-
     // 단품 필드들
     @Column(name = "COSTUME_COUNT")
     var costumeCount: Int = 0,
-
     @Column(name = "SHOOTING_LOCATION_COUNT")
     var shootingLocationCount: Int = 0,
-
     @Column(name = "SHOOTING_HOURS")
     var shootingHours: Int = 0,
-
     @Column(name = "SHOOTING_MINUTES")
     var shootingMinutes: Int = 0,
-
     @Column(name = "RETOUCHED_COUNT")
     var retouchedCount: Int = 0,
-
     // [원본 제공 여부]
     @Column(name = "ORIGINAL_PROVIDED", nullable = false)
     var originalProvided: Boolean = false,
-
     // 패키지 필드들
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
-        joinColumns = [JoinColumn(name = "OPTION_ID")]
+        joinColumns = [JoinColumn(name = "OPTION_ID")],
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
-
     @Column(nullable = false)
     var version: Long = 0L,
 ) : Auditable() {
@@ -110,13 +95,14 @@ class ProductOptionEntity(
                 shootingMinutes = option.shootingMinutes,
                 retouchedCount = option.retouchedCount,
                 originalProvided = option.originalProvided,
-                partnerShops = option.partnerShops.map {
-                    PartnerShopEmbeddable(
-                        category = it.category,
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                partnerShops =
+                    option.partnerShops.map {
+                        PartnerShopEmbeddable(
+                            category = it.category,
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 version = 0L,
             )
         }
@@ -138,16 +124,16 @@ class ProductOptionEntity(
             shootingMinutes = shootingMinutes,
             retouchedCount = retouchedCount,
             originalProvided = originalProvided,
-            partnerShops = partnerShops.map {
-                PartnerShop(
-                    category = it.category ?: PartnerShopCategory.ETC,
-                    name = it.name,
-                    link = it.link,
-                )
-            },
+            partnerShops =
+                partnerShops.map {
+                    PartnerShop(
+                        category = it.category ?: PartnerShopCategory.ETC,
+                        name = it.name,
+                        link = it.link,
+                    )
+                },
             createdAt = createdDate,
             updatedAt = updateDate,
         )
     }
 }
-

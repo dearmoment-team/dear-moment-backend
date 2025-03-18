@@ -75,8 +75,10 @@ class ImageHandler(
                 val requestImgId = keepAction.imageId
                 // 검증: 요청의 imageId와 실제 currentSubImages[index]가 같은지
                 if (requestImgId != null && requestImgId != resultMap[index]?.imageId) {
-                    throw IllegalArgumentException("KEEP 액션의 imageId(${requestImgId})가 " +
-                            "현재 이미지 ID(${resultMap[index]?.imageId})와 일치하지 않습니다. index=$index")
+                    throw IllegalArgumentException(
+                        "KEEP 액션의 imageId($requestImgId)가 " +
+                            "현재 이미지 ID(${resultMap[index]?.imageId})와 일치하지 않습니다. index=$index",
+                    )
                 }
             } else if (hasDelete && hasUpload) {
                 if (filePointer >= subImageFiles.size) {

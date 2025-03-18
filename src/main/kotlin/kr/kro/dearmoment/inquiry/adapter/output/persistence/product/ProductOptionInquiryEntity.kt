@@ -33,7 +33,7 @@ class ProductOptionInquiryEntity(
         CreateProductOptionInquiry(
             id = id,
             userId = userId,
-            productOptionId = option.optionId
+            productOptionId = option.optionId,
         )
 
     fun toDomain(): ProductOptionInquiry {
