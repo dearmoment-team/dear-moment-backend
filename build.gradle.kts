@@ -29,6 +29,7 @@ repositories {
 
 val ociSdkVersion by extra("3.55.3")
 val fixtureMonkeyVersion by extra("1.1.9")
+val jdslVersion by extra("3.5.5")
 
 dependencies {
     // Spring Boot
@@ -59,6 +60,12 @@ dependencies {
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
     implementation("io.swagger.core.v3:swagger-annotations:2.2.28")
+
+    // JDSL
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$jdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:$jdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$jdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:hibernate-support:$jdslVersion")
 
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")

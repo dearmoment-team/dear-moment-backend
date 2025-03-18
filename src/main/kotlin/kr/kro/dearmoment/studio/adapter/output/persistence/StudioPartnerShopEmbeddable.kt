@@ -6,7 +6,7 @@ import kr.kro.dearmoment.studio.domain.StudioPartnerShop
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 
 @Embeddable
-data class StudioPartnerShopEmbeddable(
+class StudioPartnerShopEmbeddable(
     @Column(nullable = false)
     val category: String,
     @Column(nullable = false)
