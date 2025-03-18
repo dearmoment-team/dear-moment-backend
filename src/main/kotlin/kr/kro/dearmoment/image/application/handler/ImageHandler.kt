@@ -75,9 +75,8 @@ class ImageHandler(
                 val requestImgId = keepAction.imageId
                 // 검증: 요청의 imageId와 실제 currentSubImages[index]가 같은지
                 if (requestImgId != null && requestImgId != resultMap[index]?.imageId) {
-                    throw IllegalArgumentException(
-                        "KEEP 액션이지만 imageId($requestImgId) != currentImageId(${resultMap[index]?.imageId})",
-                    )
+                    throw IllegalArgumentException("KEEP 액션의 imageId(${requestImgId})가 " +
+                            "현재 이미지 ID(${resultMap[index]?.imageId})와 일치하지 않습니다. index=$index")
                 }
             } else if (hasDelete && hasUpload) {
                 if (filePointer >= subImageFiles.size) {
@@ -94,9 +93,7 @@ class ImageHandler(
 
                 resultMap[index] = newImg
             } else if (hasDelete && !hasUpload) {
-                throw IllegalArgumentException(
-                    "DELETE 액션은 단독으로 사용할 수 없습니다. UPLOAD와 함께 사용하세요. (index=$index)",
-                )
+                throw IllegalArgumentException("index=$index 에서 DELETE 액션은 UPLOAD 액션과 함께 사용해야 합니다.")
             } else if (hasUpload && !hasDelete) {
                 if (filePointer >= subImageFiles.size) {
                     throw IllegalArgumentException("서브 이미지 업로드 파일이 부족합니다. (index=$index)")
