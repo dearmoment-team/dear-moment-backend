@@ -33,11 +33,11 @@ class ProductOptionInquiryEntity(
         CreateProductOptionInquiry(
             id = id,
             userId = userId,
-            productOptionId = option.optionId ?: throw CustomException(ErrorCode.PRODUCT_OPTION_ID_NULL),
+            productOptionId = option.optionId
         )
 
     fun toDomain(): ProductOptionInquiry {
-        val product = option.product ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+        val product = option.product
         val studio = product.studio ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
 
         return ProductOptionInquiry(

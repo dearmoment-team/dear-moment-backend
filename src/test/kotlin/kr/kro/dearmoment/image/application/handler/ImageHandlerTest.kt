@@ -115,7 +115,7 @@ class ImageHandlerTest : StringSpec({
             )
         shouldThrow<IllegalArgumentException> {
             imageHandler.processSubImagesPartial(currentSubImages, finalRequests, emptyList(), userId)
-        }.message shouldBe "DELETE 액션은 단독으로 사용할 수 없습니다. UPLOAD와 함께 사용하세요. (index=0)"
+        }.message shouldBe "index=0 에서 DELETE 액션은 UPLOAD 액션과 함께 사용해야 합니다."
     }
 
     "processSubImagesPartial - KEEP와 UPLOAD 액션 정상 수행" {

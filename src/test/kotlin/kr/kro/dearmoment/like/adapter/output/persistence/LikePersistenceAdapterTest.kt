@@ -43,7 +43,7 @@ class LikePersistenceAdapterTest(
             val studioLikeId = adapter.saveStudioLike(studioLike)
 
             val productOptionLike =
-                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId!!)
+                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId)
             val productOptionLikeId = adapter.saveProductOptionLike(productOptionLike)
 
             context("저장하려는 스튜디오 좋아요 도메인이 전달되면") {
@@ -93,7 +93,7 @@ class LikePersistenceAdapterTest(
 
             context("user ID와 product ID가 전달되면") {
                 it("좋아요가 존재하는지 알 수있다") {
-                    val isLike = adapter.existProductOptionLike(productOptionLike.userId, savedProductOption.optionId!!)
+                    val isLike = adapter.existProductOptionLike(productOptionLike.userId, savedProductOption.optionId)
                     isLike shouldBe true
                 }
             }
