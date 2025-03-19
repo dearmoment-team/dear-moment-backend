@@ -40,7 +40,7 @@ class InquiryPersistenceAdapterTest(
                 val savedStudio = studioRepository.save(studioEntityFixture(userId = 33333L))
                 val savedProduct = productRepository.save(productEntityFixture(33333L, savedStudio))
                 val option = productOptionRepository.save(productOptionEntityFixture(savedProduct))
-                val inquiry = CreateProductOptionInquiry(userId = 1L, productOptionId = option.optionId!!)
+                val inquiry = CreateProductOptionInquiry(userId = 1L, productOptionId = option.optionId)
                 it("엔티티로 변환하여 DB에 저장한다.") {
                     val resultId = adapter.saveProductOptionInquiry(inquiry)
                     resultId shouldNotBe 0L
