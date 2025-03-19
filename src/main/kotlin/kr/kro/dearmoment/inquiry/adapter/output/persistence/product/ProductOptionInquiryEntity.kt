@@ -29,13 +29,6 @@ class ProductOptionInquiryEntity(
     @JoinColumn(name = "option_id")
     val option: ProductOptionEntity,
 ) : Auditable() {
-    fun toCreateDomain(): CreateProductOptionInquiry =
-        CreateProductOptionInquiry(
-            id = id,
-            userId = userId,
-            productOptionId = option.optionId,
-        )
-
     fun toDomain(): ProductOptionInquiry {
         val product = option.product
         val studio = product.studio ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
