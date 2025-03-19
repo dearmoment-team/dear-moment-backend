@@ -69,7 +69,7 @@ class LikePersistenceAdapterTest(
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val productOptionLike =
-                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId!!)
+                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId)
             val productOptionLikeId = adapter.saveProductOptionLike(productOptionLike)
 
             context("저장하려는 상품 좋아요 도메인이 전달되면") {
@@ -85,7 +85,7 @@ class LikePersistenceAdapterTest(
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val productOptionLike =
-                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId!!)
+                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId)
             adapter.saveProductOptionLike(productOptionLike)
 
             context("동일 유저가 동일 상품 옵션에 대한 좋아요를 저장하려고 시도하면") {

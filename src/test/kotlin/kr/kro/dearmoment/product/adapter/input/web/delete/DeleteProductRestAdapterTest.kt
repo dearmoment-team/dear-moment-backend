@@ -7,6 +7,7 @@ import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -47,6 +48,9 @@ class DeleteProductRestAdapterTest {
 
     @MockitoBean
     lateinit var productSearchUseCase: ProductSearchUseCase
+
+    @MockitoBean
+    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
 
     @Autowired
     lateinit var mockMvc: MockMvc

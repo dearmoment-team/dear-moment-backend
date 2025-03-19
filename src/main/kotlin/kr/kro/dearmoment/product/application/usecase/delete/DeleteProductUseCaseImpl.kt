@@ -20,6 +20,7 @@ class DeleteProductUseCaseImpl(
         (listOf(product.mainImage) + product.subImages + product.additionalImages).forEach {
             imageService.delete(it.imageId)
         }
+
         productPersistencePort.deleteById(productId)
     }
 }

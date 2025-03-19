@@ -4,7 +4,6 @@ import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
@@ -20,12 +19,10 @@ import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
-@EntityListeners(AuditingEntityListener::class)
-open class ProductOptionEntity(
+class ProductOptionEntity(
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,
@@ -37,10 +34,10 @@ open class ProductOptionEntity(
         allocationSize = 1,
     )
     @Column(name = "OPTION_ID")
-    var optionId: Long? = null,
+    var optionId: Long = 0L,
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PRODUCT_ID")
-    var product: ProductEntity? = null,
+    @JoinColumn(name = "PRODUCT_ID", nullable = false)
+    var product: ProductEntity,
     @Column(name = "NAME", nullable = false)
     var name: String = "",
     @Enumerated(EnumType.STRING)
@@ -53,7 +50,7 @@ open class ProductOptionEntity(
     @Column(name = "DISCOUNT_PRICE", nullable = false)
     var discountPrice: Long = 0L,
     @Column(name = "DESCRIPTION")
-    var description: String? = null,
+    var description: String = "",
     // 단품 필드들
     @Column(name = "COSTUME_COUNT")
     var costumeCount: Int = 0,
@@ -65,7 +62,7 @@ open class ProductOptionEntity(
     var shootingMinutes: Int = 0,
     @Column(name = "RETOUCHED_COUNT")
     var retouchedCount: Int = 0,
-    // [원본 제공 여부] 새로 추가
+    // [원본 제공 여부]
     @Column(name = "ORIGINAL_PROVIDED", nullable = false)
     var originalProvided: Boolean = false,
     // 패키지 필드들
@@ -76,7 +73,7 @@ open class ProductOptionEntity(
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
     @Column(nullable = false)
-    open var version: Long = 0L,
+    var version: Long = 0L,
 ) : Auditable() {
     companion object {
         fun fromDomain(
@@ -84,14 +81,14 @@ open class ProductOptionEntity(
             productEntity: ProductEntity,
         ): ProductOptionEntity {
             return ProductOptionEntity(
-                optionId = if (option.optionId == 0L) null else option.optionId,
+                optionId = option.optionId,
                 product = productEntity,
                 name = option.name,
                 optionType = option.optionType,
                 discountAvailable = option.discountAvailable,
                 originalPrice = option.originalPrice,
                 discountPrice = option.discountPrice,
-                description = option.description.takeIf { it.isNotBlank() },
+                description = option.description.takeIf { it.isNotBlank() } ?: "",
                 costumeCount = option.costumeCount,
                 shootingLocationCount = option.shootingLocationCount,
                 shootingHours = option.shootingHours,
@@ -113,14 +110,14 @@ open class ProductOptionEntity(
 
     fun toDomain(): ProductOption {
         return ProductOption(
-            optionId = optionId ?: 0L,
-            productId = product?.productId ?: 0L,
+            optionId = optionId,
+            productId = product.productId ?: 0L,
             name = name,
             optionType = optionType,
             discountAvailable = discountAvailable,
             originalPrice = originalPrice,
             discountPrice = discountPrice,
-            description = description ?: "",
+            description = description,
             costumeCount = costumeCount,
             shootingLocationCount = shootingLocationCount,
             shootingHours = shootingHours,

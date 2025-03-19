@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.image.application.service
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.adapter.input.web.dto.GetImageResponse
 import kr.kro.dearmoment.image.adapter.input.web.dto.GetImagesResponse
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
@@ -29,8 +31,8 @@ class ImageService(
 ) : SaveImageUseCase, DeleteImageUseCase, GetImageUseCase {
     @Transactional
     override fun save(saveImageCommand: SaveImageCommand): Image {
-        val image = uploadImagePort.upload(saveImageCommand.file, saveImageCommand.userId)
-        return saveImagePort.save(image)
+        val uploadedImage = uploadImagePort.upload(saveImageCommand.file, saveImageCommand.userId)
+        return saveImagePort.save(uploadedImage)
     }
 
     @Transactional
@@ -74,7 +76,12 @@ class ImageService(
     override fun delete(imageId: Long) {
         val image = getImagePort.findOne(imageId)
 
-        deleteImageFromObjectStorage.delete(image)
+        runCatching {
+            deleteImageFromObjectStorage.delete(image)
+        }.getOrElse { e ->
+            throw CustomException(ErrorCode.IMAGE_DELETE_FAIL_FROM_OBJECT_STORAGE)
+        }
+
         deleteImageFromDBPort.delete(imageId)
     }
 }

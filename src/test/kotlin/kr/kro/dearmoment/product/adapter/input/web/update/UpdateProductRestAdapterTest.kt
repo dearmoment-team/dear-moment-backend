@@ -10,9 +10,11 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
+import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -37,7 +39,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
- * [상품 업데이트] Controller 테스트 예시
+ * [상품 업데이트] Controller 테스트 예시 (PATCH 방식)
  */
 @ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
@@ -63,10 +65,12 @@ class UpdateProductRestAdapterTest {
     @MockitoBean
     lateinit var productSearchUseCase: ProductSearchUseCase
 
+    @MockitoBean
+    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
+
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
-        // 1) 업데이트 요청 DTO를 JSON으로 만들기
-        //    실제로는 Jackson 등을 이용해 객체 -> JSON 직렬화 가능
+        // 1) 업데이트 요청 DTO를 JSON 문자열로 생성 (subImagesFinal에 index 필드를 추가)
         val requestJson =
             """
             {
@@ -80,10 +84,10 @@ class UpdateProductRestAdapterTest {
               "cameraTypes": ["DIGITAL"],
               "retouchStyles": ["CALM"],
               "subImagesFinal": [
-                { "action": "KEEP", "imageId": 200 },
-                { "action": "DELETE", "imageId": 201 },
-                { "action": "UPLOAD", "imageId": null },
-                { "action": "UPLOAD", "imageId": null }
+                { "action": "KEEP", "index": 0, "imageId": 200 },
+                { "action": "DELETE", "index": 1, "imageId": 201 },
+                { "action": "UPLOAD", "index": 2, "imageId": null },
+                { "action": "UPLOAD", "index": 3, "imageId": null }
               ],
               "additionalImagesFinal": [
                 { "action": "DELETE", "imageId": 300 },
@@ -112,7 +116,7 @@ class UpdateProductRestAdapterTest {
             }
             """.trimIndent()
 
-        // 2) 대표 이미지, 서브 이미지, 추가 이미지 (파일) 준비
+        // 2) 대표 이미지, 서브 이미지, 추가 이미지 파일 준비
         val mainImageFile =
             MockMultipartFile(
                 "mainImageFile",
@@ -154,17 +158,17 @@ class UpdateProductRestAdapterTest {
                 availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("CALM"),
-                mainImage = "http://image-server.com/updated_main.jpg",
+                mainImage = ImageResponse(imageId = 101L, url = "http://image-server.com/updated_main.jpg"),
                 subImages =
                     listOf(
-                        // KEEP된 건 http://~KEPT.jpg
-                        // DELETE된 건 제외
-                        // UPLOAD된 건 http://~UPLOADED.jpg
-                        "http://image-server.com/subImage1_KEPT.jpg",
-                        "http://image-server.com/subImage3_UPLOADED.jpg",
-                        "http://image-server.com/subImage4_UPLOADED.jpg",
+                        ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
+                        ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
+                        ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg"),
                     ),
-                additionalImages = listOf("http://image-server.com/additionalImage2_UPLOADED.jpg"),
+                additionalImages =
+                    listOf(
+                        ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
+                    ),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 createdAt = null,
@@ -192,8 +196,7 @@ class UpdateProductRestAdapterTest {
                     ),
             )
 
-        // 4) updateProductUseCase 모킹
-        //    → 이때 시그니처: updateProduct(productId, rawRequest, mainImageFile, subImageFiles, additionalImageFiles)
+        // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
         given(
             updateProductUseCase.updateProduct(
                 eq(1L),
@@ -201,11 +204,11 @@ class UpdateProductRestAdapterTest {
                 any(),
                 any(),
                 any(),
+                any(),
             ),
         ).willReturn(updatedResponse)
 
-        // 5) MockMvc를 이용해 multipart/form-data PUT 요청
-        //    5.1) "request" 파트에 JSON 넣기
+        // 5) "request" 파트에 JSON을 포함시켜 multipart/form-data PATCH 요청 생성
         val requestPart =
             MockMultipartFile(
                 "request",
@@ -223,13 +226,13 @@ class UpdateProductRestAdapterTest {
                 .file(subImageFile2)
                 .file(additionalImageFile)
                 .with { req ->
-                    req.method = HttpMethod.PUT.toString()
+                    req.method = HttpMethod.PATCH.toString()
                     req
                 }
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 6) 요청 실행 + 문서화
+        // 6) 요청 실행, 상태 검증 및 REST Docs 문서화
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(
@@ -247,9 +250,15 @@ class UpdateProductRestAdapterTest {
                     "data.availableSeasons" type ARRAY means "촬영 가능 시기 목록",
                     "data.cameraTypes" type ARRAY means "카메라 종류 목록",
                     "data.retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.mainImage" type STRING means "대표 이미지 URL",
-                    "data.subImages" type ARRAY means "서브 이미지 URL 리스트",
-                    "data.additionalImages" type ARRAY means "추가 이미지 URL 리스트",
+                    "data.mainImage" type OBJECT means "대표 이미지",
+                    "data.mainImage.imageId" type NUMBER means "대표 이미지 ID",
+                    "data.mainImage.url" type STRING means "대표 이미지 URL",
+                    "data.subImages" type ARRAY means "서브 이미지 목록",
+                    "data.subImages[].imageId" type NUMBER means "서브 이미지 ID",
+                    "data.subImages[].url" type STRING means "서브 이미지 URL",
+                    "data.additionalImages" type ARRAY means "추가 이미지 목록",
+                    "data.additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
+                    "data.additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.detailedInfo" type STRING means "상세 정보",
                     "data.contactInfo" type STRING means "연락처",
                     "data.createdAt" type OBJECT means "생성 일자",

@@ -14,6 +14,23 @@ import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
 
+@Schema(description = "이미지 응답 DTO")
+data class ImageResponse(
+    @Schema(description = "이미지 ID", example = "1")
+    val imageId: Long,
+    @Schema(description = "이미지 URL", example = "http://example.com/main.jpg")
+    val url: String,
+) {
+    companion object {
+        fun fromDomain(img: Image): ImageResponse {
+            return ImageResponse(
+                imageId = img.imageId,
+                url = img.url,
+            )
+        }
+    }
+}
+
 @Schema(description = "상품 응답 DTO")
 data class ProductResponse(
     @Schema(description = "상품 ID", example = "100")
@@ -51,22 +68,22 @@ data class ProductResponse(
         example = "[\"MODERN\", \"VINTAGE\"]",
     )
     val retouchStyles: List<String>,
-    @Schema(description = "대표 이미지 URL", example = "http://example.com/main.jpg")
-    val mainImage: String,
+    @Schema(description = "대표 이미지", example = "{\"imageId\": 1, \"url\": \"http://example.com/main.jpg\"}")
+    val mainImage: ImageResponse,
     @Schema(
-        description = "서브 이미지 URL 목록",
+        description = "서브 이미지 목록",
         example =
-            "[\"http://example.com/sub1.jpg\", " +
-                "\"http://example.com/sub2.jpg\", " +
-                "\"http://example.com/sub3.jpg\", " +
-                "\"http://example.com/sub4.jpg\"]",
+            "[{\"imageId\": 2, \"url\": \"http://example.com/sub1.jpg\"}, " +
+                "{\"imageId\": 3, \"url\": \"http://example.com/sub2.jpg\"}]",
     )
-    val subImages: List<String>,
+    val subImages: List<ImageResponse>,
     @Schema(
-        description = "추가 이미지 URL 목록",
-        example = "[\"http://example.com/add1.jpg\", \"http://example.com/add2.jpg\"]",
+        description = "추가 이미지 목록",
+        example =
+            "[{\"imageId\": 4, \"url\": \"http://example.com/add1.jpg\"}, " +
+                "{\"imageId\": 5, \"url\": \"http://example.com/add2.jpg\"}]",
     )
-    val additionalImages: List<String>,
+    val additionalImages: List<ImageResponse>,
     @Schema(description = "상세 정보", example = "연락처: 010-1234-5678, 문의는 이메일", nullable = true)
     val detailedInfo: String?,
     @Schema(description = "연락처 정보", example = "010-1234-5678", nullable = true)
@@ -90,9 +107,9 @@ data class ProductResponse(
                 availableSeasons = prod.availableSeasons.map { it.name },
                 cameraTypes = prod.cameraTypes.map { it.name },
                 retouchStyles = prod.retouchStyles.map { it.name },
-                mainImage = prod.mainImage.url,
-                subImages = prod.subImages.map { it.url },
-                additionalImages = prod.additionalImages.map { it.url },
+                mainImage = ImageResponse.fromDomain(prod.mainImage),
+                subImages = prod.subImages.map { ImageResponse.fromDomain(it) },
+                additionalImages = prod.additionalImages.map { ImageResponse.fromDomain(it) },
                 detailedInfo = prod.detailedInfo.takeIf { it.isNotBlank() },
                 contactInfo = prod.contactInfo.takeIf { it.isNotBlank() },
                 createdAt = prod.createdAt,
@@ -116,23 +133,23 @@ data class ProductResponse(
             mainImage =
                 Image(
                     userId = this.userId,
-                    fileName = this.mainImage.substringAfterLast('/'),
-                    url = this.mainImage,
+                    fileName = this.mainImage.url.substringAfterLast('/'),
+                    url = this.mainImage.url,
                 ),
             subImages =
-                this.subImages.map { url ->
+                this.subImages.map { img ->
                     Image(
                         userId = this.userId,
-                        fileName = url.substringAfterLast('/'),
-                        url = url,
+                        fileName = img.url.substringAfterLast('/'),
+                        url = img.url,
                     )
                 },
             additionalImages =
-                this.additionalImages.map { url ->
+                this.additionalImages.map { img ->
                     Image(
                         userId = this.userId,
-                        fileName = url.substringAfterLast('/'),
-                        url = url,
+                        fileName = img.url.substringAfterLast('/'),
+                        url = img.url,
                     )
                 },
             detailedInfo = this.detailedInfo ?: "",

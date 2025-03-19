@@ -69,7 +69,7 @@ class InquiryReadOnlyPersistenceAdapterTest(
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
-            val inquiries = listOf(CreateProductOptionInquiry(userId = userId, productOptionId = savedProductOption.optionId!!))
+            val inquiries = listOf(CreateProductOptionInquiry(userId = userId, productOptionId = savedProductOption.optionId))
 
             adapter2.saveProductOptionInquiry(inquiries[0])
 

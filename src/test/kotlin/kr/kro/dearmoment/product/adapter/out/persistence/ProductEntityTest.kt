@@ -5,16 +5,42 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.CameraType
+import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import java.time.LocalDateTime
 
 class ProductEntityTest : StringSpec({
 
-    "ProductEntity는 도메인 모델에서 올바르게 변환되어야 한다" {
+    "ProductEntity는 도메인 모델에서 옵션을 포함하여 올바르게 변환되어야 한다" {
         // given
+        // 더미 옵션 객체 생성
+        val dummyOption =
+            ProductOption(
+                optionId = 10L,
+                productId = 1L,
+                name = "옵션 테스트",
+                optionType = OptionType.SINGLE,
+                discountAvailable = false,
+                originalPrice = 10000,
+                discountPrice = 9000,
+                description = "옵션 설명",
+                costumeCount = 1,
+                shootingLocationCount = 1,
+                shootingHours = 2,
+                shootingMinutes = 30,
+                retouchedCount = 1,
+                originalProvided = true,
+                partnerShops = emptyList(),
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+            )
+
+        // 도메인 Product 객체 생성 (옵션 포함)
         val product =
             Product(
                 productId = 1L,
@@ -23,7 +49,11 @@ class ProductEntityTest : StringSpec({
                 shootingPlace = ShootingPlace.JEJU,
                 title = "테스트 제품",
                 description = "테스트 설명",
-                availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF, ShootingSeason.YEAR_2025_SECOND_HALF),
+                availableSeasons =
+                    setOf(
+                        ShootingSeason.YEAR_2025_FIRST_HALF,
+                        ShootingSeason.YEAR_2025_SECOND_HALF,
+                    ),
                 cameraTypes = setOf(CameraType.DIGITAL),
                 retouchStyles = setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE),
                 mainImage =
@@ -46,7 +76,7 @@ class ProductEntityTest : StringSpec({
                     ),
                 detailedInfo = "상세 정보",
                 contactInfo = "연락처 정보",
-                options = emptyList(),
+                options = listOf(dummyOption),
             )
 
         // when
@@ -85,5 +115,9 @@ class ProductEntityTest : StringSpec({
 
         productEntity.detailedInfo shouldBe "상세 정보"
         productEntity.contactInfo shouldBe "연락처 정보"
+
+        // 옵션 리스트 변환 검증
+        productEntity.options.size shouldBe 1
+        productEntity.options[0].name shouldBe "옵션 테스트"
     }
 })

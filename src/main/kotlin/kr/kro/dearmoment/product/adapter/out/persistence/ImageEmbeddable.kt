@@ -12,7 +12,7 @@ class ImageEmbeddable(
     @Column(name = "USER_ID")
     var userId: Long = 0L,
     @Column(name = "PAR_ID")
-    var parId: String = "",
+    var parId: String? = "",
     @Column(name = "FILE_NAME")
     var fileName: String = "",
     @Column(name = "URL")
@@ -37,7 +37,7 @@ class ImageEmbeddable(
         return Image(
             imageId = this.imageId,
             userId = this.userId,
-            parId = this.parId,
+            parId = this.parId ?: "",
             fileName = this.fileName,
             url = this.url,
             urlExpireTime = this.urlExpireTime ?: LocalDateTime.now(),

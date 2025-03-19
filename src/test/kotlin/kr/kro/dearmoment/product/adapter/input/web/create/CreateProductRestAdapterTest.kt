@@ -11,10 +11,12 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
+import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -63,6 +65,9 @@ class CreateProductRestAdapterTest {
     @MockitoBean
     lateinit var productSearchUseCase: ProductSearchUseCase
 
+    @MockitoBean
+    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
+
     @Test
     fun `상품 생성 API 테스트`() {
         // main image 파일
@@ -104,7 +109,7 @@ class CreateProductRestAdapterTest {
                 "sub image 4".toByteArray(),
             )
 
-        // additional image 파일은 이 테스트에서 빈 리스트를 전달 (필수 아님)
+        // 추가 이미지 파일은 테스트에서 생략하여, 컨트롤러에서 빈 리스트로 처리됨
 
         // CreateProductRequest를 표현하는 JSON 파트 생성
         val requestMap =
@@ -224,13 +229,13 @@ class CreateProductRestAdapterTest {
                 availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("MODERN"),
-                mainImage = "http://image-server.com/mainImage.jpg",
+                mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/mainImage.jpg"),
                 subImages =
                     listOf(
-                        "http://image-server.com/subImage1.jpg",
-                        "http://image-server.com/subImage2.jpg",
-                        "http://image-server.com/subImage3.jpg",
-                        "http://image-server.com/subImage4.jpg",
+                        ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
+                        ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
+                        ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
+                        ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
                     ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
@@ -241,7 +246,7 @@ class CreateProductRestAdapterTest {
             )
 
         // createProductUseCase 모의 동작 설정
-        given(createProductUseCase.saveProduct(any())).willReturn(productResponse)
+        given(createProductUseCase.saveProduct(any(), any(), any(), any())).willReturn(productResponse)
 
         // multipart 요청 빌드 (JSON request 파트와 파일 파트 포함)
         val requestBuilder =
@@ -255,6 +260,8 @@ class CreateProductRestAdapterTest {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
+
+        // 추가 이미지 파일 파트를 생략하면 컨트롤러에서 null 처리 후 빈 리스트로 변환됨
 
         // 요청 실행 및 응답 검증 + 문서화
         mockMvc.perform(requestBuilder)
@@ -274,9 +281,15 @@ class CreateProductRestAdapterTest {
                     "data.availableSeasons" type ARRAY means "촬영 가능 시기 목록",
                     "data.cameraTypes" type ARRAY means "카메라 종류 목록",
                     "data.retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.mainImage" type STRING means "대표 이미지 URL",
-                    "data.subImages" type ARRAY means "서브 이미지 URL 리스트",
-                    "data.additionalImages" type ARRAY means "추가 이미지 URL 리스트",
+                    "data.mainImage" type OBJECT means "대표 이미지",
+                    "data.mainImage.imageId" type NUMBER means "대표 이미지 ID",
+                    "data.mainImage.url" type STRING means "대표 이미지 URL",
+                    "data.subImages" type ARRAY means "서브 이미지 목록",
+                    "data.subImages[].imageId" type NUMBER means "서브 이미지 ID",
+                    "data.subImages[].url" type STRING means "서브 이미지 URL",
+                    "data.additionalImages" type ARRAY means "추가 이미지 목록",
+                    "data.additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
+                    "data.additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.detailedInfo" type STRING means "상세 정보",
                     "data.contactInfo" type STRING means "연락처",
                     "data.createdAt" type OBJECT means "생성 시간",
