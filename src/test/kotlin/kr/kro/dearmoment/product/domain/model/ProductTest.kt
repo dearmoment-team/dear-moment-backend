@@ -94,7 +94,10 @@ internal class ProductTest : StringSpec({
             shootingHours = shootingHours,
             shootingMinutes = shootingMinutes,
             retouchedCount = retouchedCount,
+            originalProvided = true,
             partnerShops = partnerShops,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
         )
     }
 
@@ -130,7 +133,6 @@ internal class ProductTest : StringSpec({
         validProduct.retouchStyles.size shouldBe 2
 
         // 만약 실제 코드에서 2개 제한 로직을 활성화했다면:
-
         shouldThrow<IllegalArgumentException> {
             createProduct(
                 retouchStyles =
@@ -198,7 +200,7 @@ internal class ProductTest : StringSpec({
         // updatedOptions => 기존 1번 옵션 갱신 + 신규 삽입
         result.updatedOptions shouldContainExactly
             listOf(
-                existingOptions[0].copy(originalPrice = 120_000L),
+                existingOptions[0].copy(originalPrice = 120_000L, productId = 1L),
                 newOptions[1].copy(productId = 1L),
             )
 

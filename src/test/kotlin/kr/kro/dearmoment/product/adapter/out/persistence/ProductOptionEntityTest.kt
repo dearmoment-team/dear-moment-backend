@@ -8,58 +8,42 @@ import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import java.lang.reflect.Field
 import java.time.LocalDateTime
 
-// 파일 최상위에 테스트용 서브클래스를 선언하여, auditing 필드에 접근할 수 있도록 합니다.
-private class TestableProductOptionEntity(
-    optionId: Long? = null,
-    product: ProductEntity? = null,
-    name: String = "",
-    optionType: OptionType = OptionType.SINGLE,
-    discountAvailable: Boolean = false,
-    originalPrice: Long = 0L,
-    discountPrice: Long = 0L,
-    description: String? = null,
-    costumeCount: Int = 0,
-    shootingLocationCount: Int = 0,
-    shootingHours: Int = 0,
-    shootingMinutes: Int = 0,
-    retouchedCount: Int = 0,
-    partnerShops: List<PartnerShopEmbeddable> = emptyList(),
-    version: Long = 0L,
-) : ProductOptionEntity(
-        optionId = optionId,
-        product = product,
-        name = name,
-        optionType = optionType,
-        discountAvailable = discountAvailable,
-        originalPrice = originalPrice,
-        discountPrice = discountPrice,
-        description = description,
-        costumeCount = costumeCount,
-        shootingLocationCount = shootingLocationCount,
-        shootingHours = shootingHours,
-        shootingMinutes = shootingMinutes,
-        retouchedCount = retouchedCount,
-        partnerShops = partnerShops,
-        version = version,
-    ) {
-    // 테스트용으로 auditing 필드에 값을 주입할 수 있도록 합니다.
-    fun setAuditing(
-        created: LocalDateTime,
-        updated: LocalDateTime,
-    ) {
-        this.createdDate = created
-        this.updateDate = updated
+// 클래스 계층 전체에서 필드를 찾는 유틸리티 함수
+private fun getFieldFromHierarchy(
+    clazz: Class<*>,
+    fieldName: String,
+): Field {
+    var current: Class<*>? = clazz
+    while (current != null) {
+        try {
+            val field = current.getDeclaredField(fieldName)
+            field.isAccessible = true
+            return field
+        } catch (e: NoSuchFieldException) {
+            current = current.superclass
+        }
     }
+    throw NoSuchFieldException("Field $fieldName not found in class hierarchy of ${clazz.name}")
+}
+
+// Auditable 클래스에 정의된 필드명 "createdDate", "updateDate"를 사용하여 auditing 필드를 리플렉션으로 설정합니다.
+private fun setAuditing(
+    entity: ProductOptionEntity,
+    created: LocalDateTime,
+    updated: LocalDateTime,
+) {
+    val createdDateField: Field = getFieldFromHierarchy(ProductOptionEntity::class.java, "createdDate")
+    createdDateField.set(entity, created)
+
+    val updateDateField: Field = getFieldFromHierarchy(ProductOptionEntity::class.java, "updateDate")
+    updateDateField.set(entity, updated)
 }
 
 class ProductOptionEntityTest : StringSpec({
 
-    /**
-     * 단품 옵션 도메인 모델에서 엔티티로 변환할 때 Auditing 필드는 복사되지 않으므로,
-     * 해당 필드가 null임을 검증합니다.
-     */
     "ProductOptionEntity는 단품 옵션 도메인 모델에서 올바르게 변환되어야 한다" {
         // given
         val productEntity =
@@ -99,7 +83,7 @@ class ProductOptionEntityTest : StringSpec({
 
         // then
         optionEntity.optionId shouldBe 1L
-        optionEntity.product?.productId shouldBe 1L
+        optionEntity.product.productId shouldBe 1L
         optionEntity.name shouldBe "단품 옵션"
         optionEntity.optionType shouldBe OptionType.SINGLE
         optionEntity.originalPrice shouldBe 500L
@@ -112,15 +96,11 @@ class ProductOptionEntityTest : StringSpec({
         optionEntity.shootingMinutes shouldBe 60
         optionEntity.retouchedCount shouldBe 1
 
-        // Auditing 필드는 fromDomain()에서 복사되지 않으므로 null이어야 함
+        // fromDomain()에서 auditing 필드를 복사하지 않으므로 null이어야 합니다.
         optionEntity.createdDate shouldBe null
         optionEntity.updateDate shouldBe null
     }
 
-    /**
-     * 패키지 옵션 엔티티를 도메인 모델로 변환할 때, Auditing 필드가 올바르게 전달되는지 검증합니다.
-     * 테스트를 위해 auditing 필드를 수동으로 설정할 수 있는 TestableProductOptionEntity를 사용합니다.
-     */
     "ProductOptionEntity는 패키지 옵션 도메인 모델로 올바르게 변환되어야 한다" {
         // given
         val productEntity =
@@ -149,8 +129,9 @@ class ProductOptionEntityTest : StringSpec({
         val fixedCreatedAt = LocalDateTime.of(2023, 2, 2, 10, 0, 0)
         val fixedUpdatedAt = LocalDateTime.of(2023, 2, 2, 12, 0, 0)
 
-        val testableOptionEntity =
-            TestableProductOptionEntity(
+        // 직접 ProductOptionEntity 인스턴스를 생성
+        val optionEntity =
+            ProductOptionEntity(
                 optionId = 10L,
                 product = productEntity,
                 name = "패키지 옵션",
@@ -165,12 +146,14 @@ class ProductOptionEntityTest : StringSpec({
                 shootingMinutes = 0,
                 retouchedCount = 0,
                 partnerShops = partnerShopsEmbeddable,
-            ).apply {
-                setAuditing(fixedCreatedAt, fixedUpdatedAt)
-            }
+                version = 0L,
+            )
+
+        // auditing 필드 설정 (Auditable의 "createdDate", "updateDate" 사용)
+        setAuditing(optionEntity, fixedCreatedAt, fixedUpdatedAt)
 
         // when
-        val packageOption = testableOptionEntity.toDomain()
+        val packageOption = optionEntity.toDomain()
 
         // then
         packageOption.optionId shouldBe 10L
@@ -191,10 +174,7 @@ class ProductOptionEntityTest : StringSpec({
         packageOption.partnerShops.map { it.name } shouldContainExactly listOf("헤어메이크업1", "드레스샵A")
         packageOption.partnerShops.map { it.link } shouldContainExactly listOf("http://hm1.com", "http://dressA.com")
         packageOption.partnerShops.map { it.category } shouldContainExactly
-            listOf(
-                PartnerShopCategory.HAIR_MAKEUP,
-                PartnerShopCategory.DRESS,
-            )
+            listOf(PartnerShopCategory.HAIR_MAKEUP, PartnerShopCategory.DRESS)
 
         packageOption.createdAt shouldBe fixedCreatedAt
         packageOption.updatedAt shouldBe fixedUpdatedAt

@@ -57,7 +57,7 @@ class LikeReadOnlyPersistenceAdapterTest(
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
 
             val productOptionLike =
-                CreateProductOptionLike(userId = userId1, productOptionId = savedProductOption.optionId!!)
+                CreateProductOptionLike(userId = userId1, productOptionId = savedProductOption.optionId)
 
             likePersistenceAdapter.saveProductOptionLike(productOptionLike)
 
@@ -117,13 +117,13 @@ class LikeReadOnlyPersistenceAdapterTest(
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val productOptionLike =
-                CreateProductOptionLike(userId = userId1, productOptionId = savedProductOption.optionId!!)
+                CreateProductOptionLike(userId = userId1, productOptionId = savedProductOption.optionId)
 
             likePersistenceAdapter.saveProductOptionLike(productOptionLike)
 
             context("user ID와 product ID가 전달되면") {
                 it("상품 옵션 좋아요가 존재하는지 알 수있다") {
-                    val isLike = adapter.existProductOptionLike(userId1, savedProductOption.optionId!!)
+                    val isLike = adapter.existProductOptionLike(userId1, savedProductOption.optionId)
                     isLike shouldBe true
                 }
             }

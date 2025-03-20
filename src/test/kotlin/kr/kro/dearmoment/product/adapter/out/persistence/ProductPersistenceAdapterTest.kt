@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.throwable.shouldHaveMessage
 import kr.kro.dearmoment.RepositoryTest
+import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
@@ -79,7 +80,7 @@ class ProductPersistenceAdapterTest(
 
             context("상품 저장 시") {
                 it("상품의 필수 정보가 정상 저장되어야 함") {
-                    // Given
+                    // Given: 옵션이 없는 상품
                     val sampleProduct =
                         createSampleProduct(
                             userId = 1L,
@@ -128,6 +129,72 @@ class ProductPersistenceAdapterTest(
                         detailedInfo shouldBe "상세 정보"
                         contactInfo shouldBe "contact@example.com"
                     }
+                }
+
+                it("상품의 옵션 정보가 정상 저장되어야 함") {
+                    // Given: 옵션을 포함한 상품
+                    val dummyOption =
+                        ProductOption(
+                            optionId = 0L,
+                            productId = 0L,
+                            name = "옵션 테스트",
+                            optionType = OptionType.SINGLE,
+                            discountAvailable = false,
+                            originalPrice = 5000,
+                            discountPrice = 4500,
+                            description = "옵션 설명",
+                            costumeCount = 1,
+                            shootingLocationCount = 1,
+                            shootingHours = 2,
+                            shootingMinutes = 30,
+                            retouchedCount = 1,
+                            originalProvided = true,
+                            partnerShops = emptyList(),
+                            createdAt = LocalDateTime.now(),
+                            updatedAt = LocalDateTime.now(),
+                        )
+
+                    val sampleProductWithOptions =
+                        createSampleProduct(
+                            userId = 2L,
+                            title = "옵션 포함 상품",
+                            productType = ProductType.WEDDING_SNAP,
+                            shootingPlace = ShootingPlace.JEJU,
+                            mainImage =
+                                kr.kro.dearmoment.image.domain.Image(
+                                    userId = 2L,
+                                    fileName = "main_option.jpg",
+                                    url = "http://example.com/main_option.jpg",
+                                ),
+                            subImages =
+                                List(4) {
+                                    kr.kro.dearmoment.image.domain.Image(
+                                        userId = 2L,
+                                        fileName = "sub${it + 1}_option.jpg",
+                                        url = "http://example.com/sub${it + 1}_option.jpg",
+                                    )
+                                },
+                            additionalImages =
+                                listOf(
+                                    kr.kro.dearmoment.image.domain.Image(
+                                        userId = 2L,
+                                        fileName = "add1_option.jpg",
+                                        url = "http://example.com/add1_option.jpg",
+                                    ),
+                                ),
+                            detailedInfo = "옵션 상세 정보",
+                            contactInfo = "option@example.com",
+                            options = listOf(dummyOption),
+                        )
+
+                    // When
+                    val savedProductWithOptions = adapter.save(sampleProductWithOptions)
+                    jpaProductRepository.flush()
+
+                    // Then
+                    savedProductWithOptions.productId shouldNotBe 0L
+                    savedProductWithOptions.options shouldHaveSize 1
+                    savedProductWithOptions.options[0].name shouldBe "옵션 테스트"
                 }
             }
 

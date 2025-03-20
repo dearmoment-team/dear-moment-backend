@@ -8,6 +8,7 @@ enum class ErrorCode(
 ) {
     // 이미지
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),
+    IMAGE_DELETE_FAIL_FROM_OBJECT_STORAGE(HttpStatus.INTERNAL_SERVER_ERROR, "오브젝트 스토리지에서 이미지 삭제를 실패 했습니다."),
 
     // 문의
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "문의를 찾을 수 없습니다."),

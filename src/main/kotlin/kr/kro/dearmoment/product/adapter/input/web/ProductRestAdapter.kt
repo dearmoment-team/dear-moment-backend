@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.adapter.input.web
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -9,9 +10,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
 import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
 import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
@@ -20,9 +23,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
@@ -39,85 +42,123 @@ class ProductRestAdapter(
     private val deleteProductUseCase: DeleteProductUseCase,
     private val getProductUseCase: GetProductUseCase,
     private val productSearchUseCase: ProductSearchUseCase,
+    private val deleteProductOptionUseCase: DeleteProductOptionUseCase,
 ) {
-    @Operation(summary = "상품 생성", description = "새로운 상품을 생성합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "상품 생성 성공",
-                content = [Content(schema = Schema(implementation = ProductResponse::class))],
-            ),
-        ],
-    )
+    // 1. 상품 생성
+    @Operation(summary = "상품 생성")
     @PostMapping(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun createProduct(
-        @Parameter(description = "생성할 상품 정보(JSON)", required = true)
-        @RequestPart("request")
-        request: CreateProductRequest,
-        @Parameter(description = "대표 이미지 파일", required = false)
-        @RequestPart("mainImageFile", required = false)
-        mainImageFile: MultipartFile?,
-        @Parameter(description = "서브 이미지 파일 목록 (정확히 4장)", required = false)
-        @RequestPart("subImageFiles", required = false)
-        subImageFiles: List<MultipartFile>?,
-        @Parameter(description = "추가 이미지 파일 목록 (최대 5장)", required = false)
-        @RequestPart("additionalImageFiles", required = false)
-        additionalImageFiles: List<MultipartFile>?,
-    ): ProductResponse {
-        val mergedRequest =
-            request.copy(
-                mainImageFile = mainImageFile,
-                subImageFiles = subImageFiles ?: emptyList(),
-                additionalImageFiles = additionalImageFiles ?: emptyList(),
-            )
-        return createProductUseCase.saveProduct(mergedRequest)
-    }
-
-    @Operation(summary = "상품 수정", description = "기존 상품 정보를 수정합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "상품 수정 성공",
-                content = [Content(schema = Schema(implementation = ProductResponse::class))],
-            ),
-        ],
-    )
-    @PutMapping(
-        value = ["/{id}"],
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun updateProduct(
-        @Parameter(description = "수정할 상품의 식별자", required = true)
-        @PathVariable id: Long,
-        @Parameter(description = "수정할 상품 정보(JSON)", required = true)
-        @RequestPart("request")
-        rawRequest: UpdateProductRequest,
-        @Parameter(description = "새 대표 이미지 파일 (없으면 null)", required = false)
-        @RequestPart(value = "mainImageFile", required = false)
-        mainImageFile: MultipartFile?,
-        @Parameter(description = "새로 업로드할 서브 이미지 파일들(최대 4개)", required = false)
-        @RequestPart(value = "subImageFiles", required = false)
-        subImageFiles: List<MultipartFile>?,
-        @Parameter(description = "새로 업로드할 추가 이미지 파일들(최대 5개)", required = false)
+        @Parameter(
+            description = "상품 정보(JSON)",
+            required = true,
+            content = [
+                Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = Schema(implementation = CreateProductRequest::class),
+                ),
+            ],
+        )
+        @RequestPart("request") request: CreateProductRequest,
+        @Parameter(
+            description = "대표 이미지 파일",
+            required = true,
+            content = [
+                Content(
+                    mediaType = "image/*",
+                    schema = Schema(type = "string", format = "binary"),
+                ),
+            ],
+        )
+        @RequestPart("mainImageFile") mainImageFile: MultipartFile,
+        @Parameter(
+            description = "서브 이미지 파일 (4장)",
+            required = true,
+            content = [
+                Content(
+                    mediaType = "image/*",
+                    array = ArraySchema(schema = Schema(type = "string", format = "binary")),
+                ),
+            ],
+        )
+        @RequestPart("subImageFiles") subImageFiles: List<MultipartFile>,
+        @Parameter(
+            description = "추가 이미지 파일 (선택적, 최대 5장)",
+            required = false,
+            content = [
+                Content(
+                    mediaType = "image/*",
+                    array = ArraySchema(schema = Schema(type = "string", format = "binary")),
+                ),
+            ],
+        )
         @RequestPart(value = "additionalImageFiles", required = false)
-        additionalImageFiles: List<MultipartFile>?,
+        additionalImageFiles: List<MultipartFile> = emptyList(),
     ): ProductResponse {
-        // 컨트롤러는 받은 파라미터를 그대로 UseCase로 넘김
-        return updateProductUseCase.updateProduct(
-            productId = id,
-            rawRequest = rawRequest,
+        return createProductUseCase.saveProduct(
+            request = request,
             mainImageFile = mainImageFile,
             subImageFiles = subImageFiles,
             additionalImageFiles = additionalImageFiles,
         )
     }
 
+    // 2. 상품 부분 수정
+    @Operation(
+        summary = "상품 부분 수정",
+        description = "상품 정보 중 일부만 수정합니다.",
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "상품 수정 성공",
+        content = [Content(schema = Schema(implementation = ProductResponse::class))],
+    )
+    @PatchMapping(
+        value = ["/{id}"],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
+    fun updateProduct(
+        @Parameter(description = "상품 식별자", required = true)
+        @PathVariable("id") id: Long,
+        @Parameter(
+            description = "상품 수정 요청 정보 (기본정보 및 메타데이터)",
+            required = false,
+        )
+        @RequestPart(value = "request", required = false)
+        rawRequest: UpdateProductRequest?,
+        @Parameter(description = "대표 이미지 파일", required = false)
+        @RequestPart(value = "mainImageFile", required = false)
+        mainImageFile: MultipartFile?,
+        @Parameter(description = "서브 이미지 파일 목록", required = false)
+        @RequestPart(value = "subImageFiles", required = false)
+        subImageFiles: List<MultipartFile>?,
+        @Parameter(description = "추가 이미지 파일 목록", required = false)
+        @RequestPart(value = "additionalImageFiles", required = false)
+        additionalImageFiles: List<MultipartFile>?,
+        @Parameter(description = "상품 옵션 목록 (JSON)", required = false)
+        @RequestPart(value = "options", required = false)
+        options: List<UpdateProductOptionRequest>?,
+    ): ProductResponse {
+        val updateRequest =
+            rawRequest ?: UpdateProductRequest(
+                productId = id,
+                userId = 0L,
+            )
+
+        return updateProductUseCase.updateProduct(
+            productId = id,
+            rawRequest = updateRequest,
+            mainImageFile = mainImageFile,
+            subImageFiles = subImageFiles,
+            additionalImageFiles = additionalImageFiles,
+            options = options ?: emptyList(),
+        )
+    }
+
+    // 3. 상품 삭제
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteProduct(
@@ -127,6 +168,7 @@ class ProductRestAdapter(
         deleteProductUseCase.deleteProduct(id)
     }
 
+    // 4. 상품 상세 조회
     @Operation(summary = "상품 상세 조회", description = "특정 상품을 상세 조회합니다.")
     @ApiResponses(
         value = [
@@ -148,6 +190,7 @@ class ProductRestAdapter(
         return getProductUseCase.getProductById(id)
     }
 
+    // 5. 메인 페이지 상품 조회
     @Operation(summary = "메인 페이지 상품 조회", description = "메인 페이지에 노출할 상품 목록을 조회합니다.")
     @ApiResponses(
         value = [
@@ -169,6 +212,7 @@ class ProductRestAdapter(
         return productSearchUseCase.getMainPageProducts(page, size)
     }
 
+    // 6. 상품 검색
     @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
     @ApiResponses(
         value = [
@@ -192,5 +236,20 @@ class ProductRestAdapter(
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
     ): PagedResponse<ProductResponse> {
         return productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
+    }
+
+    @Operation(summary = "상품 옵션 삭제", description = "특정 상품에 속한 옵션을 삭제합니다.")
+    @ApiResponse(
+        responseCode = "204",
+        description = "옵션 삭제 성공",
+        content = [Content(schema = Schema())],
+    )
+    @DeleteMapping("/{productId}/options/{optionId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteOption(
+        @Parameter(description = "상품 ID") @PathVariable productId: Long,
+        @Parameter(description = "옵션 ID") @PathVariable optionId: Long,
+    ) {
+        deleteProductOptionUseCase.deleteOption(productId, optionId)
     }
 }
