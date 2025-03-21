@@ -19,6 +19,13 @@ spring:
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
     username: ${SPRING_DATASOURCE_USERNAME}
     url: ${SPRING_DATASOURCE_URL}
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
+  oauth:
+    kakao:
+      client-id: ${OAUTH_KAKAO_CLIENT_ID}
+      redirect-uri: ${OAUTH_KAKAO_REDIRECT_URI}
 
 sentry:
   dsn: "${SENTRY_DSN}"
