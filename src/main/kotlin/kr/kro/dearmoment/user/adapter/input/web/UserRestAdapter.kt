@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import kr.kro.dearmoment.user.application.service.UserProfileService
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "User API", description = "유저와 관련 API")
@@ -54,9 +55,8 @@ class UserRestAdapter(
     }
 
     @GetMapping()
-    fun getProfile(): ResponseEntity<UserResponse> {
-        // SecurityContext에서 현재 인증된 사용자 정보 획득
-        val principal = SecurityContextHolder.getContext().authentication.principal
+    fun getProfile(@AuthenticationPrincipal principal: CustomUserDetails
+    ): ResponseEntity<UserResponse> {
         val userId = if (principal is CustomUserDetails) {
             principal.id
         } else {
@@ -69,8 +69,8 @@ class UserRestAdapter(
     }
 
     @PatchMapping()
-    fun updateName(@RequestBody req: UpdateUserNameRequest): ResponseEntity<UserResponse> {
-        val principal = SecurityContextHolder.getContext().authentication.principal
+    fun updateName(@AuthenticationPrincipal principal: CustomUserDetails,
+                   @RequestBody req: UpdateUserNameRequest): ResponseEntity<UserResponse> {
         val userId = if (principal is CustomUserDetails) {
             principal.id
         } else {

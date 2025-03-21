@@ -13,7 +13,7 @@ class CustomUserDetails(private val user: User) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return if (user.isStudio == true) {
-            mutableListOf(SimpleGrantedAuthority("ROLE_AUTHOR"))
+            mutableListOf(SimpleGrantedAuthority("ROLE_ARTIST"))
         } else {
             mutableListOf(SimpleGrantedAuthority("ROLE_USER"))
         }
