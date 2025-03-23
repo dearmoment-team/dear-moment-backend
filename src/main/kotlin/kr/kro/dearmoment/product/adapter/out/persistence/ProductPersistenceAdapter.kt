@@ -5,10 +5,8 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 
 @Repository
-@Transactional
 class ProductPersistenceAdapter(
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
@@ -51,7 +49,6 @@ class ProductPersistenceAdapter(
         return productEntities.map { it.toDomain() }
     }
 
-    @Transactional
     override fun deleteById(id: Long) {
         jpaProductOptionRepository.deleteAllByProductProductId(id)
         jpaProductRepository.deleteById(id)
