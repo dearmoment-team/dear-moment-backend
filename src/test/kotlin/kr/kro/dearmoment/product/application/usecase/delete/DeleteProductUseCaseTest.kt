@@ -2,10 +2,12 @@ package kr.kro.dearmoment.product.application.usecase.delete
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
@@ -91,12 +93,12 @@ class DeleteProductUseCaseTest : BehaviorSpec({
         When("상품이 존재하지 않는 경우") {
             every { productPersistencePort.findById(3L) } returns null
 
-            Then("IllegalArgumentException 예외가 발생해야 한다") {
+            Then("CustomException 예외가 발생해야 한다") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.deleteProduct(3L)
                     }
-                exception.message shouldBe "삭제할 상품이 존재하지 않습니다. ID: 3"
+                exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
             }
         }
     }

@@ -7,10 +7,14 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
 
 @RepositoryTest
 class ProductOptionRepositoryAdapterTest(
@@ -111,9 +115,9 @@ class ProductOptionRepositoryAdapterTest(
                     adapter.save(option1, testProductDomain)
                     val option2 = createSampleOption("중복옵션", 7_000L)
                     // When & Then
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         adapter.save(option2, testProductDomain)
-                    }.message shouldBe "ProductOption already exists: 중복옵션"
+                    }.message shouldBe ErrorCode.DUPLICATE_OPTION_NAME.message
                 }
             }
 
@@ -142,9 +146,9 @@ class ProductOptionRepositoryAdapterTest(
                 }
 
                 it("존재하지 않는 ID 조회 시 예외 발생") {
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         adapter.findById(9999)
-                    }.message shouldBe "ProductOption with ID 9999 not found"
+                    }.message shouldBe ErrorCode.OPTION_NOT_FOUND.message
                 }
 
                 it("상품 기준 옵션 조회 성공") {

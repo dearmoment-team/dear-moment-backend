@@ -3,9 +3,12 @@ package kr.kro.dearmoment.product.application.usecase.get
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
@@ -67,12 +70,12 @@ class GetProductUseCaseTest : BehaviorSpec({
         When("해당 상품이 존재하지 않는 경우") {
             every { productPersistencePort.findById(2L) } returns null
 
-            Then("IllegalArgumentException 예외를 발생시켜야 한다") {
+            Then("CustomException 예외를 발생시켜야 한다") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.getProductById(2L)
                     }
-                exception.message shouldBe "상품을 찾을 수 없습니다. ID: 2"
+                exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
                 verify(exactly = 1) { productPersistencePort.findById(2L) }
             }
         }

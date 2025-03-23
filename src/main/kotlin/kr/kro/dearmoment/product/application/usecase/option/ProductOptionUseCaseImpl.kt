@@ -1,10 +1,15 @@
 package kr.kro.dearmoment.product.application.usecase.option
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,7 +34,8 @@ class ProductOptionUseCaseImpl(
 
     @Transactional(readOnly = true)
     override fun getProductOptionById(optionId: Long): ProductOptionResponse {
-        return ProductOptionResponse.fromDomain(productOptionPersistencePort.findById(optionId))
+        val option = productOptionPersistencePort.findById(optionId)
+        return ProductOptionResponse.fromDomain(option)
     }
 
     @Transactional(readOnly = true)
@@ -74,11 +80,11 @@ class ProductOptionUseCaseImpl(
             if (dto.optionId != null && existingOptionMap.containsKey(dto.optionId)) {
                 val existingOpt =
                     existingOptionMap[dto.optionId]
-                        ?: throw IllegalStateException("Option with id ${dto.optionId} is missing")
+                        ?: throw CustomException(ErrorCode.OPTION_NOT_FOUND)
                 val updatedOpt =
                     existingOpt.copy(
                         name = dto.name,
-                        optionType = kr.kro.dearmoment.product.domain.model.OptionType.valueOf(dto.optionType),
+                        optionType = OptionType.valueOf(dto.optionType),
                         discountAvailable = dto.discountAvailable,
                         originalPrice = dto.originalPrice,
                         discountPrice = dto.discountPrice,
@@ -91,8 +97,8 @@ class ProductOptionUseCaseImpl(
                         originalProvided = dto.originalProvided,
                         partnerShops =
                             dto.partnerShops.map {
-                                kr.kro.dearmoment.product.domain.model.PartnerShop(
-                                    category = kr.kro.dearmoment.product.domain.model.PartnerShopCategory.valueOf(it.category),
+                                PartnerShop(
+                                    category = PartnerShopCategory.valueOf(it.category),
                                     name = it.name,
                                     link = it.link,
                                 )
@@ -128,12 +134,11 @@ class ProductOptionUseCaseImpl(
             ProductOptionResponse.fromDomain(savedOption)
         } else {
             // 기존 옵션 업데이트
-            val existingOption =
-                productOptionPersistencePort.findById(request.optionId)
+            val existingOption = productOptionPersistencePort.findById(request.optionId)
             val updatedOption =
                 existingOption.copy(
                     name = request.name,
-                    optionType = kr.kro.dearmoment.product.domain.model.OptionType.valueOf(request.optionType),
+                    optionType = OptionType.valueOf(request.optionType),
                     discountAvailable = request.discountAvailable,
                     originalPrice = request.originalPrice,
                     discountPrice = request.discountPrice,
@@ -146,8 +151,8 @@ class ProductOptionUseCaseImpl(
                     originalProvided = request.originalProvided,
                     partnerShops =
                         request.partnerShops.map {
-                            kr.kro.dearmoment.product.domain.model.PartnerShop(
-                                category = kr.kro.dearmoment.product.domain.model.PartnerShopCategory.valueOf(it.category),
+                            PartnerShop(
+                                category = PartnerShopCategory.valueOf(it.category),
                                 name = it.name,
                                 link = it.link,
                             )
@@ -160,15 +165,15 @@ class ProductOptionUseCaseImpl(
 
     private fun getProductOrThrow(productId: Long): Product {
         return productPersistencePort.findById(productId)
-            ?: throw IllegalArgumentException("Product not found: $productId")
+            ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
     }
 
     private fun validateDuplicateOption(
         productId: Long,
         name: String,
     ) {
-        require(
-            !productOptionPersistencePort.existsByProductIdAndName(productId, name),
-        ) { "Duplicate option name: $name" }
+        if (productOptionPersistencePort.existsByProductIdAndName(productId, name)) {
+            throw CustomException(ErrorCode.DUPLICATE_OPTION_NAME)
+        }
     }
 }

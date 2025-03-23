@@ -118,7 +118,6 @@ class UpdateProductUseCaseImpl(
                 productType = productFromReq.productType
                 shootingPlace = productFromReq.shootingPlace
                 title = productFromReq.title
-                // description, detailedInfo, contactInfo는 null 대신 빈 문자열 할당
                 description = productFromReq.description.takeIf { it.isNotBlank() } ?: ""
                 mainImage = ImageEmbeddable.fromDomainImage(productFromReq.mainImage)
 

@@ -1,8 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.create
 
 import andDocument
-import com.fasterxml.jackson.databind.ObjectMapper
-import kr.kro.dearmoment.common.dto.ResponseWrapper
+import kr.kro.dearmoment.common.MockBaseApiTest
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -15,59 +14,17 @@ import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
-import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
-import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
-import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.restdocs.RestDocumentationExtension
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
-@Import(ResponseWrapper::class)
-@AutoConfigureRestDocs
-@AutoConfigureMockMvc
-class CreateProductRestAdapterTest {
-    @Autowired
-    lateinit var mockMvc: MockMvc
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
-
-    @MockitoBean
-    lateinit var createProductUseCase: CreateProductUseCase
-
-    @MockitoBean
-    lateinit var updateProductUseCase: UpdateProductUseCase
-
-    @MockitoBean
-    lateinit var deleteProductUseCase: DeleteProductUseCase
-
-    @MockitoBean
-    lateinit var getProductUseCase: GetProductUseCase
-
-    @MockitoBean
-    lateinit var productSearchUseCase: ProductSearchUseCase
-
-    @MockitoBean
-    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
-
+class CreateProductRestAdapterTest : MockBaseApiTest() {
     @Test
     fun `상품 생성 API 테스트`() {
         // main image 파일
@@ -109,9 +66,7 @@ class CreateProductRestAdapterTest {
                 "sub image 4".toByteArray(),
             )
 
-        // 추가 이미지 파일은 테스트에서 생략하여, 컨트롤러에서 빈 리스트로 처리됨
-
-        // CreateProductRequest를 표현하는 JSON 파트 생성
+        // CreateProductRequest JSON 생성
         val requestMap =
             mapOf(
                 "userId" to 1L,
@@ -248,7 +203,7 @@ class CreateProductRestAdapterTest {
         // createProductUseCase 모의 동작 설정
         given(createProductUseCase.saveProduct(any(), any(), any(), any())).willReturn(productResponse)
 
-        // multipart 요청 빌드 (JSON request 파트와 파일 파트 포함)
+        // multipart 요청 빌드
         val requestBuilder =
             multipart("/api/products")
                 .file(requestPart)
@@ -261,9 +216,7 @@ class CreateProductRestAdapterTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 추가 이미지 파일 파트를 생략하면 컨트롤러에서 null 처리 후 빈 리스트로 변환됨
-
-        // 요청 실행 및 응답 검증 + 문서화
+        // 요청 실행
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(

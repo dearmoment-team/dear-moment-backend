@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.get
 
 import andDocument
-import kr.kro.dearmoment.common.dto.ResponseWrapper
+import kr.kro.dearmoment.common.MockBaseApiTest
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -12,54 +12,15 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
-import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
-import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
-import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
-import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
-@Import(ResponseWrapper::class)
-@AutoConfigureRestDocs
-@AutoConfigureMockMvc
-class GetProductRestAdapterTest {
-    @Autowired
-    lateinit var mockMvc: MockMvc
-
-    @MockitoBean
-    lateinit var updateProductUseCase: UpdateProductUseCase
-
-    @MockitoBean
-    lateinit var createProductUseCase: CreateProductUseCase
-
-    @MockitoBean
-    lateinit var deleteProductUseCase: DeleteProductUseCase
-
-    @MockitoBean
-    lateinit var getProductUseCase: GetProductUseCase
-
-    @MockitoBean
-    lateinit var productSearchUseCase: ProductSearchUseCase
-
-    @MockitoBean
-    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
-
+class GetProductRestAdapterTest : MockBaseApiTest() {
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
