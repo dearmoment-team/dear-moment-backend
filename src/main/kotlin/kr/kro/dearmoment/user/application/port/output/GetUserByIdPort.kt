@@ -5,5 +5,6 @@ import java.util.*
 
 interface GetUserByIdPort {
     fun findById(Id: UUID): User?
+
     fun findByLoginId(loginId: String): User?
 }

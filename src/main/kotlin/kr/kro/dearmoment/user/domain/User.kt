@@ -21,7 +21,7 @@ data class User(
     val isStudio: Boolean? = false,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime? = null,
-    val kakaoId: Long? = null       // 추후 null 불가
+    val kakaoId: Long? = null, // 추후 null 불가
 ) {
     init {
         // 이메일 가입 유저인 경우, loginId/password가 필수
@@ -43,13 +43,16 @@ data class User(
         return this.password == rawPassword
     }
 
-    fun updateName(newName: String, now: LocalDateTime): User {
+    fun updateName(
+        newName: String,
+        now: LocalDateTime,
+    ): User {
         require(newName.isNotBlank()) { "새로운 이름은 비어있을 수 없습니다." }
         require(!createdAt.isAfter(now)) { "수정 시점이 생성 시점보다 이를 수 없습니다." }
 
         return this.copy(
             name = newName,
-            updatedAt = now
+            updatedAt = now,
         )
     }
 }

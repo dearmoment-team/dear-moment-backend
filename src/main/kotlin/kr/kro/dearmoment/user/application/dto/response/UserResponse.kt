@@ -10,7 +10,7 @@ data class UserResponse(
     val name: String,
     val isStudio: Boolean?,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
 ) {
     companion object {
         fun from(user: User): UserResponse {
@@ -20,7 +20,7 @@ data class UserResponse(
                 name = user.name,
                 isStudio = user.isStudio,
                 createdAt = user.createdAt,
-                updatedAt = user.updatedAt
+                updatedAt = user.updatedAt,
             )
         }
     }

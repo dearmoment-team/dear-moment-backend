@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.user.domain
 
-import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.DescribeSpec
 import java.time.LocalDateTime
 
 class UserTest : DescribeSpec({
@@ -11,15 +11,16 @@ class UserTest : DescribeSpec({
         context("모든 필드가 정상적이면") {
             it("정상적으로 객체가 생성된다.") {
                 val now = LocalDateTime.now()
-                val user = User(
-                    id = null,
-                    loginId = "testUser",
-                    password = "pass1234",
-                    name = "홍길동",
-                    isStudio = false,          // 선택적으로 사용
-                    createdAt = now,
-                    updatedAt = now           // 선택적으로 사용
-                )
+                val user =
+                    User(
+                        id = null,
+                        loginId = "testUser",
+                        password = "pass1234",
+                        name = "홍길동",
+                        isStudio = false, // 선택적으로 사용
+                        createdAt = now,
+                        updatedAt = now, // 선택적으로 사용
+                    )
             }
         }
 
@@ -27,15 +28,16 @@ class UserTest : DescribeSpec({
             it("null 허용 필드는 없어도 정상 생성된다.") {
                 val now = LocalDateTime.now()
                 // isStudio, updatedAt, updatedUser를 null로
-                val user = User(
-                    id = null,
-                    loginId = "anotherUser",
-                    password = "password1234",
-                    name = "홍길동2",
-                    isStudio = null,            // null 가능
-                    createdAt = now,
-                    updatedAt = null            // null 가능
-                )
+                val user =
+                    User(
+                        id = null,
+                        loginId = "anotherUser",
+                        password = "password1234",
+                        name = "홍길동2",
+                        isStudio = null, // null 가능
+                        createdAt = now,
+                        updatedAt = null, // null 가능
+                    )
             }
         }
 
@@ -51,7 +53,7 @@ class UserTest : DescribeSpec({
                         name = "홍길동",
                         isStudio = false,
                         createdAt = LocalDateTime.now(),
-                        updatedAt = null
+                        updatedAt = null,
                     )
                 }
             }
@@ -72,7 +74,7 @@ class UserTest : DescribeSpec({
                         name = "홍길동",
                         isStudio = false,
                         createdAt = future, // future가 now보다 뒤
-                        updatedAt = now     // now가 더 앞
+                        updatedAt = now, // now가 더 앞
                     )
                 }
             }

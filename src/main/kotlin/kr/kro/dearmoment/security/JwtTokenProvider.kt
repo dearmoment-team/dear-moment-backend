@@ -11,9 +11,8 @@ import java.util.UUID
 @Component
 class JwtTokenProvider(
     @Value("\${jwt.secret}") private val jwtSecret: String,
-    @Value("\${jwt.expiration}") private val jwtExpirationInMs: Long
+    @Value("\${jwt.expiration}") private val jwtExpirationInMs: Long,
 ) {
-
     fun generateToken(customUserDetails: CustomUserDetails): String {
         val now = Date()
         val expiryDate = Date(now.time + jwtExpirationInMs)

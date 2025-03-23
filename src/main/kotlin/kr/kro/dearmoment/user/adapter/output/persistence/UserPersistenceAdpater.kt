@@ -9,9 +9,8 @@ import java.util.UUID
 
 @Component
 class UserPersistenceAdapter(
-    private val userJpaRepository: UserJpaRepository
+    private val userJpaRepository: UserJpaRepository,
 ) : SaveUserPort, GetUserByIdPort, GetUserByKakaoIdPort {
-
     override fun save(user: User): User {
         val entity = UserEntity.from(user)
         val saved = userJpaRepository.save(entity)

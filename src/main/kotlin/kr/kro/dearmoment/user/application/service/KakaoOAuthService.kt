@@ -16,7 +16,7 @@ class KakaoOAuthService(
     private val kakaoOAuthApiClient: KakaoOAuthApiClient,
     private val getUserByKakaoIdPort: GetUserByKakaoIdPort,
     private val saveUserPort: SaveUserPort,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
 ) {
     @Value("\${oauth.kakao.client-id}")
     lateinit var kakaoClientId: String
@@ -35,21 +35,23 @@ class KakaoOAuthService(
         val existingUser = getUserByKakaoIdPort.findByKakaoId(kakaoUser.kakaoId)
 
         // 4) 없으면 새로 가입 (isStudio=false)
-        val user = if (existingUser == null) {
-            val newUser = User(
-                id = null,
-                loginId = null,
-                password = null,
-                name = kakaoUser.nickname,
-                isStudio = false,  // 카카오 OAuth → ROLE_USER
-                createdAt = LocalDateTime.now(),
-                updatedAt = null,
-                kakaoId = kakaoUser.kakaoId
-            )
-            saveUserPort.save(newUser)
-        } else {
-            existingUser
-        }
+        val user =
+            if (existingUser == null) {
+                val newUser =
+                    User(
+                        id = null,
+                        loginId = null,
+                        password = null,
+                        name = kakaoUser.nickname,
+                        isStudio = false, // 카카오 OAuth → ROLE_USER
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = null,
+                        kakaoId = kakaoUser.kakaoId,
+                    )
+                saveUserPort.save(newUser)
+            } else {
+                existingUser
+            }
 
         // 5) CustomUserDetails로 감싸서 JWT 생성
         val customUserDetails = CustomUserDetails(user)

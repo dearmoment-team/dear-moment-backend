@@ -13,14 +13,16 @@ class CustomUserDetailsService(
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails {
         // 만약 기존 loginId 기반 조회가 필요하면 이 메서드를 유지
-        val user = getUserByIdPort.findByLoginId(username)
-            ?: throw UsernameNotFoundException("User not found with loginId: $username")
+        val user =
+            getUserByIdPort.findByLoginId(username)
+                ?: throw UsernameNotFoundException("User not found with loginId: $username")
         return CustomUserDetails(user)
     }
 
     fun loadUserById(userId: UUID): CustomUserDetails {
-        val user = getUserByIdPort.findById(userId)
-            ?: throw UsernameNotFoundException("User not found with id: $userId")
+        val user =
+            getUserByIdPort.findById(userId)
+                ?: throw UsernameNotFoundException("User not found with id: $userId")
         return CustomUserDetails(user)
     }
 }

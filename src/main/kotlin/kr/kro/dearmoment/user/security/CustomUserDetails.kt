@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import java.util.UUID
 
 class CustomUserDetails(private val user: User) : UserDetails {
-
     val id: UUID
         get() = user.id ?: throw IllegalStateException("User ID가 존재하지 않습니다.")
 
@@ -24,8 +23,11 @@ class CustomUserDetails(private val user: User) : UserDetails {
     override fun getUsername(): String = user.loginId ?: ""
 
     override fun isAccountNonExpired() = true
+
     override fun isAccountNonLocked() = true
+
     override fun isCredentialsNonExpired() = true
+
     override fun isEnabled() = true
 
     fun getUser(): User = user
