@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.search
 
 import andDocument
+import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.common.dto.ResponseWrapper
 import kr.kro.dearmoment.common.restdocs.ARRAY
@@ -34,33 +35,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@ExtendWith(RestDocumentationExtension::class)
-@WebMvcTest(ProductRestAdapter::class)
-@Import(ResponseWrapper::class)
-@AutoConfigureRestDocs
-@AutoConfigureMockMvc
-class SearchProductRestAdapterTest {
-    @Autowired
-    lateinit var mockMvc: MockMvc
-
-    @MockitoBean
-    lateinit var updateProductUseCase: UpdateProductUseCase
-
-    @MockitoBean
-    lateinit var createProductUseCase: CreateProductUseCase
-
-    @MockitoBean
-    lateinit var deleteProductUseCase: DeleteProductUseCase
-
-    @MockitoBean
-    lateinit var getProductUseCase: GetProductUseCase
-
-    @MockitoBean
-    lateinit var productSearchUseCase: ProductSearchUseCase
-
-    @MockitoBean
-    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
-
+class SearchProductRestAdapterTest: RestApiTestBase() {
     @Test
     fun `상품 검색 API 테스트 - 정상 검색`() {
         // given

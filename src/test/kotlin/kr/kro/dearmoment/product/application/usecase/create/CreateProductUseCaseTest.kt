@@ -7,6 +7,8 @@ import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
@@ -52,26 +54,26 @@ class CreateProductUseCaseTest : BehaviorSpec({
             description = "Test Description",
             availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
             cameraTypes = listOf("FILM"),
-            retouchStyles = listOf("NATURAL"),
+            retouchStyles = listOf("MODERN"),
             detailedInfo = "Test Info",
             contactInfo = "Test Contact",
             options =
-                listOf(
-                    CreateProductOptionRequest(
-                        name = "Option A",
-                        optionType = "SINGLE",
-                        discountAvailable = false,
-                        originalPrice = 10000,
-                        discountPrice = 8000,
-                        description = "Option description",
-                        costumeCount = 1,
-                        shootingLocationCount = 1,
-                        shootingHours = 1,
-                        shootingMinutes = 0,
-                        retouchedCount = 1,
-                        partnerShops = emptyList(),
-                    ),
+            listOf(
+                CreateProductOptionRequest(
+                    name = "Option A",
+                    optionType = "SINGLE",
+                    discountAvailable = false,
+                    originalPrice = 10000,
+                    discountPrice = 8000,
+                    description = "Option description",
+                    costumeCount = 1,
+                    shootingLocationCount = 1,
+                    shootingHours = 1,
+                    shootingMinutes = 0,
+                    retouchedCount = 1,
+                    partnerShops = emptyList(),
                 ),
+            ),
         )
 
     // 더미 이미지 객체
@@ -80,7 +82,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
             userId = 1L,
             fileName = "dummy.jpg",
             url = "http://example.com/dummy.jpg",
-            parId = "",
+            parId = ""
         )
 
     // 중복된 제목 검증 시나리오
@@ -96,12 +98,12 @@ class CreateProductUseCaseTest : BehaviorSpec({
             // 이미지 업로드 성공 모킹
             every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
 
-            Then("IllegalArgumentException이 발생해야 한다") {
+            Then("CustomException이 발생해야 한다") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.saveProduct(validRequest, dummyMainFile, dummySubFiles, dummyAdditionalFiles)
                     }
-                exception shouldHaveMessage "동일 제목의 상품이 이미 존재합니다: Unique Product"
+                exception shouldHaveMessage ErrorCode.PRODUCT_ALREADY_EXISTS.message
                 verify(exactly = 1) {
                     productPersistencePort.existsByUserIdAndTitle(1L, "Unique Product")
                 }
@@ -113,23 +115,23 @@ class CreateProductUseCaseTest : BehaviorSpec({
     Given("이미지 개수 검증 시나리오") {
         When("서브 이미지가 4장 미만일 경우") {
             val invalidSubFiles = dummySubFiles.take(3)
-            Then("IllegalArgumentException이 발생해야 한다") {
+            Then("CustomException이 발생해야 한다") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.saveProduct(validRequest, dummyMainFile, invalidSubFiles, dummyAdditionalFiles)
                     }
-                exception.message shouldBe "서브 이미지는 정확히 4장이어야 합니다. 현재 3장입니다."
+                exception shouldHaveMessage ErrorCode.INVALID_SUB_IMAGE_COUNT.message
             }
         }
 
         When("추가 이미지가 5장 초과일 경우") {
             val invalidAdditionalFiles = List(6) { dummyAdditionalFiles[0] }
-            Then("IllegalArgumentException이 발생해야 한다") {
+            Then("CustomException이 발생해야 한다") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.saveProduct(validRequest, dummyMainFile, dummySubFiles, invalidAdditionalFiles)
                     }
-                exception.message shouldBe "추가 이미지는 최대 5장까지만 가능합니다. 현재 6장입니다."
+                exception shouldHaveMessage ErrorCode.INVALID_ADDITIONAL_IMAGE_COUNT.message
             }
         }
     }
@@ -170,7 +172,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
                     productPersistencePort.save(
                         match { product ->
                             product.title == "Unique Product" &&
-                                product.userId == 1L
+                                    product.userId == 1L
                         },
                     )
                 }

@@ -3,6 +3,8 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
@@ -11,6 +13,7 @@ class ProductOptionRepositoryAdapter(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val jpaProductRepository: JpaProductRepository,
 ) : ProductOptionPersistencePort {
+
     @Transactional
     override fun save(
         productOption: ProductOption,
@@ -18,14 +21,15 @@ class ProductOptionRepositoryAdapter(
     ): ProductOption {
         val productEntity =
             jpaProductRepository.findById(product.productId)
-                .orElseThrow { IllegalArgumentException("Product not found: ${product.productId}") }
+                .orElseThrow { CustomException(ErrorCode.PRODUCT_NOT_FOUND) }
 
-        require(
-            !jpaProductOptionRepository.existsByProductProductIdAndName(
+        if (jpaProductOptionRepository.existsByProductProductIdAndName(
                 productEntity.productId!!,
                 productOption.name,
-            ),
-        ) { "ProductOption already exists: ${productOption.name}" }
+            )
+        ) {
+            throw CustomException(ErrorCode.DUPLICATE_OPTION_NAME)
+        }
 
         val optionEntity = ProductOptionEntity.fromDomain(productOption, productEntity)
         val savedEntity = jpaProductOptionRepository.save(optionEntity)
@@ -35,7 +39,7 @@ class ProductOptionRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun findById(id: Long): ProductOption {
         return jpaProductOptionRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("ProductOption with ID $id not found") }
+            .orElseThrow { CustomException(ErrorCode.OPTION_NOT_FOUND) }
             .toDomain()
     }
 
@@ -46,7 +50,9 @@ class ProductOptionRepositoryAdapter(
 
     @Transactional
     override fun deleteById(id: Long) {
-        require(jpaProductOptionRepository.existsById(id)) { "Cannot delete ProductOption: ID $id not found." }
+        if (!jpaProductOptionRepository.existsById(id)) {
+            throw CustomException(ErrorCode.OPTION_NOT_FOUND)
+        }
         jpaProductOptionRepository.deleteById(id)
     }
 

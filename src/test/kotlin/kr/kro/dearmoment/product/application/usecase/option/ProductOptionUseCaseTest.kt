@@ -8,6 +8,8 @@ import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
@@ -41,12 +43,12 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             retouchStyles = emptySet(),
             mainImage = Image(userId = 1L, fileName = "main.jpg", url = "http://example.com/main.jpg"),
             subImages =
-                listOf(
-                    Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
-                    Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
-                    Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
-                    Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
-                ),
+            listOf(
+                Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+            ),
             additionalImages = emptyList(),
             detailedInfo = "Test Info",
             contactInfo = "Test Contact",
@@ -97,12 +99,12 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         When("존재하지 않는 productId로 요청 시") {
             every { productPersistencePort.findById(999L) } returns null
 
-            Then("IllegalArgumentException 발생") {
+            Then("CustomException 발생") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.saveProductOption(999L, validRequest)
                     }
-                exception shouldHaveMessage "Product not found: 999"
+                exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
             }
         }
 
@@ -110,12 +112,12 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             every { productPersistencePort.findById(1L) } returns mockProduct
             every { productOptionPersistencePort.existsByProductIdAndName(1L, "Option 1") } returns true
 
-            Then("IllegalArgumentException 발생") {
+            Then("CustomException 발생") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.saveProductOption(1L, validRequest)
                     }
-                exception shouldHaveMessage "Duplicate option name: Option 1"
+                exception shouldHaveMessage ErrorCode.DUPLICATE_OPTION_NAME.message
             }
         }
 
@@ -149,12 +151,13 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         }
 
         When("존재하지 않는 옵션 ID로 요청 시") {
-            every { productOptionPersistencePort.findById(999L) } throws IllegalArgumentException("Not found")
+            every { productOptionPersistencePort.findById(999L) } throws CustomException(ErrorCode.OPTION_NOT_FOUND)
 
-            Then("예외 발생") {
-                shouldThrow<IllegalArgumentException> {
+            Then("CustomException 발생") {
+                val exception = shouldThrow<CustomException> {
                     useCase.getProductOptionById(999L)
                 }
+                exception shouldHaveMessage ErrorCode.OPTION_NOT_FOUND.message
             }
         }
     }
