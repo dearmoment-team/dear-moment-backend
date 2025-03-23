@@ -5,12 +5,14 @@ import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.usecase.util.PaginationUtil
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ProductSearchUseCaseImpl(
     private val getProductPort: GetProductPort,
     private val paginationUtil: PaginationUtil,
 ) : ProductSearchUseCase {
+    @Transactional(readOnly = true)
     override fun searchProducts(
         title: String?,
         productType: String?,
@@ -28,6 +30,7 @@ class ProductSearchUseCaseImpl(
         return paginationUtil.createPagedResponse(sorted, page, size)
     }
 
+    @Transactional(readOnly = true)
     override fun getMainPageProducts(
         page: Int,
         size: Int,

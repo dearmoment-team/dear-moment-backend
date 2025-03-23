@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.product.domain.model
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import java.time.LocalDateTime
 
 /**
@@ -13,6 +15,16 @@ enum class PartnerShopCategory {
     VIDEO,
     STUDIO,
     ETC,
+    ;
+
+    companion object {
+        fun from(value: String): PartnerShopCategory =
+            try {
+                valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                throw CustomException(ErrorCode.INVALID_PARTNER_SHOP_CATEGORY)
+            }
+    }
 }
 
 /**
@@ -34,6 +46,16 @@ data class PartnerShop(
 enum class OptionType {
     SINGLE,
     PACKAGE,
+    ;
+
+    companion object {
+        fun from(value: String): OptionType =
+            try {
+                valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                throw CustomException(ErrorCode.INVALID_OPTION_TYPE)
+            }
+    }
 }
 
 /**

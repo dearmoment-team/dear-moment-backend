@@ -66,9 +66,6 @@ class ProductOptionUseCaseImpl(
         return getProductOptionPort.existsByProductId(productId)
     }
 
-    /**
-     * 기존 옵션과 요청된 옵션들을 비교하여 업데이트, 신규 생성을 수행한다.
-     */
     @Transactional
     override fun synchronizeOptions(
         existingProduct: Product,
@@ -77,7 +74,6 @@ class ProductOptionUseCaseImpl(
         val existingOptions = getProductOptionPort.findByProductId(existingProduct.productId)
         val existingOptionMap = existingOptions.associateBy { it.optionId }
 
-        // 요청 DTO에 대해 업데이트 또는 신규 생성 처리 (삭제 로직은 제거)
         requestOptions.forEach { dto ->
             if (dto.optionId != null && existingOptionMap.containsKey(dto.optionId)) {
                 val existingOpt =
@@ -114,14 +110,8 @@ class ProductOptionUseCaseImpl(
         }
     }
 
-    /**
-     * - Path Parameter로 상품 id를 받고,
-     * - 요청 DTO(request)가 없으면 아무 작업도 하지 않으며,
-     * - 요청 DTO의 optionId가 null이면 신규 옵션을 추가하고,
-     * - optionId가 있으면 기존 옵션을 업데이트한다.
-     */
     @Transactional
-    fun saveOrUpdateProductOption(
+    override fun saveOrUpdateProductOption(
         productId: Long,
         request: UpdateProductOptionRequest?,
     ): ProductOptionResponse? {
@@ -130,13 +120,13 @@ class ProductOptionUseCaseImpl(
             return null
         }
         return if (request.optionId == null) {
-            // 신규 옵션 추가
             val newOption = UpdateProductOptionRequest.toDomain(request, productId)
             val savedOption = productOptionPersistencePort.save(newOption, product)
             ProductOptionResponse.fromDomain(savedOption)
         } else {
             // 기존 옵션 업데이트
             val existingOption = getProductOptionPort.findById(request.optionId)
+            
             val updatedOption =
                 existingOption.copy(
                     name = request.name,

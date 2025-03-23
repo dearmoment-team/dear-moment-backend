@@ -2,9 +2,8 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -61,74 +60,14 @@ data class CreateProductRequest(
             subImages: List<Image>,
             additionalImages: List<Image>,
         ): Product {
-            val productTypeEnum =
-                ProductType.entries.find { it.name == req.productType }
-                    ?: throw CustomException(ErrorCode.INVALID_PRODUCT_TYPE)
-
-            val shootingPlaceEnum =
-                ShootingPlace.entries.find { it.name == req.shootingPlace }
-                    ?: throw CustomException(ErrorCode.INVALID_SHOOTING_PLACE)
-
-            val seasonSet =
-                req.availableSeasons.map { season ->
-                    try {
-                        ShootingSeason.valueOf(season)
-                    } catch (e: IllegalArgumentException) {
-                        throw CustomException(ErrorCode.INVALID_SEASON)
-                    }
-                }.toSet()
-
-            val cameraSet =
-                req.cameraTypes.map { type ->
-                    try {
-                        CameraType.valueOf(type)
-                    } catch (e: IllegalArgumentException) {
-                        throw CustomException(ErrorCode.INVALID_CAMERA_TYPE)
-                    }
-                }.toSet()
-
-            val styleSet =
-                req.retouchStyles.map { style ->
-                    try {
-                        RetouchStyle.valueOf(style)
-                    } catch (e: IllegalArgumentException) {
-                        throw CustomException(ErrorCode.INVALID_RETOUCH_STYLE)
-                    }
-                }.toSet()
-
-            // 메인 이미지 생성 (반드시 대표 이미지가 존재해야 함)
-            val mainImg =
-                Image(
-                    userId = req.userId,
-                    imageId = mainImage.imageId,
-                    fileName = mainImage.fileName,
-                    parId = mainImage.parId,
-                    url = mainImage.url,
-                )
-
-            val subImgList =
-                subImages.map { image ->
-                    Image(
-                        userId = req.userId,
-                        imageId = image.imageId,
-                        fileName = image.fileName,
-                        parId = image.parId,
-                        url = image.url,
-                    )
-                }
-
-            val addImgList =
-                additionalImages.map { image ->
-                    Image(
-                        userId = req.userId,
-                        imageId = image.imageId,
-                        fileName = image.fileName,
-                        parId = image.parId,
-                        url = image.url,
-                    )
-                }
-
-            // 옵션 요청을 도메인 모델로 변환하여 포함
+            val productTypeEnum = ProductType.from(req.productType)
+            val shootingPlaceEnum = ShootingPlace.from(req.shootingPlace)
+            val seasonSet = req.availableSeasons.map { ShootingSeason.from(it) }.toSet()
+            val cameraSet = req.cameraTypes.map { CameraType.from(it) }.toSet()
+            val styleSet = req.retouchStyles.map { RetouchStyle.from(it) }.toSet()
+            val mainImg = mainImage.withUserId(req.userId)
+            val subImgList = subImages.map { it.withUserId(req.userId) }
+            val addImgList = additionalImages.map { it.withUserId(req.userId) }
             val optionList = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
 
             return Product(
@@ -187,7 +126,7 @@ data class CreateProductOptionRequest(
             dto: CreateProductOptionRequest,
             productId: Long,
         ): ProductOption {
-            val optionTypeEnum = OptionType.valueOf(dto.optionType)
+            val optionTypeEnum = OptionType.from(dto.optionType)
             return ProductOption(
                 optionId = 0L,
                 productId = productId,
