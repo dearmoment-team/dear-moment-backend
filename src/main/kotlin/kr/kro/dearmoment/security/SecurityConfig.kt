@@ -64,7 +64,7 @@ class SecurityConfig(
                     // 그 외 경로는 인증만 되어 있으면 접근 가능
                     .anyRequest().authenticated()
             }
-            .sessionManagement{it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
 
         // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 이전에 추가
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
