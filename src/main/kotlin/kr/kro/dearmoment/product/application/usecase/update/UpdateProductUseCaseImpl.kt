@@ -4,6 +4,7 @@ import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.handler.ImageHandler
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
@@ -68,35 +69,10 @@ class UpdateProductUseCaseImpl(
                 userId = rawRequest.userId,
             )
 
-        // 새 이미지 업로드 로직 (CreateProductRequest와 동일한 매핑 로직)
-        val mappedMainImage =
-            Image(
-                userId = rawRequest.userId,
-                imageId = newMainImage.imageId,
-                fileName = newMainImage.fileName,
-                parId = newMainImage.parId,
-                url = newMainImage.url,
-            )
-        val mappedSubImages =
-            updatedSubImages.map { image ->
-                Image(
-                    userId = rawRequest.userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
-                )
-            }
-        val mappedAdditionalImages =
-            updatedAdditionalImages.map { image ->
-                Image(
-                    userId = rawRequest.userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
-                )
-            }
+        // 새 이미지 업로드 로직: 확장 함수 withUserId를 활용하여 userId 재설정
+        val mappedMainImage = newMainImage.withUserId(rawRequest.userId)
+        val mappedSubImages = updatedSubImages.map { it.withUserId(rawRequest.userId) }
+        val mappedAdditionalImages = updatedAdditionalImages.map { it.withUserId(rawRequest.userId) }
 
         // 5) DTO -> 도메인 객체 변환 (기존 Product와 병합)
         val productFromReq =

@@ -7,9 +7,6 @@ import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
 
-/**
- * 바뀐 도메인(Product, ProductOption, PartnerShop 등)에 대한 테스트
- */
 internal class ProductTest : StringSpec({
 
     // 테스트용 이미지 생성 함수
@@ -132,7 +129,6 @@ internal class ProductTest : StringSpec({
         val validProduct = createProduct(retouchStyles = validStyles)
         validProduct.retouchStyles.size shouldBe 2
 
-        // 만약 실제 코드에서 2개 제한 로직을 활성화했다면:
         shouldThrow<IllegalArgumentException> {
             createProduct(
                 retouchStyles =

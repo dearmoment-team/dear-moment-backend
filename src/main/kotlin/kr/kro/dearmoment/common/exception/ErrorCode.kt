@@ -15,19 +15,17 @@ enum class ErrorCode(
     PRODUCT_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상품 옵션입니다."),
     LIKE_DUPLICATED(HttpStatus.BAD_REQUEST, "이미 좋아요가 존재합니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다."),
-
-    // 새로 추가된 에러 코드들
     INVALID_PRODUCT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 상품 유형입니다."),
     INVALID_SHOOTING_PLACE(HttpStatus.BAD_REQUEST, "유효하지 않은 촬영 장소입니다."),
     INVALID_SEASON(HttpStatus.BAD_REQUEST, "유효하지 않은 촬영 가능 시기입니다."),
     INVALID_CAMERA_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 카메라 타입입니다."),
     INVALID_RETOUCH_STYLE(HttpStatus.BAD_REQUEST, "유효하지 않은 보정 스타일입니다."),
-
-    // CreateProductUseCase 관련 에러 코드
     INVALID_SUB_IMAGE_COUNT(HttpStatus.BAD_REQUEST, "서브 이미지는 정확히 4장이어야 합니다."),
     INVALID_ADDITIONAL_IMAGE_COUNT(HttpStatus.BAD_REQUEST, "추가 이미지는 최대 5장까지만 가능합니다."),
     PRODUCT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "동일 제목의 상품이 이미 존재합니다."),
     SAVED_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "저장된 상품을 찾을 수 없습니다."),
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 옵션입니다."),
     DUPLICATE_OPTION_NAME(HttpStatus.BAD_REQUEST, "중복된 옵션명입니다."),
+    INVALID_PARTNER_SHOP_CATEGORY(HttpStatus.BAD_REQUEST, "유효하지 않은 제휴 업체 카테고리입니다."),
+    INVALID_OPTION_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 옵션 타입입니다."),
 }
