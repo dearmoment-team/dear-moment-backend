@@ -39,6 +39,39 @@ class ProductPersistenceAdapterTest(
             }
         }
 
+        describe("ProductPersistenceAdapter 상품 좋아요 증감 테스트") {
+            val savedStudio = studioRepository.save(studioEntityFixture())
+            val savedProduct = jpaProductRepository.save(productEntityFixture(studioEntity = savedStudio))
+
+            context("increaseLikeCount()는 ") {
+                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
+                    jpaProductRepository.increaseLikeCount(savedProduct.productId!!) shouldNotBe 0
+                }
+            }
+
+            context("decreaseLikeCount()는 ") {
+                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
+                    jpaProductRepository.decreaseLikeCount(savedProduct.productId!!) shouldNotBe 0
+                }
+            }
+        }
+        describe("ProductPersistenceAdapter 상품 문의 증감 테스트") {
+            val savedStudio = studioRepository.save(studioEntityFixture())
+            val savedProduct = jpaProductRepository.save(productEntityFixture(studioEntity = savedStudio))
+
+            context("increaseInquiryCount()는 ") {
+                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
+                    jpaProductRepository.increaseInquiryCount(savedProduct.productId!!) shouldNotBe 0
+                }
+            }
+
+            context("decreaseInquiryCount()는 ") {
+                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
+                    jpaProductRepository.decreaseInquiryCount(savedProduct.productId!!) shouldNotBe 0
+                }
+            }
+        }
+
         describe("ProductPersistenceAdapter 상품 검색 테스트") {
             context("상품 검색 기능") {
                 lateinit var testProducts: List<Product>

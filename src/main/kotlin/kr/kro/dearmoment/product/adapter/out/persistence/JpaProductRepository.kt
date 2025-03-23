@@ -27,7 +27,7 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
     )
 
     @Modifying
-    @Query("UPDATE ProductEntity p SET p.inquiryCount = p.inquiryCount - 1 WHERE p.productId = :optionId AND p.inquiryCount > 0")
+    @Query("UPDATE ProductEntity p SET p.inquiryCount = p.inquiryCount - 1 WHERE p.productId = :productId AND p.inquiryCount > 0")
     fun decreaseInquiryCount(
         @Param("productId") productId: Long,
     )

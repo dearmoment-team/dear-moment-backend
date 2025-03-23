@@ -51,6 +51,8 @@ fun productEntityFixture(
         .setExp(ProductEntity::options, mutableListOf<ProductOptionEntity>())
         .setExp(ProductEntity::studio, studioEntity)
         .setExp(ProductEntity::subImages, List(4) { imageEmbeddableFixture() })
+        .setExp(ProductEntity::likeCount, 0)
+        .setExp(ProductEntity::inquiryCount, 0)
         .setPostCondition { it.title.isNotBlank() }
         .setExp(ProductEntity::retouchStyles, mutableSetOf(RetouchStyle.WARM, RetouchStyle.CHIC))
         .sample()
