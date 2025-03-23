@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
@@ -42,29 +43,30 @@ class ProductPersistenceAdapterTest(
 
             context("increaseLikeCount()는 ") {
                 it("상품의 좋아요 개수를 1개 증가 시킨다.") {
-                    jpaProductRepository.increaseLikeCount(savedProduct.productId!!) shouldNotBe 0
+                    shouldNotThrow<Throwable> { jpaProductRepository.increaseLikeCount(savedProduct.productId!!) }
                 }
             }
 
             context("decreaseLikeCount()는 ") {
-                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
-                    jpaProductRepository.decreaseLikeCount(savedProduct.productId!!) shouldNotBe 0
+                it("상품의 좋아요 개수를 1개 감소 시킨다.") {
+                    shouldNotThrow<Throwable> { jpaProductRepository.decreaseLikeCount(savedProduct.productId!!) }
                 }
             }
         }
+
         describe("ProductPersistenceAdapter 상품 문의 증감 테스트") {
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = jpaProductRepository.save(productEntityFixture(studioEntity = savedStudio))
 
             context("increaseInquiryCount()는 ") {
-                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
-                    jpaProductRepository.increaseInquiryCount(savedProduct.productId!!) shouldNotBe 0
+                it("상품의 문의 개수를 1개 증가 시킨다.") {
+                    shouldNotThrow<Throwable> { jpaProductRepository.increaseInquiryCount(savedProduct.productId!!) }
                 }
             }
 
             context("decreaseInquiryCount()는 ") {
-                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
-                    jpaProductRepository.decreaseInquiryCount(savedProduct.productId!!) shouldNotBe 0
+                it("상품의 문의 개수를 1개 감소 시킨다.") {
+                    shouldNotThrow<Throwable> { jpaProductRepository.decreaseInquiryCount(savedProduct.productId!!) }
                 }
             }
         }

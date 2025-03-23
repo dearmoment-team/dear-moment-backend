@@ -26,4 +26,8 @@ interface ProductOptionPersistencePort {
      * @param productId 삭제할 Product ID
      */
     fun deleteAllByProductId(productId: Long)
+
+    fun increaseLikeCount(optionId: Long)
+
+    fun decreaseLikeCount(optionId: Long)
 }

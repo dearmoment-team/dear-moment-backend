@@ -83,11 +83,13 @@ class ProductEntity(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studio_id")
     var studio: StudioEntity,
-    @Column(nullable = false)
-    val likeCount: Int = 0,
-    @Column(nullable = false)
-    val inquiryCount: Int = 0,
 ) : Auditable() {
+    @Column(nullable = false)
+    val likeCount: Int = 0
+
+    @Column(nullable = false)
+    val inquiryCount: Int = 0
+
     companion object {
         fun fromDomain(
             product: Product,

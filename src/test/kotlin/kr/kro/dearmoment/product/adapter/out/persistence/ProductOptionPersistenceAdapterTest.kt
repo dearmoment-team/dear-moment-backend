@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -16,12 +17,10 @@ import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRep
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
-import kr.kro.dearmoment.product.domain.model.ProductType
-import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 
 @RepositoryTest
-class ProductOptionRepositoryAdapterTest(
+class ProductOptionPersistenceAdapterTest(
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val productOptionLikeJpaRepository: ProductOptionLikeJpaRepository,
@@ -122,6 +121,9 @@ class ProductOptionRepositoryAdapterTest(
                         createdDate shouldNotBe null
                         updateDate shouldNotBe null
                     }
+
+                    shouldNotThrow<Throwable> { jpaProductOptionRepository.increaseLikeCount(persisted.optionId) }
+                    shouldNotThrow<Throwable> { jpaProductOptionRepository.decreaseLikeCount(persisted.optionId) }
                 }
 
                 it("동일 상품에 중복 이름의 옵션 저장 시 예외 발생") {

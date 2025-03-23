@@ -75,6 +75,9 @@ class ProductOptionEntity(
     @Column(nullable = false)
     var version: Long = 0L,
 ) : Auditable() {
+    @Column(nullable = false)
+    val likeCount: Int = 0
+
     companion object {
         fun fromDomain(
             option: ProductOption,
