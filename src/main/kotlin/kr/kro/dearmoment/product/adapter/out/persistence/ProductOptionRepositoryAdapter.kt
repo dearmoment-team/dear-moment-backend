@@ -43,8 +43,4 @@ class ProductOptionRepositoryAdapter(
     override fun deleteAllByProductId(productId: Long) {
         jpaProductOptionRepository.deleteAllByProductProductId(productId)
     }
-
-    override fun deleteAllByProductId(productId: Long) {
-        jpaProductOptionRepository.deleteAllByProductProductId(productId)
-    }
 }

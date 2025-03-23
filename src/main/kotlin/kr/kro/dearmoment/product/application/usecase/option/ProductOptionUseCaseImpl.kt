@@ -126,7 +126,7 @@ class ProductOptionUseCaseImpl(
         } else {
             // 기존 옵션 업데이트
             val existingOption = getProductOptionPort.findById(request.optionId)
-            
+
             val updatedOption =
                 existingOption.copy(
                     name = request.name,
