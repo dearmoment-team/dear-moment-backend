@@ -82,10 +82,17 @@ class ProductEntity(
     var version: Long = 0L,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studio_id")
-    var studio: StudioEntity? = null,
+    var studio: StudioEntity,
+    @Column(nullable = false)
+    val likeCount: Int = 0,
+    @Column(nullable = false)
+    val inquiryCount: Int = 0,
 ) : Auditable() {
     companion object {
-        fun fromDomain(product: Product): ProductEntity {
+        fun fromDomain(
+            product: Product,
+            studio: StudioEntity,
+        ): ProductEntity {
             val productEntity =
                 ProductEntity(
                     productId = if (product.productId == 0L) null else product.productId,
@@ -97,6 +104,7 @@ class ProductEntity(
                     mainImage = ImageEmbeddable.fromDomainImage(product.mainImage),
                     detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() } ?: "",
                     contactInfo = product.contactInfo.takeIf { it.isNotBlank() } ?: "",
+                    studio = studio,
                 )
             productEntity.availableSeasons.addAll(product.availableSeasons)
             productEntity.cameraTypes.addAll(product.cameraTypes)
@@ -129,6 +137,7 @@ class ProductEntity(
             detailedInfo = detailedInfo,
             contactInfo = contactInfo,
             options = options.map { it.toDomain() },
+            studio = studio.toDomain(),
         )
     }
 }

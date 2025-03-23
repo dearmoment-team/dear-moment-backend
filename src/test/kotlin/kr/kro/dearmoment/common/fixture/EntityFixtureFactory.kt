@@ -22,6 +22,7 @@ fun studioEntityFixture(userId: Long = 12345L): StudioEntity =
         .setExp(StudioEntity::name, "스튜디오 디어모먼트")
         .setExp(StudioEntity::studioIntro, "소개글")
         .setExp(StudioEntity::artistsIntro, "스튜디오 A 작가 입니다.")
+        .setExp(StudioEntity::contact, "010-1234-5678")
         .setExp(StudioEntity::userId, userId)
         .setExp(StudioEntity::status, "ACTIVE")
         .setExp(StudioEntity::instagramUrl, "instagram.com")
@@ -50,6 +51,8 @@ fun productEntityFixture(
         .setExp(ProductEntity::options, mutableListOf<ProductOptionEntity>())
         .setExp(ProductEntity::studio, studioEntity)
         .setExp(ProductEntity::subImages, List(4) { imageEmbeddableFixture() })
+        .setExp(ProductEntity::likeCount, 0)
+        .setExp(ProductEntity::inquiryCount, 0)
         .setPostCondition { it.title.isNotBlank() }
         .setExp(ProductEntity::retouchStyles, mutableSetOf(RetouchStyle.WARM, RetouchStyle.CHIC))
         .sample()

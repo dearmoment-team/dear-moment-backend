@@ -33,16 +33,6 @@ class ProductOptionRepositoryAdapter(
         return savedEntity.toDomain()
     }
 
-    override fun findById(id: Long): ProductOption {
-        return jpaProductOptionRepository.findById(id)
-            .orElseThrow { CustomException(ErrorCode.OPTION_NOT_FOUND) }
-            .toDomain()
-    }
-
-    override fun findAll(): List<ProductOption> {
-        return jpaProductOptionRepository.findAll().map { it.toDomain() }
-    }
-
     override fun deleteById(id: Long) {
         if (!jpaProductOptionRepository.existsById(id)) {
             throw CustomException(ErrorCode.OPTION_NOT_FOUND)
@@ -50,22 +40,7 @@ class ProductOptionRepositoryAdapter(
         jpaProductOptionRepository.deleteById(id)
     }
 
-    override fun findByProductId(productId: Long): List<ProductOption> {
-        return jpaProductOptionRepository.findByProductProductId(productId).map { it.toDomain() }
-    }
-
     override fun deleteAllByProductId(productId: Long) {
         jpaProductOptionRepository.deleteAllByProductProductId(productId)
-    }
-
-    override fun existsByProductId(productId: Long): Boolean {
-        return jpaProductOptionRepository.existsByProductProductId(productId)
-    }
-
-    override fun existsByProductIdAndName(
-        productId: Long,
-        name: String,
-    ): Boolean {
-        return jpaProductOptionRepository.existsByProductProductIdAndName(productId, name)
     }
 }

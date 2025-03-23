@@ -1,14 +1,16 @@
 package kr.kro.dearmoment.inquiry.application.service
 
-import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
+import kr.kro.dearmoment.inquiry.application.command.CreateProductOptionInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateStudioInquiryCommand
+import kr.kro.dearmoment.inquiry.application.command.RemoveProductOptionInquiryCommand
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
+import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,6 +20,7 @@ class InquiryCommandService(
     private val saveInquiryPort: SaveInquiryPort,
     private val deleteInquiryPort: DeleteInquiryPort,
     private val sendInquiryPort: SendInquiryPort,
+    private val productPersistencePort: ProductPersistencePort,
 ) : CreateInquiryUseCase, RemoveInquiryUseCase {
     override fun createStudioInquiry(command: CreateStudioInquiryCommand): CreateInquiryResponse {
         val inquiry = command.toDomain()
@@ -32,9 +35,13 @@ class InquiryCommandService(
         return CreateInquiryResponse(savedInquiryId)
     }
 
-    override fun createProductInquiry(command: CreateProductInquiryCommand): CreateInquiryResponse {
+    override fun createProductOptionInquiry(command: CreateProductOptionInquiryCommand): CreateInquiryResponse {
         val inquiry = command.toDomain()
-        return CreateInquiryResponse(saveInquiryPort.saveProductOptionInquiry(inquiry))
+        val savedInquiryId = saveInquiryPort.saveProductOptionInquiry(inquiry)
+
+        productPersistencePort.increaseInquiryCount(inquiry.productId)
+
+        return CreateInquiryResponse(savedInquiryId)
     }
 
     override fun createServiceInquiry(command: CreateServiceInquiryCommand): CreateInquiryResponse {
@@ -49,5 +56,8 @@ class InquiryCommandService(
         return CreateInquiryResponse(savedInquiryId)
     }
 
-    override fun removeProductOptionInquiry(inquiryId: Long): Unit = deleteInquiryPort.deleteProductOptionInquiry(inquiryId)
+    override fun removeProductOptionInquiry(command: RemoveProductOptionInquiryCommand) {
+        deleteInquiryPort.deleteProductOptionInquiry(command.inquiryId)
+        productPersistencePort.decreaseInquiryCount(command.productId)
+    }
 }

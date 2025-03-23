@@ -7,15 +7,15 @@ class LikeTest : DescribeSpec({
     describe("스튜디오 좋아요는") {
         context("생성 시 유저 ID가 양수가 아니면") {
             it("예외를 발생시킨다.") {
-                shouldThrow<IllegalArgumentException> { CreateStudioLike(userId = 0, studioId = 1) }
-                shouldThrow<IllegalArgumentException> { CreateStudioLike(userId = -1, studioId = 1) }
+                shouldThrow<IllegalArgumentException> { CreateProductLike(userId = 0, productId = 1) }
+                shouldThrow<IllegalArgumentException> { CreateProductLike(userId = -1, productId = 1) }
             }
         }
 
         context("생성 시 대상 ID가 양수가 아니면") {
             it("예외를 발생시킨다.") {
-                shouldThrow<IllegalArgumentException> { CreateStudioLike(userId = 1, studioId = 0) }
-                shouldThrow<IllegalArgumentException> { CreateStudioLike(userId = 1, studioId = -1) }
+                shouldThrow<IllegalArgumentException> { CreateProductLike(userId = 1, productId = 0) }
+                shouldThrow<IllegalArgumentException> { CreateProductLike(userId = 1, productId = -1) }
             }
         }
     }

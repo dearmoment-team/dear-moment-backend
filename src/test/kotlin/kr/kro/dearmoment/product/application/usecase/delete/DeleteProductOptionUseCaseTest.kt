@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.ProductOption
@@ -15,7 +16,8 @@ import java.time.LocalDateTime
 
 class DeleteProductOptionUseCaseTest : BehaviorSpec({
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>(relaxed = true)
-    val useCase = DeleteProductOptionUseCaseImpl(productOptionPersistencePort)
+    val getProductOptionPort = mockk<GetProductOptionPort>(relaxed = true)
+    val useCase = DeleteProductOptionUseCaseImpl(productOptionPersistencePort, getProductOptionPort)
     val validOption =
         ProductOption(
             optionId = 100L,
@@ -38,7 +40,7 @@ class DeleteProductOptionUseCaseTest : BehaviorSpec({
 
     Given("존재하는 옵션이 있을 때") {
         When("deleteOption이 productId가 일치하는 경우 호출되면") {
-            every { productOptionPersistencePort.findById(100L) } returns validOption
+            every { getProductOptionPort.findById(100L) } returns validOption
 
             Then("옵션이 삭제되어야 한다") {
                 useCase.deleteOption(1L, 100L)
@@ -47,7 +49,7 @@ class DeleteProductOptionUseCaseTest : BehaviorSpec({
         }
 
         When("deleteOption이 productId가 일치하지 않는 경우 호출되면") {
-            every { productOptionPersistencePort.findById(100L) } returns validOption
+            every { getProductOptionPort.findById(100L) } returns validOption
 
             Then("CustomException이 발생해야 한다") {
                 val exception =

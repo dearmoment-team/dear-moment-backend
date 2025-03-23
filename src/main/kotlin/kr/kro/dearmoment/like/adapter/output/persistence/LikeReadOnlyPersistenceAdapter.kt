@@ -5,10 +5,10 @@ import com.linecorp.kotlinjdsl.render.RenderContext
 import com.linecorp.kotlinjdsl.support.hibernate.extension.createQuery
 import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.like.application.port.output.GetLikePort
+import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
-import kr.kro.dearmoment.like.domain.StudioLike
+import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
-import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
@@ -16,22 +16,22 @@ import org.springframework.stereotype.Repository
 @Repository
 class LikeReadOnlyPersistenceAdapter(
     private val productOptionLikeJpaRepository: ProductOptionLikeJpaRepository,
-    private val studioLikeJpaRepository: StudioLikeJpaRepository,
+    private val productLikeJpaRepository: ProductLikeJpaRepository,
     private val entityManager: EntityManager,
     private val jpqlRenderContext: RenderContext,
 ) : GetLikePort {
-    override fun findUserStudioLikes(
+    override fun findUserProductLikes(
         userId: Long,
         pageable: Pageable,
-    ): Page<StudioLike> {
-        return studioLikeJpaRepository.findPage(pageable) {
+    ): Page<ProductLike> {
+        return productLikeJpaRepository.findPage(pageable) {
             select(
-                entity(StudioLikeEntity::class),
+                entity(ProductLikeEntity::class),
             ).from(
-                entity(StudioLikeEntity::class),
-                fetchJoin(StudioLikeEntity::studio),
+                entity(ProductLikeEntity::class),
+                fetchJoin(ProductLikeEntity::product),
             ).where(
-                path(StudioLikeEntity::userId).eq(userId),
+                path(ProductLikeEntity::userId).eq(userId),
             )
         }.map { it?.toDomain() }
     }
@@ -52,20 +52,20 @@ class LikeReadOnlyPersistenceAdapter(
         }.map { it?.toDomain() }
     }
 
-    override fun existStudioLike(
+    override fun existProductLike(
         userId: Long,
-        studioId: Long,
+        productId: Long,
     ): Boolean {
         val query =
             jpql {
                 select(
-                    path(StudioLikeEntity::id),
+                    path(ProductLikeEntity::id),
                 ).from(
-                    entity(StudioLikeEntity::class),
+                    entity(ProductLikeEntity::class),
                 ).where(
                     and(
-                        path(StudioLikeEntity::userId).eq(userId),
-                        path(StudioLikeEntity::studio).path(StudioEntity::id).eq(studioId),
+                        path(ProductLikeEntity::userId).eq(userId),
+                        path(ProductLikeEntity::product).path(ProductEntity::productId).eq(productId),
                     ),
                 )
             }

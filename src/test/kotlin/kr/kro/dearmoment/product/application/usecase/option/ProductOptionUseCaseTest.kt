@@ -15,8 +15,9 @@ import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.request.UpdatePartnerShopRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
+import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
@@ -26,10 +27,17 @@ import java.time.LocalDateTime
 
 class ProductOptionUseCaseTest : BehaviorSpec({
 
+    // 인터페이스 타입으로 선언하고 실제 구현체 주입
     // 기존 테스트 설정
-    val productPersistencePort = mockk<ProductPersistencePort>()
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>()
-    val useCase: ProductOptionUseCase = ProductOptionUseCaseImpl(productOptionPersistencePort, productPersistencePort)
+    val getProductOptionPort = mockk<GetProductOptionPort>()
+    val getProductPort = mockk<GetProductPort>()
+    val useCase: ProductOptionUseCase =
+        ProductOptionUseCaseImpl(
+            productOptionPersistencePort,
+            getProductOptionPort,
+            getProductPort,
+        )
 
     val mockProduct =
         Product(
@@ -96,7 +104,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
 
     Given("saveProductOption") {
         When("존재하지 않는 productId로 요청 시") {
-            every { productPersistencePort.findById(999L) } returns null
+            every { getProductPort.findById(999L) } returns null
 
             Then("CustomException 발생") {
                 val exception =
@@ -108,8 +116,8 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         }
 
         When("중복된 옵션 이름이 존재할 경우") {
-            every { productPersistencePort.findById(1L) } returns mockProduct
-            every { productOptionPersistencePort.existsByProductIdAndName(1L, "Option 1") } returns true
+            every { getProductPort.findById(1L) } returns mockProduct
+            every { getProductOptionPort.existsByProductIdAndName(1L, "Option 1") } returns true
 
             Then("CustomException 발생") {
                 val exception =
@@ -121,8 +129,9 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         }
 
         When("유효한 옵션 정보일 경우") {
-            every { productPersistencePort.findById(1L) } returns mockProduct
-            every { productOptionPersistencePort.existsByProductIdAndName(1L, "Option 1") } returns false
+            every { getProductPort.findById(1L) } returns mockProduct
+            every { getProductOptionPort.existsByProductIdAndName(1L, "Option 1") } returns false
+            // 정적 팩토리 메서드를 사용하여 도메인 객체로 변환한 후 저장
             every { productOptionPersistencePort.save(any(), any()) } returns savedDomainOption
 
             Then("옵션이 정상 저장되고 응답 DTO 반환") {
@@ -137,7 +146,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
 
     Given("getProductOptionById") {
         When("존재하는 옵션 ID로 요청 시") {
-            every { productOptionPersistencePort.findById(1L) } returns savedDomainOption
+            every { getProductOptionPort.findById(1L) } returns savedDomainOption
 
             Then("응답 DTO 반환") {
                 val response = useCase.getProductOptionById(1L)
@@ -146,7 +155,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         }
 
         When("존재하지 않는 옵션 ID로 요청 시") {
-            every { productOptionPersistencePort.findById(999L) } throws CustomException(ErrorCode.OPTION_NOT_FOUND)
+            every { getProductOptionPort.findById(999L) } throws CustomException(ErrorCode.OPTION_NOT_FOUND)
 
             Then("CustomException 발생") {
                 val exception =
@@ -165,7 +174,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                 savedDomainOption.copy(optionId = 2L, name = "Option 2"),
             )
         When("특정 상품의 옵션 조회 시") {
-            every { productOptionPersistencePort.findByProductId(1L) } returns options
+            every { getProductOptionPort.findByProductId(1L) } returns options
 
             Then("DTO 리스트 반환") {
                 val responses = useCase.getProductOptionsByProductId(1L)
@@ -178,13 +187,13 @@ class ProductOptionUseCaseTest : BehaviorSpec({
 
     Given("existsProductOptions") {
         When("옵션이 존재하는 경우") {
-            every { productOptionPersistencePort.existsByProductId(1L) } returns true
+            every { getProductOptionPort.existsByProductId(1L) } returns true
             Then("true 반환") {
                 useCase.existsProductOptions(1L) shouldBe true
             }
         }
         When("옵션이 존재하지 않는 경우") {
-            every { productOptionPersistencePort.existsByProductId(1L) } returns false
+            every { getProductOptionPort.existsByProductId(1L) } returns false
             Then("false 반환") {
                 useCase.existsProductOptions(1L) shouldBe false
             }
@@ -194,7 +203,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
     Given("getAllProductOptions") {
         When("저장된 옵션이 여러 개 존재하면") {
             val allOptions = listOf(savedDomainOption, savedDomainOption.copy(optionId = 2L, name = "Option 2"))
-            every { productOptionPersistencePort.findAll() } returns allOptions
+            every { getProductOptionPort.findAll() } returns allOptions
 
             Then("전체 옵션 리스트 DTO 반환") {
                 val responses = useCase.getAllProductOptions()
@@ -205,7 +214,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         }
 
         When("저장된 옵션이 없으면") {
-            every { productOptionPersistencePort.findAll() } returns emptyList()
+            every { getProductOptionPort.findAll() } returns emptyList()
 
             Then("빈 리스트 반환") {
                 useCase.getAllProductOptions() shouldBe emptyList()
@@ -237,7 +246,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
 
     Given("saveOrUpdateProductOption") {
         When("요청 DTO가 null이면 null 반환") {
-            every { productPersistencePort.findById(1L) } returns mockProduct
+            every { getProductPort.findById(1L) } returns mockProduct
             Then("null 반환") {
                 useCase.saveOrUpdateProductOption(1L, null) shouldBe null
             }
@@ -269,7 +278,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                         ),
                 )
             val newOptionDomain = UpdateProductOptionRequest.toDomain(newOptionRequest, 1L)
-            every { productPersistencePort.findById(1L) } returns mockProduct
+            every { getProductPort.findById(1L) } returns mockProduct
             every { productOptionPersistencePort.save(newOptionDomain, mockProduct) } returns newOptionDomain.copy(optionId = 3L)
 
             Then("신규 옵션 추가 후 DTO 반환") {
@@ -305,8 +314,8 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                     discountPrice = 5000,
                     description = "Option Updated Description",
                 )
-            every { productPersistencePort.findById(1L) } returns mockProduct
-            every { productOptionPersistencePort.findById(1L) } returns existingOption
+            every { getProductPort.findById(1L) } returns mockProduct
+            every { getProductOptionPort.findById(1L) } returns existingOption
             every { productOptionPersistencePort.save(updatedOption, mockProduct) } returns updatedOption
 
             Then("기존 옵션 업데이트 후 DTO 반환") {
@@ -316,7 +325,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
         }
 
         When("상품이 존재하지 않는 경우 saveOrUpdateProductOption 호출 시") {
-            every { productPersistencePort.findById(999L) } returns null
+            every { getProductPort.findById(999L) } returns null
 
             Then("CustomException 발생") {
                 val exception =

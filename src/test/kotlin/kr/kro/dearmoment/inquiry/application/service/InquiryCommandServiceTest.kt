@@ -9,19 +9,23 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kr.kro.dearmoment.inquiry.application.command.CreateProductInquiryCommand
+import kr.kro.dearmoment.inquiry.application.command.CreateProductOptionInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateStudioInquiryCommand
+import kr.kro.dearmoment.inquiry.application.command.RemoveProductOptionInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
+import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 
 class InquiryCommandServiceTest : DescribeSpec({
     val savePort = mockk<SaveInquiryPort>()
     val deletePort = mockk<DeleteInquiryPort>()
     val sendPort = mockk<SendInquiryPort>()
-    val service = InquiryCommandService(savePort, deletePort, sendPort)
+    val productPersistencePort = mockk<ProductPersistencePort>()
+
+    val service = InquiryCommandService(savePort, deletePort, sendPort, productPersistencePort)
 
     describe("createArtistInquiry()는") {
         context("작가 문의 생성 명령을 전달 받으면") {
@@ -43,15 +47,17 @@ class InquiryCommandServiceTest : DescribeSpec({
         }
     }
 
-    describe("createProductInquiry()는") {
+    describe("createProductOptionInquiry()는") {
         context("상품 문의 생성 명령을 전달 받으면") {
-            val command = CreateProductInquiryCommand(userId = 1L, productId = 1L)
+            val command = CreateProductOptionInquiryCommand(userId = 1L, productId = 1L, optionId = 1L)
             val expectedId = 1L
             every { savePort.saveProductOptionInquiry(any()) } returns expectedId
+            every { productPersistencePort.increaseInquiryCount(command.productId) } just Runs
             it("문의를 저장하고 ID를 반환한다.") {
-                val result = service.createProductInquiry(command)
+                val result = service.createProductOptionInquiry(command)
                 result.inquiryId shouldBe expectedId
                 verify(exactly = 1) { savePort.saveProductOptionInquiry(any()) }
+                verify(exactly = 1) { productPersistencePort.increaseInquiryCount(command.productId) }
             }
         }
     }
@@ -89,12 +95,18 @@ class InquiryCommandServiceTest : DescribeSpec({
         }
     }
 
-    describe("removeProductInquiry()는") {
+    describe("removeProductOptionInquiry()는") {
         context("문의 id를 전달받으면") {
-            val inquiryId = 1L
-            every { deletePort.deleteProductOptionInquiry(inquiryId) } just Runs
+            val command =
+                RemoveProductOptionInquiryCommand(
+                    inquiryId = 1L,
+                    productId = 1L,
+                )
+            every { deletePort.deleteProductOptionInquiry(command.inquiryId) } just Runs
+            every { productPersistencePort.decreaseInquiryCount(command.productId) } just Runs
             it("해당 문의를 삭제한다") {
-                shouldNotThrow<Throwable> { service.removeProductOptionInquiry(inquiryId) }
+                shouldNotThrow<Throwable> { service.removeProductOptionInquiry(command) }
+                verify(exactly = 1) { productPersistencePort.decreaseInquiryCount(command.productId) }
             }
         }
     }

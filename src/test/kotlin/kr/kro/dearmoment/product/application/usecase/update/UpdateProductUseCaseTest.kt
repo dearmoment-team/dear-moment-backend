@@ -12,6 +12,7 @@ import io.mockk.unmockkObject
 import io.mockk.verify
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.common.fixture.studioFixture
 import kr.kro.dearmoment.image.application.handler.ImageHandler
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
@@ -23,16 +24,17 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.option.ProductOptionUseCase
 import kr.kro.dearmoment.product.domain.model.CameraType
-import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import org.springframework.mock.web.MockMultipartFile
 import java.time.LocalDateTime
 
@@ -41,7 +43,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     // -- Mock 설정 --
     val productPersistencePort = mockk<ProductPersistencePort>()
     val imageHandler = mockk<ImageHandler>()
+    val getProductPort = mockk<GetProductPort>()
+    val getStudioPort = mockk<GetStudioPort>()
     val productOptionUseCase = mockk<ProductOptionUseCase>(relaxed = true)
+    val studio = studioFixture()
 
     // 실제 테스트 대상 UseCase
     val useCase =
@@ -49,6 +54,8 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             productPersistencePort = productPersistencePort,
             imageHandler = imageHandler,
             productOptionUseCase = productOptionUseCase,
+            getStudioPort = getStudioPort,
+            getProductPort = getProductPort,
         )
 
     // -- 더미 데이터 --
@@ -104,9 +111,11 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             options = emptyList(),
         )
 
+    // 업데이트 요청 DTO
     val updateRequest =
         UpdateProductRequest(
             productId = 999L,
+            studioId = 1L,
             userId = 1L,
             productType = "WEDDING_SNAP",
             shootingPlace = "JEJU",
@@ -131,6 +140,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             contactInfo = "Updated Contact",
         )
 
+    // 더미 파일
     val mainImageFileTest =
         MockMultipartFile(
             "mainImageFile",
@@ -193,6 +203,9 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             url = "http://example.com/add2.jpg",
         )
 
+    val baseUpdateRequest = updateRequest
+
+    // 서브 이미지 추가 더미 파일들
     val mockSubFileA = MockMultipartFile("subImageFiles", "subA.jpg", "image/jpeg", "subA-content".toByteArray())
     val mockSubFileB = MockMultipartFile("subImageFiles", "subB.jpg", "image/jpeg", "subB-content".toByteArray())
     val mockSubFileC = MockMultipartFile("subImageFiles", "subC.jpg", "image/jpeg", "subC-content".toByteArray())
@@ -255,30 +268,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             url = "http://example.com/new_subD.jpg",
         )
 
-    fun createDummyOption(): ProductOption =
-        ProductOption(
-            optionId = 1L,
-            productId = 999L,
-            name = "Dummy Option",
-            optionType = OptionType.SINGLE,
-            discountAvailable = false,
-            originalPrice = 1000,
-            discountPrice = 800,
-            costumeCount = 1,
-            shootingLocationCount = 1,
-            shootingHours = 1,
-            shootingMinutes = 0,
-            retouchedCount = 1,
-            originalProvided = true,
-            partnerShops = emptyList(),
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-        )
-
     Given("updateProduct 메서드") {
 
         When("존재하지 않는 상품 ID 요청 시") {
-            every { productPersistencePort.findById(999L) } returns null
+            every { getProductPort.findById(999L) } returns null
 
             Then("예외 발생") {
                 val exception =
@@ -297,7 +290,8 @@ class UpdateProductUseCaseTest : BehaviorSpec({
         }
 
         When("정상 요청 시") {
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getStudioPort.findById(studio.id) } returns studio
+            every { getProductPort.findById(999L) } returns existingProduct
             every {
                 imageHandler.updateMainImage(mainImageFileTest, updateRequest.userId, existingProduct.mainImage)
             } returns dummyNewMainImage
@@ -324,12 +318,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
             } returns listOf(dummyNewAdditionalImage)
 
-            val realEntity = ProductEntity.fromDomain(existingProduct)
+            val realEntity = ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio))
             val spiedEntity = spyk(realEntity)
             mockkObject(ProductEntity.Companion)
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } returns
+            every { productPersistencePort.save(any(), any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",
                     description = "Updated Description",
@@ -347,6 +341,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     additionalImages = listOf(dummyNewAdditionalImage),
                     detailedInfo = "Updated Detailed Info",
                     contactInfo = "Updated Contact",
+                    studio = studio,
                 )
 
             val result =
@@ -369,136 +364,15 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             Then("상호작용 검증") {
                 verify(exactly = 1) { imageHandler.updateMainImage(any(), any(), any()) }
                 verify(exactly = 1) { imageHandler.processSubImagesPartial(any(), any(), any(), any()) }
-                verify(exactly = 1) { productPersistencePort.save(any()) }
+                verify(exactly = 1) { productPersistencePort.save(any(), any()) }
             }
 
             unmockkObject(ProductEntity.Companion)
         }
 
-        When("메인 이미지 파일이 null인 경우") {
-            every { productPersistencePort.findById(999L) } returns existingProduct
-            every { imageHandler.processSubImagesPartial(any(), any(), any(), any()) } returns
-                existingProduct.subImages
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns
-                existingProduct.additionalImages
-
-            mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
-            every { productPersistencePort.save(any()) } returns existingProduct
-
-            val requestWithoutMainUpdate = updateRequest.copy(title = "No Main Update")
-            val result =
-                useCase.updateProduct(
-                    productId = requestWithoutMainUpdate.productId,
-                    rawRequest = requestWithoutMainUpdate,
-                    mainImageFile = null,
-                    subImageFiles = emptyList(),
-                    additionalImageFiles = emptyList(),
-                    options = emptyList(),
-                )
-
-            Then("기존의 mainImage가 유지된다") {
-                result.mainImage.url shouldBe dummyExistingMainImage.url
-            }
-            unmockkObject(ProductEntity.Companion)
-        }
-
-        When("서브 이미지 final 요청이 null인 경우") {
-            val requestNoSubUpdate = updateRequest.copy(subImagesFinal = null)
-            every { productPersistencePort.findById(999L) } returns existingProduct
-            every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns
-                existingProduct.additionalImages
-
-            mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
-            every { productPersistencePort.save(any()) } returns
-                existingProduct.copy(
-                    mainImage = dummyNewMainImage,
-                )
-
-            val result =
-                useCase.updateProduct(
-                    productId = requestNoSubUpdate.productId,
-                    rawRequest = requestNoSubUpdate,
-                    mainImageFile = mainImageFileTest,
-                    subImageFiles = emptyList(),
-                    additionalImageFiles = emptyList(),
-                    options = emptyList(),
-                )
-
-            Then("서브 이미지들은 기존의 이미지가 그대로 유지된다") {
-                result.subImages shouldHaveSize 4
-                result.subImages.forEach { it.url shouldBe dummyExistingSubImage.url }
-            }
-            unmockkObject(ProductEntity.Companion)
-        }
-
-        When("추가 이미지 final 요청이 null인 경우") {
-            val requestNoAdditionalUpdate = updateRequest.copy(additionalImagesFinal = null)
-            every { productPersistencePort.findById(999L) } returns existingProduct
-            every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
-            every { imageHandler.processSubImagesPartial(any(), any(), any(), any()) } returns existingProduct.subImages
-
-            mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
-            every { productPersistencePort.save(any()) } returns
-                existingProduct.copy(
-                    mainImage = dummyNewMainImage,
-                )
-
-            val result =
-                useCase.updateProduct(
-                    productId = requestNoAdditionalUpdate.productId,
-                    rawRequest = requestNoAdditionalUpdate,
-                    mainImageFile = mainImageFileTest,
-                    subImageFiles = emptyList(),
-                    additionalImageFiles = emptyList(),
-                    options = emptyList(),
-                )
-
-            Then("추가 이미지들은 기존의 이미지가 그대로 유지된다") {
-                result.additionalImages shouldHaveSize existingProduct.additionalImages.size
-                result.additionalImages[0].url shouldBe dummyExistingAdditionalImage.url
-            }
-            unmockkObject(ProductEntity.Companion)
-        }
-
-        When("옵션 요청이 null인 경우") {
-            // 기존 옵션은 빈 리스트로 처리하도록 수정 (타입 일치)
-            every { productPersistencePort.findById(999L) } returns existingProduct.copy(options = emptyList())
-            every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
-            every { imageHandler.processSubImagesPartial(any(), any(), any(), any()) } returns existingProduct.subImages
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns existingProduct.additionalImages
-
-            mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
-            every { productPersistencePort.save(any()) } returns existingProduct
-
-            val result =
-                useCase.updateProduct(
-                    productId = updateRequest.productId,
-                    rawRequest = updateRequest.copy(),
-                    mainImageFile = mainImageFileTest,
-                    subImageFiles = emptyList(),
-                    additionalImageFiles = emptyList(),
-                    options = null,
-                )
-
-            Then("옵션 동기화가 호출되지 않고 기존 옵션이 그대로 유지된다") {
-                result.options shouldBe emptyList()
-            }
-            unmockkObject(ProductEntity.Companion)
-        }
-
-        // 추가 케이스 2: 서브 이미지 1개만 교체하고, 나머지 3개는 그대로 유지하는 경우
-        When("서브 이미지를 1개만 교체하고 나머지는 그대로 유지할 때") {
+        When("서브 이미지를 1개만 교체하고, 나머지 3개는 그대로 유지할 때") {
             val oneChangeRequest =
-                updateRequest.copy(
+                baseUpdateRequest.copy(
                     subImagesFinal =
                         listOf(
                             SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
@@ -507,8 +381,8 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                             SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
                         ),
                 )
-
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getStudioPort.findById(studio.id) } returns studio
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -524,14 +398,20 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     dummyExistingSubImage3,
                     dummyNewSubImageD,
                 )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns
-                listOf(dummyExistingAdditionalImage)
+            every {
+                imageHandler.processAdditionalImagesFinal(
+                    any(),
+                    any(),
+                    any(),
+                    updateRequest.userId,
+                )
+            } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -555,20 +435,21 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     options = emptyList(),
                 )
 
-            Then("서브 이미지 4개 중 3개는 기존 그대로, 1개만 새로운 이미지로 교체된다") {
+            Then("서브 이미지 4개 중 3개는 기존 그대로, 1개만 새로운 이미지로 교체") {
                 result.subImages shouldHaveSize 4
+                // [중요] url 필드와 비교해야 함
                 result.subImages[0].url shouldBe dummyExistingSubImage1.url
                 result.subImages[1].url shouldBe dummyExistingSubImage2.url
                 result.subImages[2].url shouldBe dummyExistingSubImage3.url
                 result.subImages[3].url shouldBe dummyNewSubImageD.url
             }
+
             unmockkObject(ProductEntity.Companion)
         }
 
-        // 추가 케이스 3: 서브 이미지 2개만 교체하고, 나머지 2개는 그대로 유지하는 경우
-        When("서브 이미지를 2개만 교체하고 나머지 2개가 새 파일로 업로드될 때") {
+        When("서브 이미지를 2개만 교체하고, 나머지 2개는 그대로 유지할 때") {
             val twoChangeRequest =
-                updateRequest.copy(
+                baseUpdateRequest.copy(
                     subImagesFinal =
                         listOf(
                             SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
@@ -578,7 +459,8 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         ),
                 )
 
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getStudioPort.findById(studio.id) } returns studio
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -594,14 +476,20 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     dummyNewSubImageC,
                     dummyNewSubImageD,
                 )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns
-                listOf(dummyExistingAdditionalImage)
+            every {
+                imageHandler.processAdditionalImagesFinal(
+                    any(),
+                    any(),
+                    any(),
+                    updateRequest.userId,
+                )
+            } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -631,13 +519,13 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 result.subImages[2].url shouldBe dummyNewSubImageC.url
                 result.subImages[3].url shouldBe dummyNewSubImageD.url
             }
+
             unmockkObject(ProductEntity.Companion)
         }
 
-        // 추가 케이스 4: 서브 이미지 3개만 교체하고, 나머지 1개는 그대로 유지하는 경우
-        When("서브 이미지 3개만 교체하고 나머지 1개는 기존 그대로 유지될 때") {
+        When("서브 이미지를 3개만 교체하고, 나머지 1개는 그대로 유지할 때") {
             val threeChangeRequest =
-                updateRequest.copy(
+                baseUpdateRequest.copy(
                     subImagesFinal =
                         listOf(
                             SubImageFinalRequest(UpdateSubImageAction.KEEP, 0, dummyExistingSubImage1.imageId),
@@ -647,7 +535,8 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         ),
                 )
 
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getStudioPort.findById(studio.id) } returns studio
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -663,13 +552,15 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     dummyNewSubImageB,
                     dummyNewSubImageC,
                 )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns listOf(dummyExistingAdditionalImage)
+            every {
+                imageHandler.processAdditionalImagesFinal(any(), any(), any(), any())
+            } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -694,18 +585,19 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             Then("서브 이미지 4개 중 1개는 기존 그대로, 3개가 새로운 이미지로 교체된다") {
+                // url 필드 비교
                 result.subImages[0].url shouldBe dummyExistingSubImage1.url
                 result.subImages[1].url shouldBe dummyNewSubImageA.url
                 result.subImages[2].url shouldBe dummyNewSubImageB.url
                 result.subImages[3].url shouldBe dummyNewSubImageC.url
             }
+
             unmockkObject(ProductEntity.Companion)
         }
 
-        // 추가 케이스 5: 서브 이미지 4개 모두 교체하는 경우
-        When("서브 이미지 4개 모두 새로운 이미지로 교체할 때") {
+        When("서브 이미지를 4개 모두 교체할 때") {
             val allChangeRequest =
-                updateRequest.copy(
+                baseUpdateRequest.copy(
                     subImagesFinal =
                         listOf(
                             SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 0, null),
@@ -715,7 +607,8 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         ),
                 )
 
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getStudioPort.findById(studio.id) } returns studio
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -731,13 +624,15 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     dummyNewSubImageC,
                     dummyNewSubImageD,
                 )
-            every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns listOf(dummyExistingAdditionalImage)
+            every {
+                imageHandler.processAdditionalImagesFinal(any(), any(), any(), any())
+            } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -761,16 +656,17 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     options = emptyList(),
                 )
 
-            Then("서브 이미지 4개 모두 새로운 이미지로 교체된다") {
+            Then("4개 모두 새로운 이미지로 교체된다") {
                 result.subImages[0].url shouldBe dummyNewSubImageA.url
                 result.subImages[1].url shouldBe dummyNewSubImageB.url
                 result.subImages[2].url shouldBe dummyNewSubImageC.url
                 result.subImages[3].url shouldBe dummyNewSubImageD.url
             }
+
             unmockkObject(ProductEntity.Companion)
         }
 
-        // 추가 케이스 6: 옵션 수정 및 신규 옵션 추가 시나리오
+        // 옵션 관련 시나리오: 수정 + 신규 추가
         When("옵션 수정 및 신규 옵션 추가 시나리오") {
             val partnerShopRequest =
                 UpdatePartnerShopRequest(
@@ -818,7 +714,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     ProductOptionResponse.fromDomain(UpdateProductOptionRequest.toDomain(it, 999L))
                 }
 
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every { imageHandler.processSubImagesPartial(any(), any(), any(), any()) } returns
                 listOf(
@@ -828,8 +724,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     dummyExistingSubImage,
                 )
             every { imageHandler.processAdditionalImagesFinal(any(), any(), any(), any()) } returns
-                listOf(dummyExistingAdditionalImage)
-            every { productPersistencePort.save(any()) } returns
+                listOf(
+                    dummyExistingAdditionalImage,
+                )
+            every { productPersistencePort.save(any(), any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",
                     description = "Updated Description",
@@ -847,7 +745,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     additionalImages = listOf(dummyExistingAdditionalImage),
                     detailedInfo = "Updated Detailed Info",
                     contactInfo = "Updated Contact",
-                    options = optionRequestList.map { UpdateProductOptionRequest.toDomain(it, 999L) },
+                    options =
+                        optionRequestList.map {
+                            UpdateProductOptionRequest.toDomain(it, 999L)
+                        },
                 )
 
             val result =

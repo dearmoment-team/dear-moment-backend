@@ -3,6 +3,7 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
@@ -53,6 +54,7 @@ class ProductOptionEntityTest : StringSpec({
                 productType = ProductType.WEDDING_SNAP,
                 shootingPlace = ShootingPlace.JEJU,
                 title = "샘플 상품",
+                studio = studioEntityFixture(),
             )
 
         val fixedCreatedAt = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
@@ -110,6 +112,7 @@ class ProductOptionEntityTest : StringSpec({
                 productType = ProductType.WEDDING_SNAP,
                 shootingPlace = ShootingPlace.JEJU,
                 title = "샘플 상품2",
+                studio = studioEntityFixture(),
             )
 
         val partnerShopsEmbeddable =

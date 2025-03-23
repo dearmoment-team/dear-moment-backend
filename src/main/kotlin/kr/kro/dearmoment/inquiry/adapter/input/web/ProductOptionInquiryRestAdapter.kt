@@ -11,6 +11,7 @@ import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateProductOptionInquiryRequest
 import kr.kro.dearmoment.inquiry.application.dto.GetProductOptionInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.RemoveProductOptionInquiryRequest
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
@@ -50,7 +51,7 @@ class ProductOptionInquiryRestAdapter(
     fun writeProductOptionInquiry(
         @Parameter(description = "생성할 상품 옵션 문의 정보", required = true)
         @RequestBody request: CreateProductOptionInquiryRequest,
-    ): CreateInquiryResponse = createInquiryUseCase.createProductInquiry(request.toCommand())
+    ): CreateInquiryResponse = createInquiryUseCase.createProductOptionInquiry(request.toCommand())
 
     @Operation(summary = "유저 상품 옵션 문의 조히", description = "유저가 등록한 상품 옵션 문의를 모두 조회합니다.")
     @ApiResponses(
@@ -91,10 +92,10 @@ class ProductOptionInquiryRestAdapter(
             ),
         ],
     )
-    @DeleteMapping("/{inquiryId}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeProductOptionInquiry(
-        @Parameter(description = "삭제할 상품 옵션 문의 식별자 식별자", required = true)
-        @PathVariable inquiryId: Long,
-    ): Unit = removeInquiryUseCase.removeProductOptionInquiry(inquiryId)
+        @Parameter(description = "삭제할 상품 옵션 문의 정보", required = true)
+        @RequestBody request: RemoveProductOptionInquiryRequest,
+    ): Unit = removeInquiryUseCase.removeProductOptionInquiry(request.toCommand())
 }

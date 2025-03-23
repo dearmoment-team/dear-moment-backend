@@ -5,8 +5,9 @@ import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
+import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
@@ -17,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ProductOptionUseCaseImpl(
     private val productOptionPersistencePort: ProductOptionPersistencePort,
-    private val productPersistencePort: ProductPersistencePort,
+    private val getProductOptionPort: GetProductOptionPort,
+    private val getProductPort: GetProductPort,
 ) : ProductOptionUseCase {
     @Transactional
     override fun saveProductOption(
@@ -34,13 +36,13 @@ class ProductOptionUseCaseImpl(
 
     @Transactional(readOnly = true)
     override fun getProductOptionById(optionId: Long): ProductOptionResponse {
-        val option = productOptionPersistencePort.findById(optionId)
+        val option = getProductOptionPort.findById(optionId)
         return ProductOptionResponse.fromDomain(option)
     }
 
     @Transactional(readOnly = true)
     override fun getAllProductOptions(): List<ProductOptionResponse> {
-        return productOptionPersistencePort.findAll().map { ProductOptionResponse.fromDomain(it) }
+        return getProductOptionPort.findAll().map { ProductOptionResponse.fromDomain(it) }
     }
 
     @Transactional
@@ -50,7 +52,7 @@ class ProductOptionUseCaseImpl(
 
     @Transactional(readOnly = true)
     override fun getProductOptionsByProductId(productId: Long): List<ProductOptionResponse> {
-        return productOptionPersistencePort.findByProductId(productId)
+        return getProductOptionPort.findByProductId(productId)
             .map { ProductOptionResponse.fromDomain(it) }
     }
 
@@ -61,7 +63,7 @@ class ProductOptionUseCaseImpl(
 
     @Transactional(readOnly = true)
     override fun existsProductOptions(productId: Long): Boolean {
-        return productOptionPersistencePort.existsByProductId(productId)
+        return getProductOptionPort.existsByProductId(productId)
     }
 
     @Transactional
@@ -69,7 +71,7 @@ class ProductOptionUseCaseImpl(
         existingProduct: Product,
         requestOptions: List<UpdateProductOptionRequest>,
     ) {
-        val existingOptions = productOptionPersistencePort.findByProductId(existingProduct.productId)
+        val existingOptions = getProductOptionPort.findByProductId(existingProduct.productId)
         val existingOptionMap = existingOptions.associateBy { it.optionId }
 
         requestOptions.forEach { dto ->
@@ -122,7 +124,9 @@ class ProductOptionUseCaseImpl(
             val savedOption = productOptionPersistencePort.save(newOption, product)
             ProductOptionResponse.fromDomain(savedOption)
         } else {
-            val existingOption = productOptionPersistencePort.findById(request.optionId)
+            // 기존 옵션 업데이트
+            val existingOption = getProductOptionPort.findById(request.optionId)
+
             val updatedOption =
                 existingOption.copy(
                     name = request.name,
@@ -152,7 +156,7 @@ class ProductOptionUseCaseImpl(
     }
 
     private fun getProductOrThrow(productId: Long): Product {
-        return productPersistencePort.findById(productId)
+        return getProductPort.findById(productId)
             ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
     }
 
@@ -160,7 +164,7 @@ class ProductOptionUseCaseImpl(
         productId: Long,
         name: String,
     ) {
-        if (productOptionPersistencePort.existsByProductIdAndName(productId, name)) {
+        if (getProductOptionPort.existsByProductIdAndName(productId, name)) {
             throw CustomException(ErrorCode.DUPLICATE_OPTION_NAME)
         }
     }
