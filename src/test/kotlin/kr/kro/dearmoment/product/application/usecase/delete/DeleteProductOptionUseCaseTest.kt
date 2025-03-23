@@ -16,24 +16,25 @@ import java.time.LocalDateTime
 class DeleteProductOptionUseCaseTest : BehaviorSpec({
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>(relaxed = true)
     val useCase = DeleteProductOptionUseCaseImpl(productOptionPersistencePort)
-    val validOption = ProductOption(
-        optionId = 100L,
-        productId = 1L,
-        name = "Dummy Option",
-        optionType = OptionType.SINGLE,
-        discountAvailable = false,
-        originalPrice = 1000,
-        discountPrice = 800,
-        description = "Dummy",
-        costumeCount = 1,
-        shootingLocationCount = 1,
-        shootingHours = 1,
-        shootingMinutes = 0,
-        retouchedCount = 1,
-        partnerShops = emptyList(),
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now()
-    )
+    val validOption =
+        ProductOption(
+            optionId = 100L,
+            productId = 1L,
+            name = "Dummy Option",
+            optionType = OptionType.SINGLE,
+            discountAvailable = false,
+            originalPrice = 1000,
+            discountPrice = 800,
+            description = "Dummy",
+            costumeCount = 1,
+            shootingLocationCount = 1,
+            shootingHours = 1,
+            shootingMinutes = 0,
+            retouchedCount = 1,
+            partnerShops = emptyList(),
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+        )
 
     Given("존재하는 옵션이 있을 때") {
         When("deleteOption이 productId가 일치하는 경우 호출되면") {
@@ -49,9 +50,10 @@ class DeleteProductOptionUseCaseTest : BehaviorSpec({
             every { productOptionPersistencePort.findById(100L) } returns validOption
 
             Then("CustomException이 발생해야 한다") {
-                val exception = shouldThrow<CustomException> {
-                    useCase.deleteOption(2L, 100L)
-                }
+                val exception =
+                    shouldThrow<CustomException> {
+                        useCase.deleteOption(2L, 100L)
+                    }
                 exception.errorCode shouldBe ErrorCode.INVALID_REQUEST
             }
         }
