@@ -1,9 +1,8 @@
 package kr.kro.dearmoment.product.adapter.input.web.search
 
 import andDocument
-import kr.kro.dearmoment.common.RestApiTestBase
+import kr.kro.dearmoment.common.MockBaseApiTest
 import kr.kro.dearmoment.common.dto.PagedResponse
-import kr.kro.dearmoment.common.dto.ResponseWrapper
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -14,28 +13,16 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
-import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
-import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
-import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
-import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-class SearchProductRestAdapterTest: RestApiTestBase() {
+@WebMvcTest(ProductRestAdapter::class)
+class SearchProductRestAdapterTest : MockBaseApiTest() {
+
     @Test
     fun `상품 검색 API 테스트 - 정상 검색`() {
         // given
@@ -51,10 +38,9 @@ class SearchProductRestAdapterTest: RestApiTestBase() {
                 cameraTypes = listOf("FILM"),
                 retouchStyles = listOf("NATURAL"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/main1.jpg"),
-                subImages =
-                    listOf(
-                        ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg"),
-                    ),
+                subImages = listOf(
+                    ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg"),
+                ),
                 additionalImages = emptyList(),
                 detailedInfo = "Info1",
                 contactInfo = "Contact1",
@@ -75,10 +61,9 @@ class SearchProductRestAdapterTest: RestApiTestBase() {
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("CALM"),
                 mainImage = ImageResponse(imageId = 3L, url = "http://image-server.com/main2.jpg"),
-                subImages =
-                    listOf(
-                        ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg"),
-                    ),
+                subImages = listOf(
+                    ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg"),
+                ),
                 additionalImages = emptyList(),
                 detailedInfo = "Info2",
                 contactInfo = "Contact2",
@@ -96,7 +81,7 @@ class SearchProductRestAdapterTest: RestApiTestBase() {
                 totalPages = 1,
             )
 
-        // Mock UseCase 결과
+        // 모킹
         given(
             productSearchUseCase.searchProducts(
                 title = "Snap",
@@ -105,7 +90,7 @@ class SearchProductRestAdapterTest: RestApiTestBase() {
                 sortBy = "created-desc",
                 page = 0,
                 size = 10,
-            ),
+            )
         ).willReturn(pagedResult)
 
         // when
@@ -177,11 +162,10 @@ class SearchProductRestAdapterTest: RestApiTestBase() {
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("NATURAL"),
                 mainImage = ImageResponse(imageId = 11L, url = "http://image-server.com/main.jpg"),
-                subImages =
-                    listOf(
-                        ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg"),
-                    ),
-                additionalImages = listOf(),
+                subImages = listOf(
+                    ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg"),
+                ),
+                additionalImages = emptyList(),
                 detailedInfo = "Some info",
                 contactInfo = "contact@example.com",
                 createdAt = null,

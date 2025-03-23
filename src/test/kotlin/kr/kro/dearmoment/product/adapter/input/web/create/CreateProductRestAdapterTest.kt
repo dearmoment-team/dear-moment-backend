@@ -1,8 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.create
 
 import andDocument
-import com.fasterxml.jackson.databind.ObjectMapper
-import kr.kro.dearmoment.common.dto.ResponseWrapper
+import kr.kro.dearmoment.common.MockBaseApiTest
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -15,58 +14,17 @@ import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
-import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
-import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
-import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.restdocs.RestDocumentationExtension
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
-@Import(ResponseWrapper::class)
-@AutoConfigureRestDocs
-@AutoConfigureMockMvc
-class CreateProductRestAdapterTest {
-    @Autowired
-    lateinit var mockMvc: MockMvc
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
-
-    @MockitoBean
-    lateinit var createProductUseCase: CreateProductUseCase
-
-    @MockitoBean
-    lateinit var updateProductUseCase: UpdateProductUseCase
-
-    @MockitoBean
-    lateinit var deleteProductUseCase: DeleteProductUseCase
-
-    @MockitoBean
-    lateinit var getProductUseCase: GetProductUseCase
-
-    @MockitoBean
-    lateinit var productSearchUseCase: ProductSearchUseCase
-
-    @MockitoBean
-    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
+class CreateProductRestAdapterTest : MockBaseApiTest() {
 
     @Test
     fun `상품 생성 API 테스트`() {
@@ -109,9 +67,7 @@ class CreateProductRestAdapterTest {
                 "sub image 4".toByteArray(),
             )
 
-        // 추가 이미지 파일은 테스트에서 생략하여, 컨트롤러에서 빈 리스트로 처리됨
-
-        // CreateProductRequest를 표현하는 JSON 파트 생성
+        // CreateProductRequest JSON 생성
         val requestMap =
             mapOf(
                 "userId" to 1L,
@@ -125,43 +81,43 @@ class CreateProductRestAdapterTest {
                 "detailedInfo" to "Detailed product information",
                 "contactInfo" to "contact@example.com",
                 "options" to
-                    listOf(
-                        mapOf(
-                            "name" to "Option 1",
-                            "optionType" to "SINGLE",
-                            "discountAvailable" to false,
-                            "originalPrice" to 10000,
-                            "discountPrice" to 1000,
-                            "description" to "Extra option",
-                            "costumeCount" to 1,
-                            "shootingLocationCount" to 1,
-                            "shootingHours" to 1,
-                            "shootingMinutes" to 30,
-                            "retouchedCount" to 1,
-                            "partnerShops" to
-                                listOf(
-                                    mapOf("category" to "DRESS", "name" to "Shop A", "link" to "http://shopA.com"),
-                                    mapOf("category" to "DRESS", "name" to "Shop B", "link" to "http://shopB.com"),
-                                ),
+                        listOf(
+                            mapOf(
+                                "name" to "Option 1",
+                                "optionType" to "SINGLE",
+                                "discountAvailable" to false,
+                                "originalPrice" to 10000,
+                                "discountPrice" to 1000,
+                                "description" to "Extra option",
+                                "costumeCount" to 1,
+                                "shootingLocationCount" to 1,
+                                "shootingHours" to 1,
+                                "shootingMinutes" to 30,
+                                "retouchedCount" to 1,
+                                "partnerShops" to
+                                        listOf(
+                                            mapOf("category" to "DRESS", "name" to "Shop A", "link" to "http://shopA.com"),
+                                            mapOf("category" to "DRESS", "name" to "Shop B", "link" to "http://shopB.com"),
+                                        ),
+                            ),
+                            mapOf(
+                                "name" to "Option 2",
+                                "optionType" to "PACKAGE",
+                                "discountAvailable" to true,
+                                "originalPrice" to 20000,
+                                "discountPrice" to 15000,
+                                "description" to "Package option",
+                                "costumeCount" to 0,
+                                "shootingLocationCount" to 0,
+                                "shootingHours" to 0,
+                                "shootingMinutes" to 0,
+                                "retouchedCount" to 0,
+                                "partnerShops" to
+                                        listOf(
+                                            mapOf("category" to "DRESS", "name" to "Shop C", "link" to "http://shopC.com"),
+                                        ),
+                            ),
                         ),
-                        mapOf(
-                            "name" to "Option 2",
-                            "optionType" to "PACKAGE",
-                            "discountAvailable" to true,
-                            "originalPrice" to 20000,
-                            "discountPrice" to 15000,
-                            "description" to "Package option",
-                            "costumeCount" to 0,
-                            "shootingLocationCount" to 0,
-                            "shootingHours" to 0,
-                            "shootingMinutes" to 0,
-                            "retouchedCount" to 0,
-                            "partnerShops" to
-                                listOf(
-                                    mapOf("category" to "DRESS", "name" to "Shop C", "link" to "http://shopC.com"),
-                                ),
-                        ),
-                    ),
             )
         val jsonRequest = objectMapper.writeValueAsString(requestMap)
         val requestPart =
@@ -189,10 +145,10 @@ class CreateProductRestAdapterTest {
                 shootingMinutes = 30,
                 retouchedCount = 1,
                 partnerShops =
-                    listOf(
-                        PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
-                        PartnerShopResponse("DRESS", "Shop B", "http://shopB.com"),
-                    ),
+                listOf(
+                    PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
+                    PartnerShopResponse("DRESS", "Shop B", "http://shopB.com"),
+                ),
                 createdAt = null,
                 updatedAt = null,
             )
@@ -212,9 +168,9 @@ class CreateProductRestAdapterTest {
                 shootingMinutes = 0,
                 retouchedCount = 0,
                 partnerShops =
-                    listOf(
-                        PartnerShopResponse("DRESS", "Shop C", "http://shopC.com"),
-                    ),
+                listOf(
+                    PartnerShopResponse("DRESS", "Shop C", "http://shopC.com"),
+                ),
                 createdAt = null,
                 updatedAt = null,
             )
@@ -231,12 +187,12 @@ class CreateProductRestAdapterTest {
                 retouchStyles = listOf("MODERN"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/mainImage.jpg"),
                 subImages =
-                    listOf(
-                        ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
-                        ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
-                        ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
-                        ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
-                    ),
+                listOf(
+                    ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
+                    ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
+                    ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
+                    ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
+                ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",
@@ -248,7 +204,7 @@ class CreateProductRestAdapterTest {
         // createProductUseCase 모의 동작 설정
         given(createProductUseCase.saveProduct(any(), any(), any(), any())).willReturn(productResponse)
 
-        // multipart 요청 빌드 (JSON request 파트와 파일 파트 포함)
+        // multipart 요청 빌드
         val requestBuilder =
             multipart("/api/products")
                 .file(requestPart)
@@ -261,9 +217,7 @@ class CreateProductRestAdapterTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 추가 이미지 파일 파트를 생략하면 컨트롤러에서 null 처리 후 빈 리스트로 변환됨
-
-        // 요청 실행 및 응답 검증 + 문서화
+        // 요청 실행
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(

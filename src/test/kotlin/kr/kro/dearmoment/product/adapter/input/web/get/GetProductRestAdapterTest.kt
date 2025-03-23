@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.get
 
 import andDocument
-import kr.kro.dearmoment.common.RestApiTestBase
+import kr.kro.dearmoment.common.MockBaseApiTest
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -9,15 +9,19 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
+import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-class GetProductRestAdapterTest : RestApiTestBase(){
+@WebMvcTest(ProductRestAdapter::class)
+class GetProductRestAdapterTest : MockBaseApiTest() {
+
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
@@ -34,12 +38,12 @@ class GetProductRestAdapterTest : RestApiTestBase(){
                 retouchStyles = listOf("MODERN"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/mainImage.jpg"),
                 subImages =
-                    listOf(
-                        ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
-                        ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
-                        ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
-                        ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
-                    ),
+                listOf(
+                    ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
+                    ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
+                    ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
+                    ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
+                ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",

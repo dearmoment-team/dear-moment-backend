@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.update
 
 import andDocument
-import kr.kro.dearmoment.common.RestApiTestBase
+import kr.kro.dearmoment.common.MockBaseApiTest
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -9,6 +9,7 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
+import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
@@ -25,11 +27,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 /**
  * [상품 업데이트] Controller 테스트 예시 (PATCH 방식)
  */
-class UpdateProductRestAdapterTest: RestApiTestBase(){
+@WebMvcTest(ProductRestAdapter::class)
+class UpdateProductRestAdapterTest : MockBaseApiTest() {
 
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
-        // 1) 업데이트 요청 DTO를 JSON 문자열로 생성 (subImagesFinal에 index 필드를 추가)
+        // 1) 업데이트 요청 DTO(JSON)
         val requestJson =
             """
             {
@@ -75,7 +78,7 @@ class UpdateProductRestAdapterTest: RestApiTestBase(){
             }
             """.trimIndent()
 
-        // 2) 대표 이미지, 서브 이미지, 추가 이미지 파일 준비
+        // 2) 파일 준비
         val mainImageFile =
             MockMultipartFile(
                 "mainImageFile",
@@ -119,43 +122,43 @@ class UpdateProductRestAdapterTest: RestApiTestBase(){
                 retouchStyles = listOf("CALM"),
                 mainImage = ImageResponse(imageId = 101L, url = "http://image-server.com/updated_main.jpg"),
                 subImages =
-                    listOf(
-                        ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
-                        ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
-                        ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg"),
-                    ),
+                listOf(
+                    ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
+                    ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
+                    ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg"),
+                ),
                 additionalImages =
-                    listOf(
-                        ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
-                    ),
+                listOf(
+                    ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
+                ),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 createdAt = null,
                 updatedAt = null,
                 options =
-                    listOf(
-                        ProductOptionResponse(
-                            optionId = 1L,
-                            productId = 1L,
-                            name = "New Option 1",
-                            optionType = "SINGLE",
-                            discountAvailable = true,
-                            originalPrice = 10000,
-                            discountPrice = 7000,
-                            description = "Updated Option Desc",
-                            costumeCount = 1,
-                            shootingLocationCount = 1,
-                            shootingHours = 2,
-                            shootingMinutes = 0,
-                            retouchedCount = 3,
-                            partnerShops = emptyList(),
-                            createdAt = null,
-                            updatedAt = null,
-                        ),
+                listOf(
+                    ProductOptionResponse(
+                        optionId = 1L,
+                        productId = 1L,
+                        name = "New Option 1",
+                        optionType = "SINGLE",
+                        discountAvailable = true,
+                        originalPrice = 10000,
+                        discountPrice = 7000,
+                        description = "Updated Option Desc",
+                        costumeCount = 1,
+                        shootingLocationCount = 1,
+                        shootingHours = 2,
+                        shootingMinutes = 0,
+                        retouchedCount = 3,
+                        partnerShops = emptyList(),
+                        createdAt = null,
+                        updatedAt = null,
                     ),
+                ),
             )
 
-        // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
+        // 4) UseCase 모킹
         given(
             updateProductUseCase.updateProduct(
                 eq(1L),
@@ -167,7 +170,7 @@ class UpdateProductRestAdapterTest: RestApiTestBase(){
             ),
         ).willReturn(updatedResponse)
 
-        // 5) "request" 파트에 JSON을 포함시켜 multipart/form-data PATCH 요청 생성
+        // 5) multipart/form-data PATCH 요청
         val requestPart =
             MockMultipartFile(
                 "request",
@@ -175,7 +178,6 @@ class UpdateProductRestAdapterTest: RestApiTestBase(){
                 MediaType.APPLICATION_JSON_VALUE,
                 requestJson.toByteArray(),
             )
-
         val requestBuilder =
             MockMvcRequestBuilders
                 .multipart("/api/products/{id}", 1L)
@@ -191,7 +193,7 @@ class UpdateProductRestAdapterTest: RestApiTestBase(){
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 6) 요청 실행, 상태 검증 및 REST Docs 문서화
+        // 6) 요청 실행
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(
