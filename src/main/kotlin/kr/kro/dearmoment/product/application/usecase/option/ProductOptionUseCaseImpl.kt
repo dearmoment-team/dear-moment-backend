@@ -1,16 +1,16 @@
 package kr.kro.dearmoment.product.application.usecase.option
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
-import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -96,13 +96,13 @@ class ProductOptionUseCaseImpl(
                         retouchedCount = dto.retouchedCount,
                         originalProvided = dto.originalProvided,
                         partnerShops =
-                        dto.partnerShops.map {
-                            PartnerShop(
-                                category = PartnerShopCategory.valueOf(it.category),
-                                name = it.name,
-                                link = it.link,
-                            )
-                        },
+                            dto.partnerShops.map {
+                                PartnerShop(
+                                    category = PartnerShopCategory.valueOf(it.category),
+                                    name = it.name,
+                                    link = it.link,
+                                )
+                            },
                     )
                 productOptionPersistencePort.save(updatedOpt, existingProduct)
             } else {
@@ -150,13 +150,13 @@ class ProductOptionUseCaseImpl(
                     retouchedCount = request.retouchedCount,
                     originalProvided = request.originalProvided,
                     partnerShops =
-                    request.partnerShops.map {
-                        PartnerShop(
-                            category = PartnerShopCategory.valueOf(it.category),
-                            name = it.name,
-                            link = it.link,
-                        )
-                    },
+                        request.partnerShops.map {
+                            PartnerShop(
+                                category = PartnerShopCategory.valueOf(it.category),
+                                name = it.name,
+                                link = it.link,
+                            )
+                        },
                 )
             productOptionPersistencePort.save(updatedOption, product)
             ProductOptionResponse.fromDomain(updatedOption)

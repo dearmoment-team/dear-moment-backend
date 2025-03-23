@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(ProductRestAdapter::class)
 class GetProductRestAdapterTest : MockBaseApiTest() {
-
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
@@ -38,12 +37,12 @@ class GetProductRestAdapterTest : MockBaseApiTest() {
                 retouchStyles = listOf("MODERN"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/mainImage.jpg"),
                 subImages =
-                listOf(
-                    ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
-                    ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
-                    ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
-                    ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
-                ),
+                    listOf(
+                        ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
+                        ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
+                        ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
+                        ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",

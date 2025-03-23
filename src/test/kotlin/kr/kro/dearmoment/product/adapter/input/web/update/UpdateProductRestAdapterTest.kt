@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
  */
 @WebMvcTest(ProductRestAdapter::class)
 class UpdateProductRestAdapterTest : MockBaseApiTest() {
-
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
         // 1) 업데이트 요청 DTO(JSON)
@@ -122,40 +121,40 @@ class UpdateProductRestAdapterTest : MockBaseApiTest() {
                 retouchStyles = listOf("CALM"),
                 mainImage = ImageResponse(imageId = 101L, url = "http://image-server.com/updated_main.jpg"),
                 subImages =
-                listOf(
-                    ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
-                    ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
-                    ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg"),
-                ),
+                    listOf(
+                        ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
+                        ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
+                        ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg"),
+                    ),
                 additionalImages =
-                listOf(
-                    ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
-                ),
+                    listOf(
+                        ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
+                    ),
                 detailedInfo = "Updated Detailed Info",
                 contactInfo = "updated-contact@example.com",
                 createdAt = null,
                 updatedAt = null,
                 options =
-                listOf(
-                    ProductOptionResponse(
-                        optionId = 1L,
-                        productId = 1L,
-                        name = "New Option 1",
-                        optionType = "SINGLE",
-                        discountAvailable = true,
-                        originalPrice = 10000,
-                        discountPrice = 7000,
-                        description = "Updated Option Desc",
-                        costumeCount = 1,
-                        shootingLocationCount = 1,
-                        shootingHours = 2,
-                        shootingMinutes = 0,
-                        retouchedCount = 3,
-                        partnerShops = emptyList(),
-                        createdAt = null,
-                        updatedAt = null,
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "New Option 1",
+                            optionType = "SINGLE",
+                            discountAvailable = true,
+                            originalPrice = 10000,
+                            discountPrice = 7000,
+                            description = "Updated Option Desc",
+                            costumeCount = 1,
+                            shootingLocationCount = 1,
+                            shootingHours = 2,
+                            shootingMinutes = 0,
+                            retouchedCount = 3,
+                            partnerShops = emptyList(),
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
                     ),
-                ),
             )
 
         // 4) UseCase 모킹

@@ -25,32 +25,34 @@ class GetProductUseCaseTest : BehaviorSpec({
     val useCase = GetProductUseCaseImpl(productPersistencePort)
 
     // 더미 이미지 생성
-    val dummyImage = Image(
-        userId = 1L,
-        fileName = "dummy.jpg",
-        url = "http://example.com/dummy.jpg",
-    )
+    val dummyImage =
+        Image(
+            userId = 1L,
+            fileName = "dummy.jpg",
+            url = "http://example.com/dummy.jpg",
+        )
 
     // 더미 상품 객체 생성
-    val dummyProduct = Product(
-        productId = 1L,
-        userId = 1L,
-        productType = ProductType.WEDDING_SNAP,
-        shootingPlace = ShootingPlace.JEJU,
-        title = "Unique Product",
-        description = "Test Description",
-        availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF),
-        cameraTypes = setOf(CameraType.FILM),
-        retouchStyles = setOf(RetouchStyle.NATURAL),
-        mainImage = dummyImage,
-        subImages = List(4) { dummyImage },
-        additionalImages = listOf(dummyImage),
-        detailedInfo = "Test Info",
-        contactInfo = "Test Contact",
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now(),
-        options = emptyList(),
-    )
+    val dummyProduct =
+        Product(
+            productId = 1L,
+            userId = 1L,
+            productType = ProductType.WEDDING_SNAP,
+            shootingPlace = ShootingPlace.JEJU,
+            title = "Unique Product",
+            description = "Test Description",
+            availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF),
+            cameraTypes = setOf(CameraType.FILM),
+            retouchStyles = setOf(RetouchStyle.NATURAL),
+            mainImage = dummyImage,
+            subImages = List(4) { dummyImage },
+            additionalImages = listOf(dummyImage),
+            detailedInfo = "Test Info",
+            contactInfo = "Test Contact",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+            options = emptyList(),
+        )
 
     Given("유효한 상품 ID가 주어졌을 때") {
         When("해당 상품이 존재하는 경우") {

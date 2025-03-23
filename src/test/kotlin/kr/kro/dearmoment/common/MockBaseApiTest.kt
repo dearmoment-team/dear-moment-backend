@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.MockMvc
 @TestPropertySource(properties = ["spring.config.location=classpath:application-test.yml"])
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 abstract class MockBaseApiTest {
-
     @Autowired
     protected lateinit var mockMvc: MockMvc
 

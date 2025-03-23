@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(ProductRestAdapter::class)
 class DeleteProductRestAdapterTest : MockBaseApiTest() {
-
     @Test
     fun `상품 삭제 API 테스트 - 정상 삭제`() {
         // given

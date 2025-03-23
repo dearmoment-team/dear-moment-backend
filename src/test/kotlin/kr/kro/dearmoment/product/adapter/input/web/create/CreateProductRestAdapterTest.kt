@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(ProductRestAdapter::class)
 class CreateProductRestAdapterTest : MockBaseApiTest() {
-
     @Test
     fun `상품 생성 API 테스트`() {
         // main image 파일
@@ -81,43 +80,43 @@ class CreateProductRestAdapterTest : MockBaseApiTest() {
                 "detailedInfo" to "Detailed product information",
                 "contactInfo" to "contact@example.com",
                 "options" to
-                        listOf(
-                            mapOf(
-                                "name" to "Option 1",
-                                "optionType" to "SINGLE",
-                                "discountAvailable" to false,
-                                "originalPrice" to 10000,
-                                "discountPrice" to 1000,
-                                "description" to "Extra option",
-                                "costumeCount" to 1,
-                                "shootingLocationCount" to 1,
-                                "shootingHours" to 1,
-                                "shootingMinutes" to 30,
-                                "retouchedCount" to 1,
-                                "partnerShops" to
-                                        listOf(
-                                            mapOf("category" to "DRESS", "name" to "Shop A", "link" to "http://shopA.com"),
-                                            mapOf("category" to "DRESS", "name" to "Shop B", "link" to "http://shopB.com"),
-                                        ),
-                            ),
-                            mapOf(
-                                "name" to "Option 2",
-                                "optionType" to "PACKAGE",
-                                "discountAvailable" to true,
-                                "originalPrice" to 20000,
-                                "discountPrice" to 15000,
-                                "description" to "Package option",
-                                "costumeCount" to 0,
-                                "shootingLocationCount" to 0,
-                                "shootingHours" to 0,
-                                "shootingMinutes" to 0,
-                                "retouchedCount" to 0,
-                                "partnerShops" to
-                                        listOf(
-                                            mapOf("category" to "DRESS", "name" to "Shop C", "link" to "http://shopC.com"),
-                                        ),
-                            ),
+                    listOf(
+                        mapOf(
+                            "name" to "Option 1",
+                            "optionType" to "SINGLE",
+                            "discountAvailable" to false,
+                            "originalPrice" to 10000,
+                            "discountPrice" to 1000,
+                            "description" to "Extra option",
+                            "costumeCount" to 1,
+                            "shootingLocationCount" to 1,
+                            "shootingHours" to 1,
+                            "shootingMinutes" to 30,
+                            "retouchedCount" to 1,
+                            "partnerShops" to
+                                listOf(
+                                    mapOf("category" to "DRESS", "name" to "Shop A", "link" to "http://shopA.com"),
+                                    mapOf("category" to "DRESS", "name" to "Shop B", "link" to "http://shopB.com"),
+                                ),
                         ),
+                        mapOf(
+                            "name" to "Option 2",
+                            "optionType" to "PACKAGE",
+                            "discountAvailable" to true,
+                            "originalPrice" to 20000,
+                            "discountPrice" to 15000,
+                            "description" to "Package option",
+                            "costumeCount" to 0,
+                            "shootingLocationCount" to 0,
+                            "shootingHours" to 0,
+                            "shootingMinutes" to 0,
+                            "retouchedCount" to 0,
+                            "partnerShops" to
+                                listOf(
+                                    mapOf("category" to "DRESS", "name" to "Shop C", "link" to "http://shopC.com"),
+                                ),
+                        ),
+                    ),
             )
         val jsonRequest = objectMapper.writeValueAsString(requestMap)
         val requestPart =
@@ -145,10 +144,10 @@ class CreateProductRestAdapterTest : MockBaseApiTest() {
                 shootingMinutes = 30,
                 retouchedCount = 1,
                 partnerShops =
-                listOf(
-                    PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
-                    PartnerShopResponse("DRESS", "Shop B", "http://shopB.com"),
-                ),
+                    listOf(
+                        PartnerShopResponse("DRESS", "Shop A", "http://shopA.com"),
+                        PartnerShopResponse("DRESS", "Shop B", "http://shopB.com"),
+                    ),
                 createdAt = null,
                 updatedAt = null,
             )
@@ -168,9 +167,9 @@ class CreateProductRestAdapterTest : MockBaseApiTest() {
                 shootingMinutes = 0,
                 retouchedCount = 0,
                 partnerShops =
-                listOf(
-                    PartnerShopResponse("DRESS", "Shop C", "http://shopC.com"),
-                ),
+                    listOf(
+                        PartnerShopResponse("DRESS", "Shop C", "http://shopC.com"),
+                    ),
                 createdAt = null,
                 updatedAt = null,
             )
@@ -187,12 +186,12 @@ class CreateProductRestAdapterTest : MockBaseApiTest() {
                 retouchStyles = listOf("MODERN"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/mainImage.jpg"),
                 subImages =
-                listOf(
-                    ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
-                    ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
-                    ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
-                    ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
-                ),
+                    listOf(
+                        ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
+                        ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
+                        ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
+                        ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",

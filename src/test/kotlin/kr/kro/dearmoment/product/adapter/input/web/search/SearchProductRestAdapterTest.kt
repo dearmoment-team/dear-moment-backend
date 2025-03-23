@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(ProductRestAdapter::class)
 class SearchProductRestAdapterTest : MockBaseApiTest() {
-
     @Test
     fun `상품 검색 API 테스트 - 정상 검색`() {
         // given
@@ -38,9 +37,10 @@ class SearchProductRestAdapterTest : MockBaseApiTest() {
                 cameraTypes = listOf("FILM"),
                 retouchStyles = listOf("NATURAL"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/main1.jpg"),
-                subImages = listOf(
-                    ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg"),
-                ),
+                subImages =
+                    listOf(
+                        ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Info1",
                 contactInfo = "Contact1",
@@ -61,9 +61,10 @@ class SearchProductRestAdapterTest : MockBaseApiTest() {
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("CALM"),
                 mainImage = ImageResponse(imageId = 3L, url = "http://image-server.com/main2.jpg"),
-                subImages = listOf(
-                    ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg"),
-                ),
+                subImages =
+                    listOf(
+                        ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Info2",
                 contactInfo = "Contact2",
@@ -90,7 +91,7 @@ class SearchProductRestAdapterTest : MockBaseApiTest() {
                 sortBy = "created-desc",
                 page = 0,
                 size = 10,
-            )
+            ),
         ).willReturn(pagedResult)
 
         // when
@@ -162,9 +163,10 @@ class SearchProductRestAdapterTest : MockBaseApiTest() {
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("NATURAL"),
                 mainImage = ImageResponse(imageId = 11L, url = "http://image-server.com/main.jpg"),
-                subImages = listOf(
-                    ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg"),
-                ),
+                subImages =
+                    listOf(
+                        ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Some info",
                 contactInfo = "contact@example.com",

@@ -2,10 +2,19 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
-import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.domain.model.*
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.product.domain.model.CameraType
+import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.product.domain.model.PartnerShop
+import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 
 data class CreateProductRequest(
     @Schema(description = "사용자 ID", example = "1", required = true)
@@ -86,33 +95,36 @@ data class CreateProductRequest(
                 }.toSet()
 
             // 메인 이미지 생성 (반드시 대표 이미지가 존재해야 함)
-            val mainImg = Image(
-                userId = req.userId,
-                imageId = mainImage.imageId,
-                fileName = mainImage.fileName,
-                parId = mainImage.parId,
-                url = mainImage.url,
-            )
-
-            val subImgList = subImages.map { image ->
+            val mainImg =
                 Image(
                     userId = req.userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
+                    imageId = mainImage.imageId,
+                    fileName = mainImage.fileName,
+                    parId = mainImage.parId,
+                    url = mainImage.url,
                 )
-            }
 
-            val addImgList = additionalImages.map { image ->
-                Image(
-                    userId = req.userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
-                )
-            }
+            val subImgList =
+                subImages.map { image ->
+                    Image(
+                        userId = req.userId,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
+                    )
+                }
+
+            val addImgList =
+                additionalImages.map { image ->
+                    Image(
+                        userId = req.userId,
+                        imageId = image.imageId,
+                        fileName = image.fileName,
+                        parId = image.parId,
+                        url = image.url,
+                    )
+                }
 
             // 옵션 요청을 도메인 모델로 변환하여 포함
             val optionList = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
@@ -189,13 +201,14 @@ data class CreateProductOptionRequest(
                 shootingMinutes = dto.shootingMinutes,
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
-                partnerShops = dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.valueOf(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                partnerShops =
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.valueOf(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 createdAt = null,
                 updatedAt = null,
             )
