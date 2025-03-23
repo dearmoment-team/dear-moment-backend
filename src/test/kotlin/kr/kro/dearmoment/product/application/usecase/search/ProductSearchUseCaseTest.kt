@@ -9,7 +9,7 @@ import io.mockk.verify
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.usecase.util.PaginationUtil
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
@@ -22,13 +22,13 @@ import java.time.LocalDateTime
 class ProductSearchUseCaseTest : BehaviorSpec({
 
     // Mock 객체 설정 (테스트 전체에서 공유됨)
-    val productPersistencePort = mockk<ProductPersistencePort>()
+    val getProductPort = mockk<GetProductPort>()
     val paginationUtil = mockk<PaginationUtil>()
 
     // 테스트 대상 UseCase
     val useCase =
         ProductSearchUseCaseImpl(
-            productPersistencePort = productPersistencePort,
+            getProductPort = getProductPort,
             paginationUtil = paginationUtil,
         )
 
@@ -110,7 +110,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
 
         When("title, productType, shootingPlace가 주어지고 sortBy가 null인 경우") {
             every {
-                productPersistencePort.searchByCriteria("First", "WEDDING_SNAP", "JEJU", null)
+                getProductPort.searchByCriteria("First", "WEDDING_SNAP", "JEJU", null)
             } returns listOf(product1)
 
             every { paginationUtil.createPagedResponse(any(), page, size) } returns
@@ -127,7 +127,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
                 result.content[0].title shouldBe "First Product"
 
                 verify(exactly = 1) {
-                    productPersistencePort.searchByCriteria("First", "WEDDING_SNAP", "JEJU", null)
+                    getProductPort.searchByCriteria("First", "WEDDING_SNAP", "JEJU", null)
                 }
                 verify(exactly = 1) {
                     paginationUtil.createPagedResponse(match { it.size == 1 }, page, size)
@@ -137,7 +137,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
 
         When("sortBy = created-desc 로 검색할 경우") {
             every {
-                productPersistencePort.searchByCriteria(null, null, null, "created-desc")
+                getProductPort.searchByCriteria(null, null, null, "created-desc")
             } returns dummyList
 
             // created-desc 일 때 product2 → product1 순으로 정렬
@@ -162,7 +162,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
                 result.content[1].title shouldBe "First Product"
 
                 verify(exactly = 1) {
-                    productPersistencePort.searchByCriteria(null, null, null, "created-desc")
+                    getProductPort.searchByCriteria(null, null, null, "created-desc")
                 }
                 verify(exactly = 1) {
                     paginationUtil.createPagedResponse(listOf(product2, product1), page, size)
@@ -174,10 +174,10 @@ class ProductSearchUseCaseTest : BehaviorSpec({
     Given("getMainPageProducts 메서드가 호출되었을 때") {
 
         // 이전 When 블록들의 목 호출이 누적되어 있으므로, 초기화해준다.
-        clearMocks(productPersistencePort, paginationUtil)
+        clearMocks(getProductPort, paginationUtil)
 
         When("전체 상품 목록이 존재하는 경우") {
-            every { productPersistencePort.findAll() } returns dummyList
+            every { getProductPort.findAll() } returns dummyList
 
             // findAll() 결과를 역순 정렬 (product2, product1)
             every {
@@ -200,7 +200,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
                 result.content[0].title shouldBe "Second Product"
                 result.content[1].title shouldBe "First Product"
 
-                verify(exactly = 1) { productPersistencePort.findAll() }
+                verify(exactly = 1) { getProductPort.findAll() }
                 verify(exactly = 1) {
                     paginationUtil.createPagedResponse(listOf(product2, product1), page, size)
                 }

@@ -1,11 +1,13 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
@@ -24,8 +26,16 @@ class ProductOptionRepositoryAdapterTest(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val productOptionLikeJpaRepository: ProductOptionLikeJpaRepository,
     private val studioRepository: StudioJpaRepository,
+    private val entityManager: EntityManager,
+    private val jpqlRenderContext: JpqlRenderContext,
 ) : DescribeSpec({
         val adapter = ProductOptionRepositoryAdapter(jpaProductOptionRepository, jpaProductRepository)
+        val readOnlyAdapter =
+            ProductOptionReadOnlyRepository(
+                jpaProductOptionRepository,
+                entityManager,
+                jpqlRenderContext,
+            )
 
         describe("ProductOptionRepositoryAdapter 테스트") {
             lateinit var testProductEntity: ProductEntity
@@ -142,7 +152,7 @@ class ProductOptionRepositoryAdapterTest(
 
                 it("ID로 옵션 조회 성공") {
                     // When
-                    val found: ProductOption = adapter.findById(savedOptions.first().optionId)
+                    val found: ProductOption = readOnlyAdapter.findById(savedOptions.first().optionId)
                     // Then
                     with(found) {
                         name shouldBe "옵션A"
@@ -152,13 +162,13 @@ class ProductOptionRepositoryAdapterTest(
 
                 it("존재하지 않는 ID 조회 시 예외 발생") {
                     shouldThrow<CustomException> {
-                        adapter.findById(9999)
+                        readOnlyAdapter.findById(9999)
                     }.message shouldBe ErrorCode.OPTION_NOT_FOUND.message
                 }
 
                 it("상품 기준 옵션 조회 성공") {
                     // When
-                    val found = adapter.findByProductId(testProductDomain.productId)
+                    val found = readOnlyAdapter.findByProductId(testProductDomain.productId)
                     // Then
                     found.map { it.name } shouldContainExactlyInAnyOrder listOf("옵션A", "옵션B")
                 }
@@ -195,11 +205,11 @@ class ProductOptionRepositoryAdapterTest(
             context("기타 기능") {
                 it("상품 옵션 존재 여부 확인") {
                     // Before
-                    adapter.existsByProductId(testProductDomain.productId) shouldBe false
+                    readOnlyAdapter.existsByProductId(testProductDomain.productId) shouldBe false
                     // After save
                     adapter.save(createSampleOption("확인옵션", 9_000L), testProductDomain)
                     jpaProductOptionRepository.flush()
-                    adapter.existsByProductId(testProductDomain.productId) shouldBe true
+                    readOnlyAdapter.existsByProductId(testProductDomain.productId) shouldBe true
                 }
 
                 it("전체 옵션 조회") {
@@ -209,7 +219,7 @@ class ProductOptionRepositoryAdapterTest(
                     }
                     jpaProductOptionRepository.flush()
                     // When
-                    val allOptions = adapter.findAll()
+                    val allOptions = readOnlyAdapter.findAll()
                     // Then
                     allOptions shouldHaveSize 3
                 }

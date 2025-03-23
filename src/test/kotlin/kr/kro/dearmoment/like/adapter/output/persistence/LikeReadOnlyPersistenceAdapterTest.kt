@@ -47,7 +47,6 @@ class LikeReadOnlyPersistenceAdapterTest(
             productOptionLikeJpaRepository.deleteAll()
             productOptionRepository.deleteAll()
             productRepository.deleteAll()
-            productRepository.deleteAll()
         }
 
         describe("findUserProductOptionLikes()는") {

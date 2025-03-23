@@ -11,7 +11,7 @@ import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
@@ -21,8 +21,8 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
 
 class GetProductUseCaseTest : BehaviorSpec({
-    val productPersistencePort = mockk<ProductPersistencePort>()
-    val useCase = GetProductUseCaseImpl(productPersistencePort)
+    val getProductPort = mockk<GetProductPort>()
+    val useCase = GetProductUseCaseImpl(getProductPort)
 
     // 더미 이미지 생성
     val dummyImage =
@@ -56,19 +56,19 @@ class GetProductUseCaseTest : BehaviorSpec({
 
     Given("유효한 상품 ID가 주어졌을 때") {
         When("해당 상품이 존재하는 경우") {
-            every { productPersistencePort.findById(1L) } returns dummyProduct
+            every { getProductPort.findById(1L) } returns dummyProduct
 
             Then("정상적으로 상품 정보를 반환해야 한다") {
                 val result = useCase.getProductById(1L)
                 result shouldBe ProductResponse.fromDomain(dummyProduct)
-                verify(exactly = 1) { productPersistencePort.findById(1L) }
+                verify(exactly = 1) { getProductPort.findById(1L) }
             }
         }
     }
 
     Given("존재하지 않는 상품 ID가 주어졌을 때") {
         When("해당 상품이 존재하지 않는 경우") {
-            every { productPersistencePort.findById(2L) } returns null
+            every { getProductPort.findById(2L) } returns null
 
             Then("CustomException 예외를 발생시켜야 한다") {
                 val exception =
@@ -76,7 +76,7 @@ class GetProductUseCaseTest : BehaviorSpec({
                         useCase.getProductById(2L)
                     }
                 exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
-                verify(exactly = 1) { productPersistencePort.findById(2L) }
+                verify(exactly = 1) { getProductPort.findById(2L) }
             }
         }
     }

@@ -24,6 +24,7 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequ
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.option.ProductOptionUseCase
 import kr.kro.dearmoment.product.domain.model.CameraType
@@ -42,6 +43,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     // -- Mock 설정 --
     val productPersistencePort = mockk<ProductPersistencePort>()
     val imageHandler = mockk<ImageHandler>()
+    val getProductPort = mockk<GetProductPort>()
     val getStudioPort = mockk<GetStudioPort>()
     val productOptionUseCase = mockk<ProductOptionUseCase>(relaxed = true)
     val studio = studioFixture()
@@ -53,6 +55,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             imageHandler = imageHandler,
             productOptionUseCase = productOptionUseCase,
             getStudioPort = getStudioPort,
+            getProductPort = getProductPort,
         )
 
     // -- 더미 데이터 --
@@ -268,7 +271,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     Given("updateProduct 메서드") {
 
         When("존재하지 않는 상품 ID 요청 시") {
-            every { productPersistencePort.findById(999L) } returns null
+            every { getProductPort.findById(999L) } returns null
 
             Then("예외 발생") {
                 val exception =
@@ -288,7 +291,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
         When("정상 요청 시") {
             every { getStudioPort.findById(studio.id) } returns studio
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getProductPort.findById(999L) } returns existingProduct
             every {
                 imageHandler.updateMainImage(mainImageFileTest, updateRequest.userId, existingProduct.mainImage)
             } returns dummyNewMainImage
@@ -379,7 +382,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         ),
                 )
             every { getStudioPort.findById(studio.id) } returns studio
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -457,7 +460,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             every { getStudioPort.findById(studio.id) } returns studio
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -533,7 +536,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             every { getStudioPort.findById(studio.id) } returns studio
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -605,7 +608,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             every { getStudioPort.findById(studio.id) } returns studio
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
@@ -711,7 +714,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     ProductOptionResponse.fromDomain(UpdateProductOptionRequest.toDomain(it, 999L))
                 }
 
-            every { productPersistencePort.findById(999L) } returns existingProduct
+            every { getProductPort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every { imageHandler.processSubImagesPartial(any(), any(), any(), any()) } returns
                 listOf(

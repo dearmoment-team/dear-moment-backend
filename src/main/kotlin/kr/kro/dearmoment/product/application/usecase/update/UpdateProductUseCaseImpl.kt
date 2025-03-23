@@ -9,6 +9,7 @@ import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.option.ProductOptionUseCase
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class UpdateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
+    private val getProductPort: GetProductPort,
     private val imageHandler: ImageHandler,
     private val productOptionUseCase: ProductOptionUseCase,
     private val getStudioPort: GetStudioPort,
@@ -42,7 +44,7 @@ class UpdateProductUseCaseImpl(
     ): ProductResponse {
         // 1) DB에서 기존 Product 조회
         val existingProduct =
-            productPersistencePort.findById(productId)
+            getProductPort.findById(productId)
                 ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
         // 2) 대표 이미지 처리: 새 파일이 전달되면 업로드 후 업데이트, 없으면 기존 이미지 유지

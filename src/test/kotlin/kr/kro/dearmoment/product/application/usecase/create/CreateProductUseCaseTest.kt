@@ -14,6 +14,7 @@ import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
@@ -25,12 +26,14 @@ class CreateProductUseCaseTest : BehaviorSpec({
 
     // 목 객체 생성
     val productPersistencePort = mockk<ProductPersistencePort>()
+    val getProductPort = mockk<GetProductPort>()
     val imageService = mockk<ImageService>()
 
     val useCase =
         CreateProductUseCaseImpl(
             productPersistencePort = productPersistencePort,
             imageService = imageService,
+            getProductPort = getProductPort,
         )
 
     // 더미 파일 생성
@@ -90,7 +93,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
     Given("중복된 제목 검증 시나리오") {
         When("중복된 제목이 존재할 경우") {
             every {
-                productPersistencePort.existsByUserIdAndTitle(
+                getProductPort.existsByUserIdAndTitle(
                     userId = 1L,
                     title = "Unique Product",
                 )
@@ -106,7 +109,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
                     }
                 exception shouldHaveMessage ErrorCode.PRODUCT_ALREADY_EXISTS.message
                 verify(exactly = 1) {
-                    productPersistencePort.existsByUserIdAndTitle(1L, "Unique Product")
+                    getProductPort.existsByUserIdAndTitle(1L, "Unique Product")
                 }
             }
         }
@@ -160,10 +163,10 @@ class CreateProductUseCaseTest : BehaviorSpec({
                 options = emptyList(),
             )
 
-        every { productPersistencePort.existsByUserIdAndTitle(any(), any()) } returns false
+        every { getProductPort.existsByUserIdAndTitle(any(), any()) } returns false
         every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
         every { productPersistencePort.save(any(), 1L) } returns dummyProduct
-        every { productPersistencePort.findById(1L) } returns dummyProduct
+        every { getProductPort.findById(1L) } returns dummyProduct
 
         When("모든 조건을 만족하여 상품 생성 시") {
             val result = useCase.saveProduct(validRequest, dummyMainFile, dummySubFiles, dummyAdditionalFiles)

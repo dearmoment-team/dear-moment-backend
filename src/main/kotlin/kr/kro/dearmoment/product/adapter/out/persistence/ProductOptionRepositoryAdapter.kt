@@ -6,14 +6,12 @@ import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePo
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class ProductOptionRepositoryAdapter(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val jpaProductRepository: JpaProductRepository,
 ) : ProductOptionPersistencePort {
-    @Transactional
     override fun save(
         productOption: ProductOption,
         product: Product,
@@ -35,19 +33,6 @@ class ProductOptionRepositoryAdapter(
         return savedEntity.toDomain()
     }
 
-    @Transactional(readOnly = true)
-    override fun findById(id: Long): ProductOption {
-        return jpaProductOptionRepository.findById(id)
-            .orElseThrow { CustomException(ErrorCode.OPTION_NOT_FOUND) }
-            .toDomain()
-    }
-
-    @Transactional(readOnly = true)
-    override fun findAll(): List<ProductOption> {
-        return jpaProductOptionRepository.findAll().map { it.toDomain() }
-    }
-
-    @Transactional
     override fun deleteById(id: Long) {
         if (!jpaProductOptionRepository.existsById(id)) {
             throw CustomException(ErrorCode.OPTION_NOT_FOUND)
@@ -55,25 +40,7 @@ class ProductOptionRepositoryAdapter(
         jpaProductOptionRepository.deleteById(id)
     }
 
-    @Transactional(readOnly = true)
-    override fun findByProductId(productId: Long): List<ProductOption> {
-        return jpaProductOptionRepository.findByProductProductId(productId).map { it.toDomain() }
-    }
-
-    @Transactional
     override fun deleteAllByProductId(productId: Long) {
         jpaProductOptionRepository.deleteAllByProductProductId(productId)
-    }
-
-    @Transactional(readOnly = true)
-    override fun existsByProductId(productId: Long): Boolean {
-        return jpaProductOptionRepository.existsByProductProductId(productId)
-    }
-
-    override fun existsByProductIdAndName(
-        productId: Long,
-        name: String,
-    ): Boolean {
-        return jpaProductOptionRepository.existsByProductProductIdAndName(productId, name)
     }
 }
