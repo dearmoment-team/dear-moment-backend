@@ -8,7 +8,10 @@ interface ProductPersistencePort {
      * @param product 저장할 도메인 모델
      * @return 저장된 Product
      */
-    fun save(product: Product): Product
+    fun save(
+        product: Product,
+        studioId: Long,
+    ): Product
 
     /**
      * ID를 기준으로 Product를 조회합니다.
@@ -73,4 +76,12 @@ interface ProductPersistencePort {
         userId: Long,
         title: String,
     ): Boolean
+
+    fun increaseLikeCount(productId: Long)
+
+    fun decreaseLikeCount(productId: Long)
+
+    fun increaseInquiryCount(productId: Long)
+
+    fun decreaseInquiryCount(productId: Long)
 }

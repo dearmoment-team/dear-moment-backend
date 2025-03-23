@@ -3,10 +3,35 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
+    @Modifying
+    @Query("UPDATE ProductEntity p SET p.likeCount = p.likeCount + 1 WHERE p.productId = :productId")
+    fun increaseLikeCount(
+        @Param("productId") productId: Long,
+    )
+
+    @Modifying
+    @Query("UPDATE ProductEntity p SET p.likeCount = p.likeCount - 1 WHERE p.productId = :productId AND p.likeCount > 0")
+    fun decreaseLikeCount(
+        @Param("productId") productId: Long,
+    )
+
+    @Modifying
+    @Query("UPDATE ProductEntity p SET p.inquiryCount = p.inquiryCount + 1 WHERE p.productId = :productId")
+    fun increaseInquiryCount(
+        @Param("productId") productId: Long,
+    )
+
+    @Modifying
+    @Query("UPDATE ProductEntity p SET p.inquiryCount = p.inquiryCount - 1 WHERE p.productId = :optionId AND p.inquiryCount > 0")
+    fun decreaseInquiryCount(
+        @Param("productId") productId: Long,
+    )
+
     /**
      * 특정 사용자의 Product 리스트를 조회합니다.
      * @param userId 사용자 ID

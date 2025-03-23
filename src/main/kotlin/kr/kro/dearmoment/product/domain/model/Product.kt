@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.product.domain.model
 
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.studio.domain.Studio
 import java.time.LocalDateTime
 
 /**
@@ -81,6 +82,7 @@ data class Product(
     val updatedAt: LocalDateTime = LocalDateTime.now(),
     // 여러 옵션
     val options: List<ProductOption> = emptyList(),
+    val studio: Studio? = null,
 ) {
     init {
         require(title.isNotBlank()) { "상품명은 필수 입력값입니다." }

@@ -19,6 +19,8 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
 data class CreateProductRequest(
     @Schema(description = "사용자 ID", example = "1", required = true)
     val userId: Long,
+    @Schema(description = "스튜디오 ID", example = "1", required = true)
+    val studioId: Long,
     @field:NotBlank(message = "상품 유형은 필수입니다.")
     @Schema(description = "상품 유형", example = "WEDDING_SNAP", required = true)
     val productType: String,

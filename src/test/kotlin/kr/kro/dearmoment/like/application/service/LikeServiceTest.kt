@@ -9,37 +9,41 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
+import kr.kro.dearmoment.like.application.command.UnlikeProductCommand
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
+import kr.kro.dearmoment.like.domain.CreateProductLike
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
-import kr.kro.dearmoment.like.domain.CreateStudioLike
+import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 
 class LikeServiceTest : DescribeSpec({
 
     val saveLikePort = mockk<SaveLikePort>()
     val deleteLikePort = mockk<DeleteLikePort>()
-    val likeCommandService = LikeCommandService(saveLikePort, deleteLikePort)
+    val productPersistencePort = mockk<ProductPersistencePort>()
+    val likeCommandService = LikeCommandService(saveLikePort, deleteLikePort, productPersistencePort)
 
-    describe("studioLike()는") {
+    describe("productLike()는") {
         context("유효한 command를 전달 받으면") {
             val command = SaveLikeCommand(userId = 1L, targetId = 2L)
             val like =
-                CreateStudioLike(
+                CreateProductLike(
                     id = 1L,
                     userId = command.userId,
-                    studioId = command.targetId,
+                    productId = command.targetId,
                 )
-
-            every { saveLikePort.saveStudioLike(any()) } returns like.id
+            every { saveLikePort.saveProductLike(any()) } returns like.id
+            every { productPersistencePort.increaseLikeCount(command.targetId) } just Runs
             it("likeEntity를 저장하고 like를 반환한다.") {
-                val response = likeCommandService.studioLike(command)
+                val response = likeCommandService.productLike(command)
                 response.likeId shouldBe like.id
-                verify(exactly = 1) { saveLikePort.saveStudioLike(any()) }
+                verify(exactly = 1) { saveLikePort.saveProductLike(any()) }
+                verify(exactly = 1) { productPersistencePort.increaseLikeCount(command.targetId) }
             }
         }
     }
 
-    describe("productLike()는") {
+    describe("productOptionLike()는") {
         context("유효한 command를 전달 받으면") {
             val command = SaveLikeCommand(userId = 1L, targetId = 2L)
             val like =
@@ -58,19 +62,25 @@ class LikeServiceTest : DescribeSpec({
         }
     }
 
-    describe("studioUnlike()는") {
+    describe("productUnlike()는") {
         context("좋아요 ID를 전달 받으면") {
-            val likeId = 1L
+            val command =
+                UnlikeProductCommand(
+                    productId = 1L,
+                    likeId = 1L,
+                )
 
-            every { deleteLikePort.deleteStudioLike(likeId) } just Runs
+            every { deleteLikePort.deleteProductLike(command.likeId) } just Runs
+            every { productPersistencePort.decreaseLikeCount(command.productId) } just Runs
             it("like를 삭제한다.") {
-                shouldNotThrow<Throwable> { likeCommandService.studioUnlike(likeId) }
-                verify(exactly = 1) { deleteLikePort.deleteStudioLike(likeId) }
+                shouldNotThrow<Throwable> { likeCommandService.productUnlike(command) }
+                verify(exactly = 1) { deleteLikePort.deleteProductLike(command.likeId) }
+                verify(exactly = 1) { productPersistencePort.decreaseLikeCount(command.productId) }
             }
         }
     }
 
-    describe("productUnlike()는") {
+    describe("productOptionUnlike()는") {
         context("좋아요 ID를 전달 받으면") {
             val likeId = 1L
 

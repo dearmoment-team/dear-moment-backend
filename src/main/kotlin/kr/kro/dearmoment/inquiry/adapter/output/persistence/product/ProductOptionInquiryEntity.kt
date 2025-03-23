@@ -9,8 +9,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.inquiry.domain.CreateProductOptionInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
@@ -31,10 +29,12 @@ class ProductOptionInquiryEntity(
 ) : Auditable() {
     fun toDomain(): ProductOptionInquiry {
         val product = option.product
-        val studio = product.studio ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
+        val productId = option.product.productId ?: throw IllegalStateException("product is is null")
+        val studio = product.studio
 
         return ProductOptionInquiry(
             id = id,
+            productId = productId,
             userId = userId,
             studioName = product.mainImage.url,
             optionName = option.name,

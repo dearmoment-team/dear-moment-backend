@@ -9,18 +9,21 @@ import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 
 @RepositoryTest
 class ProductOptionRepositoryAdapterTest(
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val productOptionLikeJpaRepository: ProductOptionLikeJpaRepository,
+    private val studioRepository: StudioJpaRepository,
 ) : DescribeSpec({
         val adapter = ProductOptionRepositoryAdapter(jpaProductOptionRepository, jpaProductRepository)
 
@@ -30,6 +33,7 @@ class ProductOptionRepositoryAdapterTest(
 
             beforeEach {
                 productOptionLikeJpaRepository.deleteAllInBatch()
+                val studio = studioRepository.save(studioEntityFixture(userId = 1L))
                 // 테스트용 ProductEntity 생성
                 testProductEntity =
                     jpaProductRepository.save(
@@ -80,6 +84,7 @@ class ProductOptionRepositoryAdapterTest(
                                     ),
                                 ).toMutableList(),
                             additionalImages = emptyList<ImageEmbeddable>().toMutableList(),
+                            studio = studio,
                         ),
                     )
                 testProductDomain = testProductEntity.toDomain()

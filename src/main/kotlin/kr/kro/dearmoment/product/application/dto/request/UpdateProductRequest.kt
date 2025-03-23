@@ -28,6 +28,9 @@ data class UpdateProductRequest(
     @field:NotNull(message = "상품 ID는 필수입니다.")
     @Schema(description = "상품 ID", example = "100", required = true)
     val productId: Long,
+    @field:NotNull(message = "스튜디오 ID는 필수입니다.")
+    @Schema(description = "스튜디오 ID", example = "100", required = true)
+    val studioId: Long,
     @field:NotNull(message = "사용자 ID는 필수입니다.")
     @Schema(description = "사용자 ID", example = "1", required = true)
     val userId: Long,

@@ -11,6 +11,8 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.option.ProductOptionUseCase
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -20,6 +22,7 @@ class UpdateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val imageHandler: ImageHandler,
     private val productOptionUseCase: ProductOptionUseCase,
+    private val getStudioPort: GetStudioPort,
 ) : UpdateProductUseCase {
     /**
      * 업데이트 요청 시 파일 파라미터(대표, 서브, 추가 이미지 파일)는 컨트롤러에서 별도로 전달받습니다.
@@ -110,9 +113,11 @@ class UpdateProductUseCaseImpl(
             )
         productFromReq.validateForUpdate()
 
+        val studio = StudioEntity.from(getStudioPort.findById(rawRequest.studioId))
+
         // 6) 기존 Entity의 필드 업데이트
         val existingEntity =
-            ProductEntity.fromDomain(existingProduct).apply {
+            ProductEntity.fromDomain(existingProduct, studio).apply {
                 // 병합된 결과로 업데이트 (필요에 따라 null 처리된 필드는 기존 값 유지)
                 userId = productFromReq.userId
                 productType = productFromReq.productType
@@ -141,7 +146,7 @@ class UpdateProductUseCaseImpl(
         }
 
         // 8) 최종 저장 및 응답 객체 변환
-        val updatedProduct = productPersistencePort.save(existingEntity.toDomain())
+        val updatedProduct = productPersistencePort.save(existingEntity.toDomain(), studio.id)
         return ProductResponse.fromDomain(updatedProduct)
     }
 }

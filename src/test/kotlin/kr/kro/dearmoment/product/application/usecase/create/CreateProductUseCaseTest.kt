@@ -48,6 +48,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
     val validRequest =
         CreateProductRequest(
             userId = 1L,
+            studioId = 1L,
             productType = "WEDDING_SNAP",
             shootingPlace = "JEJU",
             title = "Unique Product",
@@ -161,7 +162,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
 
         every { productPersistencePort.existsByUserIdAndTitle(any(), any()) } returns false
         every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
-        every { productPersistencePort.save(any()) } returns dummyProduct
+        every { productPersistencePort.save(any(), 1L) } returns dummyProduct
         every { productPersistencePort.findById(1L) } returns dummyProduct
 
         When("모든 조건을 만족하여 상품 생성 시") {
@@ -174,6 +175,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
                             product.title == "Unique Product" &&
                                 product.userId == 1L
                         },
+                        1L,
                     )
                 }
                 result.options.size shouldBe 0

@@ -3,6 +3,7 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.OptionType
@@ -80,7 +81,7 @@ class ProductEntityTest : StringSpec({
             )
 
         // when
-        val productEntity = ProductEntity.fromDomain(product)
+        val productEntity = ProductEntity.fromDomain(product, studioEntityFixture())
 
         // then
         productEntity.productId shouldBe 1L

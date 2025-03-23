@@ -1,24 +1,24 @@
 package kr.kro.dearmoment.like.application.port.output
 
+import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
-import kr.kro.dearmoment.like.domain.StudioLike
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface GetLikePort {
-    fun findUserStudioLikes(
+    fun findUserProductLikes(
         userId: Long,
         pageable: Pageable,
-    ): Page<StudioLike>
+    ): Page<ProductLike>
 
     fun findUserProductOptionLikes(
         userId: Long,
         pageable: Pageable,
     ): Page<ProductOptionLike>
 
-    fun existStudioLike(
+    fun existProductLike(
         userId: Long,
-        studioId: Long,
+        productId: Long,
     ): Boolean
 
     fun existProductOptionLike(

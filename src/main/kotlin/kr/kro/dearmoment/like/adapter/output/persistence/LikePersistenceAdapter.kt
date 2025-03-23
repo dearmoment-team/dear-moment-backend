@@ -4,29 +4,29 @@ import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
+import kr.kro.dearmoment.like.domain.CreateProductLike
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
-import kr.kro.dearmoment.like.domain.CreateStudioLike
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
-import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductRepository
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
 class LikePersistenceAdapter(
-    private val studioLikeRepository: StudioLikeJpaRepository,
+    private val productLikeRepository: ProductLikeJpaRepository,
     private val productOptionLikeRepository: ProductOptionLikeJpaRepository,
-    private val studioRepository: StudioJpaRepository,
+    private val productRepository: JpaProductRepository,
     private val productOptionRepository: JpaProductOptionRepository,
 ) : SaveLikePort, DeleteLikePort {
-    override fun saveStudioLike(like: CreateStudioLike): Long {
-        val studio =
-            studioRepository.findByIdOrNull(like.studioId)
-                ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
-        val entity = StudioLikeEntity.from(like, studio)
+    override fun saveProductLike(like: CreateProductLike): Long {
+        val product =
+            productRepository.findByIdOrNull(like.productId)
+                ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+        val entity = ProductLikeEntity.from(like, product)
 
         return try {
-            studioLikeRepository.save(entity).id
+            productLikeRepository.save(entity).id
         } catch (e: DataIntegrityViolationException) {
             throw CustomException(ErrorCode.LIKE_DUPLICATED)
         }
@@ -45,8 +45,8 @@ class LikePersistenceAdapter(
         }
     }
 
-    override fun deleteStudioLike(likeId: Long) {
-        studioLikeRepository.deleteById(likeId)
+    override fun deleteProductLike(likeId: Long) {
+        productLikeRepository.deleteById(likeId)
     }
 
     override fun deleteProductOptionLike(likeId: Long) {

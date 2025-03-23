@@ -6,14 +6,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.fixture.productLikeFixture
 import kr.kro.dearmoment.common.fixture.productOptionLikeFixture
-import kr.kro.dearmoment.common.fixture.studioLikeFixture
 import kr.kro.dearmoment.like.application.port.output.GetLikePort
 import kr.kro.dearmoment.like.application.query.ExistLikeQuery
+import kr.kro.dearmoment.like.application.query.GetUserProductLikeQuery
 import kr.kro.dearmoment.like.application.query.GetUserProductOptionLikeQuery
-import kr.kro.dearmoment.like.application.query.GetUserStudioLikeQuery
+import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
-import kr.kro.dearmoment.like.domain.StudioLike
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -23,19 +23,19 @@ class LikeQueryServiceTest : DescribeSpec({
     val getLikePort = mockk<GetLikePort>()
     val service = LikeQueryService(getLikePort)
 
-    describe("isStudioLike()는") {
+    describe("isProductLike()는") {
         context("ExistLikeQuery가 전달되면") {
             val query = ExistLikeQuery(userId = 1L, targetId = 1L)
-            every { getLikePort.existStudioLike(query.userId, query.targetId) } returns true
+            every { getLikePort.existProductLike(query.userId, query.targetId) } returns true
 
             it("좋아요가 존재하는지 알 수 있다.") {
-                shouldNotThrow<Throwable> { service.isStudioLike(query) }
-                verify(exactly = 1) { getLikePort.existStudioLike(query.userId, query.targetId) }
+                shouldNotThrow<Throwable> { service.isProductLike(query) }
+                verify(exactly = 1) { getLikePort.existProductLike(query.userId, query.targetId) }
             }
         }
     }
 
-    describe("isProductLike()는") {
+    describe("isProductOptionLike()는") {
         context("ExistLikeQuery가 전달되면") {
             val query = ExistLikeQuery(userId = 1L, targetId = 1L)
             every { getLikePort.existProductOptionLike(query.userId, query.targetId) } returns true
@@ -47,16 +47,16 @@ class LikeQueryServiceTest : DescribeSpec({
         }
     }
 
-    describe("getUserStudioLikes()") {
+    describe("getUserProductLikes()") {
         context("userId가 전달되면") {
             val userId = 1L
-            val likes = List(3) { studioLikeFixture(userId) }
+            val likes = List(3) { productLikeFixture(userId) }
             val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
-            val page: Page<StudioLike> = PageImpl(likes, pageable, likes.size.toLong())
+            val page: Page<ProductLike> = PageImpl(likes, pageable, likes.size.toLong())
 
-            every { getLikePort.findUserStudioLikes(userId, pageable) } returns page
-            it("유저가 좋아요한 스튜디오 정보를 모두 조회한다.") {
-                val result = service.getUserStudioLikes(GetUserStudioLikeQuery(userId, pageable))
+            every { getLikePort.findUserProductLikes(userId, pageable) } returns page
+            it("유저가 좋아요한 상품 정보를 모두 조회한다.") {
+                val result = service.getUserProductLikes(GetUserProductLikeQuery(userId, pageable))
 
                 result.totalElements shouldBe likes.size.toLong()
                 result.content.size shouldBe likes.size
@@ -64,7 +64,7 @@ class LikeQueryServiceTest : DescribeSpec({
                 result.page shouldBe 0
                 result.size shouldBe 10
 
-                verify(exactly = 1) { getLikePort.findUserStudioLikes(userId, pageable) }
+                verify(exactly = 1) { getLikePort.findUserProductLikes(userId, pageable) }
             }
         }
     }

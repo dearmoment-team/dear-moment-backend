@@ -12,6 +12,7 @@ import io.mockk.unmockkObject
 import io.mockk.verify
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.common.fixture.studioFixture
 import kr.kro.dearmoment.image.application.handler.ImageHandler
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
@@ -31,6 +32,8 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import org.springframework.mock.web.MockMultipartFile
 import java.time.LocalDateTime
 
@@ -39,7 +42,9 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     // -- Mock 설정 --
     val productPersistencePort = mockk<ProductPersistencePort>()
     val imageHandler = mockk<ImageHandler>()
+    val getStudioPort = mockk<GetStudioPort>()
     val productOptionUseCase = mockk<ProductOptionUseCase>(relaxed = true)
+    val studio = studioFixture()
 
     // 실제 테스트 대상 UseCase
     val useCase =
@@ -47,6 +52,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             productPersistencePort = productPersistencePort,
             imageHandler = imageHandler,
             productOptionUseCase = productOptionUseCase,
+            getStudioPort = getStudioPort,
         )
 
     // -- 더미 데이터 --
@@ -106,6 +112,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val updateRequest =
         UpdateProductRequest(
             productId = 999L,
+            studioId = 1L,
             userId = 1L,
             productType = "WEDDING_SNAP",
             shootingPlace = "JEJU",
@@ -280,6 +287,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
         }
 
         When("정상 요청 시") {
+            every { getStudioPort.findById(studio.id) } returns studio
             every { productPersistencePort.findById(999L) } returns existingProduct
             every {
                 imageHandler.updateMainImage(mainImageFileTest, updateRequest.userId, existingProduct.mainImage)
@@ -307,12 +315,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
             } returns listOf(dummyNewAdditionalImage)
 
-            val realEntity = ProductEntity.fromDomain(existingProduct)
+            val realEntity = ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio))
             val spiedEntity = spyk(realEntity)
             mockkObject(ProductEntity.Companion)
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } returns
+            every { productPersistencePort.save(any(), any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",
                     description = "Updated Description",
@@ -330,6 +338,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     additionalImages = listOf(dummyNewAdditionalImage),
                     detailedInfo = "Updated Detailed Info",
                     contactInfo = "Updated Contact",
+                    studio = studio,
                 )
 
             val result =
@@ -352,7 +361,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             Then("상호작용 검증") {
                 verify(exactly = 1) { imageHandler.updateMainImage(any(), any(), any()) }
                 verify(exactly = 1) { imageHandler.processSubImagesPartial(any(), any(), any(), any()) }
-                verify(exactly = 1) { productPersistencePort.save(any()) }
+                verify(exactly = 1) { productPersistencePort.save(any(), any()) }
             }
 
             unmockkObject(ProductEntity.Companion)
@@ -369,7 +378,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                             SubImageFinalRequest(UpdateSubImageAction.UPLOAD, 3, null),
                         ),
                 )
-
+            every { getStudioPort.findById(studio.id) } returns studio
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
@@ -396,10 +405,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -447,6 +456,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         ),
                 )
 
+            every { getStudioPort.findById(studio.id) } returns studio
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
@@ -473,10 +483,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -522,6 +532,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         ),
                 )
 
+            every { getStudioPort.findById(studio.id) } returns studio
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
@@ -543,10 +554,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -593,6 +604,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                         ),
                 )
 
+            every { getStudioPort.findById(studio.id) } returns studio
             every { productPersistencePort.findById(999L) } returns existingProduct
             every { imageHandler.updateMainImage(any(), any(), any()) } returns dummyNewMainImage
             every {
@@ -614,10 +626,10 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             } returns listOf(dummyExistingAdditionalImage)
 
             mockkObject(ProductEntity.Companion)
-            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct))
-            every { ProductEntity.fromDomain(existingProduct) } returns spiedEntity
+            val spiedEntity = spyk(ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)))
+            every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
 
-            every { productPersistencePort.save(any()) } answers {
+            every { productPersistencePort.save(any(), any()) } answers {
                 existingProduct.copy(
                     mainImage = dummyNewMainImage,
                     subImages =
@@ -712,7 +724,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 listOf(
                     dummyExistingAdditionalImage,
                 )
-            every { productPersistencePort.save(any()) } returns
+            every { productPersistencePort.save(any(), any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",
                     description = "Updated Description",

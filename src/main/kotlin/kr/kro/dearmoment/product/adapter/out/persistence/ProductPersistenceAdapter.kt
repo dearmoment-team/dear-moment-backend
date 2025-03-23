@@ -1,20 +1,29 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
 @Repository
 @Transactional
 class ProductPersistenceAdapter(
+    private val studioRepository: StudioJpaRepository,
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
 ) : ProductPersistencePort {
-    override fun save(product: Product): Product {
-        val entity = ProductEntity.fromDomain(product)
+    override fun save(
+        product: Product,
+        studioId: Long,
+    ): Product {
+        val studio = studioRepository.findByIdOrNull(studioId) ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
+        val entity = ProductEntity.fromDomain(product, studio)
         return jpaProductRepository.saveAndFlush(entity).toDomain()
     }
 
@@ -62,5 +71,21 @@ class ProductPersistenceAdapter(
         title: String,
     ): Boolean {
         return jpaProductRepository.existsByUserIdAndTitle(userId, title)
+    }
+
+    override fun increaseLikeCount(productId: Long) {
+        jpaProductRepository.increaseLikeCount(productId)
+    }
+
+    override fun decreaseLikeCount(productId: Long) {
+        jpaProductRepository.decreaseLikeCount(productId)
+    }
+
+    override fun increaseInquiryCount(productId: Long) {
+        jpaProductRepository.increaseInquiryCount(productId)
+    }
+
+    override fun decreaseInquiryCount(productId: Long) {
+        jpaProductRepository.decreaseInquiryCount(productId)
     }
 }

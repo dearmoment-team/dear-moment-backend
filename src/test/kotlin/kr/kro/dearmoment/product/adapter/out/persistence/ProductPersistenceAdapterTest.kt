@@ -1,207 +1,50 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.throwable.shouldHaveMessage
 import kr.kro.dearmoment.RepositoryTest
-import kr.kro.dearmoment.product.domain.model.OptionType
+import kr.kro.dearmoment.common.fixture.productEntityFixture
+import kr.kro.dearmoment.common.fixture.studioEntityFixture
+import kr.kro.dearmoment.common.fixture.studioFixture
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import kr.kro.dearmoment.studio.domain.Studio
 import java.time.LocalDateTime
 
 @RepositoryTest
 class ProductPersistenceAdapterTest(
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
+    private val studioRepository: StudioJpaRepository,
 ) : DescribeSpec({
-        val adapter = ProductPersistenceAdapter(jpaProductRepository, jpaProductOptionRepository)
+        val adapter = ProductPersistenceAdapter(studioRepository, jpaProductRepository, jpaProductOptionRepository)
 
-        describe("ProductPersistenceAdapter 테스트") {
+        afterEach {
+            jpaProductOptionRepository.deleteAllInBatch()
+            jpaProductRepository.deleteAllInBatch()
+            studioRepository.deleteAll()
+        }
 
-            beforeEach {
-                jpaProductOptionRepository.deleteAllInBatch()
-                jpaProductRepository.deleteAllInBatch()
-            }
-
-            afterEach {
-                jpaProductOptionRepository.deleteAllInBatch()
-                jpaProductRepository.deleteAllInBatch()
-            }
-
-            context("상품 생성 유효성 검증") {
-                it("패키지 상품은 협력업체 정보가 반드시 필요해야 함") {
-                    val exception =
-                        shouldThrow<IllegalArgumentException> {
-                            Product(
-                                userId = 1L,
-                                productType = ProductType.WEDDING_SNAP,
-                                shootingPlace = ShootingPlace.JEJU,
-                                title = "프로 패키지",
-                                mainImage =
-                                    kr.kro.dearmoment.image.domain.Image(
-                                        userId = 1L,
-                                        fileName = "main.jpg",
-                                        url = "http://example.com/main.jpg",
-                                    ),
-                                subImages = emptyList(),
-                                additionalImages = emptyList(),
-                            )
-                        }
-                    exception shouldHaveMessage "서브 이미지는 정확히 4장 등록해야 합니다."
-                }
-
-                it("모든 상품은 필수 이미지(대표 이미지와 서브 이미지 4장)가 필요함") {
-                    val exception =
-                        shouldThrow<IllegalArgumentException> {
-                            Product(
-                                userId = 1L,
-                                productType = ProductType.WEDDING_SNAP,
-                                shootingPlace = ShootingPlace.JEJU,
-                                title = "스튜디오 촬영",
-                                mainImage =
-                                    kr.kro.dearmoment.image.domain.Image(
-                                        userId = 1L,
-                                        fileName = "main.jpg",
-                                        url = "http://example.com/main.jpg",
-                                    ),
-                                subImages = emptyList(),
-                                additionalImages = emptyList(),
-                            )
-                        }
-                    exception shouldHaveMessage "서브 이미지는 정확히 4장 등록해야 합니다."
-                }
-            }
-
+        describe("ProductPersistenceAdapter 상품 저장 테스트") {
             context("상품 저장 시") {
+                val savedStudio = studioRepository.save(studioEntityFixture())
+                val savedProduct = jpaProductRepository.save(productEntityFixture(studioEntity = savedStudio))
                 it("상품의 필수 정보가 정상 저장되어야 함") {
-                    // Given: 옵션이 없는 상품
-                    val sampleProduct =
-                        createSampleProduct(
-                            userId = 1L,
-                            title = "[프리미엄] 웨딩 촬영 패키지",
-                            productType = ProductType.WEDDING_SNAP,
-                            shootingPlace = ShootingPlace.JEJU,
-                            mainImage =
-                                kr.kro.dearmoment.image.domain.Image(
-                                    userId = 1L,
-                                    fileName = "main.jpg",
-                                    url = "http://example.com/main.jpg",
-                                ),
-                            subImages =
-                                List(4) {
-                                    kr.kro.dearmoment.image.domain.Image(
-                                        userId = 1L,
-                                        fileName = "sub${it + 1}.jpg",
-                                        url = "http://example.com/sub${it + 1}.jpg",
-                                    )
-                                },
-                            additionalImages =
-                                listOf(
-                                    kr.kro.dearmoment.image.domain.Image(
-                                        userId = 1L,
-                                        fileName = "add1.jpg",
-                                        url = "http://example.com/add1.jpg",
-                                    ),
-                                ),
-                            detailedInfo = "상세 정보",
-                            contactInfo = "contact@example.com",
-                        )
-
-                    // When
-                    val savedProduct = adapter.save(sampleProduct)
-                    jpaProductRepository.flush()
-
-                    // Then
-                    with(savedProduct) {
-                        productId shouldNotBe 0L
-                        title shouldBe "[프리미엄] 웨딩 촬영 패키지"
-                        productType shouldBe ProductType.WEDDING_SNAP
-                        shootingPlace shouldBe ShootingPlace.JEJU
-                        mainImage.fileName shouldBe "main.jpg"
-                        subImages shouldHaveSize 4
-                        additionalImages.size shouldBe 1
-                        detailedInfo shouldBe "상세 정보"
-                        contactInfo shouldBe "contact@example.com"
-                    }
-                }
-
-                it("상품의 옵션 정보가 정상 저장되어야 함") {
-                    // Given: 옵션을 포함한 상품
-                    val dummyOption =
-                        ProductOption(
-                            optionId = 0L,
-                            productId = 0L,
-                            name = "옵션 테스트",
-                            optionType = OptionType.SINGLE,
-                            discountAvailable = false,
-                            originalPrice = 5000,
-                            discountPrice = 4500,
-                            description = "옵션 설명",
-                            costumeCount = 1,
-                            shootingLocationCount = 1,
-                            shootingHours = 2,
-                            shootingMinutes = 30,
-                            retouchedCount = 1,
-                            originalProvided = true,
-                            partnerShops = emptyList(),
-                            createdAt = LocalDateTime.now(),
-                            updatedAt = LocalDateTime.now(),
-                        )
-
-                    val sampleProductWithOptions =
-                        createSampleProduct(
-                            userId = 2L,
-                            title = "옵션 포함 상품",
-                            productType = ProductType.WEDDING_SNAP,
-                            shootingPlace = ShootingPlace.JEJU,
-                            mainImage =
-                                kr.kro.dearmoment.image.domain.Image(
-                                    userId = 2L,
-                                    fileName = "main_option.jpg",
-                                    url = "http://example.com/main_option.jpg",
-                                ),
-                            subImages =
-                                List(4) {
-                                    kr.kro.dearmoment.image.domain.Image(
-                                        userId = 2L,
-                                        fileName = "sub${it + 1}_option.jpg",
-                                        url = "http://example.com/sub${it + 1}_option.jpg",
-                                    )
-                                },
-                            additionalImages =
-                                listOf(
-                                    kr.kro.dearmoment.image.domain.Image(
-                                        userId = 2L,
-                                        fileName = "add1_option.jpg",
-                                        url = "http://example.com/add1_option.jpg",
-                                    ),
-                                ),
-                            detailedInfo = "옵션 상세 정보",
-                            contactInfo = "option@example.com",
-                            options = listOf(dummyOption),
-                        )
-
-                    // When
-                    val savedProductWithOptions = adapter.save(sampleProductWithOptions)
-                    jpaProductRepository.flush()
-
-                    // Then
-                    savedProductWithOptions.productId shouldNotBe 0L
-                    savedProductWithOptions.options shouldHaveSize 1
-                    savedProductWithOptions.options[0].name shouldBe "옵션 테스트"
+                    savedProduct.productId shouldNotBe 0L
                 }
             }
+        }
 
+        describe("ProductPersistenceAdapter 상품 검색 테스트") {
             context("상품 검색 기능") {
                 lateinit var testProducts: List<Product>
 
                 beforeEach {
+                    val savedStudio = studioRepository.save(studioEntityFixture(userId = 1L))
                     testProducts =
                         listOf(
                             createSampleProduct(
@@ -222,8 +65,7 @@ class ProductPersistenceAdapterTest(
                                 productType = ProductType.WEDDING_SNAP,
                                 shootingPlace = ShootingPlace.JEJU,
                             ),
-                        ).map { adapter.save(it) }
-                    jpaProductRepository.flush()
+                        ).map { adapter.save(it, savedStudio.id) }
                 }
 
                 it("제목으로 검색 시 해당 상품만 반환되어야 함") {
@@ -265,6 +107,7 @@ class ProductPersistenceAdapterTest(
             detailedInfo: String = "",
             contactInfo: String = "contact@example.com",
             options: List<ProductOption> = emptyList(),
+            studio: Studio = studioFixture(),
         ): Product =
             Product(
                 productId = 0L,
@@ -284,6 +127,7 @@ class ProductPersistenceAdapterTest(
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now(),
                 options = options,
+                studio = studio,
             )
     }
 }

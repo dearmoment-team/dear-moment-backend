@@ -49,7 +49,7 @@ class CreateProductUseCaseImpl(
 
         // 생성 전 유효성 검사: 동일 제목의 상품이 이미 존재하는지 확인
         validateForCreation(product)
-        val savedProduct = productPersistencePort.save(product)
+        val savedProduct = productPersistencePort.save(product, request.studioId)
 
         // 저장된 상품 조회 실패 시 예외 처리
         val completeProduct: Product =

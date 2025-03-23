@@ -1,16 +1,16 @@
 package kr.kro.dearmoment.like.application.command
 
+import kr.kro.dearmoment.like.domain.CreateProductLike
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
-import kr.kro.dearmoment.like.domain.CreateStudioLike
 
 data class SaveLikeCommand(
     val userId: Long,
     val targetId: Long,
 ) {
     fun toStudioLikeDomain() =
-        CreateStudioLike(
+        CreateProductLike(
             userId = userId,
-            studioId = targetId,
+            productId = targetId,
         )
 
     fun toProductOptionLikeDomain() =

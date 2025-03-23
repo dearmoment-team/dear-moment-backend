@@ -146,6 +146,7 @@ class ProductRestAdapter(
             rawRequest ?: UpdateProductRequest(
                 productId = id,
                 userId = 0L,
+                studioId = 0L,
             )
 
         return updateProductUseCase.updateProduct(
