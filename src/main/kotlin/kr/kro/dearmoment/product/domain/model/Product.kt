@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.product.domain.model
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
 
@@ -11,6 +13,16 @@ enum class ShootingSeason {
     YEAR_2025_SECOND_HALF,
     YEAR_2026_FIRST_HALF,
     YEAR_2026_SECOND_HALF,
+    ;
+
+    companion object {
+        fun from(value: String): ShootingSeason =
+            try {
+                valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                throw CustomException(ErrorCode.INVALID_SEASON)
+            }
+    }
 }
 
 /**
@@ -19,6 +31,16 @@ enum class ShootingSeason {
 enum class CameraType {
     DIGITAL,
     FILM,
+    ;
+
+    companion object {
+        fun from(value: String): CameraType =
+            try {
+                valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                throw CustomException(ErrorCode.INVALID_CAMERA_TYPE)
+            }
+    }
 }
 
 /**
@@ -34,6 +56,16 @@ enum class RetouchStyle {
     DREAMY,
     BRIGHT,
     NATURAL,
+    ;
+
+    companion object {
+        fun from(value: String): RetouchStyle =
+            try {
+                valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                throw CustomException(ErrorCode.INVALID_RETOUCH_STYLE)
+            }
+    }
 }
 
 /**
@@ -41,6 +73,16 @@ enum class RetouchStyle {
  */
 enum class ProductType {
     WEDDING_SNAP,
+    ;
+
+    companion object {
+        fun from(value: String): ProductType =
+            try {
+                valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                throw CustomException(ErrorCode.INVALID_PRODUCT_TYPE)
+            }
+    }
 }
 
 /**
@@ -48,6 +90,16 @@ enum class ProductType {
  */
 enum class ShootingPlace {
     JEJU,
+    ;
+
+    companion object {
+        fun from(value: String): ShootingPlace =
+            try {
+                valueOf(value)
+            } catch (e: IllegalArgumentException) {
+                throw CustomException(ErrorCode.INVALID_SHOOTING_PLACE)
+            }
+    }
 }
 
 /**

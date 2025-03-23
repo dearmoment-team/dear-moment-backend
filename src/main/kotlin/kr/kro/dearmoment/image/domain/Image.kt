@@ -12,3 +12,13 @@ data class Image(
 ) {
     fun isUrlExpired() = this.urlExpireTime <= LocalDateTime.now()
 }
+
+fun Image.withUserId(userId: Long): Image =
+    Image(
+        imageId = this.imageId,
+        userId = userId,
+        parId = this.parId,
+        fileName = this.fileName,
+        url = this.url,
+        urlExpireTime = this.urlExpireTime,
+    )

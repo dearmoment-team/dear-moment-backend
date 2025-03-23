@@ -27,4 +27,9 @@ interface ProductOptionUseCase {
         existingProduct: Product,
         requestOptions: List<UpdateProductOptionRequest>,
     )
+
+    fun saveOrUpdateProductOption(
+        productId: Long,
+        request: UpdateProductOptionRequest?,
+    ): ProductOptionResponse?
 }
