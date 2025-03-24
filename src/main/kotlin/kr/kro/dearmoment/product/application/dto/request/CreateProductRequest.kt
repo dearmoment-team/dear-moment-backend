@@ -5,15 +5,15 @@ import jakarta.validation.constraints.NotBlank
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.domain.model.CameraType
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 
 data class CreateProductRequest(
     @Schema(description = "사용자 ID", example = "1", required = true)

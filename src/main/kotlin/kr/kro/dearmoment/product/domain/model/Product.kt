@@ -1,107 +1,10 @@
 package kr.kro.dearmoment.product.domain.model
 
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.ProductOptionUpdateResult
 import kr.kro.dearmoment.studio.domain.Studio
 import java.time.LocalDateTime
-
-/**
- * 촬영 가능 시기
- */
-enum class ShootingSeason {
-    YEAR_2025_FIRST_HALF,
-    YEAR_2025_SECOND_HALF,
-    YEAR_2026_FIRST_HALF,
-    YEAR_2026_SECOND_HALF,
-    ;
-
-    companion object {
-        fun from(value: String): ShootingSeason =
-            try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                throw CustomException(ErrorCode.INVALID_SEASON)
-            }
-    }
-}
-
-/**
- * 카메라 종류
- */
-enum class CameraType {
-    DIGITAL,
-    FILM,
-    ;
-
-    companion object {
-        fun from(value: String): CameraType =
-            try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                throw CustomException(ErrorCode.INVALID_CAMERA_TYPE)
-            }
-    }
-}
-
-/**
- * 보정 스타일
- */
-enum class RetouchStyle {
-    MODERN,
-    CHIC,
-    CALM,
-    VINTAGE,
-    FAIRYTALE,
-    WARM,
-    DREAMY,
-    BRIGHT,
-    NATURAL,
-    ;
-
-    companion object {
-        fun from(value: String): RetouchStyle =
-            try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                throw CustomException(ErrorCode.INVALID_RETOUCH_STYLE)
-            }
-    }
-}
-
-/**
- * 상품 유형 (예: 웨딩스냅)
- */
-enum class ProductType {
-    WEDDING_SNAP,
-    ;
-
-    companion object {
-        fun from(value: String): ProductType =
-            try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                throw CustomException(ErrorCode.INVALID_PRODUCT_TYPE)
-            }
-    }
-}
-
-/**
- * 촬영 장소 (예: JEJU)
- */
-enum class ShootingPlace {
-    JEJU,
-    ;
-
-    companion object {
-        fun from(value: String): ShootingPlace =
-            try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                throw CustomException(ErrorCode.INVALID_SHOOTING_PLACE)
-            }
-    }
-}
 
 /**
  * 상품 도메인 모델

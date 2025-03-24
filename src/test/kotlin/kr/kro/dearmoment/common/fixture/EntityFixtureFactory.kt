@@ -7,11 +7,11 @@ import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory

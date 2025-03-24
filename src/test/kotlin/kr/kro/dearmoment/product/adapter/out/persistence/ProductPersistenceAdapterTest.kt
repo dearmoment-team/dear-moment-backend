@@ -8,9 +8,9 @@ import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.common.fixture.studioFixture
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import kr.kro.dearmoment.studio.domain.Studio
 import java.time.LocalDateTime

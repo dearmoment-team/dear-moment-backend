@@ -8,15 +8,15 @@ import kr.kro.dearmoment.common.validation.NotBlankIfPresent
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.domain.model.CameraType
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 
 /**
  * [상품 부분 수정] 시 사용하는 요청 DTO

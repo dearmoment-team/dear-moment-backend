@@ -10,8 +10,8 @@ import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import java.time.LocalDateTime
 
 class DeleteProductOptionUseCaseTest : BehaviorSpec({

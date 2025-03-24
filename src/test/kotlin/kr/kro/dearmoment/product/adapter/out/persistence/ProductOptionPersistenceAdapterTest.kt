@@ -14,9 +14,9 @@ import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
-import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 
 @RepositoryTest

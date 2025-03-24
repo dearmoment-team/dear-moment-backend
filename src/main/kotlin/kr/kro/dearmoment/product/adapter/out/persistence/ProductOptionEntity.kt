@@ -15,10 +15,10 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
-import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")

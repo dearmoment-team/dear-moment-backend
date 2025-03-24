@@ -4,12 +4,12 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.domain.Studio
 
 fun studioFixture(
