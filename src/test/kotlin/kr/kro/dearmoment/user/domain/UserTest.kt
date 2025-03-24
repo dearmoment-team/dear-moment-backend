@@ -17,9 +17,9 @@ class UserTest : DescribeSpec({
                         loginId = "testUser",
                         password = "pass1234",
                         name = "홍길동",
-                        isStudio = false, // 선택적으로 사용
+                        isStudio = false,
                         createdAt = now,
-                        updatedAt = now, // 선택적으로 사용
+                        updatedAt = now,
                     )
             }
         }
@@ -34,9 +34,9 @@ class UserTest : DescribeSpec({
                         loginId = "anotherUser",
                         password = "password1234",
                         name = "홍길동2",
-                        isStudio = null, // null 가능
+                        isStudio = null,
                         createdAt = now,
-                        updatedAt = null, // null 가능
+                        updatedAt = null,
                     )
             }
         }
@@ -48,7 +48,7 @@ class UserTest : DescribeSpec({
                 shouldThrow<IllegalArgumentException> {
                     User(
                         id = null,
-                        loginId = "", // 비어있음
+                        loginId = "",
                         password = "pass1234",
                         name = "홍길동",
                         isStudio = false,
@@ -73,8 +73,8 @@ class UserTest : DescribeSpec({
                         password = "pass1234",
                         name = "홍길동",
                         isStudio = false,
-                        createdAt = future, // future가 now보다 뒤
-                        updatedAt = now, // now가 더 앞
+                        createdAt = future,
+                        updatedAt = now,
                     )
                 }
             }
