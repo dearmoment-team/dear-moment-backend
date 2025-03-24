@@ -56,6 +56,14 @@ jobs:
             MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             MAIL_RECEIVER=${{ secrets.MAIL_RECEIVER }}
+            
+            JWT_SECRET=${{ secrets.MAIL_RECEIVER }}
+            JWT_EXPIRATION=${{ secrets.MAIL_RECEIVER }}
+            
+            # Kakao OAuth
+            OAUTH_KAKAO_CLIENT_ID=${{ secrets.MAIL_RECEIVER }}
+            OAUTH_KAKAO_REDIRECT_URI_LOCAL=${{ secrets.MAIL_RECEIVER }}
+            OAUTH_KAKAO_REDIRECT_URI=${{ secrets.MAIL_RECEIVER }}
             EOF
             echo "==== .env file updated in ~/env/.env ===="
             cd ~
