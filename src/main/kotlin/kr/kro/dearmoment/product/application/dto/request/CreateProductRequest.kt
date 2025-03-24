@@ -3,6 +3,7 @@ package kr.kro.dearmoment.product.application.dto.request
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -17,6 +18,8 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
 data class CreateProductRequest(
     @Schema(description = "사용자 ID", example = "1", required = true)
     val userId: Long,
+    @Schema(description = "스튜디오 ID", example = "1", required = true)
+    val studioId: Long,
     @field:NotBlank(message = "상품 유형은 필수입니다.")
     @Schema(description = "상품 유형", example = "WEDDING_SNAP", required = true)
     val productType: String,
@@ -57,74 +60,14 @@ data class CreateProductRequest(
             subImages: List<Image>,
             additionalImages: List<Image>,
         ): Product {
-            val productTypeEnum =
-                ProductType.entries.find { it.name == req.productType }
-                    ?: throw IllegalArgumentException("Invalid productType: ${req.productType}")
-
-            val shootingPlaceEnum =
-                ShootingPlace.entries.find { it.name == req.shootingPlace }
-                    ?: throw IllegalArgumentException("Invalid shootingPlace: ${req.shootingPlace}")
-
-            val seasonSet =
-                req.availableSeasons.map { season ->
-                    try {
-                        ShootingSeason.valueOf(season)
-                    } catch (e: IllegalArgumentException) {
-                        throw IllegalArgumentException("Invalid available season: $season")
-                    }
-                }.toSet()
-
-            val cameraSet =
-                req.cameraTypes.map { type ->
-                    try {
-                        CameraType.valueOf(type)
-                    } catch (e: IllegalArgumentException) {
-                        throw IllegalArgumentException("Invalid camera type: $type")
-                    }
-                }.toSet()
-
-            val styleSet =
-                req.retouchStyles.map { style ->
-                    try {
-                        RetouchStyle.valueOf(style)
-                    } catch (e: IllegalArgumentException) {
-                        throw IllegalArgumentException("Invalid retouch style: $style")
-                    }
-                }.toSet()
-
-            // 이미지 객체 생성 (반드시 대표 이미지가 존재해야 함)
-            val mainImg =
-                Image(
-                    userId = req.userId,
-                    imageId = mainImage.imageId,
-                    fileName = mainImage.fileName,
-                    parId = mainImage.parId,
-                    url = mainImage.url,
-                )
-
-            val subImgList =
-                subImages.map { image ->
-                    Image(
-                        userId = req.userId,
-                        imageId = image.imageId,
-                        fileName = image.fileName,
-                        parId = image.parId,
-                        url = image.url,
-                    )
-                }
-
-            val addImgList =
-                additionalImages.map { image ->
-                    Image(
-                        userId = req.userId,
-                        imageId = image.imageId,
-                        fileName = image.fileName,
-                        parId = image.parId,
-                        url = image.url,
-                    )
-                }
-
-            // 옵션 요청을 도메인 모델로 변환하여 포함
+            val productTypeEnum = ProductType.from(req.productType)
+            val shootingPlaceEnum = ShootingPlace.from(req.shootingPlace)
+            val seasonSet = req.availableSeasons.map { ShootingSeason.from(it) }.toSet()
+            val cameraSet = req.cameraTypes.map { CameraType.from(it) }.toSet()
+            val styleSet = req.retouchStyles.map { RetouchStyle.from(it) }.toSet()
+            val mainImg = mainImage.withUserId(req.userId)
+            val subImgList = subImages.map { it.withUserId(req.userId) }
+            val addImgList = additionalImages.map { it.withUserId(req.userId) }
             val optionList = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
 
             return Product(
@@ -148,10 +91,6 @@ data class CreateProductRequest(
     }
 }
 
-/**
- * [상품 옵션] 생성 요청 DTO
- */
-@Schema(description = "[상품 옵션] 생성 요청 DTO")
 data class CreateProductOptionRequest(
     @field:NotBlank(message = "옵션명은 필수입니다.")
     @Schema(description = "옵션명", example = "옵션1", required = true)
@@ -167,7 +106,6 @@ data class CreateProductOptionRequest(
     val discountPrice: Long = 0,
     @Schema(description = "옵션 설명", example = "옵션에 대한 상세 설명")
     val description: String? = null,
-    // 단품용
     @Schema(description = "의상 수량 (단품인 경우 1 이상)", example = "1")
     val costumeCount: Int = 0,
     @Schema(description = "촬영 장소 수 (단품인 경우 1 이상)", example = "1")
@@ -180,7 +118,6 @@ data class CreateProductOptionRequest(
     val retouchedCount: Int = 0,
     @Schema(description = "원본 제공 여부", example = "true")
     val originalProvided: Boolean = false,
-    // 패키지용
     @Schema(description = "파트너샵 목록")
     val partnerShops: List<CreatePartnerShopRequest> = emptyList(),
 ) {
@@ -189,7 +126,7 @@ data class CreateProductOptionRequest(
             dto: CreateProductOptionRequest,
             productId: Long,
         ): ProductOption {
-            val optionTypeEnum = OptionType.valueOf(dto.optionType)
+            val optionTypeEnum = OptionType.from(dto.optionType)
             return ProductOption(
                 optionId = 0L,
                 productId = productId,
@@ -220,10 +157,6 @@ data class CreateProductOptionRequest(
     }
 }
 
-/**
- * [파트너샵] 생성 요청 DTO
- */
-@Schema(description = "[파트너샵] 생성 요청 DTO")
 data class CreatePartnerShopRequest(
     @Schema(
         description = "파트너샵 카테고리 (도메인: PartnerShopCategory)",

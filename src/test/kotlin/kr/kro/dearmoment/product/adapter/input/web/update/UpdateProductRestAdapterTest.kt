@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.product.adapter.input.web.update
 
 import andDocument
-import kr.kro.dearmoment.common.dto.ResponseWrapper
+import kr.kro.dearmoment.common.MockBaseApiTest
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -13,64 +13,25 @@ import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
-import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
-import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
-import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
-import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.restdocs.RestDocumentationExtension
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
  * [상품 업데이트] Controller 테스트 예시 (PATCH 방식)
  */
-@ExtendWith(RestDocumentationExtension::class)
 @WebMvcTest(ProductRestAdapter::class)
-@Import(ResponseWrapper::class)
-@AutoConfigureRestDocs
-@AutoConfigureMockMvc
-class UpdateProductRestAdapterTest {
-    @Autowired
-    lateinit var mockMvc: MockMvc
-
-    @MockitoBean
-    lateinit var updateProductUseCase: UpdateProductUseCase
-
-    @MockitoBean
-    lateinit var createProductUseCase: CreateProductUseCase
-
-    @MockitoBean
-    lateinit var deleteProductUseCase: DeleteProductUseCase
-
-    @MockitoBean
-    lateinit var getProductUseCase: GetProductUseCase
-
-    @MockitoBean
-    lateinit var productSearchUseCase: ProductSearchUseCase
-
-    @MockitoBean
-    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
-
+class UpdateProductRestAdapterTest : MockBaseApiTest() {
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
-        // 1) 업데이트 요청 DTO를 JSON 문자열로 생성 (subImagesFinal에 index 필드를 추가)
+        // 1) 업데이트 요청 DTO(JSON)
         val requestJson =
             """
             {
@@ -116,7 +77,7 @@ class UpdateProductRestAdapterTest {
             }
             """.trimIndent()
 
-        // 2) 대표 이미지, 서브 이미지, 추가 이미지 파일 준비
+        // 2) 파일 준비
         val mainImageFile =
             MockMultipartFile(
                 "mainImageFile",
@@ -196,7 +157,7 @@ class UpdateProductRestAdapterTest {
                     ),
             )
 
-        // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
+        // 4) UseCase 모킹
         given(
             updateProductUseCase.updateProduct(
                 eq(1L),
@@ -208,7 +169,7 @@ class UpdateProductRestAdapterTest {
             ),
         ).willReturn(updatedResponse)
 
-        // 5) "request" 파트에 JSON을 포함시켜 multipart/form-data PATCH 요청 생성
+        // 5) multipart/form-data PATCH 요청
         val requestPart =
             MockMultipartFile(
                 "request",
@@ -216,7 +177,6 @@ class UpdateProductRestAdapterTest {
                 MediaType.APPLICATION_JSON_VALUE,
                 requestJson.toByteArray(),
             )
-
         val requestBuilder =
             MockMvcRequestBuilders
                 .multipart("/api/products/{id}", 1L)
@@ -232,7 +192,7 @@ class UpdateProductRestAdapterTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 6) 요청 실행, 상태 검증 및 REST Docs 문서화
+        // 6) 요청 실행
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(

@@ -22,6 +22,7 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateProductOptionInquiryRequest
 import kr.kro.dearmoment.inquiry.application.dto.GetProductOptionInquiryResponse
+import kr.kro.dearmoment.inquiry.application.dto.RemoveProductOptionInquiryRequest
 import kr.kro.dearmoment.inquiry.application.query.GetProductInquiresQuery
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageImpl
@@ -38,12 +39,13 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
         val requestBody =
             CreateProductOptionInquiryRequest(
                 userId = 123L,
-                productOptionId = 11L,
+                optionId = 11L,
+                productId = 1L,
             )
 
         val expected = CreateInquiryResponse(1L)
 
-        every { createInquiryUseCase.createProductInquiry(any()) } returns expected
+        every { createInquiryUseCase.createProductOptionInquiry(any()) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
@@ -57,7 +59,8 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                 "create-product_options_inquiry",
                 requestBody(
                     "userId" type NUMBER means "유저 ID",
-                    "productOptionId" type NUMBER means "상품 옵션 ID",
+                    "optionId" type NUMBER means "상품 옵션 ID",
+                    "productId" type NUMBER means "상품 ID",
                 ),
                 responseBody(
                     "data" type OBJECT means "데이터",
@@ -77,6 +80,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
             listOf(
                 GetProductOptionInquiryResponse(
                     inquiryId = 1L,
+                    productId = 1L,
                     studioName = "스튜디오A",
                     optionName = "Basic",
                     thumbnailUrl = "https://storage.com/photo/product1",
@@ -84,6 +88,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                 ),
                 GetProductOptionInquiryResponse(
                     inquiryId = 2L,
+                    productId = 1L,
                     studioName = "스튜디오A",
                     optionName = "Premium",
                     thumbnailUrl = "https://storage.com/photo/product2",
@@ -123,6 +128,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                     "data" type OBJECT means "데이터",
                     "data.content" type ARRAY means "상품 문의 리스트",
                     "data.content[].inquiryId" type NUMBER means "상품 문의 ID",
+                    "data.content[].productId" type NUMBER means "상품 ID",
                     "data.content[].studioName" type STRING means "스튜디오명",
                     "data.content[].optionName" type STRING means "상품 옵션명",
                     "data.content[].thumbnailUrl" type STRING means "대표 이미지 URL",
@@ -139,20 +145,27 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `상품 문의 삭제 API`() {
-        val inquiryId = 1L
+        val requestBody =
+            RemoveProductOptionInquiryRequest(
+                inquiryId = 1L,
+                productId = 1L,
+            )
 
-        every { removeInquiryUseCase.removeProductOptionInquiry(inquiryId) } just Runs
+        every { removeInquiryUseCase.removeProductOptionInquiry(requestBody.toCommand()) } just Runs
 
         val request =
             RestDocumentationRequestBuilders
-                .delete("/api/inquiries/product-options/{inquiryId}", inquiryId)
+                .delete("/api/inquiries/product-options")
+                .content(requestBody.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
 
         mockMvc.perform(request)
             .andExpect(status().isNoContent)
             .andDocument(
                 "delete-product_options-inquiry",
-                pathParameters(
-                    "inquiryId" means "삭제할 상품 문의 ID",
+                requestBody(
+                    "inquiryId" type NUMBER means "삭제할 문의 ID",
+                    "productId" type NUMBER means "상품 ID",
                 ),
             )
     }

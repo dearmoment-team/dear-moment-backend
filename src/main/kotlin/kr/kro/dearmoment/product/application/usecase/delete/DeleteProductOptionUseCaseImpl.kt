@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.application.usecase.delete
 
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import org.springframework.stereotype.Service
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class DeleteProductOptionUseCaseImpl(
     private val productOptionPersistencePort: ProductOptionPersistencePort,
+    private val getProductOptionPort: GetProductOptionPort,
 ) : DeleteProductOptionUseCase {
     @Transactional
     override fun deleteOption(
@@ -17,7 +19,7 @@ class DeleteProductOptionUseCaseImpl(
         optionId: Long,
     ) {
         // 1) 옵션 조회
-        val option: ProductOption = productOptionPersistencePort.findById(optionId)
+        val option: ProductOption = getProductOptionPort.findById(optionId)
 
         // 2) 해당 옵션이 해당 상품에 속하는지 확인
         if (option.productId != productId) {

@@ -4,13 +4,17 @@ import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.handler.ImageHandler
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.application.usecase.option.ProductOptionUseCase
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -18,8 +22,10 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class UpdateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
+    private val getProductPort: GetProductPort,
     private val imageHandler: ImageHandler,
     private val productOptionUseCase: ProductOptionUseCase,
+    private val getStudioPort: GetStudioPort,
 ) : UpdateProductUseCase {
     /**
      * 업데이트 요청 시 파일 파라미터(대표, 서브, 추가 이미지 파일)는 컨트롤러에서 별도로 전달받습니다.
@@ -39,7 +45,7 @@ class UpdateProductUseCaseImpl(
     ): ProductResponse {
         // 1) DB에서 기존 Product 조회
         val existingProduct =
-            productPersistencePort.findById(productId)
+            getProductPort.findById(productId)
                 ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
         // 2) 대표 이미지 처리: 새 파일이 전달되면 업로드 후 업데이트, 없으면 기존 이미지 유지
@@ -68,35 +74,10 @@ class UpdateProductUseCaseImpl(
                 userId = rawRequest.userId,
             )
 
-        // 새 이미지 업로드 로직 (CreateProductRequest와 동일한 매핑 로직)
-        val mappedMainImage =
-            Image(
-                userId = rawRequest.userId,
-                imageId = newMainImage.imageId,
-                fileName = newMainImage.fileName,
-                parId = newMainImage.parId,
-                url = newMainImage.url,
-            )
-        val mappedSubImages =
-            updatedSubImages.map { image ->
-                Image(
-                    userId = rawRequest.userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
-                )
-            }
-        val mappedAdditionalImages =
-            updatedAdditionalImages.map { image ->
-                Image(
-                    userId = rawRequest.userId,
-                    imageId = image.imageId,
-                    fileName = image.fileName,
-                    parId = image.parId,
-                    url = image.url,
-                )
-            }
+        // 새 이미지 업로드 로직: 확장 함수 withUserId를 활용하여 userId 재설정
+        val mappedMainImage = newMainImage.withUserId(rawRequest.userId)
+        val mappedSubImages = updatedSubImages.map { it.withUserId(rawRequest.userId) }
+        val mappedAdditionalImages = updatedAdditionalImages.map { it.withUserId(rawRequest.userId) }
 
         // 5) DTO -> 도메인 객체 변환 (기존 Product와 병합)
         val productFromReq =
@@ -110,15 +91,16 @@ class UpdateProductUseCaseImpl(
             )
         productFromReq.validateForUpdate()
 
+        val studio = StudioEntity.from(getStudioPort.findById(rawRequest.studioId))
+
         // 6) 기존 Entity의 필드 업데이트
         val existingEntity =
-            ProductEntity.fromDomain(existingProduct).apply {
+            ProductEntity.fromDomain(existingProduct, studio).apply {
                 // 병합된 결과로 업데이트 (필요에 따라 null 처리된 필드는 기존 값 유지)
                 userId = productFromReq.userId
                 productType = productFromReq.productType
                 shootingPlace = productFromReq.shootingPlace
                 title = productFromReq.title
-                // description, detailedInfo, contactInfo는 null 대신 빈 문자열 할당
                 description = productFromReq.description.takeIf { it.isNotBlank() } ?: ""
                 mainImage = ImageEmbeddable.fromDomainImage(productFromReq.mainImage)
 
@@ -142,7 +124,7 @@ class UpdateProductUseCaseImpl(
         }
 
         // 8) 최종 저장 및 응답 객체 변환
-        val updatedProduct = productPersistencePort.save(existingEntity.toDomain())
+        val updatedProduct = productPersistencePort.save(existingEntity.toDomain(), studio.id)
         return ProductResponse.fromDomain(updatedProduct)
     }
 }

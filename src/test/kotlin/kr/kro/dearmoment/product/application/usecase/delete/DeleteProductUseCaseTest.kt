@@ -2,12 +2,15 @@ package kr.kro.dearmoment.product.application.usecase.delete
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.throwable.shouldHaveMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
@@ -21,7 +24,8 @@ class DeleteProductUseCaseTest : BehaviorSpec({
 
     val productPersistencePort = mockk<ProductPersistencePort>()
     val imageService = mockk<ImageService>(relaxed = true)
-    val useCase = DeleteProductUseCaseImpl(productPersistencePort, imageService)
+    val getProductPort = mockk<GetProductPort>()
+    val useCase = DeleteProductUseCaseImpl(productPersistencePort, getProductPort, imageService)
 
     // 테스트용 더미 이미지들
     val uniqueImage1 =
@@ -77,7 +81,7 @@ class DeleteProductUseCaseTest : BehaviorSpec({
 
     Given("유효한 상품 ID가 주어졌을 때 (고유 이미지만 포함)") {
         When("상품에 고유 이미지들이 포함되어 있는 경우") {
-            every { productPersistencePort.findById(1L) } returns productDistinct
+            every { getProductPort.findById(1L) } returns productDistinct
             every { productPersistencePort.deleteById(1L) } returns Unit
 
             Then("각 이미지에 대해 삭제가 수행되어야 한다") {
@@ -89,14 +93,14 @@ class DeleteProductUseCaseTest : BehaviorSpec({
 
     Given("존재하지 않는 상품 ID가 주어졌을 때") {
         When("상품이 존재하지 않는 경우") {
-            every { productPersistencePort.findById(3L) } returns null
+            every { getProductPort.findById(3L) } returns null
 
-            Then("IllegalArgumentException 예외가 발생해야 한다") {
+            Then("CustomException 예외가 발생해야 한다") {
                 val exception =
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<CustomException> {
                         useCase.deleteProduct(3L)
                     }
-                exception.message shouldBe "삭제할 상품이 존재하지 않습니다. ID: 3"
+                exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
             }
         }
     }

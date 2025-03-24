@@ -1,7 +1,5 @@
 package kr.kro.dearmoment.studio.domain
 
-import kr.kro.dearmoment.product.domain.model.Product
-
 /***
  * TODO: 유저 연동 필요
  */
@@ -18,7 +16,6 @@ data class Studio(
     val cancellationPolicy: String,
     val status: StudioStatus,
     val partnerShops: List<StudioPartnerShop> = emptyList(),
-    val products: List<Product> = emptyList(),
 ) {
     init {
         require(name.isNotEmpty()) { "스튜디오 이름은 필수 입니다." }

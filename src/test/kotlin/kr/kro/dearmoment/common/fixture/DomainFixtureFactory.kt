@@ -2,8 +2,8 @@ package kr.kro.dearmoment.common.fixture
 
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
+import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
-import kr.kro.dearmoment.like.domain.StudioLike
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
@@ -19,7 +19,6 @@ fun studioFixture(
     fixtureBuilder.giveMeKotlinBuilder<Studio>()
         .setExp(Studio::id, id)
         .setExp(Studio::userId, userId)
-        .setExp(Studio::products, listOf(productFixture()))
         .setExp(Studio::name, "스튜디오 A")
         .setExp(Studio::contact, "010-1234-5678")
         .setExp(Studio::studioIntro, "소개글")
@@ -37,6 +36,7 @@ fun productFixture(): Product =
         .setExp(Product::options, listOf(productOptionFixture()))
         .setExp(Product::subImages, listOf("url1", "url2", "url3", "url4"))
         .setExp(Product::productId, 1L)
+        .setExp(Product::studio, studioFixture())
         .sample()
 
 fun productOptionFixture(): ProductOption =
@@ -58,10 +58,10 @@ fun productOptionFixture(): ProductOption =
         .setExp(ProductOption::name, "Basic")
         .sample()
 
-fun studioLikeFixture(userId: Long): StudioLike =
-    fixtureBuilder.giveMeKotlinBuilder<StudioLike>()
-        .setExp(StudioLike::userId, userId)
-        .setExp(StudioLike::studio, studioFixture())
+fun productLikeFixture(userId: Long): ProductLike =
+    fixtureBuilder.giveMeKotlinBuilder<ProductLike>()
+        .setExp(ProductLike::userId, userId)
+        .setExp(ProductLike::product, productFixture())
         .sample()
 
 fun productOptionLikeFixture(userId: Long): ProductOptionLike =

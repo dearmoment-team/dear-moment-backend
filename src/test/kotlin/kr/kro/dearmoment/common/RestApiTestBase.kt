@@ -8,7 +8,8 @@ import kr.kro.dearmoment.inquiry.adapter.input.web.StudioInquiryRestAdapter
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.RemoveInquiryUseCase
-import kr.kro.dearmoment.like.adapter.input.web.LikeRestAdapter
+import kr.kro.dearmoment.like.adapter.input.web.ProductLikeRestAdapter
+import kr.kro.dearmoment.like.adapter.input.web.ProductOptionLikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.service.LikeQueryService
 import kr.kro.dearmoment.studio.adapter.input.StudioRestAdapter
@@ -36,7 +37,8 @@ import org.springframework.web.filter.CharacterEncodingFilter
 // Controller 여기에 나열 ..
 @WebMvcTest(
     controllers = [
-        LikeRestAdapter::class,
+        ProductLikeRestAdapter::class,
+        ProductOptionLikeRestAdapter::class,
         StudioInquiryRestAdapter::class,
         ProductOptionInquiryRestAdapter::class,
         ServiceInquiryRestAdapter::class,

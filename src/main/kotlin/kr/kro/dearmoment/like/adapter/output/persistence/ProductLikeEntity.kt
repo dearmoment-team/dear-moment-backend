@@ -12,15 +12,15 @@ import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.like.domain.Like
-import kr.kro.dearmoment.like.domain.StudioLike
-import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.like.domain.ProductLike
+import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 
 @Entity
 @Table(
-    name = "studio_likes",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "studio_id"])],
+    name = "product_likes",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "product_id"])],
 )
-class StudioLikeEntity(
+class ProductLikeEntity(
     @Id
     @Column(name = "like_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,25 +28,25 @@ class StudioLikeEntity(
     @Column(nullable = false)
     val userId: Long,
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "studio_id")
-    val studio: StudioEntity? = null,
+    @JoinColumn(name = "product_id")
+    val product: ProductEntity? = null,
 ) : Auditable() {
-    fun toDomain(): StudioLike {
-        val notNullStudio = requireNotNull(studio)
-        return StudioLike(
+    fun toDomain(): ProductLike {
+        val notNullProduct = requireNotNull(product)
+        return ProductLike(
             id = id,
             userId = userId,
-            studio = notNullStudio.toDomain(),
+            product = notNullProduct.toDomain(),
         )
     }
 
     companion object {
         fun from(
             like: Like,
-            studio: StudioEntity,
-        ) = StudioLikeEntity(
+            product: ProductEntity,
+        ) = ProductLikeEntity(
             userId = like.userId,
-            studio = studio,
+            product = product,
         )
     }
 }

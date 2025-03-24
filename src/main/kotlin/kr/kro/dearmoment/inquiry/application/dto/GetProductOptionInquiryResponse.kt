@@ -7,6 +7,8 @@ import java.time.LocalDateTime
 data class GetProductOptionInquiryResponse(
     @Schema(description = "문의 ID", example = "1")
     val inquiryId: Long,
+    @Schema(description = "상품 ID", example = "1")
+    val productId: Long,
     @Schema(description = "스튜디오 이름", example = "디어모먼트 ㅡ튜디오")
     val studioName: String,
     @Schema(description = "상품 옵션 이름", example = "Basic")
@@ -20,6 +22,7 @@ data class GetProductOptionInquiryResponse(
         fun from(inquiry: ProductOptionInquiry) =
             GetProductOptionInquiryResponse(
                 inquiryId = inquiry.id,
+                productId = 0,
                 studioName = inquiry.studioName,
                 optionName = inquiry.optionName,
                 thumbnailUrl = inquiry.thumbnailUrl,

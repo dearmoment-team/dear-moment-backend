@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import kr.kro.dearmoment.common.validation.NotBlankIfPresent
 import kr.kro.dearmoment.image.domain.Image
+import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
@@ -28,6 +29,9 @@ data class UpdateProductRequest(
     @field:NotNull(message = "상품 ID는 필수입니다.")
     @Schema(description = "상품 ID", example = "100", required = true)
     val productId: Long,
+    @field:NotNull(message = "스튜디오 ID는 필수입니다.")
+    @Schema(description = "스튜디오 ID", example = "100", required = true)
+    val studioId: Long,
     @field:NotNull(message = "사용자 ID는 필수입니다.")
     @Schema(description = "사용자 ID", example = "1", required = true)
     val userId: Long,
@@ -86,42 +90,15 @@ data class UpdateProductRequest(
             options: List<UpdateProductOptionRequest> = emptyList(),
             userId: Long = req.userId,
         ): Product {
-            val productTypeEnum = req.productType?.let { ProductType.valueOf(it) } ?: existingProduct.productType
-            val shootingPlaceEnum = req.shootingPlace?.let { ShootingPlace.valueOf(it) } ?: existingProduct.shootingPlace
-            val seasonSet = req.availableSeasons?.map { ShootingSeason.valueOf(it) }?.toSet() ?: existingProduct.availableSeasons
-            val cameraSet = req.cameraTypes?.map { CameraType.valueOf(it) }?.toSet() ?: existingProduct.cameraTypes
-            val styleSet = req.retouchStyles?.map { RetouchStyle.valueOf(it) }?.toSet() ?: existingProduct.retouchStyles
+            val productTypeEnum = req.productType?.let { ProductType.from(it) } ?: existingProduct.productType
+            val shootingPlaceEnum = req.shootingPlace?.let { ShootingPlace.from(it) } ?: existingProduct.shootingPlace
+            val seasonSet = req.availableSeasons?.map { ShootingSeason.from(it) }?.toSet() ?: existingProduct.availableSeasons
+            val cameraSet = req.cameraTypes?.map { CameraType.from(it) }?.toSet() ?: existingProduct.cameraTypes
+            val styleSet = req.retouchStyles?.map { RetouchStyle.from(it) }?.toSet() ?: existingProduct.retouchStyles
 
-            val mainImg =
-                Image(
-                    userId = userId,
-                    imageId = mainImage.imageId,
-                    fileName = mainImage.fileName,
-                    parId = mainImage.parId,
-                    url = mainImage.url,
-                )
-
-            val subImgList =
-                subImages.map { image ->
-                    Image(
-                        userId = userId,
-                        imageId = image.imageId,
-                        fileName = image.fileName,
-                        parId = image.parId,
-                        url = image.url,
-                    )
-                }
-
-            val addImgList =
-                additionalImages.map { image ->
-                    Image(
-                        userId = userId,
-                        imageId = image.imageId,
-                        fileName = image.fileName,
-                        parId = image.parId,
-                        url = image.url,
-                    )
-                }
+            val mainImg = mainImage.withUserId(userId)
+            val subImgList = subImages.map { it.withUserId(userId) }
+            val addImgList = additionalImages.map { it.withUserId(userId) }
 
             val domainOptions =
                 if (options.isNotEmpty()) {
@@ -244,7 +221,7 @@ data class UpdateProductOptionRequest(
             dto: UpdateProductOptionRequest,
             productId: Long,
         ): ProductOption {
-            val optionTypeEnum = OptionType.valueOf(dto.optionType)
+            val optionTypeEnum = OptionType.from(dto.optionType)
             return ProductOption(
                 optionId = dto.optionId ?: 0L,
                 productId = productId,
@@ -263,7 +240,7 @@ data class UpdateProductOptionRequest(
                 partnerShops =
                     dto.partnerShops.map {
                         PartnerShop(
-                            category = PartnerShopCategory.valueOf(it.category),
+                            category = PartnerShopCategory.from(it.category),
                             name = it.name,
                             link = it.link,
                         )
