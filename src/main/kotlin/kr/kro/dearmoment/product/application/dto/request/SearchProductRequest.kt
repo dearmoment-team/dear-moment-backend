@@ -2,20 +2,20 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.kro.dearmoment.common.validation.EnumValue
-import kr.kro.dearmoment.product.application.usecase.search.ProductSortCriteria
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.sort.ProductSortCriteria
 
 @Schema(description = "상품 검색 요청 DTO")
 data class SearchProductRequest(
     @Schema(
-        description = "정렬 기준 (기본 값: \"RECOMMENDED\")",
+        description = "정렬 기준 (기본 값: \"POPULAR\")",
         allowableValues = ["RECOMMENDED", "POPULAR", "PRICE_LOW", "PRICE_HIGH"],
     )
     @field:EnumValue(enumClass = ProductSortCriteria::class, message = "유효하지 않은 정렬 타입입니다.")
-    val sortBy: String = ProductSortCriteria.RECOMMENDED.name,
+    val sortBy: String = ProductSortCriteria.POPULAR.name,
     @Schema(
         description = "촬영 가능 시기",
         allowableValues =
