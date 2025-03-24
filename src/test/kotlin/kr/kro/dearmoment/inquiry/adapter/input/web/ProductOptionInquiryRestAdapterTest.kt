@@ -157,7 +157,9 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .delete("/api/inquiries/product-options/{inquiryId}", inquiryId)
+                .delete("/api/inquiries/product-options")
+                .content(requestBody.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
 
         mockMvc.perform(request)
