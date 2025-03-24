@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets
 class WebConfig(
     private val objectMapper: ObjectMapper,
 ) : WebMvcConfigurer {
-
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         // StringHttpMessageConverter의 기본 charset을 UTF-8로 변경
         if (converters.size > 1 && converters[1] is StringHttpMessageConverter) {
