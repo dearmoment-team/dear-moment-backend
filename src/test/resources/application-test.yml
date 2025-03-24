@@ -25,3 +25,12 @@ object-storage:
   config-path: ${OBJECT_STORAGE_CONFIG_PATH_LOCAL}
   namespace-name: ${OBJECT_STORAGE_NAMESPACE_NAME_LOCAL}
   photo-image-dir: ${OBJECT_STORAGE_IMAGE_DIR_LOCAL}
+
+jwt:
+  secret: "test-key-test-key-test-key-test-key-test-key=test-key"
+  expiration: 1000
+
+oauth:
+  kakao:
+    client-id: ${OAUTH_KAKAO_CLIENT_ID}
+    redirect-uri: ${OAUTH_KAKAO_REDIRECT_URI}

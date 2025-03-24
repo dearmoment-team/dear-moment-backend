@@ -25,6 +25,7 @@ import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.Test
 
@@ -69,6 +70,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 .post("/api/studios")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
@@ -210,6 +212,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 .put("/api/studios/{studioId}", existedStudioId)
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
@@ -251,6 +254,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
         val request =
             RestDocumentationRequestBuilders
                 .delete("/api/studios/{studioId}", studioId)
+                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isNoContent)

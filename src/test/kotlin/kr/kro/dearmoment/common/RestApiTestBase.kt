@@ -12,6 +12,13 @@ import kr.kro.dearmoment.like.adapter.input.web.ProductLikeRestAdapter
 import kr.kro.dearmoment.like.adapter.input.web.ProductOptionLikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.service.LikeQueryService
+import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
+import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
+import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
+import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
+import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import kr.kro.dearmoment.studio.adapter.input.StudioRestAdapter
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
@@ -25,6 +32,8 @@ import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
 import org.springframework.restdocs.operation.preprocess.Preprocessors
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
@@ -43,9 +52,11 @@ import org.springframework.web.filter.CharacterEncodingFilter
         ProductOptionInquiryRestAdapter::class,
         ServiceInquiryRestAdapter::class,
         StudioRestAdapter::class,
+        ProductRestAdapter::class,
     ],
 )
 @TestEnvironment
+@WithMockUser(roles = ["USER", "ARTIST"])
 abstract class RestApiTestBase {
     lateinit var mockMvc: MockMvc
 
@@ -76,6 +87,24 @@ abstract class RestApiTestBase {
     @MockkBean
     protected lateinit var deleteStudioUseCase: DeleteStudioUseCase
 
+    @MockkBean
+    lateinit var createProductUseCase: CreateProductUseCase
+
+    @MockkBean
+    lateinit var updateProductUseCase: UpdateProductUseCase
+
+    @MockkBean
+    lateinit var deleteProductUseCase: DeleteProductUseCase
+
+    @MockkBean
+    lateinit var getProductUseCase: GetProductUseCase
+
+    @MockkBean
+    lateinit var productSearchUseCase: ProductSearchUseCase
+
+    @MockkBean
+    lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
+
     /**
      * RestDocs 문서화를 위한 `MockMvc` 객체를 설정하는 함수입니다.
      * Spring WebApplicationContext와 RestDocumentationContextProvider를 사용하여 MockMvc를 초기화하고,
@@ -103,7 +132,7 @@ abstract class RestApiTestBase {
                         // 응답 예쁘게 포맷
                         .withResponseDefaults(Preprocessors.prettyPrint()),
                 )
-                // .apply<DefaultMockMvcBuilder>(SecurityMockMvcConfigurers.springSecurity(MockSecurityFilter())) security 추가 이후
+                .apply<DefaultMockMvcBuilder>(SecurityMockMvcConfigurers.springSecurity())
                 .addFilter<DefaultMockMvcBuilder>(CharacterEncodingFilter("UTF-8", true)) // UTF-8 문자 인코딩 필터 추가
                 .alwaysDo<DefaultMockMvcBuilder>(MockMvcResultHandlers.print()) // 결과 출력
                 .build() // MockMvc 객체 빌드

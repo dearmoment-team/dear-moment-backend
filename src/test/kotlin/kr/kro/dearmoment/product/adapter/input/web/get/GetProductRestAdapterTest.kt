@@ -1,7 +1,8 @@
 package kr.kro.dearmoment.product.adapter.input.web.get
 
 import andDocument
-import kr.kro.dearmoment.common.MockBaseApiTest
+import io.mockk.every
+import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -9,18 +10,14 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@WebMvcTest(ProductRestAdapter::class)
-class GetProductRestAdapterTest : MockBaseApiTest() {
+class GetProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
@@ -50,7 +47,7 @@ class GetProductRestAdapterTest : MockBaseApiTest() {
                 updatedAt = null,
                 options = emptyList(),
             )
-        given(getProductUseCase.getProductById(1L)).willReturn(productResponse)
+        every { getProductUseCase.getProductById(1L) } returns productResponse
 
         // when
         val requestBuilder =
@@ -97,8 +94,7 @@ class GetProductRestAdapterTest : MockBaseApiTest() {
     @Test
     fun `상품 단건 조회 API 테스트 - 존재하지 않는 상품`() {
         // given
-        given(getProductUseCase.getProductById(999L))
-            .willThrow(IllegalArgumentException("Product with ID 999 not found."))
+        every { getProductUseCase.getProductById(999L) } throws IllegalArgumentException("Product with ID 999 not found.")
 
         // when
         val requestBuilder =

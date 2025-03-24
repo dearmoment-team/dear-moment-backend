@@ -1,30 +1,28 @@
 package kr.kro.dearmoment.product.adapter.input.web.create
 
 import andDocument
-import kr.kro.dearmoment.common.MockBaseApiTest
+import io.mockk.every
+import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
+import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.PartnerShopResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
-import org.mockito.kotlin.any
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@WebMvcTest(ProductRestAdapter::class)
-class CreateProductRestAdapterTest : MockBaseApiTest() {
+class CreateProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 생성 API 테스트`() {
         // main image 파일
@@ -118,7 +116,7 @@ class CreateProductRestAdapterTest : MockBaseApiTest() {
                         ),
                     ),
             )
-        val jsonRequest = objectMapper.writeValueAsString(requestMap)
+        val jsonRequest = requestMap.toJsonString()
         val requestPart =
             MockMultipartFile(
                 "request",
@@ -201,7 +199,7 @@ class CreateProductRestAdapterTest : MockBaseApiTest() {
             )
 
         // createProductUseCase 모의 동작 설정
-        given(createProductUseCase.saveProduct(any(), any(), any(), any())).willReturn(productResponse)
+        every { createProductUseCase.saveProduct(any(), any(), any(), any()) } returns productResponse
 
         // multipart 요청 빌드
         val requestBuilder =
@@ -215,6 +213,7 @@ class CreateProductRestAdapterTest : MockBaseApiTest() {
                 .characterEncoding("UTF-8")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
+                .with(csrf())
 
         // 요청 실행
         mockMvc.perform(requestBuilder)

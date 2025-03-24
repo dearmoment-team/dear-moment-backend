@@ -1,7 +1,8 @@
 package kr.kro.dearmoment.product.adapter.input.web.update
 
 import andDocument
-import kr.kro.dearmoment.common.MockBaseApiTest
+import io.mockk.every
+import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
@@ -9,26 +10,23 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
  * [상품 업데이트] Controller 테스트 예시 (PATCH 방식)
  */
-@WebMvcTest(ProductRestAdapter::class)
-class UpdateProductRestAdapterTest : MockBaseApiTest() {
+class UpdateProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
         // 1) 업데이트 요청 DTO(JSON)
@@ -157,17 +155,10 @@ class UpdateProductRestAdapterTest : MockBaseApiTest() {
                     ),
             )
 
-        // 4) UseCase 모킹
-        given(
-            updateProductUseCase.updateProduct(
-                eq(1L),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            ),
-        ).willReturn(updatedResponse)
+        // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
+        every {
+            updateProductUseCase.updateProduct(eq(1L), any(), any(), any(), any(), any())
+        } returns updatedResponse
 
         // 5) multipart/form-data PATCH 요청
         val requestPart =
@@ -191,6 +182,7 @@ class UpdateProductRestAdapterTest : MockBaseApiTest() {
                 }
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
+                .with(csrf())
 
         // 6) 요청 실행
         mockMvc.perform(requestBuilder)

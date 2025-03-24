@@ -28,11 +28,49 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 옵션 좋아요 생성 API`() {
+        val requestBody =
+            LikeRequest(
+                userId = 1L,
+                targetId = 1L,
+            )
+
+        val command = SaveLikeCommand(requestBody.userId, requestBody.targetId)
+        val expectedResponse = LikeResponse(likeId = 1L)
+
+        every { likeUseCase.studioLike(command) } returns expectedResponse
+
+        val request =
+            RestDocumentationRequestBuilders
+                .post("/api/likes/studios")
+                .content(requestBody.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+
+        mockMvc.perform(request)
+            .andExpect(status().isOk)
+            .andDocument(
+                "create-studios-like",
+                requestBody(
+                    "userId" type NUMBER means "유저 ID",
+                    "targetId" type NUMBER means "좋아요할 스튜디오 ID",
+                ),
+                responseBody(
+                    "data" type OBJECT means "데이터",
+                    "data.likeId" type NUMBER means "좋아요 ID",
+                    "success" type BOOLEAN means "성공여부",
+                    "code" type NUMBER means "HTTP 코드",
+                ),
+            )
+    }
+
+    @Test
+    fun `상품 좋아요 생성 API`() {
         val requestBody =
             LikeRequest(
                 userId = 1L,
@@ -49,6 +87,7 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
                 .post("/api/likes/product-options")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
@@ -159,11 +198,32 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 옵션 좋아요 삭제 API`() {
         val likeId = 1L
+        every { likeUseCase.studioUnlike(likeId) } just Runs
+
+        val request =
+            RestDocumentationRequestBuilders
+                .delete("/api/likes/studios/{id}", likeId)
+                .with(csrf())
+
+        mockMvc.perform(request)
+            .andExpect(status().isNoContent)
+            .andDocument(
+                "delete-studios-like",
+                pathParameters(
+                    "id" means "삭제할 스튜디오 좋아요 ID",
+                ),
+            )
+    }
+
+    @Test
+    fun `상품 좋아요 삭제 API`() {
+        val likeId = 1L
         every { likeUseCase.productOptionUnlike(likeId) } just Runs
 
         val request =
             RestDocumentationRequestBuilders
                 .delete("/api/likes/product-options/{id}", likeId)
+                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isNoContent)

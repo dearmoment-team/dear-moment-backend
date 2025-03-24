@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
 
@@ -52,6 +53,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                 .post("/api/inquiries/product-options")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
@@ -155,9 +157,8 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .delete("/api/inquiries/product-options")
-                .content(requestBody.toJsonString())
-                .contentType(MediaType.APPLICATION_JSON)
+                .delete("/api/inquiries/product-options/{inquiryId}", inquiryId)
+                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isNoContent)
