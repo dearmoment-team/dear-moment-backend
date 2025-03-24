@@ -6,7 +6,7 @@ import kr.kro.dearmoment.user.domain.User
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Service
 class UserProfileService(

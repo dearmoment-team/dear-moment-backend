@@ -14,7 +14,8 @@ import java.time.LocalDateTime
 class UserCommandService(
     private val saveUserPort: SaveUserPort,
     private val getUserByLoginIdPort: GetUserByIdPort,
-    private val passwordEncoder: PasswordEncoder, // PasswordEncoder 주입
+    // PasswordEncoder 주입
+    private val passwordEncoder: PasswordEncoder,
 ) : RegisterUserUseCase {
     override fun register(command: RegisterUserCommand): UserResponse {
         // 1. 중복 체크
@@ -31,12 +32,15 @@ class UserCommandService(
             User(
                 id = null,
                 loginId = command.loginId,
-                password = hashedPassword, // 해싱된 비밀번호 사용
+                // 해싱된 비밀번호 사용
+                password = hashedPassword,
                 name = command.name,
-                isStudio = true, // 초기값
+                // 초기값
+                isStudio = true,
                 createdAt = LocalDateTime.now(),
                 updatedAt = null,
-                kakaoId = null, // 이메일 가입이므로 null
+                // 이메일 가입이므로 null 추후 필수 가능성 있음
+                kakaoId = null,
             )
 
         // 4. 저장

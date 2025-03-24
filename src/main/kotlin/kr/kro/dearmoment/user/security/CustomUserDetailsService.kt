@@ -9,7 +9,8 @@ import java.util.UUID
 
 @Service
 class CustomUserDetailsService(
-    private val getUserByIdPort: GetUserByIdPort, // UUID를 기준으로 조회하는 포트
+    // UUID를 기준으로 조회하는 포트
+    private val getUserByIdPort: GetUserByIdPort,
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails {
         // 만약 기존 loginId 기반 조회가 필요하면 이 메서드를 유지

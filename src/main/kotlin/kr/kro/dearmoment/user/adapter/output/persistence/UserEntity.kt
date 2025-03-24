@@ -1,6 +1,10 @@
 package kr.kro.dearmoment.user.adapter.output.persistence
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.user.domain.User
 import org.hibernate.annotations.JdbcTypeCode

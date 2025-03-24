@@ -16,7 +16,7 @@ data class UserResponse(
         fun from(user: User): UserResponse {
             return UserResponse(
                 id = user.id,
-                loginId = user.loginId, // null 가능
+                loginId = user.loginId,
                 name = user.name,
                 isStudio = user.isStudio,
                 createdAt = user.createdAt,

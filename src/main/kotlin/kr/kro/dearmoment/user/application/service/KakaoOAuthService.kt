@@ -43,7 +43,8 @@ class KakaoOAuthService(
                         loginId = null,
                         password = null,
                         name = kakaoUser.nickname,
-                        isStudio = false, // 카카오 OAuth → ROLE_USER
+                        // 카카오 OAuth → ROLE_USER
+                        isStudio = false,
                         createdAt = LocalDateTime.now(),
                         updatedAt = null,
                         kakaoId = kakaoUser.kakaoId,

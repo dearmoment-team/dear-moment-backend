@@ -21,7 +21,8 @@ data class User(
     val isStudio: Boolean? = false,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime? = null,
-    val kakaoId: Long? = null, // 추후 null 불가
+    // 추후 null 불가
+    val kakaoId: Long? = null,
 ) {
     init {
         // 이메일 가입 유저인 경우, loginId/password가 필수
