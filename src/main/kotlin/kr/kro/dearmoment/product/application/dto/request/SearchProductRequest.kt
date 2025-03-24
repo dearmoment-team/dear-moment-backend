@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.kro.dearmoment.common.validation.EnumValue
+import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
@@ -44,6 +45,17 @@ data class SearchProductRequest(
     )
     @field:EnumValue(enumClass = PartnerShopCategory::class, message = "유효하지 않은 패키지가 존재합니다.")
     val partnerShopCategories: List<String> = emptyList(),
-    val minPrice: Int = 0,
-    val maxPrice: Int = 0,
-)
+    val minPrice: Long = 0L,
+    val maxPrice: Long = 3_000_000L,
+) {
+    fun toQuery() =
+        SearchProductQuery(
+            sortBy = SortCriteria.from(sortBy),
+            availableSeasons = availableSeasons.toMutableSet(),
+            cameraTypes = cameraTypes.toMutableSet(),
+            retouchStyles = retouchStyles.toMutableSet(),
+            partnerShopCategories = partnerShopCategories.toMutableSet(),
+            minPrice = minPrice,
+            maxPrice = maxPrice,
+        )
+}

@@ -2,7 +2,7 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 
 import com.linecorp.kotlinjdsl.render.RenderContext
 import jakarta.persistence.EntityManager
-import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
+import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
@@ -31,10 +31,27 @@ class ProductReadOnlyRepository(
     }
 
     override fun searchByCriteria2(
-        request: SearchProductRequest,
+        query: SearchProductQuery,
         pageable: Pageable,
     ): Page<Product> {
-        TODO("Not yet implemented")
+        return productJpaRepository.findPage(pageable) {
+            select(
+                entity(ProductEntity::class),
+            ).from(
+                entity(ProductEntity::class),
+                fetchJoin(ProductEntity::options)
+                    .on(path(ProductOptionEntity::originalPrice).between(query.minPrice, query.maxPrice)),
+                fetchJoin(ProductEntity::studio),
+                join(ProductOptionEntity::partnerShops)
+                    .on(path(PartnerShopEmbeddable::category).`in`(query.partnerShopCategories)),
+            ).where(
+                and(
+                    path(ProductEntity::availableSeasons).`in`(query.availableSeasons),
+                    path(ProductEntity::cameraTypes).`in`(query.cameraTypes),
+                    path(ProductEntity::retouchStyles).`in`(query.retouchStyles),
+                ),
+            )
+        }.map { it?.toDomain() }
     }
 
     override fun existsByUserIdAndTitle(

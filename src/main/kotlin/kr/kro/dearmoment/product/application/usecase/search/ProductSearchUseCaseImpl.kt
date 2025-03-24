@@ -52,7 +52,7 @@ class ProductSearchUseCaseImpl(
         size: Int,
     ): PagedResponse<SearchProductResponse> {
         val pageable = PageRequest.of(page, size)
-        val products = getProductPort.searchByCriteria2(request, pageable)
+        val products = getProductPort.searchByCriteria2(request.toQuery(), pageable)
         val criteria = SortCriteria.from(request.sortBy)
         val sortedProducts = criteria.strategy.sort(products.content)
 

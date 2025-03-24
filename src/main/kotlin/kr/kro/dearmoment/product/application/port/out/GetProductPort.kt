@@ -1,6 +1,6 @@
 package kr.kro.dearmoment.product.application.port.out
 
-import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
+import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -65,7 +65,7 @@ interface GetProductPort {
     ): List<Product>
 
     fun searchByCriteria2(
-        request: SearchProductRequest,
+        query: SearchProductQuery,
         pageable: Pageable,
     ): Page<Product>
 }
