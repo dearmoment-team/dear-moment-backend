@@ -11,7 +11,7 @@ import kr.kro.dearmoment.product.domain.sort.SortCriteria
 @Schema(description = "상품 검색 요청 DTO")
 data class SearchProductRequest(
     @Schema(
-        description = "정렬 기준 (기본 값: \"POPULAR\")",
+        description = "정렬 기준 (기본 값: \"RECOMMENDED\")",
         allowableValues = ["RECOMMENDED", "POPULAR", "PRICE_LOW", "PRICE_HIGH"],
     )
     @field:EnumValue(enumClass = SortCriteria::class, message = "유효하지 않은 정렬 타입입니다.")
