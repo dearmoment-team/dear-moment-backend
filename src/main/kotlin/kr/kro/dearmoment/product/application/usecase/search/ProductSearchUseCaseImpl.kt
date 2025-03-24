@@ -6,7 +6,7 @@ import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.usecase.util.PaginationUtil
-import kr.kro.dearmoment.product.domain.sort.ProductSortCriteria
+import kr.kro.dearmoment.product.domain.sort.SortCriteria
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -53,7 +53,7 @@ class ProductSearchUseCaseImpl(
     ): PagedResponse<SearchProductResponse> {
         val pageable = PageRequest.of(page, size)
         val products = getProductPort.searchByCriteria2(request, pageable)
-        val criteria = ProductSortCriteria.from(request.sortBy)
+        val criteria = SortCriteria.from(request.sortBy)
         val sortedProducts = criteria.strategy.sort(products.content)
 
         return PagedResponse(

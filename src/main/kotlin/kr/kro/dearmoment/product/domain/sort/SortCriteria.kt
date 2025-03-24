@@ -1,6 +1,6 @@
 package kr.kro.dearmoment.product.domain.sort
 
-enum class ProductSortCriteria(
+enum class SortCriteria(
     val strategy: SortStrategy,
 ) {
     RECOMMENDED(RecommendSortStrategy()),
@@ -10,8 +10,8 @@ enum class ProductSortCriteria(
     ;
 
     companion object {
-        fun from(value: String): ProductSortCriteria =
-            ProductSortCriteria.entries.find { it.name == value }
+        fun from(value: String): SortCriteria =
+            SortCriteria.entries.find { it.name == value }
                 ?: throw IllegalArgumentException("유효하지 않은 ProductSortCriteria 값: $value")
     }
 }
