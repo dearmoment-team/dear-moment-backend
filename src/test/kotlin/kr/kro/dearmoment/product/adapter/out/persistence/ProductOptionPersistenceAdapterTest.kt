@@ -15,6 +15,8 @@ import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
 import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
@@ -50,8 +52,8 @@ class ProductOptionPersistenceAdapterTest(
                             userId = 1L,
                             // 변경된 도메인: price, typeCode, images, partnerShops 등이 제거되고,
                             // productType와 shootingPlace가 추가됨.
-                            productType = kr.kro.dearmoment.product.domain.model.ProductType.WEDDING_SNAP,
-                            shootingPlace = kr.kro.dearmoment.product.domain.model.ShootingPlace.JEJU,
+                            productType = ProductType.WEDDING_SNAP.name,
+                            shootingPlace = ShootingPlace.JEJU.name,
                             title = "테스트 상품",
                             mainImage =
                                 ImageEmbeddable.fromDomainImage(

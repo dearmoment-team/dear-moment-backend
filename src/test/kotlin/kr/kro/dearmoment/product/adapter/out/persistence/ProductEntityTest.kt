@@ -86,18 +86,18 @@ class ProductEntityTest : StringSpec({
         // then
         productEntity.productId shouldBe 1L
         productEntity.userId shouldBe 123L
-        productEntity.productType shouldBe ProductType.WEDDING_SNAP
-        productEntity.shootingPlace shouldBe ShootingPlace.JEJU
+        productEntity.productType shouldBe ProductType.WEDDING_SNAP.name
+        productEntity.shootingPlace shouldBe ShootingPlace.JEJU.name
         productEntity.title shouldBe "테스트 제품"
         productEntity.description shouldBe "테스트 설명"
 
         productEntity.availableSeasons shouldContainExactly
             setOf(
-                ShootingSeason.YEAR_2025_FIRST_HALF,
-                ShootingSeason.YEAR_2025_SECOND_HALF,
+                ShootingSeason.YEAR_2025_FIRST_HALF.name,
+                ShootingSeason.YEAR_2025_SECOND_HALF.name,
             )
-        productEntity.cameraTypes shouldContainExactly setOf(CameraType.DIGITAL)
-        productEntity.retouchStyles shouldContainExactly setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE)
+        productEntity.cameraTypes shouldContainExactly setOf(CameraType.DIGITAL.name)
+        productEntity.retouchStyles shouldContainExactly setOf(RetouchStyle.CHIC.name, RetouchStyle.VINTAGE.name)
 
         productEntity.mainImage.run {
             fileName shouldBe "main.jpg"

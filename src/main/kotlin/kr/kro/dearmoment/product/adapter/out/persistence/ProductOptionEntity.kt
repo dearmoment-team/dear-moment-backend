@@ -4,8 +4,6 @@ import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -40,9 +38,8 @@ class ProductOptionEntity(
     var product: ProductEntity,
     @Column(name = "NAME", nullable = false)
     var name: String = "",
-    @Enumerated(EnumType.STRING)
     @Column(name = "OPTION_TYPE", nullable = false)
-    var optionType: OptionType = OptionType.SINGLE,
+    var optionType: String = OptionType.SINGLE.name,
     @Column(name = "DISCOUNT_AVAILABLE", nullable = false)
     var discountAvailable: Boolean = false,
     @Column(name = "ORIGINAL_PRICE", nullable = false)
@@ -87,7 +84,7 @@ class ProductOptionEntity(
                 optionId = option.optionId,
                 product = productEntity,
                 name = option.name,
-                optionType = option.optionType,
+                optionType = option.optionType.name,
                 discountAvailable = option.discountAvailable,
                 originalPrice = option.originalPrice,
                 discountPrice = option.discountPrice,
@@ -101,7 +98,7 @@ class ProductOptionEntity(
                 partnerShops =
                     option.partnerShops.map {
                         PartnerShopEmbeddable(
-                            category = it.category,
+                            category = it.category.name,
                             name = it.name,
                             link = it.link,
                         )
@@ -116,7 +113,7 @@ class ProductOptionEntity(
             optionId = optionId,
             productId = product.productId ?: 0L,
             name = name,
-            optionType = optionType,
+            optionType = OptionType.from(optionType),
             discountAvailable = discountAvailable,
             originalPrice = originalPrice,
             discountPrice = discountPrice,
@@ -129,8 +126,9 @@ class ProductOptionEntity(
             originalProvided = originalProvided,
             partnerShops =
                 partnerShops.map {
+                    val category = it.category ?: PartnerShopCategory.ETC.name
                     PartnerShop(
-                        category = it.category ?: PartnerShopCategory.ETC,
+                        category = PartnerShopCategory.from(category),
                         name = it.name,
                         link = it.link,
                     )

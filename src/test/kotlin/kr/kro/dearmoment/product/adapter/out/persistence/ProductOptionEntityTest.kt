@@ -51,8 +51,8 @@ class ProductOptionEntityTest : StringSpec({
             ProductEntity(
                 productId = 1L,
                 userId = 123L,
-                productType = ProductType.WEDDING_SNAP,
-                shootingPlace = ShootingPlace.JEJU,
+                productType = ProductType.WEDDING_SNAP.name,
+                shootingPlace = ShootingPlace.JEJU.name,
                 title = "샘플 상품",
                 studio = studioEntityFixture(),
             )
@@ -87,7 +87,7 @@ class ProductOptionEntityTest : StringSpec({
         optionEntity.optionId shouldBe 1L
         optionEntity.product.productId shouldBe 1L
         optionEntity.name shouldBe "단품 옵션"
-        optionEntity.optionType shouldBe OptionType.SINGLE
+        optionEntity.optionType shouldBe OptionType.SINGLE.name
         optionEntity.originalPrice shouldBe 500L
         optionEntity.discountAvailable shouldBe false
         optionEntity.discountPrice shouldBe 0L
@@ -109,8 +109,8 @@ class ProductOptionEntityTest : StringSpec({
             ProductEntity(
                 productId = 2L,
                 userId = 456L,
-                productType = ProductType.WEDDING_SNAP,
-                shootingPlace = ShootingPlace.JEJU,
+                productType = ProductType.WEDDING_SNAP.name,
+                shootingPlace = ShootingPlace.JEJU.name,
                 title = "샘플 상품2",
                 studio = studioEntityFixture(),
             )
@@ -118,12 +118,12 @@ class ProductOptionEntityTest : StringSpec({
         val partnerShopsEmbeddable =
             listOf(
                 PartnerShopEmbeddable(
-                    category = PartnerShopCategory.HAIR_MAKEUP,
+                    category = PartnerShopCategory.HAIR_MAKEUP.name,
                     name = "헤어메이크업1",
                     link = "http://hm1.com",
                 ),
                 PartnerShopEmbeddable(
-                    category = PartnerShopCategory.DRESS,
+                    category = PartnerShopCategory.DRESS.name,
                     name = "드레스샵A",
                     link = "http://dressA.com",
                 ),
@@ -138,7 +138,7 @@ class ProductOptionEntityTest : StringSpec({
                 optionId = 10L,
                 product = productEntity,
                 name = "패키지 옵션",
-                optionType = OptionType.PACKAGE,
+                optionType = OptionType.PACKAGE.name,
                 discountAvailable = false,
                 originalPrice = 1500L,
                 discountPrice = 0L,

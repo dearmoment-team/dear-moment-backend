@@ -2,9 +2,6 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 
 /**
  * 파트너샵 임베디드
@@ -12,9 +9,8 @@ import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
  */
 @Embeddable
 data class PartnerShopEmbeddable(
-    @Enumerated(EnumType.STRING)
     @Column(name = "SHOP_CATEGORY", nullable = false)
-    var category: PartnerShopCategory? = null,
+    var category: String? = null,
     @Column(name = "SHOP_NAME", nullable = false)
     var name: String = "",
     @Column(name = "SHOP_LINK")

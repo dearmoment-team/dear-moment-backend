@@ -7,9 +7,11 @@ import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
+import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
@@ -45,8 +47,10 @@ fun productEntityFixture(
         .setNull(ProductEntity::productId)
         .setNotNull(ProductEntity::title)
         .setNotNull(ProductEntity::version)
-        .setExp(ProductEntity::productType, ProductType.WEDDING_SNAP)
-        .setExp(ProductEntity::shootingPlace, ShootingPlace.JEJU)
+        .setExp(ProductEntity::cameraTypes, mutableSetOf(CameraType.DIGITAL.name))
+        .setExp(ProductEntity::availableSeasons, mutableSetOf(ShootingSeason.YEAR_2025_FIRST_HALF.name))
+        .setExp(ProductEntity::productType, ProductType.WEDDING_SNAP.name)
+        .setExp(ProductEntity::shootingPlace, ShootingPlace.JEJU.name)
         .setExp(ProductEntity::userId, userId)
         .setExp(ProductEntity::options, mutableListOf<ProductOptionEntity>())
         .setExp(ProductEntity::studio, studioEntity)
@@ -54,7 +58,7 @@ fun productEntityFixture(
         .setExp(ProductEntity::likeCount, 0)
         .setExp(ProductEntity::inquiryCount, 0)
         .setPostCondition { it.title.isNotBlank() }
-        .setExp(ProductEntity::retouchStyles, mutableSetOf(RetouchStyle.WARM, RetouchStyle.CHIC))
+        .setExp(ProductEntity::retouchStyles, mutableSetOf(RetouchStyle.WARM.name, RetouchStyle.CHIC.name))
         .sample()
 
 fun imageEmbeddableFixture(): ImageEmbeddable =
@@ -63,7 +67,7 @@ fun imageEmbeddableFixture(): ImageEmbeddable =
 
 fun partnerShopEmbeddableFixture(): PartnerShopEmbeddable =
     fixtureBuilder.giveMeKotlinBuilder<PartnerShopEmbeddable>()
-        .setExp(PartnerShopEmbeddable::category, PartnerShopCategory.HAIR_MAKEUP)
+        .setExp(PartnerShopEmbeddable::category, PartnerShopCategory.HAIR_MAKEUP.name)
         .setExp(PartnerShopEmbeddable::name, "Test Shop")
         .setExp(PartnerShopEmbeddable::link, "http://testshop.com")
         .sample()
@@ -74,8 +78,11 @@ fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntit
         .setExp(ProductOptionEntity::product, productEntity)
         .setExp(ProductOptionEntity::discountPrice, 100_000)
         .setExp(ProductOptionEntity::originalPrice, 1_000_000)
-        .setExp(ProductOptionEntity::optionType, OptionType.SINGLE)
-        .setExp(ProductOptionEntity::partnerShops, listOf(partnerShopEmbeddableFixture(), partnerShopEmbeddableFixture()))
+        .setExp(ProductOptionEntity::optionType, OptionType.SINGLE.name)
+        .setExp(
+            ProductOptionEntity::partnerShops,
+            listOf(partnerShopEmbeddableFixture(), partnerShopEmbeddableFixture()),
+        )
         .setPostCondition { it.shootingHours > 0 }
         .setPostCondition { it.shootingMinutes > 0 }
         .setPostCondition { it.shootingLocationCount > 0 }
