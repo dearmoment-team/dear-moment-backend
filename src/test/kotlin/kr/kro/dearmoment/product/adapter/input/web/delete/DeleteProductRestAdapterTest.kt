@@ -11,7 +11,6 @@ import kr.kro.dearmoment.common.restdocs.type
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class DeleteProductRestAdapterTest : RestApiTestBase() {
@@ -24,7 +23,6 @@ class DeleteProductRestAdapterTest : RestApiTestBase() {
             RestDocumentationRequestBuilders
                 .delete("/api/products/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(csrf())
 
         // then
         mockMvc.perform(requestBuilder)
@@ -41,7 +39,6 @@ class DeleteProductRestAdapterTest : RestApiTestBase() {
             RestDocumentationRequestBuilders
                 .delete("/api/products/{id}", 999L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(csrf())
 
         // then
         mockMvc.perform(requestBuilder)

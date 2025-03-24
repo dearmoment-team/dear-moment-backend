@@ -28,7 +28,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
@@ -50,7 +49,6 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
                 .post("/api/likes/product-options")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
@@ -166,7 +164,6 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
         val request =
             RestDocumentationRequestBuilders
                 .delete("/api/likes/product-options/{id}", likeId)
-                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isNoContent)

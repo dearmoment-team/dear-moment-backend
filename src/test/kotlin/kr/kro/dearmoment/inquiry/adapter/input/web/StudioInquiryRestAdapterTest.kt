@@ -27,7 +27,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
@@ -52,7 +51,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
                 .post("/api/inquiries/studios")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isOk)

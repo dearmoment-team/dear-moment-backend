@@ -16,7 +16,6 @@ import kr.kro.dearmoment.inquiry.application.dto.CreateServiceInquiryRequest
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class ServiceInquiryRestAdapterTest : RestApiTestBase() {
@@ -39,7 +38,6 @@ class ServiceInquiryRestAdapterTest : RestApiTestBase() {
                 .post("/api/inquiries/services")
                 .content(requestBody.toJsonString())
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(csrf())
 
         mockMvc.perform(request)
             .andExpect(status().isOk)

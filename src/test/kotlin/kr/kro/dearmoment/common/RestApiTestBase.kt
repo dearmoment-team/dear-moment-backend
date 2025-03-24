@@ -24,6 +24,9 @@ import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.ModifyStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.RegisterStudioUseCase
+import org.apache.http.client.methods.RequestBuilder.delete
+import org.apache.http.client.methods.RequestBuilder.patch
+import org.apache.http.client.methods.RequestBuilder.post
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
@@ -31,9 +34,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.operation.preprocess.Preprocessors
 import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
@@ -132,8 +137,11 @@ abstract class RestApiTestBase {
                         // 응답 예쁘게 포맷
                         .withResponseDefaults(Preprocessors.prettyPrint()),
                 )
-                .apply<DefaultMockMvcBuilder>(SecurityMockMvcConfigurers.springSecurity())
+                .apply<DefaultMockMvcBuilder>(springSecurity())
                 .addFilter<DefaultMockMvcBuilder>(CharacterEncodingFilter("UTF-8", true)) // UTF-8 문자 인코딩 필터 추가
+                .defaultRequest<DefaultMockMvcBuilder>(RestDocumentationRequestBuilders.post("/**").with(csrf())) // CSRF 적용
+                .defaultRequest<DefaultMockMvcBuilder>(RestDocumentationRequestBuilders.patch("/**").with(csrf())) // CSRF 적용
+                .defaultRequest<DefaultMockMvcBuilder>(RestDocumentationRequestBuilders.delete("/**").with(csrf())) // CSRF 적용
                 .alwaysDo<DefaultMockMvcBuilder>(MockMvcResultHandlers.print()) // 결과 출력
                 .build() // MockMvc 객체 빌드
     }
