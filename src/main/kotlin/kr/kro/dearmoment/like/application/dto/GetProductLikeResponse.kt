@@ -3,7 +3,10 @@ package kr.kro.dearmoment.like.application.dto
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.like.domain.ProductLike
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 
 data class GetProductLikeResponse(
     @Schema(description = "좋아요 ID", example = "1")
@@ -22,11 +25,13 @@ data class GetProductLikeResponse(
         description = "촬영 가능 시기",
         example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
     )
+    @field:EnumValue(enumClass = ShootingSeason::class, message = "유효하지 않은 촬영 시기가 존재합니다.")
     val availableSeasons: List<String>,
     @Schema(
         description = "보정 스타일",
         example = "[\"MODERN\", \"VINTAGE\"]",
     )
+    @field:EnumValue(enumClass = RetouchStyle::class, message = "유효하지 않은 보정 스타일이 존재합니다.")
     val retouchStyles: List<String>,
 ) {
     companion object {

@@ -5,8 +5,10 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
+import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
+import kr.kro.dearmoment.studio.domain.StudioStatus
 
 data class RegisterStudioRequest(
     @Schema(description = "사용자 ID", example = "1", required = true)
@@ -46,6 +48,7 @@ data class RegisterStudioRequest(
         allowableValues = ["ACTIVE, INACTIVE"],
         required = true,
     )
+    @field:EnumValue(enumClass = StudioStatus::class, message = "유효하지 스튜디오 상태입니다.")
     val status: String,
 ) {
     fun toCommand() =
