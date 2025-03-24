@@ -68,11 +68,7 @@ class UserRestAdapter(
         @AuthenticationPrincipal principal: CustomUserDetails,
     ): ResponseEntity<UserResponse> {
         val userId =
-            if (principal is CustomUserDetails) {
-                principal.id
-            } else {
-                throw IllegalStateException("인증된 사용자 정보가 올바르지 않습니다.")
-            }
+            principal.id
         val user = userProfileService.getProfile(userId)
         // UserResponse 생성은 도메인 모델을 응답 DTO로 변환하는 로직입니다.
         val response = UserResponse.from(user)
@@ -85,11 +81,7 @@ class UserRestAdapter(
         @RequestBody req: UpdateUserNameRequest,
     ): ResponseEntity<UserResponse> {
         val userId =
-            if (principal is CustomUserDetails) {
-                principal.id
-            } else {
-                throw IllegalStateException("인증된 사용자 정보가 올바르지 않습니다.")
-            }
+            principal.id
         val updatedUser = userProfileService.updateName(userId, req.name)
         val response = UserResponse.from(updatedUser)
         return ResponseEntity.ok(response)

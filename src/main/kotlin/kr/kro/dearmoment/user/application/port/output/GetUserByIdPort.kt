@@ -4,7 +4,7 @@ import kr.kro.dearmoment.user.domain.User
 import java.util.*
 
 interface GetUserByIdPort {
-    fun findById(Id: UUID): User?
+    fun findById(id: UUID): User?
 
     fun findByLoginId(loginId: String): User?
 }
