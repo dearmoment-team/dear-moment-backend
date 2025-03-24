@@ -38,6 +38,8 @@ data class Product(
     // 여러 옵션
     val options: List<ProductOption> = emptyList(),
     val studio: Studio? = null,
+    val likeCount: Long = 0L,
+    val inquiryCount: Long = 0L,
 ) {
     init {
         require(title.isNotBlank()) { "상품명은 필수 입력값입니다." }

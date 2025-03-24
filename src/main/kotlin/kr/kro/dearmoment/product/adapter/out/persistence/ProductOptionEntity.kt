@@ -76,7 +76,7 @@ class ProductOptionEntity(
     var version: Long = 0L,
 ) : Auditable() {
     @Column(nullable = false)
-    val likeCount: Int = 0
+    val likeCount: Long = 0
 
     companion object {
         fun fromDomain(
@@ -137,6 +137,7 @@ class ProductOptionEntity(
                 },
             createdAt = createdDate,
             updatedAt = updateDate,
+            likeCount = likeCount,
         )
     }
 }

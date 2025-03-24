@@ -85,10 +85,10 @@ class ProductEntity(
     var studio: StudioEntity,
 ) : Auditable() {
     @Column(nullable = false)
-    val likeCount: Int = 0
+    val likeCount: Long = 0
 
     @Column(nullable = false)
-    val inquiryCount: Int = 0
+    val inquiryCount: Long = 0
 
     companion object {
         fun fromDomain(
@@ -140,6 +140,8 @@ class ProductEntity(
             contactInfo = contactInfo,
             options = options.map { it.toDomain() },
             studio = studio.toDomain(),
+            likeCount = likeCount,
+            inquiryCount = inquiryCount,
         )
     }
 }

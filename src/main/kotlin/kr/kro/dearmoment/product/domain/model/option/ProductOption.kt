@@ -27,6 +27,7 @@ data class ProductOption(
     val partnerShops: List<PartnerShop> = emptyList(),
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
+    val likeCount: Long = 0L,
 ) {
     init {
         require(name.isNotBlank()) { "옵션명은 비어 있을 수 없습니다." }
