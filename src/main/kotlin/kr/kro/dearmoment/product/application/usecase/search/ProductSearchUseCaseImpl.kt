@@ -1,9 +1,12 @@
 package kr.kro.dearmoment.product.application.usecase.search
 
 import kr.kro.dearmoment.common.dto.PagedResponse
+import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.usecase.util.PaginationUtil
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -39,5 +42,34 @@ class ProductSearchUseCaseImpl(
         val mockData = all.mapIndexed { idx, product -> Pair(product, idx + 1) }
         val sortedProducts = mockData.sortedByDescending { it.second }.map { it.first }
         return paginationUtil.createPagedResponse(sortedProducts, page, size)
+    }
+
+    @Transactional(readOnly = true)
+    override fun searchProducts2(
+        request: SearchProductRequest,
+        page: Int,
+        size: Int,
+    ): PagedResponse<SearchProductResponse> {
+        val pageable = PageRequest.of(page, size)
+        val products = getProductPort.searchByCriteria2(request, pageable)
+        val sortBy = ProductSortCriteria.from(request.sortBy)
+
+        val sortedProducts =
+            products.sortedBy {
+                when (sortBy) {
+                    ProductSortCriteria.RECOMMENDED -> TODO()
+                    ProductSortCriteria.POPULAR -> TODO()
+                    ProductSortCriteria.PRICE_LOW -> TODO()
+                    ProductSortCriteria.PRICE_HIGH -> TODO()
+                }
+            }
+
+        return PagedResponse(
+            content = sortedProducts.map { SearchProductResponse.from(it) },
+            page = page,
+            size = size,
+            totalElements = products.totalElements,
+            totalPages = products.totalPages,
+        )
     }
 }

@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
@@ -213,6 +216,24 @@ class ProductRestAdapter(
         return productSearchUseCase.getMainPageProducts(page, size)
     }
 
+    @Operation(summary = "메인 페이지 상품 조회", description = "메인 페이지에 노출할 상품 목록을 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "메인 페이지 상품 조회 성공",
+                content = [Content(schema = Schema(implementation = PagedResponse::class))],
+            ),
+        ],
+    )
+    @GetMapping("/main2")
+    fun getMainPageProducts2(
+        @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
+        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
+    ): PagedResponse<SearchProductResponse> {
+        return productSearchUseCase.searchProducts2(SearchProductRequest(), page, size)
+    }
+
     // 6. 상품 검색
     @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
     @ApiResponses(
@@ -237,6 +258,25 @@ class ProductRestAdapter(
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
     ): PagedResponse<ProductResponse> {
         return productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
+    }
+
+    @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "상품 검색 성공",
+                content = [Content(schema = Schema(implementation = PagedResponse::class))],
+            ),
+        ],
+    )
+    @GetMapping("/search2")
+    fun searchProducts2(
+        @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
+        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
+        @RequestBody request: SearchProductRequest,
+    ): PagedResponse<SearchProductResponse> {
+        return productSearchUseCase.searchProducts2(request, page, size)
     }
 
     @Operation(summary = "상품 옵션 삭제", description = "특정 상품에 속한 옵션을 삭제합니다.")
