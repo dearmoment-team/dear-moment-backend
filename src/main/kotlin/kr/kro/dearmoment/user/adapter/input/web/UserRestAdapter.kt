@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @Tag(name = "User API", description = "유저와 관련 API")
-@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/users")
 class UserRestAdapter(
@@ -65,10 +65,8 @@ class UserRestAdapter(
 
     @GetMapping()
     fun getProfile(
-        @AuthenticationPrincipal principal: CustomUserDetails,
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): ResponseEntity<UserResponse> {
-        val userId =
-            principal.id
         val user = userProfileService.getProfile(userId)
         // UserResponse 생성은 도메인 모델을 응답 DTO로 변환하는 로직입니다.
         val response = UserResponse.from(user)
@@ -77,11 +75,9 @@ class UserRestAdapter(
 
     @PatchMapping()
     fun updateName(
-        @AuthenticationPrincipal principal: CustomUserDetails,
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
         @RequestBody req: UpdateUserNameRequest,
     ): ResponseEntity<UserResponse> {
-        val userId =
-            principal.id
         val updatedUser = userProfileService.updateName(userId, req.name)
         val response = UserResponse.from(updatedUser)
         return ResponseEntity.ok(response)
