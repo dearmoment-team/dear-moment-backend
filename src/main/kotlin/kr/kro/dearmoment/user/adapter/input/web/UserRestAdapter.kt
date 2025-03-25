@@ -38,7 +38,7 @@ class UserRestAdapter(
     private val jwtTokenProvider: JwtTokenProvider,
     private val userProfileService: UserProfileService,
 ) {
-    @Operation(summary = "회원가입", description = "새로운 유저를 회원가입합니다.")
+    @Operation(summary = "회원가입", description = "새로운(작가/스튜디오) 유저를 회원가입합니다.")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -62,7 +62,7 @@ class UserRestAdapter(
         return registerUserUseCase.register(command)
     }
 
-    @Operation(summary = "로그인", description = "이메일 로그인 처리 후 JWT 토큰을 발급합니다.")
+    @Operation(summary = "로그인", description = "아이디/비밀번호(작가/스튜디오) 로그인 처리 후 JWT 토큰을 발급합니다.")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -74,7 +74,7 @@ class UserRestAdapter(
     )
     @PostMapping("/login")
     fun login(
-        @Parameter(description = "로그인 요청 정보", required = true)
+        @Parameter(description = "(작가/스튜디오) 로그인 요청 정보", required = true)
         @RequestBody req: LoginUserRequest,
     ): LoginUserResponse {
         val authToken = UsernamePasswordAuthenticationToken(req.loginId, req.password)
@@ -104,7 +104,7 @@ class UserRestAdapter(
         return UserResponse.from(user)
     }
 
-    @Operation(summary = "이름 변경", description = "로그인한 사용자의 이름을 변경합니다.")
+    @Operation(summary = "이름 변경", description = "(초기 MVP 제거 예정) 로그인한 사용자의 이름을 변경합니다.")
     @ApiResponses(
         value = [
             ApiResponse(
