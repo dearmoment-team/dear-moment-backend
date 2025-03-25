@@ -25,7 +25,7 @@ spring:
   oauth:
     kakao:
       client-id: ${OAUTH_KAKAO_CLIENT_ID}
-      redirect-uri: ${OAUTH_KAKAO_REDIRECT_URI_PROD}
+      redirect-uri: ${OAUTH_KAKAO_REDIRECT_URI}
 
 sentry:
   dsn: "${SENTRY_DSN}"
