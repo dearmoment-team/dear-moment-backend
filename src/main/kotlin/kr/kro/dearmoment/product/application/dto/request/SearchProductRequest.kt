@@ -51,10 +51,10 @@ data class SearchProductRequest(
     fun toQuery() =
         SearchProductQuery(
             sortBy = SortCriteria.from(sortBy),
-            availableSeasons = availableSeasons.toMutableSet(),
-            cameraTypes = cameraTypes.toMutableSet(),
-            retouchStyles = retouchStyles.toMutableSet(),
-            partnerShopCategories = partnerShopCategories.toMutableSet(),
+            availableSeasons = availableSeasons.map { ShootingSeason.from(it) },
+            cameraTypes = cameraTypes.map { CameraType.from(it) },
+            retouchStyles = retouchStyles.map { RetouchStyle.from(it) },
+            partnerShopCategories = partnerShopCategories.map { PartnerShopCategory.from(it) },
             minPrice = minPrice,
             maxPrice = maxPrice,
         )

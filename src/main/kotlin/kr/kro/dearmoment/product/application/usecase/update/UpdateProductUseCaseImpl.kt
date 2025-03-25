@@ -98,18 +98,18 @@ class UpdateProductUseCaseImpl(
             ProductEntity.fromDomain(existingProduct, studio).apply {
                 // 병합된 결과로 업데이트 (필요에 따라 null 처리된 필드는 기존 값 유지)
                 userId = productFromReq.userId
-                productType = productFromReq.productType.name
-                shootingPlace = productFromReq.shootingPlace.name
+                productType = productFromReq.productType
+                shootingPlace = productFromReq.shootingPlace
                 title = productFromReq.title
                 description = productFromReq.description.takeIf { it.isNotBlank() } ?: ""
                 mainImage = ImageEmbeddable.fromDomainImage(productFromReq.mainImage)
 
                 availableSeasons.clear()
-                availableSeasons = productFromReq.availableSeasons.map { it.name }.toMutableSet()
+                availableSeasons.addAll(productFromReq.availableSeasons)
                 cameraTypes.clear()
-                cameraTypes = productFromReq.cameraTypes.map { it.name }.toMutableSet()
+                cameraTypes.addAll(productFromReq.cameraTypes)
                 retouchStyles.clear()
-                retouchStyles = productFromReq.retouchStyles.map { it.name }.toMutableSet()
+                retouchStyles.addAll(productFromReq.retouchStyles)
                 detailedInfo = productFromReq.detailedInfo.takeIf { it.isNotBlank() } ?: ""
                 contactInfo = productFromReq.contactInfo.takeIf { it.isNotBlank() } ?: ""
 

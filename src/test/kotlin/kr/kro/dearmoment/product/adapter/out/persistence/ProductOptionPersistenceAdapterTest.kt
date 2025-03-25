@@ -52,8 +52,8 @@ class ProductOptionPersistenceAdapterTest(
                             userId = 1L,
                             // 변경된 도메인: price, typeCode, images, partnerShops 등이 제거되고,
                             // productType와 shootingPlace가 추가됨.
-                            productType = ProductType.WEDDING_SNAP.name,
-                            shootingPlace = ShootingPlace.JEJU.name,
+                            productType = ProductType.WEDDING_SNAP,
+                            shootingPlace = ShootingPlace.JEJU,
                             title = "테스트 상품",
                             mainImage =
                                 ImageEmbeddable.fromDomainImage(

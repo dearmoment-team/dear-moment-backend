@@ -4,9 +4,12 @@ import com.linecorp.kotlinjdsl.render.RenderContext
 import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
+import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
@@ -39,16 +42,19 @@ class ProductReadOnlyRepository(
                 entity(ProductEntity::class),
             ).from(
                 entity(ProductEntity::class),
-                fetchJoin(ProductEntity::options)
-                    .on(path(ProductOptionEntity::originalPrice).between(query.minPrice, query.maxPrice)),
                 fetchJoin(ProductEntity::studio),
-                join(ProductOptionEntity::partnerShops)
-                    .on(path(PartnerShopEmbeddable::category).`in`(query.partnerShopCategories)),
+                leftJoin(ProductEntity::options)
+                    .on(path(ProductOptionEntity::originalPrice).between(query.minPrice, query.maxPrice)),
+                join(ProductOptionEntity::partnerShops),
+                join(ProductEntity::availableSeasons),
+                join(ProductEntity::cameraTypes),
+                join(ProductEntity::retouchStyles),
             ).where(
                 and(
-                    path(ProductEntity::availableSeasons).`in`(query.availableSeasons),
-                    path(ProductEntity::cameraTypes).`in`(query.cameraTypes),
-                    path(ProductEntity::retouchStyles).`in`(query.retouchStyles),
+                    path(PartnerShopEmbeddable::category).`in`(query.partnerShopCategories),
+                    entity(ShootingSeason::class).`in`(query.availableSeasons),
+                    entity(CameraType::class).`in`(query.cameraTypes),
+                    entity(RetouchStyle::class).`in`(query.retouchStyles),
                 ),
             )
         }.map { it?.toDomain() }

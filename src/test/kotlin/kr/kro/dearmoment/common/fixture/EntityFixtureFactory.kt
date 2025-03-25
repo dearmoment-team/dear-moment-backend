@@ -47,18 +47,18 @@ fun productEntityFixture(
         .setNull(ProductEntity::productId)
         .setNotNull(ProductEntity::title)
         .setNotNull(ProductEntity::version)
-        .setExp(ProductEntity::cameraTypes, mutableSetOf(CameraType.DIGITAL.name))
-        .setExp(ProductEntity::availableSeasons, mutableSetOf(ShootingSeason.YEAR_2025_FIRST_HALF.name))
-        .setExp(ProductEntity::productType, ProductType.WEDDING_SNAP.name)
-        .setExp(ProductEntity::shootingPlace, ShootingPlace.JEJU.name)
+        .setExp(ProductEntity::cameraTypes, mutableSetOf(CameraType.DIGITAL))
+        .setExp(ProductEntity::availableSeasons, ShootingSeason.entries.shuffled().take(2).map { it }.toMutableSet())
+        .setExp(ProductEntity::productType, ProductType.entries.shuffled().take(1)[0])
+        .setExp(ProductEntity::shootingPlace, ShootingPlace.JEJU)
         .setExp(ProductEntity::userId, userId)
         .setExp(ProductEntity::options, mutableListOf<ProductOptionEntity>())
         .setExp(ProductEntity::studio, studioEntity)
         .setExp(ProductEntity::subImages, List(4) { imageEmbeddableFixture() })
-        .setExp(ProductEntity::likeCount, 0)
-        .setExp(ProductEntity::inquiryCount, 0)
+        .setExp(ProductEntity::likeCount, (1..100).random())
+        .setExp(ProductEntity::inquiryCount, (1..100).random())
         .setPostCondition { it.title.isNotBlank() }
-        .setExp(ProductEntity::retouchStyles, mutableSetOf(RetouchStyle.WARM.name, RetouchStyle.CHIC.name))
+        .setExp(ProductEntity::retouchStyles, RetouchStyle.entries.shuffled().take(2).map { it }.toMutableSet())
         .sample()
 
 fun imageEmbeddableFixture(): ImageEmbeddable =
@@ -67,7 +67,7 @@ fun imageEmbeddableFixture(): ImageEmbeddable =
 
 fun partnerShopEmbeddableFixture(): PartnerShopEmbeddable =
     fixtureBuilder.giveMeKotlinBuilder<PartnerShopEmbeddable>()
-        .setExp(PartnerShopEmbeddable::category, PartnerShopCategory.HAIR_MAKEUP.name)
+        .setExp(PartnerShopEmbeddable::category, PartnerShopCategory.entries.shuffled().take(1)[0])
         .setExp(PartnerShopEmbeddable::name, "Test Shop")
         .setExp(PartnerShopEmbeddable::link, "http://testshop.com")
         .sample()
@@ -76,13 +76,15 @@ fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntit
     return fixtureBuilder.giveMeKotlinBuilder<ProductOptionEntity>()
         .setNull(ProductOptionEntity::optionId)
         .setExp(ProductOptionEntity::product, productEntity)
-        .setExp(ProductOptionEntity::discountPrice, 100_000)
-        .setExp(ProductOptionEntity::originalPrice, 1_000_000)
-        .setExp(ProductOptionEntity::optionType, OptionType.SINGLE.name)
+        .setExp(ProductOptionEntity::discountPrice, (50_000L..150_000L).random())
+        .setExp(ProductOptionEntity::originalPrice, (150_000L..300_000L).random())
+        .setExp(ProductOptionEntity::optionType, OptionType.SINGLE)
+        .setExp(ProductOptionEntity::likeCount, (1..100).random())
         .setExp(
             ProductOptionEntity::partnerShops,
             listOf(partnerShopEmbeddableFixture(), partnerShopEmbeddableFixture()),
         )
+        .setPostCondition { it.name.isNotBlank() }
         .setPostCondition { it.shootingHours > 0 }
         .setPostCondition { it.shootingMinutes > 0 }
         .setPostCondition { it.shootingLocationCount > 0 }
