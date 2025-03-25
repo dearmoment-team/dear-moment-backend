@@ -21,6 +21,9 @@ spring:
           connection-timeout: 5000
           timeout: 5000
           write-timeout: 5000
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
 
 springdoc:
   packages-to-scan:

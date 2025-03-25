@@ -94,6 +94,17 @@ dependencies {
 
     // 코루틴
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
+    // 시큐리티
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("io.jsonwebtoken:jjwt:0.9.1") // Spring Json-Web-Token
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:2.3.1")
+//    compileOnly('org.projectlombok:lombok')
+
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.test {
