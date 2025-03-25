@@ -103,6 +103,8 @@ dependencies {
 //    compileOnly('org.projectlombok:lombok')
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.test {

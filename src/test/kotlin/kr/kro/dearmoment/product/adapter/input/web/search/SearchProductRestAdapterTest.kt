@@ -1,7 +1,8 @@
 package kr.kro.dearmoment.product.adapter.input.web.search
 
 import andDocument
-import kr.kro.dearmoment.common.MockBaseApiTest
+import io.mockk.every
+import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
@@ -10,18 +11,14 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.given
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@WebMvcTest(ProductRestAdapter::class)
-class SearchProductRestAdapterTest : MockBaseApiTest() {
+class SearchProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 검색 API 테스트 - 정상 검색`() {
         // given
@@ -82,8 +79,8 @@ class SearchProductRestAdapterTest : MockBaseApiTest() {
                 totalPages = 1,
             )
 
-        // 모킹
-        given(
+        // Mock UseCase 결과
+        every {
             productSearchUseCase.searchProducts(
                 title = "Snap",
                 productType = "WEDDING_SNAP",
@@ -91,8 +88,8 @@ class SearchProductRestAdapterTest : MockBaseApiTest() {
                 sortBy = "created-desc",
                 page = 0,
                 size = 10,
-            ),
-        ).willReturn(pagedResult)
+            )
+        } returns pagedResult
 
         // when
         val requestBuilder =
@@ -183,8 +180,7 @@ class SearchProductRestAdapterTest : MockBaseApiTest() {
                 totalPages = 1,
             )
 
-        given(productSearchUseCase.getMainPageProducts(page = 0, size = 10))
-            .willReturn(pagedResult)
+        every { productSearchUseCase.getMainPageProducts(page = 0, size = 10) } returns pagedResult
 
         // when
         val requestBuilder =
