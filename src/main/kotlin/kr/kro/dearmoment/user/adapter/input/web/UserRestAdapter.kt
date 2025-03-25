@@ -1,6 +1,11 @@
 package kr.kro.dearmoment.user.adapter.input.web
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.application.command.RegisterUserCommand
@@ -12,7 +17,6 @@ import kr.kro.dearmoment.user.application.dto.response.UserResponse
 import kr.kro.dearmoment.user.application.port.input.RegisterUserUseCase
 import kr.kro.dearmoment.user.application.service.UserProfileService
 import kr.kro.dearmoment.user.security.CustomUserDetails
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -23,9 +27,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 
-@Tag(name = "User API", description = "유저와 관련 API")
+@Tag(name = "User API", description = "유저와 관련된 API")
 @RestController
 @RequestMapping("/api/users")
 class UserRestAdapter(
@@ -34,52 +38,90 @@ class UserRestAdapter(
     private val jwtTokenProvider: JwtTokenProvider,
     private val userProfileService: UserProfileService,
 ) {
+    @Operation(summary = "회원가입", description = "새로운 유저를 회원가입합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "회원가입 성공",
+                content = [Content(schema = Schema(implementation = UserResponse::class))],
+            ),
+        ],
+    )
     @PostMapping("/signup")
     fun register(
+        @Parameter(description = "회원가입 요청 정보", required = true)
         @RequestBody req: RegisterUserRequest,
-    ): ResponseEntity<UserResponse> {
+    ): UserResponse {
         val command =
             RegisterUserCommand(
                 loginId = req.loginId,
                 password = req.password,
                 name = req.name,
             )
-        val response = registerUserUseCase.register(command)
-        return ResponseEntity.ok(response)
+        return registerUserUseCase.register(command)
     }
 
+    @Operation(summary = "로그인", description = "이메일 로그인 처리 후 JWT 토큰을 발급합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "로그인 성공",
+                content = [Content(schema = Schema(implementation = LoginUserResponse::class))],
+            ),
+        ],
+    )
     @PostMapping("/login")
     fun login(
+        @Parameter(description = "로그인 요청 정보", required = true)
         @RequestBody req: LoginUserRequest,
-    ): ResponseEntity<LoginUserResponse> {
-        // 인증 요청 토큰 생성
+    ): LoginUserResponse {
         val authToken = UsernamePasswordAuthenticationToken(req.loginId, req.password)
         val authentication = authenticationManager.authenticate(authToken)
-        // 인증 성공 시 SecurityContext에 저장
         SecurityContextHolder.getContext().authentication = authentication
 
-        // CustomUserDetails에서 JWT 생성 (타입 캐스팅)
         val token = jwtTokenProvider.generateToken(authentication.principal as CustomUserDetails)
-        return ResponseEntity.ok(LoginUserResponse(success = true, token = token))
+        return LoginUserResponse(success = true, token = token)
     }
 
-    @GetMapping()
+    @Operation(summary = "프로필 조회", description = "로그인한 사용자의 프로필을 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "프로필 조회 성공",
+                content = [Content(schema = Schema(implementation = UserResponse::class))],
+            ),
+        ],
+    )
+    @GetMapping
     fun getProfile(
+        @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
-    ): ResponseEntity<UserResponse> {
+    ): UserResponse {
         val user = userProfileService.getProfile(userId)
-        // UserResponse 생성은 도메인 모델을 응답 DTO로 변환하는 로직입니다.
-        val response = UserResponse.from(user)
-        return ResponseEntity.ok(response)
+        return UserResponse.from(user)
     }
 
-    @PatchMapping()
+    @Operation(summary = "이름 변경", description = "로그인한 사용자의 이름을 변경합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "이름 변경 성공",
+                content = [Content(schema = Schema(implementation = UserResponse::class))],
+            ),
+        ],
+    )
+    @PatchMapping
     fun updateName(
+        @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
+        @Parameter(description = "이름 변경 요청 DTO", required = true)
         @RequestBody req: UpdateUserNameRequest,
-    ): ResponseEntity<UserResponse> {
+    ): UserResponse {
         val updatedUser = userProfileService.updateName(userId, req.name)
-        val response = UserResponse.from(updatedUser)
-        return ResponseEntity.ok(response)
+        return UserResponse.from(updatedUser)
     }
 }
