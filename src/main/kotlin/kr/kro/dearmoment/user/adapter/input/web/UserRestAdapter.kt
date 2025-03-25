@@ -38,7 +38,7 @@ class UserRestAdapter(
     private val jwtTokenProvider: JwtTokenProvider,
     private val userProfileService: UserProfileService,
 ) {
-    @Operation(summary = "회원가입", description = "새로운(작가/스튜디오) 유저를 회원가입합니다.")
+    @Operation(summary = "(작가/스튜디오)회원가입", description = "새로운(작가/스튜디오) 유저를 회원가입합니다.")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -62,7 +62,7 @@ class UserRestAdapter(
         return registerUserUseCase.register(command)
     }
 
-    @Operation(summary = "로그인", description = "아이디/비밀번호(작가/스튜디오) 로그인 처리 후 JWT 토큰을 발급합니다.")
+    @Operation(summary = "(작가/스튜디오)로그인", description = "아이디/비밀번호(작가/스튜디오) 로그인 처리 후 JWT 토큰을 발급합니다.")
     @ApiResponses(
         value = [
             ApiResponse(
