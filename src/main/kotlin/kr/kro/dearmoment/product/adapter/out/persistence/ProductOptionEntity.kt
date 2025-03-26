@@ -19,6 +19,7 @@ import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShop
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
@@ -73,6 +74,7 @@ class ProductOptionEntity(
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
     @Column(nullable = false)
+    @ColumnDefault(value = "0")
     var version: Long = 0L,
 ) : Auditable() {
     companion object {
