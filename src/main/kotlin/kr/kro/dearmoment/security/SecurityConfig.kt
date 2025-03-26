@@ -48,9 +48,9 @@ class SecurityConfig(
                     // 1. 스튜디오 문의
                     .requestMatchers("/api/inquiries/studios/**").hasRole("USER")
                     // 2. 스튜디오
-                    .requestMatchers(HttpMethod.PUT, "/api/studios/*").hasRole("ARTIST")
-                    .requestMatchers(HttpMethod.DELETE, "/api/studios/*").hasRole("ARTIST")
-                    .requestMatchers(HttpMethod.POST, "/api/studios").hasRole("ARTIST")
+//                    .requestMatchers(HttpMethod.PUT, "/api/studios/*").hasRole("ARTIST")
+//                    .requestMatchers(HttpMethod.DELETE, "/api/studios/*").hasRole("ARTIST")
+//                    .requestMatchers(HttpMethod.POST, "/api/studios").hasRole("ARTIST")
                     // 3. 서비스 문의
                     .requestMatchers("/api/inquiries/services").hasRole("USER")
                     // 4. 상품 옵션 문의
@@ -58,9 +58,9 @@ class SecurityConfig(
                     // 5. /api/likes/** → ROLE_USER
                     .requestMatchers("/api/likes/**").hasRole("USER")
                     // 6. /api/products
-                    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ARTIST")
-                    .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ARTIST")
-                    .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole("ARTIST")
+//                    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ARTIST")
+//                    .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ARTIST")
+//                    .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole("ARTIST")
                     // 그 외 경로는 인증만 되어 있으면 접근 가능
                     .anyRequest().authenticated()
             }
