@@ -27,6 +27,7 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "PRODUCTS")
@@ -84,8 +85,10 @@ class ProductEntity(
     @JoinColumn(name = "studio_id")
     var studio: StudioEntity,
     @Column(nullable = false)
+    @ColumnDefault(value = "0")
     val likeCount: Int = 0,
     @Column(nullable = false)
+    @ColumnDefault(value = "0")
     val inquiryCount: Int = 0,
 ) : Auditable() {
     companion object {
