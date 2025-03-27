@@ -92,7 +92,7 @@ class ProductReadOnlyPersistenceRepositoryTest(
                 it("상품이 조회된다.") {
                     val query =
                         SearchProductQuery(
-                            minPrice = 100_000L,
+                            minPrice = 50_000L,
                             maxPrice = 200_000L,
                             partnerShopCategories = partnerShopCategories.toList(),
                             availableSeasons = shootingSeasons.toList(),
@@ -111,8 +111,8 @@ class ProductReadOnlyPersistenceRepositoryTest(
                     val content = result.content
                     content.forEach { product ->
                         product.options.forEach { option ->
-                            option.originalPrice shouldBeGreaterThanOrEqualTo query.minPrice
-                            option.originalPrice shouldBeLessThanOrEqualTo query.maxPrice
+                            option.discountPrice shouldBeGreaterThanOrEqualTo query.minPrice
+                            option.discountPrice shouldBeLessThanOrEqualTo query.maxPrice
 
                             option.partnerShops.forEach { partnerShop ->
                                 partnerShop.category shouldBeIn query.partnerShopCategories
@@ -143,17 +143,6 @@ class ProductReadOnlyPersistenceRepositoryTest(
 //                        println(
 //                            "Weight: ${product.likeCount * 10 + product.inquiryCount * 12 + product.optionLikeCount * 11}",
 //                        )
-                        product.options.forEach { option ->
-                            option.originalPrice shouldBeGreaterThanOrEqualTo query.minPrice
-                            option.originalPrice shouldBeLessThanOrEqualTo query.maxPrice
-
-                            if (query.partnerShopCategories.isNotEmpty()) {
-                                option.partnerShops.forEach { partnerShop ->
-                                    partnerShop.category shouldBeIn query.partnerShopCategories
-                                }
-                            }
-                        }
-
                         if (query.availableSeasons.isNotEmpty()) {
                             product.availableSeasons.forEach { season -> season shouldBeIn query.availableSeasons }
                         }

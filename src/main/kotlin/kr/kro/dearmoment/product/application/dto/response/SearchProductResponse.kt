@@ -5,7 +5,7 @@ import kr.kro.dearmoment.product.domain.model.Product
 data class SearchProductResponse(
     val productId: Long,
     val studioName: String,
-    val thumbnails: List<String>,
+    val thumbnailUrls: List<String>,
     val retouchStyles: List<String>,
     val shootingSeason: List<String>,
     val minPrice: Long,
@@ -20,15 +20,17 @@ data class SearchProductResponse(
         fun from(product: Product): SearchProductResponse {
             requireNotNull(product.studio)
 
+            val maxDiscountRate = product.options.maxOf { (it.discountPrice.toDouble() / it.originalPrice) * 100 }.toInt()
+
             return SearchProductResponse(
                 productId = product.productId,
                 studioName = product.studio.name,
-                thumbnails = product.subImages.map { it.url },
+                thumbnailUrls = product.subImages.map { it.url },
                 retouchStyles = product.retouchStyles.map { it.name },
                 shootingSeason = product.availableSeasons.map { it.name },
                 minPrice = product.options.minOf { it.discountPrice },
                 maxPrice = product.options.maxOf { it.discountPrice },
-                discountRate = 0,
+                discountRate = if (maxDiscountRate == 100) 0 else maxDiscountRate,
                 isLike = false,
             )
         }

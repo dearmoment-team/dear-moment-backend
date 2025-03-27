@@ -206,7 +206,7 @@ class ProductRestAdapter(
         ],
     )
     @GetMapping("/main")
-    fun getMainPageProducts2(
+    fun getMainPageProducts(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
     ): PagedResponse<SearchProductResponse> {
@@ -224,7 +224,7 @@ class ProductRestAdapter(
         ],
     )
     @GetMapping("/search")
-    fun searchProducts2(
+    fun searchProducts(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
         @RequestBody request: SearchProductRequest,

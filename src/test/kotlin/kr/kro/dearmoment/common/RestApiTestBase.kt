@@ -12,6 +12,13 @@ import kr.kro.dearmoment.like.adapter.input.web.ProductLikeRestAdapter
 import kr.kro.dearmoment.like.adapter.input.web.ProductOptionLikeRestAdapter
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.service.LikeQueryService
+import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
+import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
+import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
+import kr.kro.dearmoment.product.application.usecase.get.GetProductUseCase
+import kr.kro.dearmoment.product.application.usecase.search.ProductSearchUseCase
+import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import kr.kro.dearmoment.studio.adapter.input.StudioRestAdapter
 import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
@@ -43,6 +50,7 @@ import org.springframework.web.filter.CharacterEncodingFilter
         ProductOptionInquiryRestAdapter::class,
         ServiceInquiryRestAdapter::class,
         StudioRestAdapter::class,
+        ProductRestAdapter::class,
     ],
 )
 @TestEnvironment
@@ -75,6 +83,24 @@ abstract class RestApiTestBase {
 
     @MockkBean
     protected lateinit var deleteStudioUseCase: DeleteStudioUseCase
+
+    @MockkBean
+    protected lateinit var productSearchUseCase: ProductSearchUseCase
+
+    @MockkBean
+    protected lateinit var createProductUseCase: CreateProductUseCase
+
+    @MockkBean
+    protected lateinit var updateProductUseCase: UpdateProductUseCase
+
+    @MockkBean
+    protected lateinit var deleteProductUseCase: DeleteProductUseCase
+
+    @MockkBean
+    protected lateinit var getProductUseCase: GetProductUseCase
+
+    @MockkBean
+    protected lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
 
     /**
      * RestDocs 문서화를 위한 `MockMvc` 객체를 설정하는 함수입니다.
