@@ -11,6 +11,7 @@ import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.like.application.dto.GetProductOptionLikeResponse
 import kr.kro.dearmoment.like.application.dto.LikeRequest
 import kr.kro.dearmoment.like.application.dto.LikeResponse
+import kr.kro.dearmoment.like.application.dto.UnlikeProductOptionRequest
 import kr.kro.dearmoment.like.application.port.input.LikeQueryUseCase
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.query.GetUserProductOptionLikeQuery
@@ -89,10 +90,10 @@ class ProductOptionLikeRestAdapter(
             ),
         ],
     )
-    @DeleteMapping("{likeId}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun productOptionUnlike(
-        @Parameter(description = "삭제할 상품 옵션 좋아요 식별자", required = true)
-        @PathVariable likeId: Long,
-    ): Unit = likeUseCase.productOptionUnlike(likeId)
+        @Parameter(description = "삭제할 상품 좋아요 정보", required = true)
+        @RequestBody request: UnlikeProductOptionRequest,
+    ): Unit = likeUseCase.productOptionUnlike(request.toCommand())
 }

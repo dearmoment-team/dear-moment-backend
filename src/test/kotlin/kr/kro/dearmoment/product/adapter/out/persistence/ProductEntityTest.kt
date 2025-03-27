@@ -6,13 +6,13 @@ import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.CameraType
-import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import java.time.LocalDateTime
 
 class ProductEntityTest : StringSpec({

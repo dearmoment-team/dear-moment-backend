@@ -33,6 +33,8 @@ data class GetStudioResponse(
         allowableValues = ["ACTIVE, INACTIVE"],
     )
     val status: String,
+    @Schema(description = "영입 스튜디오 여부")
+    val isCasted: Boolean,
 ) {
     companion object {
         fun from(domain: Studio) =
@@ -56,6 +58,7 @@ data class GetStudioResponse(
                             urlLink = it.urlLink,
                         )
                     },
+                isCasted = domain.isCasted,
             )
     }
 }

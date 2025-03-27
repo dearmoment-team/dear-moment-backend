@@ -4,11 +4,11 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import java.lang.reflect.Field
 import java.time.LocalDateTime
 

@@ -2,6 +2,7 @@ package kr.kro.dearmoment.like.application.port.input
 
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.command.UnlikeProductCommand
+import kr.kro.dearmoment.like.application.command.UnlikeProductOptionCommand
 import kr.kro.dearmoment.like.application.dto.LikeResponse
 
 interface LikeUseCase {
@@ -11,5 +12,5 @@ interface LikeUseCase {
 
     fun productUnlike(command: UnlikeProductCommand)
 
-    fun productOptionUnlike(likeId: Long)
+    fun productOptionUnlike(command: UnlikeProductOptionCommand)
 }

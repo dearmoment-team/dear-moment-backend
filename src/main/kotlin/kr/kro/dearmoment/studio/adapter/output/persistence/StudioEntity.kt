@@ -13,6 +13,7 @@ import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "studios")
@@ -21,8 +22,12 @@ class StudioEntity(
     @Column(name = "studio_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
+    @Column(nullable = false)
+    val userId: Long,
+    @Column
+    @ColumnDefault(value = "0")
+    val cast: Int,
     name: String,
-    userId: Long,
     contact: String,
     studioIntro: String,
     artistsIntro: String,
@@ -33,9 +38,6 @@ class StudioEntity(
     status: String,
     partnerShops: MutableSet<StudioPartnerShopEmbeddable>,
 ) : Auditable() {
-    @Column(nullable = false)
-    val userId: Long = userId
-
     @Column(nullable = false)
     var name: String = name
         protected set
@@ -108,6 +110,7 @@ class StudioEntity(
             cancellationPolicy = cancellationPolicy,
             status = StudioStatus.from(status),
             partnerShops = partnerShops.map { it.toDomain() },
+            isCasted = if (cast == 1) true else false,
         )
 
     companion object {
@@ -127,6 +130,7 @@ class StudioEntity(
                     domain.partnerShops.map {
                         StudioPartnerShopEmbeddable(it.category.name, it.name, it.urlLink)
                     }.toMutableSet(),
+                cast = if (domain.isCasted) 1 else 0,
             )
     }
 }

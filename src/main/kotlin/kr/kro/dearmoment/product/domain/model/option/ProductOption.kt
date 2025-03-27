@@ -1,62 +1,6 @@
-package kr.kro.dearmoment.product.domain.model
+package kr.kro.dearmoment.product.domain.model.option
 
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import java.time.LocalDateTime
-
-/**
- * 제휴업체 구분(카테고리)
- */
-enum class PartnerShopCategory {
-    HAIR_MAKEUP,
-    DRESS,
-    MENS_SUIT,
-    BOUQUET,
-    VIDEO,
-    STUDIO,
-    ETC,
-    ;
-
-    companion object {
-        fun from(value: String): PartnerShopCategory =
-            try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                throw CustomException(ErrorCode.INVALID_PARTNER_SHOP_CATEGORY)
-            }
-    }
-}
-
-/**
- * 패키지 제휴 업체 정보
- */
-data class PartnerShop(
-    val category: PartnerShopCategory,
-    val name: String,
-    val link: String,
-) {
-    init {
-        require(name.isNotBlank()) { "제휴 업체 이름은 비어 있을 수 없습니다." }
-    }
-}
-
-/**
- * 옵션의 타입(단품 or 패키지)
- */
-enum class OptionType {
-    SINGLE,
-    PACKAGE,
-    ;
-
-    companion object {
-        fun from(value: String): OptionType =
-            try {
-                valueOf(value)
-            } catch (e: IllegalArgumentException) {
-                throw CustomException(ErrorCode.INVALID_OPTION_TYPE)
-            }
-    }
-}
 
 /**
  * 상품 옵션 도메인 모델

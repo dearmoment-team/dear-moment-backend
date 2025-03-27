@@ -4,7 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 
 /**
  * 파트너샵 임베디드

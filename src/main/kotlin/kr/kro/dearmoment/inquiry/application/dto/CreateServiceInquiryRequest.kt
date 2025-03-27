@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
+import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
 import org.jetbrains.annotations.NotNull
 
 data class CreateServiceInquiryRequest(
@@ -18,6 +20,7 @@ data class CreateServiceInquiryRequest(
         allowableValues = ["SYSTEM_IMPROVEMENT", "SERVICE_SUGGESTION, SYSTEM_IMPROVEMENT", "SYSTEM_IMPROVEMENT"],
     )
     @field:NotBlank(message = "서비스 피드백 타입은 빈 문자열이 될 수 없습니다.")
+    @field:EnumValue(enumClass = ServiceInquiryType::class, message = "유효하지 않은 서비스 피드백 타입입니다.")
     val type: String,
     @Schema(description = "내용(10자 이상 1000자 이하)", example = "서비스 문의 내용", required = true)
     @field:NotBlank(message = "내용은 빈 문자열이 될 수 없습니다.")

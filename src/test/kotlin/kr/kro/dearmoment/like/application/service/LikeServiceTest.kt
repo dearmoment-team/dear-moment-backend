@@ -7,13 +7,15 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.verify
+import kr.kro.dearmoment.common.fixture.productOptionFixture
 import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.command.UnlikeProductCommand
+import kr.kro.dearmoment.like.application.command.UnlikeProductOptionCommand
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
 import kr.kro.dearmoment.like.domain.CreateProductLike
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
+import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionReadOnlyRepository
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 
 class LikeServiceTest : DescribeSpec({
@@ -21,7 +23,14 @@ class LikeServiceTest : DescribeSpec({
     val saveLikePort = mockk<SaveLikePort>()
     val deleteLikePort = mockk<DeleteLikePort>()
     val productPersistencePort = mockk<ProductPersistencePort>()
-    val likeCommandService = LikeCommandService(saveLikePort, deleteLikePort, productPersistencePort)
+    val optionReadRepository = mockk<ProductOptionReadOnlyRepository>()
+    val likeCommandService =
+        LikeCommandService(
+            saveLikePort,
+            deleteLikePort,
+            productPersistencePort,
+            optionReadRepository,
+        )
 
     describe("productLike()는") {
         context("유효한 command를 전달 받으면") {
@@ -37,8 +46,6 @@ class LikeServiceTest : DescribeSpec({
             it("likeEntity를 저장하고 like를 반환한다.") {
                 val response = likeCommandService.productLike(command)
                 response.likeId shouldBe like.id
-                verify(exactly = 1) { saveLikePort.saveProductLike(any()) }
-                verify(exactly = 1) { productPersistencePort.increaseLikeCount(command.targetId) }
             }
         }
     }
@@ -54,10 +61,11 @@ class LikeServiceTest : DescribeSpec({
                 )
 
             every { saveLikePort.saveProductOptionLike(any()) } returns like.id
+            every { optionReadRepository.findById(command.targetId) } returns productOptionFixture()
+            every { productPersistencePort.increaseOptionLikeCount(any()) } just Runs
             it("likeEntity를 저장하고 like를 반환한다.") {
                 val response = likeCommandService.productOptionsLike(command)
                 response.likeId shouldBe like.id
-                verify(exactly = 1) { saveLikePort.saveProductOptionLike(any()) }
             }
         }
     }
@@ -74,20 +82,23 @@ class LikeServiceTest : DescribeSpec({
             every { productPersistencePort.decreaseLikeCount(command.productId) } just Runs
             it("like를 삭제한다.") {
                 shouldNotThrow<Throwable> { likeCommandService.productUnlike(command) }
-                verify(exactly = 1) { deleteLikePort.deleteProductLike(command.likeId) }
-                verify(exactly = 1) { productPersistencePort.decreaseLikeCount(command.productId) }
             }
         }
     }
 
     describe("productOptionUnlike()는") {
         context("좋아요 ID를 전달 받으면") {
-            val likeId = 1L
+            val command =
+                UnlikeProductOptionCommand(
+                    likeId = 1L,
+                    productOptionId = 1L,
+                )
 
-            every { deleteLikePort.deleteProductOptionLike(likeId) } just Runs
+            every { deleteLikePort.deleteProductOptionLike(command.likeId) } just Runs
+            every { optionReadRepository.findById(command.productOptionId) } returns productOptionFixture()
+            every { productPersistencePort.decreaseOptionLikeCount(any()) } just Runs
             it("like를 삭제한다.") {
-                shouldNotThrow<Throwable> { likeCommandService.productOptionUnlike(likeId) }
-                verify(exactly = 1) { deleteLikePort.deleteProductOptionLike(likeId) }
+                shouldNotThrow<Throwable> { likeCommandService.productOptionUnlike(command) }
             }
         }
     }

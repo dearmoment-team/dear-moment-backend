@@ -8,10 +8,10 @@ import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

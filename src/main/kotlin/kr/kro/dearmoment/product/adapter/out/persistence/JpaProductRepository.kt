@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import org.springframework.data.jpa.repository.JpaRepository
@@ -7,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
-interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
+interface JpaProductRepository : JpaRepository<ProductEntity, Long>, KotlinJdslJpqlExecutor {
     @Modifying
     @Query("UPDATE ProductEntity p SET p.likeCount = p.likeCount + 1 WHERE p.productId = :productId")
     fun increaseLikeCount(
@@ -29,6 +30,30 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long> {
     @Modifying
     @Query("UPDATE ProductEntity p SET p.inquiryCount = p.inquiryCount - 1 WHERE p.productId = :productId AND p.inquiryCount > 0")
     fun decreaseInquiryCount(
+        @Param("productId") productId: Long,
+    )
+
+    @Modifying
+    @Query(
+        """
+        UPDATE ProductEntity p
+        SET p.optionLikeCount = p.optionLikeCount + 1 
+        WHERE p.productId = :productId
+        """,
+    )
+    fun increaseOptionLikeCount(
+        @Param("productId") productId: Long,
+    )
+
+    @Modifying
+    @Query(
+        """
+        UPDATE ProductEntity p 
+        SET p.optionLikeCount = p.optionLikeCount - 1  
+        WHERE p.productId = :productId AND p.optionLikeCount > 0
+        """,
+    )
+    fun decreaseOptionLikeCount(
         @Param("productId") productId: Long,
     )
 
