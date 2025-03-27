@@ -20,9 +20,13 @@ class DeleteProductUseCaseImpl(
      * 일치하는 경우, 상품에 속한 모든 이미지 삭제 후 상품을 삭제합니다.
      */
     @Transactional
-    override fun deleteProduct(userId: UUID, productId: Long) {
-        val product = getProductPort.findById(productId)
-            ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+    override fun deleteProduct(
+        userId: UUID,
+        productId: Long,
+    ) {
+        val product =
+            getProductPort.findById(productId)
+                ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
         if (product.userId != userId) {
             throw CustomException(ErrorCode.UNAUTHORIZED_ACCESS)

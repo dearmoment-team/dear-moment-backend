@@ -1,12 +1,12 @@
 package kr.kro.dearmoment.user.adapter.output.persistence
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.user.application.port.output.GetStudioUserPort
 import kr.kro.dearmoment.user.application.port.output.GetUserByIdPort
 import kr.kro.dearmoment.user.application.port.output.GetUserByKakaoIdPort
 import kr.kro.dearmoment.user.application.port.output.SaveUserPort
 import kr.kro.dearmoment.user.domain.User
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import org.springframework.stereotype.Component
 import java.util.UUID
 
@@ -14,7 +14,6 @@ import java.util.UUID
 class UserPersistenceAdapter(
     private val userJpaRepository: UserJpaRepository,
 ) : SaveUserPort, GetUserByIdPort, GetUserByKakaoIdPort, GetStudioUserPort {
-
     override fun save(user: User): User {
         val entity = UserEntity.from(user)
         val saved = userJpaRepository.save(entity)
@@ -37,8 +36,9 @@ class UserPersistenceAdapter(
     }
 
     override fun findStudioUserById(id: UUID): User {
-        val entity = userJpaRepository.findById(id)
-            ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
+        val entity =
+            userJpaRepository.findById(id)
+                ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
         if (!entity.isStudioUser()) {
             throw CustomException(ErrorCode.UNAUTHORIZED_ACCESS)
         }

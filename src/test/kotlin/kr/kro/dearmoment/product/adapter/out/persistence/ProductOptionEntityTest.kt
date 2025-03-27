@@ -3,14 +3,16 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import java.lang.reflect.Field
 import java.time.LocalDateTime
+import java.util.UUID
 
 // 클래스 계층 전체에서 필드를 찾는 유틸리티 함수
 private fun getFieldFromHierarchy(
@@ -47,14 +49,40 @@ class ProductOptionEntityTest : StringSpec({
 
     "ProductOptionEntity는 단품 옵션 도메인 모델에서 올바르게 변환되어야 한다" {
         // given
+        val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+
+        // 직접 StudioEntity 생성 (fixture 대신)
+        val studio =
+            StudioEntity(
+                id = 0L, // auto-generated
+                name = "스튜디오 디어모먼트",
+                userId = 123L,
+                contact = "010-1234-5678",
+                studioIntro = "소개글",
+                artistsIntro = "작가 소개",
+                instagramUrl = "instagram.com",
+                kakaoChannelUrl = "kakaotalk.com",
+                reservationNotice = "예약 안내",
+                cancellationPolicy = "취소 정책",
+                status = "ACTIVE",
+                partnerShops =
+                    mutableSetOf(
+                        StudioPartnerShopEmbeddable(
+                            category = "HAIR_MAKEUP",
+                            name = "Test Shop",
+                            urlLink = "http://testshop.com",
+                        ),
+                    ),
+            )
+
         val productEntity =
             ProductEntity(
                 productId = 1L,
-                userId = 123L,
+                userId = dummyUserId,
                 productType = ProductType.WEDDING_SNAP,
                 shootingPlace = ShootingPlace.JEJU,
                 title = "샘플 상품",
-                studio = studioEntityFixture(),
+                studio = studio,
             )
 
         val fixedCreatedAt = LocalDateTime.of(2023, 1, 1, 10, 0, 0)
@@ -105,14 +133,40 @@ class ProductOptionEntityTest : StringSpec({
 
     "ProductOptionEntity는 패키지 옵션 도메인 모델로 올바르게 변환되어야 한다" {
         // given
+        val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+
+        // 직접 StudioEntity 생성
+        val studio =
+            StudioEntity(
+                id = 0L,
+                name = "스튜디오 디어모먼트",
+                userId = 123L,
+                contact = "010-1234-5678",
+                studioIntro = "소개글",
+                artistsIntro = "작가 소개",
+                instagramUrl = "instagram.com",
+                kakaoChannelUrl = "kakaotalk.com",
+                reservationNotice = "예약 안내",
+                cancellationPolicy = "취소 정책",
+                status = "ACTIVE",
+                partnerShops =
+                    mutableSetOf(
+                        StudioPartnerShopEmbeddable(
+                            category = "HAIR_MAKEUP",
+                            name = "Test Shop",
+                            urlLink = "http://testshop.com",
+                        ),
+                    ),
+            )
+
         val productEntity =
             ProductEntity(
                 productId = 2L,
-                userId = 456L,
+                userId = dummyUserId,
                 productType = ProductType.WEDDING_SNAP,
                 shootingPlace = ShootingPlace.JEJU,
                 title = "샘플 상품2",
-                studio = studioEntityFixture(),
+                studio = studio,
             )
 
         val partnerShopsEmbeddable =

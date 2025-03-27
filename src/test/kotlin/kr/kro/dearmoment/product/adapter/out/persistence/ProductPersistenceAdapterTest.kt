@@ -13,6 +13,7 @@ import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import kr.kro.dearmoment.studio.domain.Studio
 import java.time.LocalDateTime
+import java.util.UUID
 
 @RepositoryTest
 class ProductPersistenceAdapterTest(
@@ -20,6 +21,7 @@ class ProductPersistenceAdapterTest(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val studioRepository: StudioJpaRepository,
 ) : DescribeSpec({
+
         afterEach {
             jpaProductOptionRepository.deleteAllInBatch()
             jpaProductRepository.deleteAllInBatch()
@@ -47,31 +49,35 @@ class ProductPersistenceAdapterTest(
             }
 
             context("decreaseLikeCount()는 ") {
-                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
+                it("상품의 좋아요 개수를 1개 감소 시킨다.") {
                     jpaProductRepository.decreaseLikeCount(savedProduct.productId!!) shouldNotBe 0
                 }
             }
         }
+
         describe("ProductPersistenceAdapter 상품 문의 증감 테스트") {
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = jpaProductRepository.save(productEntityFixture(studioEntity = savedStudio))
 
             context("increaseInquiryCount()는 ") {
-                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
+                it("상품의 문의 개수를 1개 증가 시킨다.") {
                     jpaProductRepository.increaseInquiryCount(savedProduct.productId!!) shouldNotBe 0
                 }
             }
 
             context("decreaseInquiryCount()는 ") {
-                it("상품의 좋아요 개수를 1개 증가 시킨다.") {
+                it("상품의 문의 개수를 1개 감소 시킨다.") {
                     jpaProductRepository.decreaseInquiryCount(savedProduct.productId!!) shouldNotBe 0
                 }
             }
         }
     }) {
     companion object {
+        // 테스트용 dummy userId (UUID)
+        private val dummyUserId: UUID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+
         fun createSampleProduct(
-            userId: Long = 1L,
+            userId: UUID = dummyUserId,
             title: String = "기본 상품",
             productType: ProductType = ProductType.WEDDING_SNAP,
             shootingPlace: ShootingPlace = ShootingPlace.JEJU,

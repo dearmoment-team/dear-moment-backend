@@ -6,13 +6,17 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
+import java.util.UUID
 
 internal class ProductTest : StringSpec({
+
+    // dummy user ID
+    val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
     // 테스트용 이미지 생성 함수
     fun createImage(fileName: String) =
         Image(
-            userId = 1L,
+            userId = dummyUserId,
             fileName = fileName,
             url = "http://example.com/$fileName",
         )
@@ -23,7 +27,7 @@ internal class ProductTest : StringSpec({
      */
     fun createProduct(
         productId: Long = 1L,
-        userId: Long = 1L,
+        userId: UUID = dummyUserId,
         productType: ProductType = ProductType.WEDDING_SNAP,
         shootingPlace: ShootingPlace = ShootingPlace.JEJU,
         title: String = "테스트 상품",
@@ -107,20 +111,20 @@ internal class ProductTest : StringSpec({
     }
 
     "서브 이미지는 정확히 4장이어야 함" {
-        val validProduct = createProduct(subImages = List(4) { createImage("sub$it.jpg") })
+        val validProduct = createProduct(subImages = List(4) { createImage("sub${it + 1}.jpg") })
         validProduct.subImages.size shouldBe 4
 
         shouldThrow<IllegalArgumentException> {
-            createProduct(subImages = List(3) { createImage("sub$it.jpg") })
+            createProduct(subImages = List(3) { createImage("sub${it + 1}.jpg") })
         }.message shouldBe "서브 이미지는 정확히 4장 등록해야 합니다."
     }
 
     "추가 이미지는 최대 5장까지 허용" {
-        val validProduct = createProduct(additionalImages = List(5) { createImage("add$it.jpg") })
+        val validProduct = createProduct(additionalImages = List(5) { createImage("add${it + 1}.jpg") })
         validProduct.additionalImages.size shouldBe 5
 
         shouldThrow<IllegalArgumentException> {
-            createProduct(additionalImages = List(6) { createImage("add$it.jpg") })
+            createProduct(additionalImages = List(6) { createImage("add${it + 1}.jpg") })
         }.message shouldBe "추가 이미지는 최대 5장까지 등록 가능합니다."
     }
 

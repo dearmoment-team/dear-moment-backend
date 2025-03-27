@@ -18,8 +18,13 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
+import java.util.UUID
 
 class ProductSearchUseCaseTest : BehaviorSpec({
+
+    // Dummy user IDs
+    val dummyUserId1 = UUID.fromString("11111111-1111-1111-1111-111111111111")
+    val dummyUserId2 = UUID.fromString("22222222-2222-2222-2222-222222222222")
 
     // Mock 객체 설정 (테스트 전체에서 공유됨)
     val getProductPort = mockk<GetProductPort>()
@@ -32,11 +37,11 @@ class ProductSearchUseCaseTest : BehaviorSpec({
             paginationUtil = paginationUtil,
         )
 
-    // 테스트용 더미 이미지
+    // 테스트용 더미 이미지 (userId: dummyUserId1)
     val dummyImage =
         Image(
             imageId = 1L,
-            userId = 1L,
+            userId = dummyUserId1,
             fileName = "dummy.jpg",
             url = "http://test.com/dummy.jpg",
         )
@@ -47,7 +52,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
     val product1 =
         Product(
             productId = 1L,
-            userId = 2L,
+            userId = dummyUserId1,
             productType = ProductType.WEDDING_SNAP,
             shootingPlace = ShootingPlace.JEJU,
             title = "First Product",
@@ -68,7 +73,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
     val product2 =
         Product(
             productId = 2L,
-            userId = 3L,
+            userId = dummyUserId2,
             productType = ProductType.WEDDING_SNAP,
             shootingPlace = ShootingPlace.JEJU,
             title = "Second Product",

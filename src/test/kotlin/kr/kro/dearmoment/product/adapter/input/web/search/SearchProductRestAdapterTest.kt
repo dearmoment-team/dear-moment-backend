@@ -17,15 +17,18 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
 
 class SearchProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 검색 API 테스트 - 정상 검색`() {
         // given
+        val dummyUserId1 = UUID.fromString("11111111-1111-1111-1111-111111111111")
+        val dummyUserId2 = UUID.fromString("22222222-2222-2222-2222-222222222222")
         val product1 =
             ProductResponse(
                 productId = 1L,
-                userId = 10L,
+                userId = dummyUserId1,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "My Wedding Snap",
@@ -34,10 +37,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 cameraTypes = listOf("FILM"),
                 retouchStyles = listOf("NATURAL"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/main1.jpg"),
-                subImages =
-                    listOf(
-                        ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg"),
-                    ),
+                subImages = listOf(ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg")),
                 additionalImages = emptyList(),
                 detailedInfo = "Info1",
                 contactInfo = "Contact1",
@@ -45,11 +45,10 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 updatedAt = null,
                 options = emptyList(),
             )
-
         val product2 =
             ProductResponse(
                 productId = 2L,
-                userId = 11L,
+                userId = dummyUserId2,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "SEOUL",
                 title = "Another Snap",
@@ -58,10 +57,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("CALM"),
                 mainImage = ImageResponse(imageId = 3L, url = "http://image-server.com/main2.jpg"),
-                subImages =
-                    listOf(
-                        ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg"),
-                    ),
+                subImages = listOf(ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg")),
                 additionalImages = emptyList(),
                 detailedInfo = "Info2",
                 contactInfo = "Contact2",
@@ -79,7 +75,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 totalPages = 1,
             )
 
-        // Mock UseCase 결과
         every {
             productSearchUseCase.searchProducts(
                 title = "Snap",
@@ -91,7 +86,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
             )
         } returns pagedResult
 
-        // when
         val requestBuilder =
             RestDocumentationRequestBuilders
                 .get("/api/products/search")
@@ -103,7 +97,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 .param("size", "10")
                 .accept(MediaType.APPLICATION_JSON)
 
-        // then
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(
@@ -114,7 +107,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data" type OBJECT means "페이징 된 상품 목록 데이터",
                     "data.content" type ARRAY means "상품 목록 Content",
                     "data.content[].productId" type NUMBER means "상품 ID",
-                    "data.content[].userId" type NUMBER means "사용자 ID",
+                    "data.content[].userId" type STRING means "사용자 ID",
                     "data.content[].productType" type STRING means "상품 유형",
                     "data.content[].shootingPlace" type STRING means "촬영 장소",
                     "data.content[].title" type STRING means "상품명",
@@ -133,10 +126,9 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.content[].detailedInfo" type STRING means "상세 정보",
                     "data.content[].contactInfo" type STRING means "연락처",
-                    "data.content[].createdAt" type OBJECT means "생성 일자",
-                    "data.content[].updatedAt" type OBJECT means "수정 일자",
+                    "data.content[].createdAt" type OBJECT means "생성 시간",
+                    "data.content[].updatedAt" type OBJECT means "수정 시간",
                     "data.content[].options" type ARRAY means "옵션 목록",
-                    // 페이징 정보
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.totalElements" type NUMBER means "전체 원소 개수",
@@ -151,7 +143,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
         val product1 =
             ProductResponse(
                 productId = 10L,
-                userId = 5L,
+                userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
                 productType = "WEDDING_SNAP",
                 shootingPlace = "BUSAN",
                 title = "Busan Snap",
@@ -160,10 +152,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("NATURAL"),
                 mainImage = ImageResponse(imageId = 11L, url = "http://image-server.com/main.jpg"),
-                subImages =
-                    listOf(
-                        ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg"),
-                    ),
+                subImages = listOf(ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg")),
                 additionalImages = emptyList(),
                 detailedInfo = "Some info",
                 contactInfo = "contact@example.com",
@@ -182,7 +171,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
 
         every { productSearchUseCase.getMainPageProducts(page = 0, size = 10) } returns pagedResult
 
-        // when
         val requestBuilder =
             RestDocumentationRequestBuilders
                 .get("/api/products/main")
@@ -190,7 +178,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 .param("size", "10")
                 .accept(MediaType.APPLICATION_JSON)
 
-        // then
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(
@@ -201,7 +188,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data" type OBJECT means "페이징 된 상품 목록",
                     "data.content" type ARRAY means "상품 목록 Content",
                     "data.content[].productId" type NUMBER means "상품 ID",
-                    "data.content[].userId" type NUMBER means "사용자 ID",
+                    "data.content[].userId" type STRING means "사용자 ID",
                     "data.content[].productType" type STRING means "상품 유형",
                     "data.content[].shootingPlace" type STRING means "촬영 장소",
                     "data.content[].title" type STRING means "상품명",
@@ -220,10 +207,9 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].additionalImages[].url" type STRING means "추가 이미지 URL",
                     "data.content[].detailedInfo" type STRING means "상세 정보",
                     "data.content[].contactInfo" type STRING means "연락처",
-                    "data.content[].createdAt" type OBJECT means "생성 일자",
-                    "data.content[].updatedAt" type OBJECT means "수정 일자",
+                    "data.content[].createdAt" type OBJECT means "생성 시간",
+                    "data.content[].updatedAt" type OBJECT means "수정 시간",
                     "data.content[].options" type ARRAY means "옵션 목록",
-                    // 페이징 정보
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.totalElements" type NUMBER means "전체 원소 개수",

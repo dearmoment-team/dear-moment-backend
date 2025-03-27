@@ -20,7 +20,7 @@ class CreateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val getProductPort: GetProductPort,
     private val imageService: ImageService,
-    private val getStudioUserPort: GetStudioUserPort
+    private val getStudioUserPort: GetStudioUserPort,
 ) : CreateProductUseCase {
     @Transactional
     override fun saveProduct(

@@ -28,7 +28,6 @@ class UpdateProductUseCaseImpl(
     private val productOptionUseCase: ProductOptionUseCase,
     private val getStudioPort: GetStudioPort,
 ) : UpdateProductUseCase {
-
     /**
      * 업데이트 요청 시 파일 파라미터(대표, 서브, 추가 이미지 파일)는 컨트롤러에서 별도로 전달받습니다.
      * 옵션(request)은 선택사항입니다.
@@ -99,7 +98,7 @@ class UpdateProductUseCaseImpl(
                 subImages = mappedSubImages,
                 additionalImages = mappedAdditionalImages,
                 options = options ?: emptyList(),
-                userId = userId
+                userId = userId,
             )
         productFromReq.validateForUpdate()
 

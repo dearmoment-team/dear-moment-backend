@@ -2,7 +2,6 @@ package kr.kro.dearmoment.product.adapter.input.web.update
 
 import andDocument
 import io.mockk.every
-import io.mockk.mockk
 import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
@@ -14,7 +13,6 @@ import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductOptionResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
-import kr.kro.dearmoment.product.application.usecase.update.UpdateProductUseCase
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -76,77 +74,85 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
             """.trimIndent()
 
         // 2) 파일 준비
-        val mainImageFile = MockMultipartFile(
-            "mainImageFile",
-            "updated_main.jpg",
-            MediaType.IMAGE_JPEG_VALUE,
-            "updated main image content".toByteArray()
-        )
-        val subImageFile1 = MockMultipartFile(
-            "subImageFiles",
-            "sub3.jpg",
-            MediaType.IMAGE_JPEG_VALUE,
-            "new sub image content #3".toByteArray()
-        )
-        val subImageFile2 = MockMultipartFile(
-            "subImageFiles",
-            "sub4.jpg",
-            MediaType.IMAGE_JPEG_VALUE,
-            "new sub image content #4".toByteArray()
-        )
-        val additionalImageFile = MockMultipartFile(
-            "additionalImageFiles",
-            "add2.jpg",
-            MediaType.IMAGE_JPEG_VALUE,
-            "new additional image content".toByteArray()
-        )
+        val mainImageFile =
+            MockMultipartFile(
+                "mainImageFile",
+                "updated_main.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "updated main image content".toByteArray(),
+            )
+        val subImageFile1 =
+            MockMultipartFile(
+                "subImageFiles",
+                "sub3.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "new sub image content #3".toByteArray(),
+            )
+        val subImageFile2 =
+            MockMultipartFile(
+                "subImageFiles",
+                "sub4.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "new sub image content #4".toByteArray(),
+            )
+        val additionalImageFile =
+            MockMultipartFile(
+                "additionalImageFiles",
+                "add2.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "new additional image content".toByteArray(),
+            )
 
         // 3) 수정 결과(응답) 예시
         val authUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
-        val updatedResponse = ProductResponse(
-            productId = 1L,
-            userId = authUserId,
-            productType = "WEDDING_SNAP",
-            shootingPlace = "JEJU",
-            title = "Updated Product Title",
-            description = "Updated Description",
-            availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
-            cameraTypes = listOf("DIGITAL"),
-            retouchStyles = listOf("CALM"),
-            mainImage = ImageResponse(imageId = 101L, url = "http://image-server.com/updated_main.jpg"),
-            subImages = listOf(
-                ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
-                ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
-                ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg")
-            ),
-            additionalImages = listOf(
-                ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg")
-            ),
-            detailedInfo = "Updated Detailed Info",
-            contactInfo = "updated-contact@example.com",
-            createdAt = null,
-            updatedAt = null,
-            options = listOf(
-                ProductOptionResponse(
-                    optionId = 1L,
-                    productId = 1L,
-                    name = "New Option 1",
-                    optionType = "SINGLE",
-                    discountAvailable = true,
-                    originalPrice = 10000,
-                    discountPrice = 7000,
-                    description = "Updated Option Desc",
-                    costumeCount = 1,
-                    shootingLocationCount = 1,
-                    shootingHours = 2,
-                    shootingMinutes = 0,
-                    retouchedCount = 3,
-                    partnerShops = emptyList(),
-                    createdAt = null,
-                    updatedAt = null,
-                )
+        val updatedResponse =
+            ProductResponse(
+                productId = 1L,
+                userId = authUserId,
+                productType = "WEDDING_SNAP",
+                shootingPlace = "JEJU",
+                title = "Updated Product Title",
+                description = "Updated Description",
+                availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
+                cameraTypes = listOf("DIGITAL"),
+                retouchStyles = listOf("CALM"),
+                mainImage = ImageResponse(imageId = 101L, url = "http://image-server.com/updated_main.jpg"),
+                subImages =
+                    listOf(
+                        ImageResponse(imageId = 102L, url = "http://image-server.com/subImage1_KEPT.jpg"),
+                        ImageResponse(imageId = 103L, url = "http://image-server.com/subImage3_UPLOADED.jpg"),
+                        ImageResponse(imageId = 104L, url = "http://image-server.com/subImage4_UPLOADED.jpg"),
+                    ),
+                additionalImages =
+                    listOf(
+                        ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
+                    ),
+                detailedInfo = "Updated Detailed Info",
+                contactInfo = "updated-contact@example.com",
+                createdAt = null,
+                updatedAt = null,
+                options =
+                    listOf(
+                        ProductOptionResponse(
+                            optionId = 1L,
+                            productId = 1L,
+                            name = "New Option 1",
+                            optionType = "SINGLE",
+                            discountAvailable = true,
+                            originalPrice = 10000,
+                            discountPrice = 7000,
+                            description = "Updated Option Desc",
+                            costumeCount = 1,
+                            shootingLocationCount = 1,
+                            shootingHours = 2,
+                            shootingMinutes = 0,
+                            retouchedCount = 3,
+                            partnerShops = emptyList(),
+                            createdAt = null,
+                            updatedAt = null,
+                        ),
+                    ),
             )
-        )
 
         // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게, 인증된 userId를 첫 번째 파라미터로 전달)
         every {
@@ -154,24 +160,26 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
         } returns updatedResponse
 
         // 5) multipart/form-data PATCH 요청
-        val requestPart = MockMultipartFile(
-            "request",
-            "request.json",
-            MediaType.APPLICATION_JSON_VALUE,
-            requestJson.toByteArray()
-        )
-        val requestBuilder = MockMvcRequestBuilders.multipart("/api/products/{id}", 1L)
-            .file(requestPart)
-            .file(mainImageFile)
-            .file(subImageFile1)
-            .file(subImageFile2)
-            .file(additionalImageFile)
-            .with { req ->
-                req.method = HttpMethod.PATCH.toString()
-                req
-            }
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .accept(MediaType.APPLICATION_JSON)
+        val requestPart =
+            MockMultipartFile(
+                "request",
+                "request.json",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestJson.toByteArray(),
+            )
+        val requestBuilder =
+            MockMvcRequestBuilders.multipart("/api/products/{id}", 1L)
+                .file(requestPart)
+                .file(mainImageFile)
+                .file(subImageFile1)
+                .file(subImageFile2)
+                .file(additionalImageFile)
+                .with { req ->
+                    req.method = HttpMethod.PATCH.toString()
+                    req
+                }
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
 
         // 6) 요청 실행 및 검증
         mockMvc.perform(requestBuilder)
@@ -221,7 +229,7 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                     "data.options[].partnerShops" type ARRAY means "제휴 업체 목록",
                     "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
                     "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",
-                )
+                ),
             )
     }
 }

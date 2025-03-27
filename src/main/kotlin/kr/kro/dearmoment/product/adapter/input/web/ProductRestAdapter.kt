@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
@@ -46,7 +46,6 @@ class ProductRestAdapter(
     private val productSearchUseCase: ProductSearchUseCase,
     private val deleteProductOptionUseCase: DeleteProductOptionUseCase,
 ) {
-
     // 1. 상품 생성
     @Operation(summary = "상품 생성")
     @PostMapping(
@@ -148,10 +147,11 @@ class ProductRestAdapter(
         options: List<UpdateProductOptionRequest>?,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): ProductResponse {
-        val updateRequest = rawRequest ?: UpdateProductRequest(
-            productId = id,
-            studioId = 0L
-        )
+        val updateRequest =
+            rawRequest ?: UpdateProductRequest(
+                productId = id,
+                studioId = 0L,
+            )
 
         return updateProductUseCase.updateProduct(
             userId = userId,
@@ -170,9 +170,8 @@ class ProductRestAdapter(
     fun deleteProduct(
         @Parameter(description = "삭제할 상품의 식별자", required = true)
         @PathVariable id: Long,
-        @AuthenticationPrincipal(expression = "id") userId: UUID
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
     ) {
-        // 인증된 userId와 함께 삭제 UseCase 호출 (내부에서 소유권 검증 수행)
         deleteProductUseCase.deleteProduct(userId, id)
     }
 
@@ -247,7 +246,7 @@ class ProductRestAdapter(
     }
 
     // 7. 상품 옵션 삭제
-    @Operation(summary = "상품 옵션 삭제", description = "특정 상품에 속한 옵션을 삭제합니다.")
+    @Operation(summary = "상품 옵션 삭제", description = "특정 상품에 속한 옵션을 삭제합니다. 사용자 ID는 인증 principal에서 가져오기 때문에 DTO에는 포함되지 않습니다.")
     @ApiResponse(
         responseCode = "204",
         description = "옵션 삭제 성공",
@@ -256,9 +255,10 @@ class ProductRestAdapter(
     @DeleteMapping("/{productId}/options/{optionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteOption(
-        @Parameter(description = "상품 ID") @PathVariable productId: Long,
-        @Parameter(description = "옵션 ID") @PathVariable optionId: Long,
+        @Parameter(description = "상품 ID", required = true) @PathVariable productId: Long,
+        @Parameter(description = "옵션 ID", required = true) @PathVariable optionId: Long,
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
     ) {
-        deleteProductOptionUseCase.deleteOption(productId, optionId)
+        deleteProductOptionUseCase.deleteOption(userId, productId, optionId)
     }
 }
