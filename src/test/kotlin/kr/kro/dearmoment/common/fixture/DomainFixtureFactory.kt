@@ -4,8 +4,10 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
+import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
@@ -31,7 +33,9 @@ fun productFixture(): Product =
     fixtureBuilder.giveMeKotlinBuilder<Product>()
         .setNotNull(Product::productId)
         .setExp(Product::title, "상품 이롬")
-        .setExp(Product::retouchStyles, setOf(RetouchStyle.MODERN))
+        .set(Product::cameraTypes, setOf(CameraType.DIGITAL))
+        .set(Product::availableSeasons, ShootingSeason.entries.shuffled().take(2).map { it }.toSet())
+        .setExp(Product::retouchStyles, RetouchStyle.entries.shuffled().take(2).map { it }.toSet())
         .setExp(Product::additionalImages, listOf("url1", "url2", "url3", "url4"))
         .setExp(Product::options, listOf(productOptionFixture()))
         .setExp(Product::subImages, listOf("url1", "url2", "url3", "url4"))

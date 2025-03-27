@@ -33,6 +33,30 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long>, KotlinJdslJ
         @Param("productId") productId: Long,
     )
 
+    @Modifying
+    @Query(
+        """
+        UPDATE ProductEntity p
+        SET p.optionLikeCount = p.optionLikeCount + 1 
+        WHERE p.productId = :productId
+        """,
+    )
+    fun increaseOptionLikeCount(
+        @Param("productId") productId: Long,
+    )
+
+    @Modifying
+    @Query(
+        """
+        UPDATE ProductEntity p 
+        SET p.optionLikeCount = p.optionLikeCount - 1  
+        WHERE p.productId = :productId AND p.optionLikeCount > 0
+        """,
+    )
+    fun decreaseOptionLikeCount(
+        @Param("productId") productId: Long,
+    )
+
     /**
      * 특정 사용자의 Product 리스트를 조회합니다.
      * @param userId 사용자 ID

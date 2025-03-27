@@ -2,12 +2,12 @@ package kr.kro.dearmoment.product.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.kro.dearmoment.common.validation.EnumValue
+import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
-import kr.kro.dearmoment.product.domain.sort.SortCriteria
 
 @Schema(description = "상품 검색 요청 DTO")
 data class SearchProductRequest(

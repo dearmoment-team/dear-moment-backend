@@ -1,10 +1,10 @@
 package kr.kro.dearmoment.product.application.dto.query
 
+import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
-import kr.kro.dearmoment.product.domain.sort.SortCriteria
 
 data class SearchProductQuery(
     val sortBy: SortCriteria,

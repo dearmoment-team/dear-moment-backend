@@ -205,59 +205,12 @@ class ProductRestAdapter(
             ),
         ],
     )
-    @GetMapping(
-        value = ["/main"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun getMainPageProducts(
-        @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
-    ): PagedResponse<ProductResponse> {
-        return productSearchUseCase.getMainPageProducts(page, size)
-    }
-
-    @Operation(summary = "메인 페이지 상품 조회", description = "메인 페이지에 노출할 상품 목록을 조회합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "메인 페이지 상품 조회 성공",
-                content = [Content(schema = Schema(implementation = PagedResponse::class))],
-            ),
-        ],
-    )
-    @GetMapping("/main2")
+    @GetMapping("/main")
     fun getMainPageProducts2(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
     ): PagedResponse<SearchProductResponse> {
-        return productSearchUseCase.searchProducts2(SearchProductRequest(), page, size)
-    }
-
-    // 6. 상품 검색
-    @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "상품 검색 성공",
-                content = [Content(schema = Schema(implementation = PagedResponse::class))],
-            ),
-        ],
-    )
-    @GetMapping(
-        value = ["/search"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun searchProducts(
-        @Parameter(description = "검색할 상품 제목") @RequestParam(required = false) title: String?,
-        @Parameter(description = "검색할 상품 타입") @RequestParam(required = false) productType: String?,
-        @Parameter(description = "촬영 장소") @RequestParam(required = false) shootingPlace: String?,
-        @Parameter(description = "정렬 기준") @RequestParam(required = false) sortBy: String?,
-        @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
-    ): PagedResponse<ProductResponse> {
-        return productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
+        return productSearchUseCase.searchProducts(SearchProductRequest(), page, size)
     }
 
     @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
@@ -270,13 +223,13 @@ class ProductRestAdapter(
             ),
         ],
     )
-    @GetMapping("/search2")
+    @GetMapping("/search")
     fun searchProducts2(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
         @RequestBody request: SearchProductRequest,
     ): PagedResponse<SearchProductResponse> {
-        return productSearchUseCase.searchProducts2(request, page, size)
+        return productSearchUseCase.searchProducts(request, page, size)
     }
 
     @Operation(summary = "상품 옵션 삭제", description = "특정 상품에 속한 옵션을 삭제합니다.")

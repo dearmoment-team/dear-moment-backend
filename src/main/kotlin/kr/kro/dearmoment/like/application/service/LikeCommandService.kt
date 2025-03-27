@@ -7,7 +7,7 @@ import kr.kro.dearmoment.like.application.dto.LikeResponse
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.port.output.DeleteLikePort
 import kr.kro.dearmoment.like.application.port.output.SaveLikePort
-import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
+import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionReadOnlyRepository
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,7 +18,7 @@ class LikeCommandService(
     private val saveLikePort: SaveLikePort,
     private val deleteLikePort: DeleteLikePort,
     private val productPersistencePort: ProductPersistencePort,
-    private val productOptionPersistencePort: ProductOptionPersistencePort,
+    private val productOptionReadOnlyRepository: ProductOptionReadOnlyRepository,
 ) : LikeUseCase {
     override fun productLike(command: SaveLikeCommand): LikeResponse {
         val like = command.toStudioLikeDomain()
@@ -33,7 +33,8 @@ class LikeCommandService(
         val like = command.toProductOptionLikeDomain()
         val savedLikeId = saveLikePort.saveProductOptionLike(like)
 
-        productOptionPersistencePort.increaseLikeCount(like.productOptionId)
+        val option = productOptionReadOnlyRepository.findById(command.targetId)
+        productPersistencePort.increaseOptionLikeCount(option.productId)
 
         return LikeResponse(savedLikeId)
     }
@@ -45,6 +46,7 @@ class LikeCommandService(
 
     override fun productOptionUnlike(command: UnlikeProductOptionCommand) {
         deleteLikePort.deleteProductOptionLike(command.likeId)
-        productOptionPersistencePort.decreaseLikeCount(command.productOptionId)
+        val option = productOptionReadOnlyRepository.findById(command.productOptionId)
+        productPersistencePort.decreaseOptionLikeCount(option.productId)
     }
 }

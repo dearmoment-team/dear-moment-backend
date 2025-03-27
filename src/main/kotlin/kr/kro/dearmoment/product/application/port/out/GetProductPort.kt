@@ -44,27 +44,7 @@ interface GetProductPort {
      */
     fun existsById(id: Long): Boolean
 
-    /**
-     * 특정 조건에 따라 Product를 검색합니다.
-     *
-     * 기존에는 basePrice를 기준으로 검색하였으나, 도메인 변경에 따라
-     * 이제는 상품의 제목, 상품 유형(productType), 촬영 장소(shootingPlace) 등을
-     * 조건으로 검색합니다.
-     *
-     * @param title 검색할 Product의 제목 (nullable)
-     * @param productType 검색할 상품 유형 (nullable, 예: "WEDDING_SNAP")
-     * @param shootingPlace 검색할 촬영 장소 (nullable, 예: "JEJU")
-     * @param sortBy 정렬 조건 (nullable, 예: "created-desc", "created-asc")
-     * @return 조건에 맞는 Product 리스트
-     */
     fun searchByCriteria(
-        title: String?,
-        productType: String?,
-        shootingPlace: String?,
-        sortBy: String?,
-    ): List<Product>
-
-    fun searchByCriteria2(
         query: SearchProductQuery,
         pageable: Pageable,
     ): Page<Product>

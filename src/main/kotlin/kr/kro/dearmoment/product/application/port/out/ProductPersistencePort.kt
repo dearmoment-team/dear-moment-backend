@@ -23,6 +23,10 @@ interface ProductPersistencePort {
 
     fun decreaseLikeCount(productId: Long)
 
+    fun increaseOptionLikeCount(productId: Long)
+
+    fun decreaseOptionLikeCount(productId: Long)
+
     fun increaseInquiryCount(productId: Long)
 
     fun decreaseInquiryCount(productId: Long)

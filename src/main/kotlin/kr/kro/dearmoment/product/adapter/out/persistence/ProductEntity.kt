@@ -27,7 +27,7 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
-import org.hibernate.annotations.BatchSize
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "PRODUCTS")
@@ -77,21 +77,23 @@ class ProductEntity(
     var detailedInfo: String = "",
     @Column(name = "CONTACT_INFO")
     var contactInfo: String = "",
-    @BatchSize(size = 100)
-    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var options: MutableList<ProductOptionEntity> = mutableListOf(),
+    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    val options: MutableList<ProductOptionEntity> = mutableListOf(),
     @Column(nullable = false)
     var version: Long = 0L,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studio_id")
     var studio: StudioEntity,
+    @Column(nullable = false)
+    @ColumnDefault(value = "0")
+    val likeCount: Long = 0,
+    @Column(nullable = false)
+    @ColumnDefault(value = "0")
+    val optionLikeCount: Long = 0,
+    @Column(nullable = false)
+    @ColumnDefault(value = "0")
+    val inquiryCount: Long = 0,
 ) : Auditable() {
-    @Column(nullable = false)
-    val likeCount: Long = 0
-
-    @Column(nullable = false)
-    val inquiryCount: Long = 0
-
     companion object {
         fun fromDomain(
             product: Product,
@@ -109,6 +111,9 @@ class ProductEntity(
                     detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() } ?: "",
                     contactInfo = product.contactInfo.takeIf { it.isNotBlank() } ?: "",
                     studio = studio,
+                    likeCount = product.likeCount,
+                    optionLikeCount = product.optionLikeCount,
+                    inquiryCount = product.inquiryCount,
                 )
             productEntity.availableSeasons.addAll(product.availableSeasons)
             productEntity.cameraTypes.addAll(product.cameraTypes)
@@ -144,6 +149,7 @@ class ProductEntity(
             options = options.map { it.toDomain() },
             studio = studio.toDomain(),
             likeCount = likeCount,
+            optionLikeCount = optionLikeCount,
             inquiryCount = inquiryCount,
         )
     }

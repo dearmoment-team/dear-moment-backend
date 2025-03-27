@@ -39,6 +39,7 @@ data class Product(
     val options: List<ProductOption> = emptyList(),
     val studio: Studio? = null,
     val likeCount: Long = 0L,
+    val optionLikeCount: Long = 0L,
     val inquiryCount: Long = 0L,
 ) {
     init {

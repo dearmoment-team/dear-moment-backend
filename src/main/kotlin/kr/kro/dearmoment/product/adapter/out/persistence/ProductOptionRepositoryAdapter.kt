@@ -43,12 +43,4 @@ class ProductOptionRepositoryAdapter(
     override fun deleteAllByProductId(productId: Long) {
         jpaProductOptionRepository.deleteAllByProductProductId(productId)
     }
-
-    override fun increaseLikeCount(optionId: Long) {
-        jpaProductOptionRepository.increaseLikeCount(optionId)
-    }
-
-    override fun decreaseLikeCount(optionId: Long) {
-        jpaProductOptionRepository.decreaseLikeCount(optionId)
-    }
 }

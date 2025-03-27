@@ -50,6 +50,8 @@ data class RegisterStudioRequest(
     )
     @field:EnumValue(enumClass = StudioStatus::class, message = "유효하지 스튜디오 상태입니다.")
     val status: String,
+    @Schema(description = "영입 스튜디오 여부")
+    val isCasted: Boolean,
 ) {
     fun toCommand() =
         RegisterStudioCommand(
@@ -64,5 +66,6 @@ data class RegisterStudioRequest(
             cancellationPolicy = cancellationPolicy,
             partnerShops = partnerShops.map { it.toCommand() },
             status = status,
+            isCasted = isCasted,
         )
 }

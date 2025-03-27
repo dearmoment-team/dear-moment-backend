@@ -7,9 +7,7 @@ import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
-import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.ProductType
-import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.OptionType
@@ -47,18 +45,20 @@ fun productEntityFixture(
         .setNull(ProductEntity::productId)
         .setNotNull(ProductEntity::title)
         .setNotNull(ProductEntity::version)
-        .setExp(ProductEntity::cameraTypes, mutableSetOf(CameraType.DIGITAL))
-        .setExp(ProductEntity::availableSeasons, ShootingSeason.entries.shuffled().take(2).map { it }.toMutableSet())
-        .setExp(ProductEntity::productType, ProductType.entries.shuffled().take(1)[0])
-        .setExp(ProductEntity::shootingPlace, ShootingPlace.JEJU)
-        .setExp(ProductEntity::userId, userId)
-        .setExp(ProductEntity::options, mutableListOf<ProductOptionEntity>())
-        .setExp(ProductEntity::studio, studioEntity)
-        .setExp(ProductEntity::subImages, List(4) { imageEmbeddableFixture() })
-        .setExp(ProductEntity::likeCount, (1..100).random())
-        .setExp(ProductEntity::inquiryCount, (1..100).random())
+        .set(ProductEntity::productType, ProductType.entries.shuffled().first())
+        .set(ProductEntity::shootingPlace, ShootingPlace.JEJU)
+        .set(ProductEntity::userId, userId)
+        .set(ProductEntity::options, mutableListOf<ProductOptionEntity>())
+        .set(ProductEntity::studio, studioEntity)
+        .set(ProductEntity::subImages, List(4) { imageEmbeddableFixture() })
+        .set(ProductEntity::likeCount, (1..100).random().toLong())
+        .set(ProductEntity::optionLikeCount, (1..100).random().toLong())
+        .set(ProductEntity::inquiryCount, (1..100).random().toLong())
         .setPostCondition { it.title.isNotBlank() }
-        .setExp(ProductEntity::retouchStyles, RetouchStyle.entries.shuffled().take(2).map { it }.toMutableSet())
+        .setPostCondition { it.availableSeasons.size <= ShootingSeason.entries.size }
+        .sizeExp(ProductEntity::cameraTypes, 1)
+        .sizeExp(ProductEntity::retouchStyles, 2)
+        .sizeExp(ProductEntity::availableSeasons, 1, 4)
         .sample()
 
 fun imageEmbeddableFixture(): ImageEmbeddable =
@@ -75,21 +75,25 @@ fun partnerShopEmbeddableFixture(): PartnerShopEmbeddable =
 fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntity {
     return fixtureBuilder.giveMeKotlinBuilder<ProductOptionEntity>()
         .setNull(ProductOptionEntity::optionId)
-        .setExp(ProductOptionEntity::product, productEntity)
-        .setExp(ProductOptionEntity::discountPrice, (50_000L..150_000L).random())
-        .setExp(ProductOptionEntity::originalPrice, (150_000L..300_000L).random())
-        .setExp(ProductOptionEntity::optionType, OptionType.SINGLE)
-        .setExp(ProductOptionEntity::likeCount, (1..100).random())
-        .setExp(
+        .set(ProductOptionEntity::product, productEntity)
+        .set(ProductOptionEntity::discountPrice, (50_000L..150_000L).random())
+        .set(ProductOptionEntity::originalPrice, (150_000L..300_000L).random())
+        .set(ProductOptionEntity::optionType, OptionType.SINGLE)
+        .set(ProductOptionEntity::shootingHours, 1)
+        .set(ProductOptionEntity::shootingMinutes, 1)
+        .set(
             ProductOptionEntity::partnerShops,
             listOf(partnerShopEmbeddableFixture(), partnerShopEmbeddableFixture()),
         )
-        .setPostCondition { it.name.isNotBlank() }
-        .setPostCondition { it.shootingHours > 0 }
-        .setPostCondition { it.shootingMinutes > 0 }
-        .setPostCondition { it.shootingLocationCount > 0 }
-        .setPostCondition { it.costumeCount > 0 }
-        .setPostCondition { it.retouchedCount > 0 }
+        .setPostCondition {
+            it.name.isNotBlank() &&
+                it.shootingHours > 0 &&
+                it.shootingMinutes > 0 &&
+                it.shootingLocationCount > 0 &&
+                it.costumeCount > 0 &&
+                it.partnerShops.size <= PartnerShopCategory.entries.size &&
+                it.retouchedCount > 0
+        }
         .sample()
 }
 
