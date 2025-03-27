@@ -33,7 +33,7 @@ class KakaoOAuthController(
                     Content(
                         schema =
                             Schema(
-                                example = """{"token":"<JWT_TOKEN>","message":"Kakao Login Success"}""",
+                                example = """{"success":true,"code":200,"data":{"success":true}}""",
                             ),
                     ),
                 ],
