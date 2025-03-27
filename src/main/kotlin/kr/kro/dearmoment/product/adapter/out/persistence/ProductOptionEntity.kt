@@ -73,6 +73,7 @@ class ProductOptionEntity(
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
     @Column(nullable = false)
+    @ColumnDefault(value = "0")
     var version: Long = 0L,
 ) : Auditable() {
     companion object {

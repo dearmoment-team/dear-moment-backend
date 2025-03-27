@@ -56,6 +56,14 @@ jobs:
             MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             MAIL_RECEIVER=${{ secrets.MAIL_RECEIVER }}
+            
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
+            
+            # Kakao OAuth
+            OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
+            OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
+            
             EOF
             echo "==== .env file updated in ~/env/.env ===="
             cd ~
@@ -67,3 +75,4 @@ jobs:
             docker compose down
             echo "==== Starting containers (using the new image + updated .env) ===="
             docker compose up -d
+            docker images prune

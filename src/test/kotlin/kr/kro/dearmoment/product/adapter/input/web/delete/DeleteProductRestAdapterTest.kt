@@ -1,25 +1,23 @@
 package kr.kro.dearmoment.product.adapter.input.web.delete
 
 import andDocument
-import kr.kro.dearmoment.common.MockBaseApiTest
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.product.adapter.input.web.ProductRestAdapter
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.doThrow
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@WebMvcTest(ProductRestAdapter::class)
-class DeleteProductRestAdapterTest : MockBaseApiTest() {
+class DeleteProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 삭제 API 테스트 - 정상 삭제`() {
         // given
-        doNothing().`when`(deleteProductUseCase).deleteProduct(1L)
+        every { (deleteProductUseCase).deleteProduct(1L) } just Runs
 
         val requestBuilder =
             RestDocumentationRequestBuilders
@@ -35,8 +33,7 @@ class DeleteProductRestAdapterTest : MockBaseApiTest() {
     @Test
     fun `상품 삭제 API 테스트 - 존재하지 않는 상품`() {
         // given
-        doThrow(IllegalArgumentException("The product to delete does not exist: 999."))
-            .`when`(deleteProductUseCase).deleteProduct(999L)
+        every { deleteProductUseCase.deleteProduct(999L) } throws IllegalArgumentException("The product to delete does not exist: 999.")
 
         val requestBuilder =
             RestDocumentationRequestBuilders
