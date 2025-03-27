@@ -80,6 +80,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",
                     "size" means "페이지 크기 (기본값: 10)",
+                    "_csrf" means "스프링 시큐리티 사용시 테스트에 넘겨주는 토큰",
                 ),
                 responseBody(
                     "data" type OBJECT means "응답 데이터",
@@ -179,6 +180,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",
                     "size" means "페이지 크기 (기본값: 10)",
+                    "_csrf" means "스프링 시큐리티 사용시 테스트에 넘겨주는 토큰",
                 ),
                 responseBody(
                     "data" type OBJECT means "응답 데이터",
