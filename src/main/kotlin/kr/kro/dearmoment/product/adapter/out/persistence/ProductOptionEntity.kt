@@ -19,6 +19,7 @@ import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "PRODUCT_OPTIONS")
