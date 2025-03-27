@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
+import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.user.application.dto.response.LoginUserResponse
 import kr.kro.dearmoment.user.application.service.KakaoOAuthService
 import org.springframework.web.bind.annotation.GetMapping
@@ -39,7 +40,7 @@ class KakaoOAuthController(
             ),
         ],
     )
-    @GetMapping("/oauth/kakao/callback")
+    @GetMapping(GlobalUrls.OAUTH_KAKAO_CALLBACK)
     fun kakaoCallback(
         @Parameter(description = "카카오에서 전달받은 인가 코드", required = true)
         @RequestParam("code") code: String,

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
+import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.application.command.RegisterUserCommand
 import kr.kro.dearmoment.user.application.dto.request.LoginUserRequest
@@ -26,13 +27,11 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @Tag(name = "User API", description = "유저와 관련된 API")
 @RestController
-@RequestMapping("/api/users")
 class UserRestAdapter(
     private val registerUserUseCase: RegisterUserUseCase,
     private val authenticationManager: AuthenticationManager,
@@ -49,7 +48,7 @@ class UserRestAdapter(
             ),
         ],
     )
-    @PostMapping("/signup")
+    @PostMapping(GlobalUrls.API_USERS_SIGNUP)
     fun register(
         @Parameter(description = "회원가입 요청 정보", required = true)
         @RequestBody req: RegisterUserRequest,
@@ -73,7 +72,7 @@ class UserRestAdapter(
             ),
         ],
     )
-    @PostMapping("/login")
+    @PostMapping(GlobalUrls.API_USERS_LOGIN)
     fun login(
         @Parameter(description = "(작가/스튜디오) 로그인 요청 정보", required = true)
         @RequestBody req: LoginUserRequest,
@@ -98,7 +97,7 @@ class UserRestAdapter(
             ),
         ],
     )
-    @GetMapping
+    @GetMapping(GlobalUrls.API_USERS)
     fun getProfile(
         @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
@@ -117,7 +116,7 @@ class UserRestAdapter(
             ),
         ],
     )
-    @PatchMapping
+    @PatchMapping(GlobalUrls.API_USERS)
     fun updateName(
         @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
