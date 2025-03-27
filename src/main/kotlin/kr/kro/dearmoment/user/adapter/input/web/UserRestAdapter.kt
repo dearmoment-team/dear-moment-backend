@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletResponse
 import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.application.command.RegisterUserCommand
 import kr.kro.dearmoment.user.application.dto.request.LoginUserRequest
@@ -76,13 +77,15 @@ class UserRestAdapter(
     fun login(
         @Parameter(description = "(작가/스튜디오) 로그인 요청 정보", required = true)
         @RequestBody req: LoginUserRequest,
+        response: HttpServletResponse,
     ): LoginUserResponse {
         val authToken = UsernamePasswordAuthenticationToken(req.loginId, req.password)
         val authentication = authenticationManager.authenticate(authToken)
         SecurityContextHolder.getContext().authentication = authentication
 
         val token = jwtTokenProvider.generateToken(authentication.principal as CustomUserDetails)
-        return LoginUserResponse(success = true, token = token)
+        response.setHeader("Authorization", "Bearer $token")
+        return LoginUserResponse(success = true)
     }
 
     @Operation(summary = "프로필 조회", description = "로그인한 사용자의 프로필을 조회합니다.")

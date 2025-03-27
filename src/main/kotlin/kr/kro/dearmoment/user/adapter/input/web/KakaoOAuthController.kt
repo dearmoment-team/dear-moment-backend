@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletResponse
+import kr.kro.dearmoment.user.application.dto.response.LoginUserResponse
 import kr.kro.dearmoment.user.application.service.KakaoOAuthService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -41,8 +43,10 @@ class KakaoOAuthController(
     fun kakaoCallback(
         @Parameter(description = "카카오에서 전달받은 인가 코드", required = true)
         @RequestParam("code") code: String,
-    ): Map<String, Any> {
+        response: HttpServletResponse,
+    ): LoginUserResponse {
         val jwtToken = kakaoOAuthService.kakaoLogin(code)
-        return mapOf("token" to jwtToken, "message" to "Kakao Login Success")
+        response.setHeader("Authorization", "Bearer $jwtToken")
+        return LoginUserResponse(success = true)
     }
 }
