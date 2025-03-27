@@ -5,6 +5,7 @@ import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.studio.domain.Studio
 import java.time.LocalDateTime
+import java.util.UUID
 
 /**
  * 촬영 가능 시기
@@ -108,7 +109,7 @@ enum class ShootingPlace {
  */
 data class Product(
     val productId: Long = 0L,
-    val userId: Long,
+    val userId: UUID = UUID.randomUUID(),
     val productType: ProductType,
     val shootingPlace: ShootingPlace,
     // 상품명

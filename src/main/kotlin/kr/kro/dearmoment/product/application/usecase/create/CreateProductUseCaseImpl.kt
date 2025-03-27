@@ -9,23 +9,30 @@ import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.user.application.port.output.GetStudioUserPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.util.UUID
 
 @Service
 class CreateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val getProductPort: GetProductPort,
     private val imageService: ImageService,
+    private val getStudioUserPort: GetStudioUserPort
 ) : CreateProductUseCase {
     @Transactional
     override fun saveProduct(
         request: CreateProductRequest,
+        userId: UUID,
         mainImageFile: MultipartFile,
         subImageFiles: List<MultipartFile>,
         additionalImageFiles: List<MultipartFile>,
     ): ProductResponse {
+        // 스튜디오 권한 확인: 스튜디오 소유자가 아닌 경우 예외 발생
+        val studioUser = getStudioUserPort.findStudioUserById(userId)
+
         // 서브 이미지 검증: 정확히 4장이어야 함
         if (subImageFiles.size != 4) {
             throw CustomException(ErrorCode.INVALID_SUB_IMAGE_COUNT)
@@ -36,14 +43,15 @@ class CreateProductUseCaseImpl(
         }
 
         // 이미지 업로드
-        val mainImg = imageService.save(SaveImageCommand(mainImageFile, request.userId))
-        val subImgs = subImageFiles.map { imageService.save(SaveImageCommand(it, request.userId)) }
-        val additionalImgs = additionalImageFiles.map { imageService.save(SaveImageCommand(it, request.userId)) }
+        val mainImg = imageService.save(SaveImageCommand(mainImageFile, userId))
+        val subImgs = subImageFiles.map { imageService.save(SaveImageCommand(it, userId)) }
+        val additionalImgs = additionalImageFiles.map { imageService.save(SaveImageCommand(it, userId)) }
 
         // 도메인 객체 생성 (옵션은 DTO 변환에서 이미 포함됨)
         val product: Product =
             CreateProductRequest.toDomain(
                 req = request,
+                userId = userId,
                 mainImage = mainImg,
                 subImages = subImgs,
                 additionalImages = additionalImgs,

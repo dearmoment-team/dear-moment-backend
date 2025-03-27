@@ -8,6 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.image.domain.Image
+import java.util.*
 
 @Entity
 @Table(name = "images")
@@ -17,7 +18,7 @@ class ImageEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
     @Column
-    val userId: Long,
+    val userId: UUID,
     @Column
     val fileName: String,
     url: String,

@@ -13,6 +13,7 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
+import java.util.*
 
 @Schema(description = "이미지 응답 DTO")
 data class ImageResponse(
@@ -36,7 +37,7 @@ data class ProductResponse(
     @Schema(description = "상품 ID", example = "100")
     val productId: Long,
     @Schema(description = "사용자 ID", example = "1")
-    val userId: Long,
+    val userId: UUID,
     @Schema(
         description = "상품 유형 (도메인: ProductType)",
         example = "WEDDING_SNAP",

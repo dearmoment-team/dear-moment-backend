@@ -4,13 +4,14 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
+import java.util.*
 
 @Embeddable
 class ImageEmbeddable(
     @Column(name = "IMAGE_ID")
     var imageId: Long = 0L,
     @Column(name = "USER_ID")
-    var userId: Long = 0L,
+    var userId: UUID = UUID.randomUUID(),
     @Column(name = "PAR_ID")
     var parId: String? = "",
     @Column(name = "FILE_NAME")

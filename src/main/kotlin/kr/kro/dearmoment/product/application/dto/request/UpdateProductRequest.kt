@@ -23,6 +23,7 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
  *
  * - 각 필드가 null이면 기존 값이 유지되고, 값이 있을 경우 유효성 검증이 수행됩니다.
  * - 서브/추가 이미지는 부분 업데이트를 위해 수정할 항목만 전달합니다.
+ * - **사용자 ID는 클라이언트가 임의로 전달하는 대신, 인증 principal에서 받아 처리합니다.**
  */
 @Schema(description = "상품 부분 수정 요청 DTO")
 data class UpdateProductRequest(
@@ -32,9 +33,6 @@ data class UpdateProductRequest(
     @field:NotNull(message = "스튜디오 ID는 필수입니다.")
     @Schema(description = "스튜디오 ID", example = "100", required = true)
     val studioId: Long,
-    @field:NotNull(message = "사용자 ID는 필수입니다.")
-    @Schema(description = "사용자 ID", example = "1", required = true)
-    val userId: Long,
     @Schema(description = "상품 유형 (도메인: ProductType)", example = "WEDDING_SNAP", required = false)
     val productType: String? = null,
     @Schema(description = "촬영 장소 (도메인: ShootingPlace)", example = "JEJU", required = false)
@@ -69,10 +67,10 @@ data class UpdateProductRequest(
     @field:Valid
     @Schema(description = "최종 추가 이미지 목록 (0~최대 5개)", required = false)
     val additionalImagesFinal: List<AdditionalImageFinalRequest>? = null,
-    @field:NotBlankIfPresent(message = "상세 정보가 빈 값일 수 없습니다.")
+    @field:NotNull(message = "상세 정보는 필수입니다.")
     @Schema(description = "상세 정보", example = "연락처: 010-1234-5678, 상세 문의는 이메일로", required = false)
     val detailedInfo: String? = null,
-    @field:NotBlankIfPresent(message = "연락처 정보가 빈 값일 수 없습니다.")
+    @field:NotNull(message = "연락처 정보는 필수입니다.")
     @Schema(description = "연락처 정보", example = "010-1234-5678", required = false)
     val contactInfo: String? = null,
 ) {
@@ -88,7 +86,7 @@ data class UpdateProductRequest(
             subImages: List<Image>,
             additionalImages: List<Image>,
             options: List<UpdateProductOptionRequest> = emptyList(),
-            userId: Long = req.userId,
+            userId: java.util.UUID, // 인증 principal에서 전달된 userId
         ): Product {
             val productTypeEnum = req.productType?.let { ProductType.from(it) } ?: existingProduct.productType
             val shootingPlaceEnum = req.shootingPlace?.let { ShootingPlace.from(it) } ?: existingProduct.shootingPlace

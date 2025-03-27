@@ -12,19 +12,20 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
 
 class DeleteProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 삭제 API 테스트 - 정상 삭제`() {
-        // given
-        every { (deleteProductUseCase).deleteProduct(1L) } just Runs
+        val authUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+        // 인증된 userId와 상품 ID를 함께 전달
+        every { deleteProductUseCase.deleteProduct(authUserId, 1L) } just Runs
 
-        val requestBuilder =
-            RestDocumentationRequestBuilders
-                .delete("/api/products/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder = RestDocumentationRequestBuilders
+            .delete("/api/products/{id}", 1L)
+            .header("X-USER-ID", authUserId.toString())
+            .contentType(MediaType.APPLICATION_JSON)
 
-        // then
         mockMvc.perform(requestBuilder)
             .andExpect(status().isNoContent)
             .andDocument("delete-product")
@@ -32,15 +33,14 @@ class DeleteProductRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `상품 삭제 API 테스트 - 존재하지 않는 상품`() {
-        // given
-        every { deleteProductUseCase.deleteProduct(999L) } throws IllegalArgumentException("The product to delete does not exist: 999.")
+        val authUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+        every { deleteProductUseCase.deleteProduct(authUserId, 999L) } throws IllegalArgumentException("The product to delete does not exist: 999.")
 
-        val requestBuilder =
-            RestDocumentationRequestBuilders
-                .delete("/api/products/{id}", 999L)
-                .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder = RestDocumentationRequestBuilders
+            .delete("/api/products/{id}", 999L)
+            .header("X-USER-ID", authUserId.toString())
+            .contentType(MediaType.APPLICATION_JSON)
 
-        // then
         mockMvc.perform(requestBuilder)
             .andExpect(status().isBadRequest)
             .andDocument(

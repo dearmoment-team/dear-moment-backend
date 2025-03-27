@@ -8,6 +8,10 @@ enum class ErrorCode(
 ) {
     // Common
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다."),
+    UNAUTHORIZED_ACCESS(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다."),
+
+    // User
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
 
     // Image
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),

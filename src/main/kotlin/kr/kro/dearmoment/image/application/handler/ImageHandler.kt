@@ -9,6 +9,7 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateAdditionalImageAc
 import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
+import java.util.*
 
 @Component
 class ImageHandler(
@@ -21,7 +22,7 @@ class ImageHandler(
      */
     fun updateMainImage(
         newFile: MultipartFile,
-        userId: Long,
+        userId: UUID,
         currentImage: Image,
     ): Image {
         // 1) 새 파일 업로드
@@ -45,7 +46,7 @@ class ImageHandler(
         currentSubImages: List<Image>,
         finalRequests: List<SubImageFinalRequest>,
         subImageFiles: List<MultipartFile>,
-        userId: Long,
+        userId: UUID,
     ): List<Image> {
         // 현재 4장(인덱스 0..3) 보유
         if (currentSubImages.size != 4) {
@@ -128,7 +129,7 @@ class ImageHandler(
         currentAdditionalImages: List<Image>,
         finalRequests: List<AdditionalImageFinalRequest>,
         additionalImageFiles: List<MultipartFile>?,
-        userId: Long,
+        userId: UUID,
         maxCount: Int = 5,
     ): List<Image> {
         // ***기존에 있던: if (finalRequests.size > maxCount) { ... } 제거***

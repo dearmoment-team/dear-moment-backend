@@ -37,6 +37,10 @@ class UserEntity(
     @Column
     var updatedAt: LocalDateTime? = null,
 ) : Auditable() {
+    fun isStudioUser(): Boolean {
+        return isStudio == true
+    }
+
     fun toDomain(): User {
         return User(
             id = this.id,

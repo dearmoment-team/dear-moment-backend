@@ -14,10 +14,9 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import java.util.*
 
 data class CreateProductRequest(
-    @Schema(description = "사용자 ID", example = "1", required = true)
-    val userId: Long,
     @Schema(description = "스튜디오 ID", example = "1", required = true)
     val studioId: Long,
     @field:NotBlank(message = "상품 유형은 필수입니다.")
@@ -56,6 +55,7 @@ data class CreateProductRequest(
     companion object {
         fun toDomain(
             req: CreateProductRequest,
+            userId: UUID,
             mainImage: Image,
             subImages: List<Image>,
             additionalImages: List<Image>,
@@ -65,14 +65,14 @@ data class CreateProductRequest(
             val seasonSet = req.availableSeasons.map { ShootingSeason.from(it) }.toSet()
             val cameraSet = req.cameraTypes.map { CameraType.from(it) }.toSet()
             val styleSet = req.retouchStyles.map { RetouchStyle.from(it) }.toSet()
-            val mainImg = mainImage.withUserId(req.userId)
-            val subImgList = subImages.map { it.withUserId(req.userId) }
-            val addImgList = additionalImages.map { it.withUserId(req.userId) }
+            val mainImg = mainImage.withUserId(userId)
+            val subImgList = subImages.map { it.withUserId(userId) }
+            val addImgList = additionalImages.map { it.withUserId(userId) }
             val optionList = req.options.map { CreateProductOptionRequest.toDomain(it, 0L) }
 
             return Product(
                 productId = 0L,
-                userId = req.userId,
+                userId = userId,
                 productType = productTypeEnum,
                 shootingPlace = shootingPlaceEnum,
                 title = req.title,
