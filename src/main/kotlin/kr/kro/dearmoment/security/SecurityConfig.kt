@@ -48,9 +48,9 @@ class SecurityConfig(
                     // 1. 스튜디오 문의
                     .requestMatchers("/api/inquiries/studios/**").hasRole("USER")
                     // 2. 스튜디오
-                    .requestMatchers(HttpMethod.PUT, "/api/studios/*").hasRole("STUDIO")
-                    .requestMatchers(HttpMethod.DELETE, "/api/studios/*").hasRole("STUDIO")
-                    .requestMatchers(HttpMethod.POST, "/api/studios").hasRole("STUDIO")
+                    .requestMatchers(HttpMethod.PUT, "/api/studios/*").permitAll()
+                    .requestMatchers(HttpMethod.DELETE, "/api/studios/*").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/studios").permitAll()
                     // 3. 서비스 문의
                     .requestMatchers("/api/inquiries/services").hasRole("USER")
                     // 4. 상품 옵션 문의
