@@ -58,9 +58,9 @@ class SecurityConfig(
                     // 5. /api/likes/** → ROLE_USER
                     .requestMatchers("/api/likes/**").hasRole("USER")
                     // 6. /api/products
-                    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("STUDIO")
-                    .requestMatchers(HttpMethod.POST, "/api/products").hasRole("STUDIO")
-                    .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole("STUDIO")
+                    .requestMatchers(HttpMethod.DELETE, "/api/products/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/products")permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/api/products/**").permitAll()
                     // 그 외 경로는 인증만 되어 있으면 접근 가능
                     .anyRequest().authenticated()
             }
