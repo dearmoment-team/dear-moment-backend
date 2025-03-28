@@ -57,15 +57,10 @@ jobs:
           echo "OAUTH_KAKAO_CLIENT_ID=$OAUTH_KAKAO_CLIENT_ID" >> $GITHUB_ENV
           echo "OAUTH_KAKAO_REDIRECT_URI=$OAUTH_KAKAO_REDIRECT_URI" >> $GITHUB_ENV
 
-      # 3) Gradle 빌드
-      - name: Build using Gradle
-        run: ./gradlew build
-
-      # 4) Jib 이용해 GHCR로 이미지 빌드 & 푸시
+      # 3) Jib 이용해 GHCR로 이미지 빌드 & 푸시
       - name: Build & Push with Jib
         run: |
-          ./gradlew jib \
-            -Dimage=${{ env.REGISTRY }}/${{ github.repository }}/dear-moment-backend:latest
+          ./gradlew jib -Djib.to.image=${{ env.REGISTRY }}/${{ github.repository }}/dear-moment-backend:latest
         env:
           REGISTRY_USERNAME: ${{ secrets.GHCR_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.GHCR_PAT }}
