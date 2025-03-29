@@ -13,7 +13,6 @@ import kr.kro.dearmoment.product.domain.model.option.PartnerShop
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Schema(description = "이미지 응답 DTO")
 data class ImageResponse(
