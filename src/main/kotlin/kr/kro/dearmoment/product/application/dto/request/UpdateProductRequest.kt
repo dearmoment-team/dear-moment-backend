@@ -4,19 +4,20 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.common.validation.NotBlankIfPresent
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.domain.model.CameraType
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 
 /**
  * [상품 부분 수정] 시 사용하는 요청 DTO
@@ -27,18 +28,20 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
  */
 @Schema(description = "상품 부분 수정 요청 DTO")
 data class UpdateProductRequest(
-    @field:NotNull(message = "상품 ID는 필수입니다.")
     @Schema(description = "상품 ID", example = "100", required = true)
+    @field:NotNull(message = "상품 ID는 필수입니다.")
     val productId: Long,
-    @field:NotNull(message = "스튜디오 ID는 필수입니다.")
     @Schema(description = "스튜디오 ID", example = "100", required = true)
+    @field:NotNull(message = "스튜디오 ID는 필수입니다.")
     val studioId: Long,
     @Schema(description = "상품 유형 (도메인: ProductType)", example = "WEDDING_SNAP", required = false)
+    @field:EnumValue(enumClass = ProductType::class, message = "유효하지 상품 타입입니다.")
     val productType: String? = null,
     @Schema(description = "촬영 장소 (도메인: ShootingPlace)", example = "JEJU", required = false)
+    @field:EnumValue(enumClass = ShootingPlace::class, message = "유효하지 촬영 장소입니다.")
     val shootingPlace: String? = null,
-    @field:NotBlankIfPresent(message = "상품 제목이 빈 값일 수 없습니다.")
     @Schema(description = "상품 제목", example = "예쁜 웨딩 사진 촬영", required = false)
+    @field:NotBlankIfPresent(message = "상품 제목이 빈 값일 수 없습니다.")
     val title: String? = null,
     @field:NotBlankIfPresent(message = "상품 설명이 빈 값일 수 없습니다.")
     @Schema(description = "상품 설명", example = "신랑, 신부의 아름다운 순간을 담은 웨딩 사진", required = false)
@@ -48,18 +51,21 @@ data class UpdateProductRequest(
         example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
         required = false,
     )
+    @field:EnumValue(enumClass = ShootingSeason::class, message = "유효하지 촬영 시기가 존재합니다.")
     val availableSeasons: List<String>? = null,
     @Schema(
         description = "카메라 종류 (여러 값 가능, 도메인: CameraType)",
         example = "[\"DIGITAL\", \"FILM\"]",
         required = false,
     )
+    @field:EnumValue(enumClass = CameraType::class, message = "유효하지 카메라 종류가 존재합니다.")
     val cameraTypes: List<String>? = null,
     @Schema(
         description = "보정 스타일 (여러 값 가능, 도메인: RetouchStyle)",
         example = "[\"MODERN\", \"VINTAGE\"]",
         required = false,
     )
+    @field:EnumValue(enumClass = RetouchStyle::class, message = "유효하지 보정 스타일이 존재합니다.")
     val retouchStyles: List<String>? = null,
     @field:Valid
     @Schema(description = "수정할 서브 이미지 정보 목록 (부분 업데이트 가능, 각 항목에 인덱스와 액션 정보 포함)", required = false)

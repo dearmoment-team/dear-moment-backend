@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
+import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductOptionUseCase
 import kr.kro.dearmoment.product.application.usecase.delete.DeleteProductUseCase
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
@@ -208,18 +211,14 @@ class ProductRestAdapter(
             ),
         ],
     )
-    @GetMapping(
-        value = ["/main"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
+    @GetMapping("/main")
     fun getMainPageProducts(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
-    ): PagedResponse<ProductResponse> {
-        return productSearchUseCase.getMainPageProducts(page, size)
+    ): PagedResponse<SearchProductResponse> {
+        return productSearchUseCase.searchProducts(SearchProductRequest(), page, size)
     }
 
-    // 6. 상품 검색
     @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
     @ApiResponses(
         value = [
@@ -230,19 +229,13 @@ class ProductRestAdapter(
             ),
         ],
     )
-    @GetMapping(
-        value = ["/search"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
+    @GetMapping("/search")
     fun searchProducts(
-        @Parameter(description = "검색할 상품 제목") @RequestParam(required = false) title: String?,
-        @Parameter(description = "검색할 상품 타입") @RequestParam(required = false) productType: String?,
-        @Parameter(description = "촬영 장소") @RequestParam(required = false) shootingPlace: String?,
-        @Parameter(description = "정렬 기준") @RequestParam(required = false) sortBy: String?,
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
-    ): PagedResponse<ProductResponse> {
-        return productSearchUseCase.searchProducts(title, productType, shootingPlace, sortBy, page, size)
+        @RequestBody request: SearchProductRequest,
+    ): PagedResponse<SearchProductResponse> {
+        return productSearchUseCase.searchProducts(request, page, size)
     }
 
     // 7. 상품 옵션 삭제

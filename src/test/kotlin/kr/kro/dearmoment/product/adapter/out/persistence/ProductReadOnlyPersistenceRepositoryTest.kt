@@ -1,15 +1,25 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
-import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import jakarta.persistence.EntityManager
+import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
+import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import kr.kro.dearmoment.RepositoryTest
-import kr.kro.dearmoment.product.adapter.out.persistence.ProductPersistenceAdapterTest.Companion.createSampleProduct
+import kr.kro.dearmoment.common.fixture.productEntityFixture
+import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
+import kr.kro.dearmoment.common.fixture.studioEntityFixture
+import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
+import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
+import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
+import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductType
-import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.RetouchStyle
+import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import org.springframework.data.domain.PageRequest
 import java.util.UUID
 
 @RepositoryTest
@@ -17,85 +27,132 @@ class ProductReadOnlyPersistenceRepositoryTest(
     private val productRepository: JpaProductRepository,
     private val productOptionRepository: JpaProductOptionRepository,
     private val studioRepository: StudioJpaRepository,
-    private val entityManager: EntityManager,
-    private val jpqlRenderContext: JpqlRenderContext,
 ) : DescribeSpec({
-
-        val adapter = ProductPersistenceAdapter(studioRepository, productRepository, productOptionRepository)
-        val readAdapter = ProductReadOnlyRepository(productRepository, entityManager, jpqlRenderContext)
-
+        val readAdapter = ProductReadOnlyRepository(productRepository)
         afterTest {
             productOptionRepository.deleteAll()
             productRepository.deleteAll()
             studioRepository.deleteAll()
         }
 
-        describe("ProductPersistenceAdapter 상품 검색 테스트") {
-            context("상품 검색 기능") {
-                lateinit var testProducts: List<Product>
-                beforeEach {
-                    // dummy userId를 UUID로 선언
-                    val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
-                    // 직접 StudioEntity 생성 (필요한 필드를 직접 지정)
-                    val studio =
-                        studioRepository.save(
-                            // StudioEntity의 생성: id는 auto-generated
-                            kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity(
-                                id = 0L,
-                                name = "스튜디오 디어모먼트",
-                                userId = dummyUserId,
-                                contact = "010-1234-5678",
-                                studioIntro = "소개글",
-                                artistsIntro = "작가 소개",
-                                instagramUrl = "instagram.com",
-                                kakaoChannelUrl = "kakaotalk.com",
-                                reservationNotice = "예약 안내",
-                                cancellationPolicy = "취소 정책",
-                                status = "ACTIVE",
-                                partnerShops =
-                                    mutableSetOf(
-                                        kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable(
-                                            category = "HAIR_MAKEUP",
-                                            name = "Test Shop",
-                                            urlLink = "http://testshop.com",
-                                        ),
-                                    ),
-                            ),
-                        )
-                    testProducts =
-                        listOf(
-                            createSampleProduct(
-                                userId = dummyUserId,
-                                title = "스냅 사진 기본 패키지",
-                                productType = ProductType.WEDDING_SNAP,
-                                shootingPlace = ShootingPlace.JEJU,
-                            ),
-                            createSampleProduct(
-                                userId = dummyUserId,
-                                title = "개인 스튜디오 대여",
-                                productType = ProductType.WEDDING_SNAP,
-                                shootingPlace = ShootingPlace.JEJU,
-                            ),
-                            createSampleProduct(
-                                userId = dummyUserId,
-                                title = "아기 사진 전문 촬영",
-                                productType = ProductType.WEDDING_SNAP,
-                                shootingPlace = ShootingPlace.JEJU,
-                            ),
-                        ).map { adapter.save(it, studio.id) }
-                }
+        describe("searchByCriteria()는") {
+            val studios = mutableListOf<StudioEntity>()
+            repeat(5) { studios.add(studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))) }
 
-                it("제목으로 검색 시 해당 상품만 반환되어야 함") {
-                    // testProducts에서 "스냅"이 포함된 제목만 필터링
-                    val expectedTitles = testProducts.filter { it.title.contains("스냅") }.map { it.title }
-                    val results =
-                        readAdapter.searchByCriteria(
-                            title = "스냅",
-                            productType = null,
-                            shootingPlace = null,
-                            sortBy = "created-desc",
+            val products = mutableListOf<Product>()
+            val options = mutableListOf<ProductOption>()
+            val partnerShopCategories = mutableSetOf<PartnerShopCategory>()
+            val shootingSeasons = mutableSetOf<ShootingSeason>()
+            val retouchStyles = mutableSetOf<RetouchStyle>()
+            val cameraTypes = mutableSetOf<CameraType>()
+            studios.forEach { studio ->
+                repeat(2) {
+                    val product = productEntityFixture(userId = studio.userId, studioEntity = studio)
+                    val savedProduct = productRepository.save(product)
+
+                    product.retouchStyles.forEach { retouchStyles.add(it) }
+                    product.availableSeasons.forEach { shootingSeasons.add(it) }
+                    product.cameraTypes.forEach { cameraTypes.add(it) }
+                    // 상품 옵션 추가 (가격 필터링을 위해)
+                    val option =
+                        productOptionEntityFixture(
+                            productEntity =
+                                ProductEntity.fromDomain(
+                                    savedProduct.toDomain(),
+                                    studio,
+                                ),
                         )
-                    results.map { it.title } shouldContainExactlyInAnyOrder expectedTitles
+
+                    val option2 =
+                        productOptionEntityFixture(
+                            productEntity =
+                                ProductEntity.fromDomain(
+                                    savedProduct.toDomain(),
+                                    studio,
+                                ),
+                        )
+
+                    option.partnerShops.forEach {
+                        partnerShopCategories.add(it.category!!)
+                    }
+
+                    option2.partnerShops.forEach {
+                        partnerShopCategories.add(it.category!!)
+                    }
+
+                    savedProduct.options.add(option)
+                    savedProduct.options.add(option2)
+                    options.add(option.toDomain())
+                    options.add(option2.toDomain())
+                    products.add(savedProduct.toDomain())
+                }
+            }
+
+            context("검색 조건이 전달되면") {
+                it("상품이 조회된다.") {
+                    val query =
+                        SearchProductQuery(
+                            minPrice = 50_000L,
+                            maxPrice = 200_000L,
+                            partnerShopCategories = partnerShopCategories.toList(),
+                            availableSeasons = shootingSeasons.toList(),
+                            cameraTypes = cameraTypes.toList(),
+                            retouchStyles = retouchStyles.toList(),
+                            sortBy = SortCriteria.POPULAR,
+                        )
+
+                    val pageable = PageRequest.of(0, 10)
+//                    val startTime = System.nanoTime()
+                    val result = readAdapter.searchByCriteria(query, pageable)
+//                    val endTime = System.nanoTime()
+//                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
+//                    println("JPA Query Execution Time: ${duration}ms")
+
+                    val content = result.content
+                    content.forEach { product ->
+                        product.options.forEach { option ->
+                            option.discountPrice shouldBeGreaterThanOrEqualTo query.minPrice
+                            option.discountPrice shouldBeLessThanOrEqualTo query.maxPrice
+
+                            option.partnerShops.forEach { partnerShop ->
+                                partnerShop.category shouldBeIn query.partnerShopCategories
+                            }
+                        }
+
+                        product.availableSeasons.forEach { season -> season shouldBeIn query.availableSeasons }
+                        product.cameraTypes.forEach { cameraType -> cameraType shouldBeIn query.cameraTypes }
+                        product.retouchStyles.forEach { retouchStyle -> retouchStyle shouldBeIn query.retouchStyles }
+                    }
+                }
+            }
+
+            context("검색 조건이 비어 있어도") {
+                it("상품이 조회된다.") {
+
+                    val query = SearchProductRequest().toQuery()
+
+                    val pageable = PageRequest.of(0, 10)
+//                    val startTime = System.nanoTime()
+                    val result = readAdapter.searchByCriteria(query, pageable)
+//                    val endTime = System.nanoTime()
+//                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
+//                    println("JPA Query Execution Time: ${duration}ms")
+
+                    val content = result.content
+                    content.forEach { product ->
+//                        println(
+//                            "Weight: ${product.likeCount * 10 + product.inquiryCount * 12 + product.optionLikeCount * 11}",
+//                        )
+                        if (query.availableSeasons.isNotEmpty()) {
+                            product.availableSeasons.forEach { season -> season shouldBeIn query.availableSeasons }
+                        }
+                        if (query.cameraTypes.isNotEmpty()) {
+                            product.cameraTypes.forEach { cameraType -> cameraType shouldBeIn query.cameraTypes }
+                        }
+                        if (query.retouchStyles.isNotEmpty()) {
+                            product.retouchStyles.forEach { retouchStyle -> retouchStyle shouldBeIn query.retouchStyles }
+                        }
+                    }
                 }
             }
         }

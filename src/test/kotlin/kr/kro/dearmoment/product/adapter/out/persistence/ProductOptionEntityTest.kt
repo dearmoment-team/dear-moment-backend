@@ -3,11 +3,11 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import java.lang.reflect.Field
@@ -73,6 +73,7 @@ class ProductOptionEntityTest : StringSpec({
                             urlLink = "http://testshop.com",
                         ),
                     ),
+                cast = 1,
             )
 
         val productEntity =
@@ -157,6 +158,7 @@ class ProductOptionEntityTest : StringSpec({
                             urlLink = "http://testshop.com",
                         ),
                     ),
+                cast = 1,
             )
 
         val productEntity =

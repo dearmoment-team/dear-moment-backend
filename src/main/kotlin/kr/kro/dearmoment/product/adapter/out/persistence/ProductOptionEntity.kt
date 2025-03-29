@@ -15,10 +15,10 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.PartnerShop
-import kr.kro.dearmoment.product.domain.model.PartnerShopCategory
-import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import org.hibernate.annotations.ColumnDefault
 
 @Entity
@@ -128,8 +128,9 @@ class ProductOptionEntity(
             originalProvided = originalProvided,
             partnerShops =
                 partnerShops.map {
+                    val category = it.category ?: PartnerShopCategory.ETC
                     PartnerShop(
-                        category = it.category ?: PartnerShopCategory.ETC,
+                        category = category,
                         name = it.name,
                         link = it.link,
                     )

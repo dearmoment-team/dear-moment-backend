@@ -9,209 +9,197 @@ import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
+import kr.kro.dearmoment.common.restdocs.means
+import kr.kro.dearmoment.common.restdocs.queryParameters
+import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
+import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
-import kr.kro.dearmoment.product.application.dto.response.ImageResponse
-import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
+import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 
 class SearchProductRestAdapterTest : RestApiTestBase() {
     @Test
-    fun `상품 검색 API 테스트 - 정상 검색`() {
-        // given
-        val product1 =
-            ProductResponse(
-                productId = 1L,
-                userId = userId,
-                productType = "WEDDING_SNAP",
-                shootingPlace = "JEJU",
-                title = "My Wedding Snap",
-                description = "Desc1",
-                availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
-                cameraTypes = listOf("FILM"),
-                retouchStyles = listOf("NATURAL"),
-                mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/main1.jpg"),
-                subImages = listOf(ImageResponse(imageId = 2L, url = "http://image-server.com/sub1.jpg")),
-                additionalImages = emptyList(),
-                detailedInfo = "Info1",
-                contactInfo = "Contact1",
-                createdAt = null,
-                updatedAt = null,
-                options = emptyList(),
-            )
-        val product2 =
-            ProductResponse(
-                productId = 2L,
-                userId = userId,
-                productType = "WEDDING_SNAP",
-                shootingPlace = "SEOUL",
-                title = "Another Snap",
-                description = "Desc2",
-                availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
-                cameraTypes = listOf("DIGITAL"),
-                retouchStyles = listOf("CALM"),
-                mainImage = ImageResponse(imageId = 3L, url = "http://image-server.com/main2.jpg"),
-                subImages = listOf(ImageResponse(imageId = 4L, url = "http://image-server.com/sub2.jpg")),
-                additionalImages = emptyList(),
-                detailedInfo = "Info2",
-                contactInfo = "Contact2",
-                createdAt = null,
-                updatedAt = null,
-                options = emptyList(),
+    fun `상품 메인 페이지 조회 API`() {
+        val requestBody = SearchProductRequest()
+
+        val page = 0
+        val size = 10
+        val searchResults =
+            listOf(
+                SearchProductResponse(
+                    productId = 1L,
+                    studioName = "스튜디오 A",
+                    thumbnailUrls = listOf("thumbnailA.url.com"),
+                    retouchStyles = listOf("MODERN", "CALM"),
+                    shootingSeason = listOf("2025_FIRST_HALF"),
+                    minPrice = 800_000L,
+                    maxPrice = 1_000_000L,
+                    discountRate = 10,
+                    isLike = true,
+                ),
+                SearchProductResponse(
+                    productId = 2L,
+                    studioName = "스튜디오 B",
+                    thumbnailUrls = listOf("thumbnailB.url.com"),
+                    retouchStyles = listOf("CHIC", "WARM"),
+                    shootingSeason = listOf("2026_FIRST_HALF"),
+                    minPrice = 1_200_000L,
+                    maxPrice = 1_500_000L,
+                    discountRate = 15,
+                    isLike = false,
+                ),
             )
 
-        val pagedResult =
+        val response =
             PagedResponse(
-                content = listOf(product1, product2),
-                page = 0,
-                size = 10,
-                totalElements = 2,
+                content = searchResults,
+                page = page,
+                size = size,
+                totalElements = searchResults.size.toLong(),
                 totalPages = 1,
             )
 
-        every {
-            productSearchUseCase.searchProducts(
-                title = "Snap",
-                productType = "WEDDING_SNAP",
-                shootingPlace = "JEJU",
-                sortBy = "created-desc",
-                page = 0,
-                size = 10,
-            )
-        } returns pagedResult
+        every { productSearchUseCase.searchProducts(requestBody, page, size) } returns response
 
-        val requestBuilder =
-            RestDocumentationRequestBuilders
-                .get("/api/products/search")
-                .param("title", "Snap")
-                .param("productType", "WEDDING_SNAP")
-                .param("shootingPlace", "JEJU")
-                .param("sortBy", "created-desc")
-                .param("page", "0")
-                .param("size", "10")
-                .accept(MediaType.APPLICATION_JSON)
+        val request =
+            RestDocumentationRequestBuilders.get("/api/products/main")
+                .param("page", page.toString())
+                .param("size", size.toString())
+                .contentType(MediaType.APPLICATION_JSON)
 
-        mockMvc.perform(requestBuilder)
+        // When & Then
+        mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
-                "search-products",
+                "search-products-main",
+                queryParameters(
+                    "page" means "조회할 페이지 번호 (0부터 시작)",
+                    "size" means "페이지 크기 (기본값: 10)",
+                    "_csrf" means "스프링 시큐리티 사용시 테스트에 넘겨주는 토큰",
+                ),
                 responseBody(
-                    "success" type BOOLEAN means "요청 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "페이징 된 상품 목록 데이터",
-                    "data.content" type ARRAY means "상품 목록 Content",
+                    "data" type OBJECT means "응답 데이터",
+                    "data.content" type ARRAY means "상품 리스트",
                     "data.content[].productId" type NUMBER means "상품 ID",
-                    "data.content[].userId" type STRING means "사용자 ID",
-                    "data.content[].productType" type STRING means "상품 유형",
-                    "data.content[].shootingPlace" type STRING means "촬영 장소",
-                    "data.content[].title" type STRING means "상품명",
-                    "data.content[].description" type STRING means "상품 설명",
-                    "data.content[].availableSeasons" type ARRAY means "촬영 가능 시기 목록",
-                    "data.content[].cameraTypes" type ARRAY means "카메라 종류 목록",
+                    "data.content[].studioName" type STRING means "스튜디오 이름",
+                    "data.content[].thumbnailUrls" type ARRAY means "스튜디오 썸네일 이미지 URL 목록",
+                    "data.content[].minPrice" type NUMBER means "최소 가격",
+                    "data.content[].maxPrice" type NUMBER means "최대 가격",
+                    "data.content[].discountRate" type NUMBER means "할인율",
+                    "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].mainImage" type OBJECT means "대표 이미지",
-                    "data.content[].mainImage.imageId" type NUMBER means "대표 이미지 ID",
-                    "data.content[].mainImage.url" type STRING means "대표 이미지 URL",
-                    "data.content[].subImages" type ARRAY means "서브 이미지 목록",
-                    "data.content[].subImages[].imageId" type NUMBER means "서브 이미지 ID",
-                    "data.content[].subImages[].url" type STRING means "서브 이미지 URL",
-                    "data.content[].additionalImages" type ARRAY means "추가 이미지 목록",
-                    "data.content[].additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
-                    "data.content[].additionalImages[].url" type STRING means "추가 이미지 URL",
-                    "data.content[].detailedInfo" type STRING means "상세 정보",
-                    "data.content[].contactInfo" type STRING means "연락처",
-                    "data.content[].createdAt" type OBJECT means "생성 시간",
-                    "data.content[].updatedAt" type OBJECT means "수정 시간",
-                    "data.content[].options" type ARRAY means "옵션 목록",
-                    "data.page" type NUMBER means "현재 페이지 번호",
+                    "data.content[].isLike" type BOOLEAN means "좋아요 여부",
+                    "data.totalPages" type NUMBER means "전체 페이지 수",
+                    "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
-                    "data.totalElements" type NUMBER means "전체 원소 개수",
-                    "data.totalPages" type NUMBER means "전체 페이지 개수",
+                    "data.page" type NUMBER means "현재 페이지 번호",
+                    "success" type BOOLEAN means "성공 여부",
+                    "code" type NUMBER means "HTTP 상태 코드",
                 ),
             )
     }
 
     @Test
-    fun `메인 페이지 상품 조회 API 테스트 - 정상 조회`() {
-        // given
-        val product1 =
-            ProductResponse(
-                productId = 10L,
-                userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
-                productType = "WEDDING_SNAP",
-                shootingPlace = "BUSAN",
-                title = "Busan Snap",
-                description = "Desc",
-                availableSeasons = listOf("YEAR_2025_FIRST_HALF"),
+    fun `상품 필터 검색 API`() {
+        val requestBody =
+            SearchProductRequest(
+                sortBy = "POPULAR",
+                availableSeasons = listOf("2025_FIRST_HALF", "2026_FIRST_HALF"),
+                retouchStyles = listOf("MODERN", "CALM", "CHIC", "WARM"),
                 cameraTypes = listOf("DIGITAL"),
-                retouchStyles = listOf("NATURAL"),
-                mainImage = ImageResponse(imageId = 11L, url = "http://image-server.com/main.jpg"),
-                subImages = listOf(ImageResponse(imageId = 12L, url = "http://image-server.com/sub1.jpg")),
-                additionalImages = emptyList(),
-                detailedInfo = "Some info",
-                contactInfo = "contact@example.com",
-                createdAt = null,
-                updatedAt = null,
-                options = emptyList(),
+                partnerShopCategories = listOf("HAIR_MAKEUP", "DRESS", "MENS_SUIT"),
+                minPrice = 800_000L,
+                maxPrice = 1_500_000L,
             )
-        val pagedResult =
+
+        val page = 0
+        val size = 10
+        val searchResults =
+            listOf(
+                SearchProductResponse(
+                    productId = 1L,
+                    studioName = "스튜디오 A",
+                    thumbnailUrls = listOf("thumbnailA.url.com"),
+                    retouchStyles = listOf("MODERN", "CALM"),
+                    shootingSeason = listOf("2025_FIRST_HALF"),
+                    minPrice = 800_000L,
+                    maxPrice = 1_000_000L,
+                    discountRate = 10,
+                    isLike = true,
+                ),
+                SearchProductResponse(
+                    productId = 2L,
+                    studioName = "스튜디오 B",
+                    thumbnailUrls = listOf("thumbnailB.url.com"),
+                    retouchStyles = listOf("CHIC", "WARM"),
+                    shootingSeason = listOf("2026_FIRST_HALF"),
+                    minPrice = 1_200_000L,
+                    maxPrice = 1_500_000L,
+                    discountRate = 15,
+                    isLike = false,
+                ),
+            )
+
+        val response =
             PagedResponse(
-                content = listOf(product1),
-                page = 0,
-                size = 10,
-                totalElements = 1,
+                content = searchResults,
+                page = page,
+                size = size,
+                totalElements = searchResults.size.toLong(),
                 totalPages = 1,
             )
 
-        every { productSearchUseCase.getMainPageProducts(page = 0, size = 10) } returns pagedResult
+        every { productSearchUseCase.searchProducts(requestBody, page, size) } returns response
 
-        val requestBuilder =
-            RestDocumentationRequestBuilders
-                .get("/api/products/main")
-                .param("page", "0")
-                .param("size", "10")
-                .accept(MediaType.APPLICATION_JSON)
+        val request =
+            RestDocumentationRequestBuilders.get("/api/products/search")
+                .param("page", page.toString())
+                .param("size", size.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody.toJsonString())
 
-        mockMvc.perform(requestBuilder)
+        // When & Then
+        mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
-                "get-main-page-products",
+                "search-products-filter",
+                requestBody(
+                    "sortBy" type STRING means "정렬 기준",
+                    "availableSeasons" type ARRAY means "촬영 시기",
+                    "retouchStyles" type ARRAY means "보정 스타일 목록",
+                    "partnerShopCategories" type ARRAY means "패키지 목록",
+                    "cameraTypes" type ARRAY means "촬영 카메라 타입",
+                    "minPrice" type NUMBER means "최소 가격",
+                    "maxPrice" type NUMBER means "최대 가격",
+                ),
+                queryParameters(
+                    "page" means "조회할 페이지 번호 (0부터 시작)",
+                    "size" means "페이지 크기 (기본값: 10)",
+                    "_csrf" means "스프링 시큐리티 사용시 테스트에 넘겨주는 토큰",
+                ),
                 responseBody(
-                    "success" type BOOLEAN means "요청 성공 여부",
-                    "code" type NUMBER means "HTTP 상태 코드",
-                    "data" type OBJECT means "페이징 된 상품 목록",
-                    "data.content" type ARRAY means "상품 목록 Content",
+                    "data" type OBJECT means "응답 데이터",
+                    "data.content" type ARRAY means "상품 리스트",
                     "data.content[].productId" type NUMBER means "상품 ID",
-                    "data.content[].userId" type STRING means "사용자 ID",
-                    "data.content[].productType" type STRING means "상품 유형",
-                    "data.content[].shootingPlace" type STRING means "촬영 장소",
-                    "data.content[].title" type STRING means "상품명",
-                    "data.content[].description" type STRING means "상품 설명",
-                    "data.content[].availableSeasons" type ARRAY means "촬영 가능 시기 목록",
-                    "data.content[].cameraTypes" type ARRAY means "카메라 종류 목록",
+                    "data.content[].studioName" type STRING means "스튜디오 이름",
+                    "data.content[].thumbnailUrls" type ARRAY means "스튜디오 썸네일 이미지 URL 목록",
+                    "data.content[].minPrice" type NUMBER means "최소 가격",
+                    "data.content[].maxPrice" type NUMBER means "최대 가격",
+                    "data.content[].discountRate" type NUMBER means "할인율",
+                    "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].mainImage" type OBJECT means "대표 이미지",
-                    "data.content[].mainImage.imageId" type NUMBER means "대표 이미지 ID",
-                    "data.content[].mainImage.url" type STRING means "대표 이미지 URL",
-                    "data.content[].subImages" type ARRAY means "서브 이미지 목록",
-                    "data.content[].subImages[].imageId" type NUMBER means "서브 이미지 ID",
-                    "data.content[].subImages[].url" type STRING means "서브 이미지 URL",
-                    "data.content[].additionalImages" type ARRAY means "추가 이미지 목록",
-                    "data.content[].additionalImages[].imageId" type NUMBER means "추가 이미지 ID",
-                    "data.content[].additionalImages[].url" type STRING means "추가 이미지 URL",
-                    "data.content[].detailedInfo" type STRING means "상세 정보",
-                    "data.content[].contactInfo" type STRING means "연락처",
-                    "data.content[].createdAt" type OBJECT means "생성 시간",
-                    "data.content[].updatedAt" type OBJECT means "수정 시간",
-                    "data.content[].options" type ARRAY means "옵션 목록",
-                    "data.page" type NUMBER means "현재 페이지 번호",
+                    "data.content[].isLike" type BOOLEAN means "좋아요 여부",
+                    "data.totalPages" type NUMBER means "전체 페이지 수",
+                    "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
-                    "data.totalElements" type NUMBER means "전체 원소 개수",
-                    "data.totalPages" type NUMBER means "전체 페이지 개수",
+                    "data.page" type NUMBER means "현재 페이지 번호",
+                    "success" type BOOLEAN means "성공 여부",
+                    "code" type NUMBER means "HTTP 상태 코드",
                 ),
             )
     }

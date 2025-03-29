@@ -11,8 +11,8 @@ import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductOptionPersistencePort
-import kr.kro.dearmoment.product.domain.model.OptionType
-import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -48,7 +48,6 @@ class DeleteProductOptionUseCaseTest : BehaviorSpec({
         )
 
     // 상품 조회를 위한 더미 상품 (상품의 소유자가 dummyUserId인 경우)
-    val validProduct = mockk<ProductOption>() // 실제 사용은 옵션 객체 대신, 상품 객체를 사용해야 하지만 여기서는 소유권 검증을 위해 getProductPort 모킹이 필요합니다.
     // 단순하게 상품의 userId를 반환하는 목업용 객체를 정의합니다.
     // 여기서는 getProductPort.findById를 모킹하여, 상품의 소유자가 dummyUserId인 경우와 아닌 경우를 테스트합니다.
 

@@ -1,6 +1,6 @@
 package kr.kro.dearmoment.product.application.port.out
 
-import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 
 interface GetProductOptionPort {
     /**

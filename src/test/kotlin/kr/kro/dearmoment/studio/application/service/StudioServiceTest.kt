@@ -49,6 +49,7 @@ class StudioServiceTest : DescribeSpec({
                     cancellationPolicy = "환불은 불가능합니다.",
                     status = StudioStatus.ACTIVE.name,
                     partnerShops = listOf(partnerShopCommand),
+                    isCasted = true,
                 )
 
             val expected = registerCommand.toDomain()

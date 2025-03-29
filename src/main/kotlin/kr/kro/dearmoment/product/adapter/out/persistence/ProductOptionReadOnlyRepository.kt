@@ -5,7 +5,7 @@ import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.port.out.GetProductOptionPort
-import kr.kro.dearmoment.product.domain.model.ProductOption
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import org.springframework.stereotype.Repository
 
 @Repository

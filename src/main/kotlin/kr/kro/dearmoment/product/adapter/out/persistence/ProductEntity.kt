@@ -79,7 +79,7 @@ class ProductEntity(
     @Column(name = "CONTACT_INFO")
     var contactInfo: String = "",
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-    var options: MutableList<ProductOptionEntity> = mutableListOf(),
+    val options: MutableList<ProductOptionEntity> = mutableListOf(),
     @Column(nullable = false)
     var version: Long = 0L,
     /**
@@ -90,10 +90,13 @@ class ProductEntity(
     var studio: StudioEntity,
     @Column(nullable = false)
     @ColumnDefault(value = "0")
-    val likeCount: Int = 0,
+    val likeCount: Long = 0,
     @Column(nullable = false)
     @ColumnDefault(value = "0")
-    val inquiryCount: Int = 0,
+    val optionLikeCount: Long = 0,
+    @Column(nullable = false)
+    @ColumnDefault(value = "0")
+    val inquiryCount: Long = 0,
 ) : Auditable() {
     companion object {
         fun fromDomain(
@@ -112,12 +115,16 @@ class ProductEntity(
                     detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() } ?: "",
                     contactInfo = product.contactInfo.takeIf { it.isNotBlank() } ?: "",
                     studio = studio,
+                    likeCount = product.likeCount,
+                    optionLikeCount = product.optionLikeCount,
+                    inquiryCount = product.inquiryCount,
                 )
             productEntity.availableSeasons.addAll(product.availableSeasons)
             productEntity.cameraTypes.addAll(product.cameraTypes)
             productEntity.retouchStyles.addAll(product.retouchStyles)
             productEntity.subImages = product.subImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
-            productEntity.additionalImages = product.additionalImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
+            productEntity.additionalImages =
+                product.additionalImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
             productEntity.options.clear()
             product.options.forEach { opt ->
                 val optionEntity = ProductOptionEntity.fromDomain(opt, productEntity)
@@ -145,6 +152,9 @@ class ProductEntity(
             contactInfo = contactInfo,
             options = options.map { it.toDomain() },
             studio = studio.toDomain(),
+            likeCount = likeCount,
+            optionLikeCount = optionLikeCount,
+            inquiryCount = inquiryCount,
         )
     }
 }

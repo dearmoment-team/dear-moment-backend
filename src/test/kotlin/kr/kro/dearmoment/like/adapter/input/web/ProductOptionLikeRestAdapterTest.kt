@@ -12,7 +12,6 @@ import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
@@ -21,6 +20,7 @@ import kr.kro.dearmoment.like.application.command.SaveLikeCommand
 import kr.kro.dearmoment.like.application.dto.GetProductOptionLikeResponse
 import kr.kro.dearmoment.like.application.dto.LikeRequest
 import kr.kro.dearmoment.like.application.dto.LikeResponse
+import kr.kro.dearmoment.like.application.dto.UnlikeProductOptionRequest
 import kr.kro.dearmoment.like.application.query.GetUserProductOptionLikeQuery
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageImpl
@@ -153,19 +153,26 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `상품 옵션 좋아요 삭제 API`() {
-        val likeId = 1L
-        every { likeUseCase.productOptionUnlike(likeId) } just Runs
+        val requestBody =
+            UnlikeProductOptionRequest(
+                likeId = 1L,
+                productOptionId = 1L,
+            )
+        every { likeUseCase.productOptionUnlike(requestBody.toCommand()) } just Runs
 
         val request =
             RestDocumentationRequestBuilders
-                .delete("/api/likes/product-options/{id}", likeId)
+                .delete("/api/likes/product-options")
+                .content(requestBody.toJsonString())
+                .contentType(MediaType.APPLICATION_JSON)
 
         mockMvc.perform(request)
             .andExpect(status().isNoContent)
             .andDocument(
-                "delete-product-options-like",
-                pathParameters(
-                    "id" means "삭제할 상품 좋아요 ID",
+                "delete-products-like",
+                requestBody(
+                    "likeId" type NUMBER means "삭제할 문의 ID",
+                    "productOptionId" type NUMBER means "상품 옵션 ID",
                 ),
             )
     }

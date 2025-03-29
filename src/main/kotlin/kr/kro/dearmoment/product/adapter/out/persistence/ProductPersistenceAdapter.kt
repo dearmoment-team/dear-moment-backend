@@ -36,6 +36,14 @@ class ProductPersistenceAdapter(
         jpaProductRepository.decreaseLikeCount(productId)
     }
 
+    override fun increaseOptionLikeCount(productId: Long) {
+        jpaProductRepository.increaseOptionLikeCount(productId)
+    }
+
+    override fun decreaseOptionLikeCount(productId: Long) {
+        jpaProductRepository.decreaseOptionLikeCount(productId)
+    }
+
     override fun increaseInquiryCount(productId: Long) {
         jpaProductRepository.increaseInquiryCount(productId)
     }

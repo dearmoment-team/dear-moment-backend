@@ -18,6 +18,7 @@ data class Studio(
     val cancellationPolicy: String,
     val status: StudioStatus,
     val partnerShops: List<StudioPartnerShop> = emptyList(),
+    val isCasted: Boolean = false,
 ) {
     init {
         require(name.isNotEmpty()) { "스튜디오 이름은 필수 입니다." }

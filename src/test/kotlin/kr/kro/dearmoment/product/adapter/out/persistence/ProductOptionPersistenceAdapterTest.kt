@@ -12,18 +12,18 @@ import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
-import kr.kro.dearmoment.product.domain.model.OptionType
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
+import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import java.util.UUID
 
 @RepositoryTest
-class ProductOptionRepositoryAdapterTest(
+class ProductOptionPersistenceAdapterTest(
     private val jpaProductRepository: JpaProductRepository,
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val productOptionLikeJpaRepository: ProductOptionLikeJpaRepository,
@@ -72,6 +72,7 @@ class ProductOptionRepositoryAdapterTest(
                                     urlLink = "http://testshop.com",
                                 ),
                             ),
+                        cast = 1,
                     )
                 val savedStudio = studioRepository.save(studio)
 

@@ -31,7 +31,7 @@ class CreateProductUseCaseImpl(
         additionalImageFiles: List<MultipartFile>,
     ): ProductResponse {
         // 스튜디오 권한 확인: 스튜디오 소유자가 아닌 경우 예외 발생
-        val studioUser = getStudioUserPort.findStudioUserById(userId)
+        getStudioUserPort.findStudioUserById(userId)
 
         // 서브 이미지 검증: 정확히 4장이어야 함
         if (subImageFiles.size != 4) {

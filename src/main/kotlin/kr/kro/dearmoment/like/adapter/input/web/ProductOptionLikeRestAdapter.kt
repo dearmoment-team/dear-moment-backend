@@ -11,6 +11,7 @@ import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.like.application.dto.GetProductOptionLikeResponse
 import kr.kro.dearmoment.like.application.dto.LikeRequest
 import kr.kro.dearmoment.like.application.dto.LikeResponse
+import kr.kro.dearmoment.like.application.dto.UnlikeProductOptionRequest
 import kr.kro.dearmoment.like.application.port.input.LikeQueryUseCase
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.query.GetUserProductOptionLikeQuery
@@ -21,7 +22,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -91,10 +91,10 @@ class ProductOptionLikeRestAdapter(
             ),
         ],
     )
-    @DeleteMapping("{likeId}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun productOptionUnlike(
-        @Parameter(description = "삭제할 상품 옵션 좋아요 식별자", required = true)
-        @PathVariable likeId: Long,
-    ): Unit = likeUseCase.productOptionUnlike(likeId)
+        @Parameter(description = "삭제할 상품 좋아요 정보", required = true)
+        @RequestBody request: UnlikeProductOptionRequest,
+    ): Unit = likeUseCase.productOptionUnlike(request.toCommand())
 }

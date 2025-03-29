@@ -56,6 +56,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 cancellationPolicy = "환불은 불가능합니다.",
                 status = StudioStatus.ACTIVE.name,
                 partnerShops = partnerShopsDto,
+                isCasted = false,
             )
 
         val expected =
@@ -75,6 +76,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 "register-studio",
                 requestBody(
                     "userId" type NUMBER means "유저 ID",
+                    "isCasted" type BOOLEAN means "영입 여부",
                     "name" type STRING means "스튜디오 이름",
                     "contact" type STRING means "연락처",
                     "studioIntro" type STRING means "스튜디오 소개",
@@ -129,6 +131,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 cancellationPolicy = "환불은 가능합니다.(수정)",
                 status = StudioStatus.ACTIVE.name,
                 partnerShops = partnerShopsDto,
+                isCasted = true,
             )
 
         every { getStudioUseCase.getStudio(existedStudioId) } returns expected
@@ -147,6 +150,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                     "data" type OBJECT means "응답 데이터",
                     "data.id" type NUMBER means "등록된 스튜디오 ID",
                     "data.userId" type NUMBER means "유저 ID",
+                    "data.isCasted" type BOOLEAN means "영입 여부",
                     "data.name" type STRING means "스튜디오 이름",
                     "data.contact" type STRING means "연락처",
                     "data.studioIntro" type STRING means "스튜디오 소개",

@@ -12,6 +12,7 @@ plugins {
     id("com.epages.restdocs-api-spec") version "0.19.4" // restdocs + openapi
     id("org.jetbrains.kotlinx.kover") version "0.9.1" // kover
     id("io.sentry.jvm.gradle") version "5.2.0" // sentry
+    id("com.google.cloud.tools.jib") version "3.4.5" // jib 플러그인
 }
 
 group = "com.example"
@@ -100,7 +101,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.9.1") // Spring Json-Web-Token
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:2.3.1")
-//    compileOnly('org.projectlombok:lombok')
+    //    compileOnly('org.projectlombok:lombok')
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
