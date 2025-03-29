@@ -31,7 +31,7 @@ data class SearchProductResponse(
     @Schema(description = "할인율", example = "10")
     val discountRate: Int,
     @Schema(description = "사용자가 좋아요를 눌렀는지 여부", example = "true")
-    val isLike: Boolean,
+    val isLiked: Boolean,
 ) {
     companion object {
         /***
@@ -51,7 +51,7 @@ data class SearchProductResponse(
                 minPrice = product.options.minOf { it.discountPrice },
                 maxPrice = product.options.maxOf { it.discountPrice },
                 discountRate = if (maxDiscountRate == 100) 0 else maxDiscountRate,
-                isLike = false,
+                isLiked = false,
             )
         }
     }
