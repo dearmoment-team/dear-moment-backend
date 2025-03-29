@@ -7,6 +7,6 @@ sealed class Like(
     val userId: UUID,
 ) {
     init {
-        require(userId.toString().isNotEmpty()) { "유저 ID는 필수입니다." }
+        require(userId != UUID(0L, 0L)) { "유저 ID는 필수입니다." }
     }
 }
