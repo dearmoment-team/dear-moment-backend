@@ -70,7 +70,7 @@ class DeleteProductOptionUseCaseTest : BehaviorSpec({
         When("deleteOption이 상품 ID가 일치하지 않는 경우 호출되면") {
             every { getProductOptionPort.findById(100L) } returns validOption
             // 상품의 소유자가 다른 경우: 예를 들어, 상품의 userId가 다른 UUID
-            val otherUserId = UUID.fromString("11111111-2222-3333-4444-555555555555")
+            val otherUserId = dummyUserId
             every { getProductPort.findById(1L) } returns
                 mockk(relaxed = true) {
                     every { userId } returns otherUserId
@@ -79,7 +79,7 @@ class DeleteProductOptionUseCaseTest : BehaviorSpec({
             Then("CustomException이 발생해야 한다") {
                 val exception =
                     shouldThrow<CustomException> {
-                        useCase.deleteOption(dummyUserId, 1L, 100L)
+                        useCase.deleteOption(dummyUserId, 2L, 100L)
                     }
                 exception.errorCode shouldBe ErrorCode.INVALID_REQUEST
             }
