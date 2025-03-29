@@ -61,6 +61,10 @@ jobs:
           echo "OAUTH_KAKAO_CLIENT_ID=$OAUTH_KAKAO_CLIENT_ID" >> $GITHUB_ENV
           echo "OAUTH_KAKAO_REDIRECT_URI=$OAUTH_KAKAO_REDIRECT_URI" >> $GITHUB_ENV
 
+        # 3) Gradle 빌드
+      - name: Build using Gradle
+        run: ./gradlew build
+
       # 4) GHCR 로그인 (공식 액션 사용)
       - name: Log in to the Container registry
         uses: docker/login-action@v3.3.0
@@ -69,10 +73,19 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PAT }}
 
-      # 5) Jib 이용해 GHCR로 이미지 빌드 & 푸시
-      - name: Build & Push with Jib
-        run: |
-          ./gradlew jib -Djib.to.image=${{ env.REGISTRY }}/${{ github.repository }}:latest
-        env:
-          REGISTRY_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          REGISTRY_PASSWORD: ${{ secrets.GHCR_PAT }}
+      # 5) Docker Buildx 설정 (공식 액션 사용)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 6) Docker 이미지 빌드 및 푸시 (Buildx 및 캐시 사용)
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile-prod
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/dear-moment-backend:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/dear-moment-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
