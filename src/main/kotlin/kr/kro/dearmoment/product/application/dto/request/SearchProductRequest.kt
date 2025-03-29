@@ -51,7 +51,7 @@ data class SearchProductRequest(
     @field:EnumValue(enumClass = PartnerShopCategory::class, message = "유효하지 않은 패키지가 존재합니다.")
     val partnerShopCategories: List<String> = emptyList(),
     val minPrice: Long = 0L,
-    val maxPrice: Long = 3_000_000L,
+    val maxPrice: Long = 10_000_000L,
 ) {
     fun toQuery() =
         SearchProductQuery(
