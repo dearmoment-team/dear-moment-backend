@@ -40,7 +40,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 800_000L,
                     maxPrice = 1_000_000L,
                     discountRate = 10,
-                    isLike = true,
+                    isLiked = true,
                 ),
                 SearchProductResponse(
                     productId = 2L,
@@ -51,7 +51,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 1_200_000L,
                     maxPrice = 1_500_000L,
                     discountRate = 15,
-                    isLike = false,
+                    isLiked = false,
                 ),
             )
 
@@ -93,7 +93,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].discountRate" type NUMBER means "할인율",
                     "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].isLike" type BOOLEAN means "좋아요 여부",
+                    "data.content[].isLiked" type BOOLEAN means "좋아요 여부",
                     "data.totalPages" type NUMBER means "전체 페이지 수",
                     "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
@@ -130,7 +130,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 800_000L,
                     maxPrice = 1_000_000L,
                     discountRate = 10,
-                    isLike = true,
+                    isLiked = true,
                 ),
                 SearchProductResponse(
                     productId = 2L,
@@ -141,7 +141,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 1_200_000L,
                     maxPrice = 1_500_000L,
                     discountRate = 15,
-                    isLike = false,
+                    isLiked = false,
                 ),
             )
 
@@ -193,7 +193,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].discountRate" type NUMBER means "할인율",
                     "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].isLike" type BOOLEAN means "좋아요 여부",
+                    "data.content[].isLiked" type BOOLEAN means "좋아요 여부",
                     "data.totalPages" type NUMBER means "전체 페이지 수",
                     "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",

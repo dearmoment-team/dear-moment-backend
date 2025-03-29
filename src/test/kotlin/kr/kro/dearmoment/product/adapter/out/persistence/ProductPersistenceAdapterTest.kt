@@ -14,6 +14,7 @@ class ProductPersistenceAdapterTest(
     private val jpaProductOptionRepository: JpaProductOptionRepository,
     private val studioRepository: StudioJpaRepository,
 ) : DescribeSpec({
+
         afterEach {
             jpaProductOptionRepository.deleteAllInBatch()
             jpaProductRepository.deleteAllInBatch()

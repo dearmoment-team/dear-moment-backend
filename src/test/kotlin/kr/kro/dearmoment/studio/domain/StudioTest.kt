@@ -2,6 +2,7 @@ package kr.kro.dearmoment.studio.domain
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import java.util.UUID
 
 class StudioTest : DescribeSpec({
 
@@ -10,7 +11,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
-                        userId = 1L,
+                        userId = UUID.randomUUID(),
                         name = "",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -29,7 +30,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
-                        userId = 1L,
+                        userId = UUID.randomUUID(),
                         name = "스튜디오",
                         contact = "",
                         studioIntro = "스튜디오 소개글",
@@ -48,7 +49,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
-                        userId = 1L,
+                        userId = UUID.randomUUID(),
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "",
@@ -67,7 +68,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
-                        userId = 1L,
+                        userId = UUID.randomUUID(),
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -86,7 +87,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
-                        userId = 1L,
+                        userId = UUID.randomUUID(),
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",
@@ -105,7 +106,7 @@ class StudioTest : DescribeSpec({
             it("예외를 발생 시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     Studio(
-                        userId = 1L,
+                        userId = UUID.randomUUID(),
                         name = "스튜디오",
                         contact = "010-1234-5678",
                         studioIntro = "스튜디오 소개글",

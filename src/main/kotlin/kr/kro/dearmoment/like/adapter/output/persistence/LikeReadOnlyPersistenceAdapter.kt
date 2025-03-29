@@ -12,6 +12,7 @@ import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
+import java.util.UUID
 
 @Repository
 class LikeReadOnlyPersistenceAdapter(
@@ -21,7 +22,7 @@ class LikeReadOnlyPersistenceAdapter(
     private val jpqlRenderContext: RenderContext,
 ) : GetLikePort {
     override fun findUserProductLikes(
-        userId: Long,
+        userId: UUID,
         pageable: Pageable,
     ): Page<ProductLike> {
         return productLikeJpaRepository.findPage(pageable) {
@@ -37,7 +38,7 @@ class LikeReadOnlyPersistenceAdapter(
     }
 
     override fun findUserProductOptionLikes(
-        userId: Long,
+        userId: UUID,
         pageable: Pageable,
     ): Page<ProductOptionLike> {
         return productOptionLikeJpaRepository.findPage(pageable) {
@@ -53,7 +54,7 @@ class LikeReadOnlyPersistenceAdapter(
     }
 
     override fun existProductLike(
-        userId: Long,
+        userId: UUID,
         productId: Long,
     ): Boolean {
         val query =
@@ -75,7 +76,7 @@ class LikeReadOnlyPersistenceAdapter(
     }
 
     override fun existProductOptionLike(
-        userId: Long,
+        userId: UUID,
         productOptionId: Long,
     ): Boolean {
         val query =

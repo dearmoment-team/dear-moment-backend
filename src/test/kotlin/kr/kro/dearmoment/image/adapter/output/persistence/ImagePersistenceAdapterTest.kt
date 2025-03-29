@@ -8,18 +8,23 @@ import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.image.domain.Image
+import java.util.UUID
 
 @RepositoryTest
 class ImagePersistenceAdapterTest(
     private val imageRepository: JpaImageRepository,
 ) : BehaviorSpec({
 
+        // Adapter 인스턴스 생성
         val adapter = ImagePersistenceAdapter(imageRepository)
+
+        // dummy userId (UUID)
+        val dummyUserId: UUID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
         Given("이미지를 파라미터로 제공했을 때") {
             val image =
                 Image(
-                    userId = 123L,
+                    userId = dummyUserId,
                     url = "localhost:8080/image",
                     fileName = "image.jpg",
                 )
@@ -36,7 +41,7 @@ class ImagePersistenceAdapterTest(
         Given("이미지가 저장된 상태에서 변경할 이미지를 파라미터로 제공했을 때") {
             val image =
                 Image(
-                    userId = 123L,
+                    userId = dummyUserId,
                     url = "localhost:8080/image",
                     parId = "parId",
                     fileName = "image.jpg",
@@ -46,7 +51,7 @@ class ImagePersistenceAdapterTest(
                 val renewedImage =
                     Image(
                         imageId = savedImage.imageId,
-                        userId = 123L,
+                        userId = dummyUserId,
                         url = "localhost:8080/image/update",
                         parId = "updatedParId",
                         fileName = "image.jpg",
@@ -60,7 +65,7 @@ class ImagePersistenceAdapterTest(
         }
 
         Given("복수개의 이미지 파라미터로 제공했을 때") {
-            val userId = 123L
+            val userId = dummyUserId
             val images =
                 listOf(
                     Image(
@@ -87,7 +92,7 @@ class ImagePersistenceAdapterTest(
         Given("이미지 ID를 파라미터로 제공했을 때") {
             val image =
                 Image(
-                    userId = 123L,
+                    userId = dummyUserId,
                     url = "localhost:8080/image",
                     fileName = "image.jpg",
                 )
@@ -113,7 +118,7 @@ class ImagePersistenceAdapterTest(
         }
 
         Given("유저 ID를 파라미터로 제공했을 때") {
-            val userId = 123L
+            val userId = dummyUserId
             val images =
                 listOf(
                     Image(

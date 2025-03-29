@@ -63,10 +63,9 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                 "sub image 4".toByteArray(),
             )
 
-        // CreateProductRequest JSON 생성
+        // CreateProductRequest JSON 생성 (userId 필드는 제거)
         val requestMap =
             mapOf(
-                "userId" to 1L,
                 "productType" to "WEDDING_SNAP",
                 "shootingPlace" to "JEJU",
                 "title" to "New Product",
@@ -84,7 +83,7 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                             "discountAvailable" to false,
                             "originalPrice" to 10000,
                             "discountPrice" to 1000,
-                            "description" to "Extra option",
+                            "description" to "Option description",
                             "costumeCount" to 1,
                             "shootingLocationCount" to 1,
                             "shootingHours" to 1,
@@ -124,7 +123,7 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                 jsonRequest.toByteArray(),
             )
 
-        // 응답 객체 설정
+        // 응답 객체 설정 (userId는 UUID 타입, 예: "550e8400-e29b-41d4-a716-446655440000")
         val productOptionResponse1 =
             ProductOptionResponse(
                 optionId = 1L,
@@ -134,7 +133,7 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                 discountAvailable = false,
                 originalPrice = 10000,
                 discountPrice = 1000,
-                description = "Extra option",
+                description = "Option description",
                 costumeCount = 1,
                 shootingLocationCount = 1,
                 shootingHours = 1,
@@ -173,7 +172,6 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
         val productResponse =
             ProductResponse(
                 productId = 1L,
-                userId = 1L,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "New Product",
@@ -198,9 +196,10 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
             )
 
         // createProductUseCase 모의 동작 설정
-        every { createProductUseCase.saveProduct(any(), any(), any(), any()) } returns productResponse
+        // 파라미터: (CreateProductRequest, userId: UUID, mainImageFile, subImageFiles, additionalImageFiles)
+        every { createProductUseCase.saveProduct(any(), any(), any(), any(), any()) } returns productResponse
 
-        // multipart 요청 빌드
+        // multipart 요청 빌드 (인증된 userId는 컨트롤러에서 @AuthenticationPrincipal으로 주입)
         val requestBuilder =
             multipart("/api/products")
                 .file(requestPart)
@@ -213,8 +212,9 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 요청 실행
-        mockMvc.perform(requestBuilder)
+        val authenticatedRequest = withAuthenticatedUser(userId, requestBuilder)
+        // 요청 실행 및 검증
+        mockMvc.perform(authenticatedRequest)
             .andExpect(status().isOk)
             .andDocument(
                 "create-product",
@@ -223,7 +223,7 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                     "code" type NUMBER means "HTTP 상태 코드",
                     "data" type OBJECT means "실제 상품 데이터",
                     "data.productId" type NUMBER means "상품 ID",
-                    "data.userId" type NUMBER means "사용자 ID",
+                    "data.userId" type STRING means "사용자 ID",
                     "data.productType" type STRING means "상품 유형",
                     "data.shootingPlace" type STRING means "촬영 장소",
                     "data.title" type STRING means "상품명",

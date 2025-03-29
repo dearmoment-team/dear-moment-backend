@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateServiceInquiryRequest
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @Tag(name = "ServiceInquiry API", description = "서비스 문의 관련 API")
 @RestController
@@ -35,5 +37,6 @@ class ServiceInquiryRestAdapter(
     fun writeServiceInquiry(
         @Parameter(description = "생성할 서비스 문의 정보", required = true)
         @RequestBody request: CreateServiceInquiryRequest,
-    ): CreateInquiryResponse = createInquiryUseCase.createServiceInquiry(request.toCommand())
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
+    ): CreateInquiryResponse = createInquiryUseCase.createServiceInquiry(request.toCommand(userId))
 }

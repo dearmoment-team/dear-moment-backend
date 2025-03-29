@@ -17,6 +17,7 @@ import kr.kro.dearmoment.like.domain.CreateProductLike
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionReadOnlyRepository
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import java.util.UUID
 
 class LikeServiceTest : DescribeSpec({
 
@@ -34,7 +35,7 @@ class LikeServiceTest : DescribeSpec({
 
     describe("productLike()는") {
         context("유효한 command를 전달 받으면") {
-            val command = SaveLikeCommand(userId = 1L, targetId = 2L)
+            val command = SaveLikeCommand(userId = UUID.randomUUID(), targetId = 2L)
             val like =
                 CreateProductLike(
                     id = 1L,
@@ -52,7 +53,7 @@ class LikeServiceTest : DescribeSpec({
 
     describe("productOptionLike()는") {
         context("유효한 command를 전달 받으면") {
-            val command = SaveLikeCommand(userId = 1L, targetId = 2L)
+            val command = SaveLikeCommand(userId = UUID.randomUUID(), targetId = 2L)
             val like =
                 CreateProductOptionLike(
                     id = 1L,

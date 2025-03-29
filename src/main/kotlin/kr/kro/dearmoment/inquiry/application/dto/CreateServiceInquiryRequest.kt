@@ -8,12 +8,9 @@ import jakarta.validation.constraints.NotBlank
 import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
-import org.jetbrains.annotations.NotNull
+import java.util.UUID
 
 data class CreateServiceInquiryRequest(
-    @Schema(description = "사용자 ID", example = "1", required = true)
-    @field:NotNull(value = "유저 ID 널이 될 수 없습니다.")
-    val userId: Long,
     @Schema(
         description = "서비스 피드백 타입",
         example = "SERVICE_COMPLIMENT",
@@ -31,7 +28,7 @@ data class CreateServiceInquiryRequest(
     @field:Email(message = "올바른 이메일 형식이 아닙니다.")
     val email: String,
 ) {
-    fun toCommand() =
+    fun toCommand(userId: UUID) =
         CreateServiceInquiryCommand(
             userId = userId,
             type = type,

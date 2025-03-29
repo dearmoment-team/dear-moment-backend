@@ -15,8 +15,9 @@ import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
+import java.util.UUID
 
-fun studioEntityFixture(userId: Long = 12345L): StudioEntity =
+fun studioEntityFixture(userId: UUID = UUID.randomUUID()): StudioEntity =
     fixtureBuilder.giveMeKotlinBuilder<StudioEntity>()
         .setExp(StudioEntity::id, 0L)
         .setExp(StudioEntity::name, "스튜디오 디어모먼트")
@@ -38,13 +39,14 @@ fun studioPartnerShopEmbeddableFixture(): StudioPartnerShopEmbeddable =
         .sample()
 
 fun productEntityFixture(
-    userId: Long = 12345L,
+    userId: UUID = UUID.randomUUID(),
     studioEntity: StudioEntity,
+    productId: Long? = null,
 ): ProductEntity =
     fixtureBuilder.giveMeKotlinBuilder<ProductEntity>()
-        .setNull(ProductEntity::productId)
         .setNotNull(ProductEntity::title)
         .setNotNull(ProductEntity::version)
+        .set(ProductEntity::productId, productId)
         .set(ProductEntity::productType, ProductType.entries.shuffled().first())
         .set(ProductEntity::shootingPlace, ShootingPlace.JEJU)
         .set(ProductEntity::userId, userId)
@@ -72,9 +74,12 @@ fun partnerShopEmbeddableFixture(): PartnerShopEmbeddable =
         .setExp(PartnerShopEmbeddable::link, "http://testshop.com")
         .sample()
 
-fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntity {
+fun productOptionEntityFixture(
+    productEntity: ProductEntity,
+    optionId: Long? = null,
+): ProductOptionEntity {
     return fixtureBuilder.giveMeKotlinBuilder<ProductOptionEntity>()
-        .setNull(ProductOptionEntity::optionId)
+        .set(ProductOptionEntity::optionId, optionId)
         .set(ProductOptionEntity::product, productEntity)
         .set(ProductOptionEntity::discountPrice, (50_000L..150_000L).random())
         .set(ProductOptionEntity::originalPrice, (150_000L..300_000L).random())
@@ -97,7 +102,7 @@ fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntit
         .sample()
 }
 
-fun studioInquiryEntityFixture(userId: Long = 1L) =
+fun studioInquiryEntityFixture(userId: UUID = UUID.randomUUID()) =
     fixtureBuilder.giveMeKotlinBuilder<StudioInquiryEntity>()
         .setExp(StudioInquiryEntity::id, 0)
         .setExp(StudioInquiryEntity::userId, userId)
@@ -106,7 +111,7 @@ fun studioInquiryEntityFixture(userId: Long = 1L) =
         .sample()
 
 fun productOptionInquiryEntityFixture(
-    userId: Long = 1L,
+    userId: UUID = UUID.randomUUID(),
     option: ProductOptionEntity = productOptionEntityFixture(productEntityFixture(studioEntity = studioEntityFixture())),
 ) = fixtureBuilder.giveMeKotlinBuilder<ProductOptionInquiryEntity>()
     .setExp(ProductOptionInquiryEntity::id, 0)

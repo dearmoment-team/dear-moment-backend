@@ -2,10 +2,11 @@ package kr.kro.dearmoment.studio.application.command
 
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import java.util.UUID
 
 data class ModifyStudioCommand(
     val id: Long,
-    val userId: Long,
+    val userId: UUID,
     val name: String,
     val contact: String,
     val studioIntro: String,

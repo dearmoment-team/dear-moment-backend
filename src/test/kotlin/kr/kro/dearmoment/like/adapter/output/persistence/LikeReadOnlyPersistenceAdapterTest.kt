@@ -15,6 +15,7 @@ import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductRepository
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import java.util.UUID
 
 @RepositoryTest
 class LikeReadOnlyPersistenceAdapterTest(
@@ -50,7 +51,7 @@ class LikeReadOnlyPersistenceAdapterTest(
         }
 
         describe("findUserProductOptionLikes()는") {
-            val userId1 = 1L
+            val userId1 = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
@@ -63,7 +64,7 @@ class LikeReadOnlyPersistenceAdapterTest(
             context("유저 상품 옵션 좋아요를 조회하기 위해 user ID와 페이징 정보를 전달하면") {
                 val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
                 it("DB에서 유저의 상품 옵션 좋아요를 반환한다.") {
-                    val result = adapter.findUserProductOptionLikes(1L, pageable)
+                    val result = adapter.findUserProductOptionLikes(userId1, pageable)
 
                     result.totalElements shouldBe 1.toLong()
                     result.content.size shouldBe 1
@@ -75,7 +76,7 @@ class LikeReadOnlyPersistenceAdapterTest(
         }
 
         describe("findUserProductLikes()는") {
-            val userId1 = 1L
+            val userId1 = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val studioLike = CreateProductLike(userId = userId1, productId = savedProduct.productId!!)
@@ -84,7 +85,7 @@ class LikeReadOnlyPersistenceAdapterTest(
             context("유저 스튜디오 좋아요를 조회하기 위해 user ID와 페이징 정보를 전달하면") {
                 val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
                 it("DB에서 유저의 스튜디오 좋아요를 반환한다.") {
-                    val result = adapter.findUserProductLikes(1L, pageable)
+                    val result = adapter.findUserProductLikes(userId1, pageable)
 
                     result.totalElements shouldBe 1.toLong()
                     result.content.size shouldBe 1
@@ -96,7 +97,7 @@ class LikeReadOnlyPersistenceAdapterTest(
         }
 
         describe("existProductLike()는") {
-            val userId1 = 1L
+            val userId1 = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val studioLike = CreateProductLike(userId = userId1, productId = savedProduct.productId!!)
@@ -112,7 +113,7 @@ class LikeReadOnlyPersistenceAdapterTest(
         }
 
         describe("existProductOptionLike()는") {
-            val userId1 = 1L
+            val userId1 = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))

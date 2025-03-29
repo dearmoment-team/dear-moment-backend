@@ -11,7 +11,6 @@ import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.queryParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
@@ -36,7 +35,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
     fun `스튜디오 문의 생성 API`() {
         val requestBody =
             CreateStudioInquiryRequest(
-                userId = 123L,
                 title = "작가 정보 오류 문의합니다.",
                 content = "연락처가 잘못 된 것 같습니다.",
                 email = "email@email.com",
@@ -57,7 +55,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "create-studio_inquiry",
                 requestBody(
-                    "userId" type NUMBER means "유저 ID",
                     "title" type STRING means "문의 제목",
                     "content" type STRING means "문의 내용",
                     "email" type STRING means "답변 받을 이메일",
@@ -73,7 +70,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 스튜디오 문의 조회 API`() {
-        val userId = 123L
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
         val inquiries =
             listOf(
@@ -106,7 +102,7 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .get("/api/inquiries/studios/{userId}", userId)
+                .get("/api/inquiries/studios")
                 .queryParam("page", "0")
                 .queryParam("size", "10")
 
@@ -118,7 +114,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
             .andExpect(jsonPath("$.data.totalPages").value(expectedResponse.totalPages))
             .andDocument(
                 "get-studios_inquiries",
-                pathParameters("userId" means "작가 문의를 생성한 userId"),
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",
                     "size" means "페이지 크기 (기본값: 10)",

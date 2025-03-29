@@ -19,24 +19,29 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
+import java.util.UUID
 
 class GetProductUseCaseTest : BehaviorSpec({
+
     val getProductPort = mockk<GetProductPort>()
     val useCase = GetProductUseCaseImpl(getProductPort)
 
-    // 더미 이미지 생성
+    // dummy user ID
+    val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+
+    // 더미 이미지 생성 (userId: dummyUserId)
     val dummyImage =
         Image(
-            userId = 1L,
+            userId = dummyUserId,
             fileName = "dummy.jpg",
             url = "http://example.com/dummy.jpg",
         )
 
-    // 더미 상품 객체 생성
+    // 더미 상품 객체 생성 (userId: dummyUserId)
     val dummyProduct =
         Product(
             productId = 1L,
-            userId = 1L,
+            userId = dummyUserId,
             productType = ProductType.WEDDING_SNAP,
             shootingPlace = ShootingPlace.JEJU,
             title = "Unique Product",

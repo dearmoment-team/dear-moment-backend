@@ -3,17 +3,14 @@ package kr.kro.dearmoment.studio.application.dto.request
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import java.util.UUID
 
 data class RegisterStudioRequest(
-    @Schema(description = "사용자 ID", example = "1", required = true)
-    @field:NotNull(message = "유저 ID는 필수입니다.")
-    val userId: Long,
     @Schema(description = "스튜디오 이름", example = "디어모먼트 스튜디오", required = true)
     @field:NotBlank(message = "스튜디오 이름은 필수입니다.")
     val name: String,
@@ -53,7 +50,7 @@ data class RegisterStudioRequest(
     @Schema(description = "영입 스튜디오 여부")
     val isCasted: Boolean,
 ) {
-    fun toCommand() =
+    fun toCommand(userId: UUID) =
         RegisterStudioCommand(
             name = name,
             userId = userId,

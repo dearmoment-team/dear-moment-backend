@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import java.util.UUID
 
 class InquiryQueryServiceTest : DescribeSpec({
     val getPort = mockk<GetInquiryPort>()
@@ -22,7 +23,7 @@ class InquiryQueryServiceTest : DescribeSpec({
 
     describe("getStudioInquiries()는") {
         context("userId와 Pageable이 전달되면") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val inquiries =
                 listOf(
                     StudioInquiry(
@@ -60,7 +61,7 @@ class InquiryQueryServiceTest : DescribeSpec({
 
     describe("getProductOptionInquiries()는") {
         context("userId가 전달되면") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val inquiries = List(3) { productOptionInquiryFixture(userId) }
 
             val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))

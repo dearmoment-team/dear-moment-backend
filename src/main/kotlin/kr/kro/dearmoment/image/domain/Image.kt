@@ -1,10 +1,11 @@
 package kr.kro.dearmoment.image.domain
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 data class Image(
     val imageId: Long = 0L,
-    val userId: Long,
+    val userId: UUID = UUID.randomUUID(),
     val parId: String = "",
     val fileName: String,
     val url: String = "",
@@ -13,7 +14,7 @@ data class Image(
     fun isUrlExpired() = this.urlExpireTime <= LocalDateTime.now()
 }
 
-fun Image.withUserId(userId: Long): Image =
+fun Image.withUserId(userId: UUID): Image =
     Image(
         imageId = this.imageId,
         userId = userId,

@@ -12,7 +12,6 @@ import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
@@ -36,11 +35,10 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
     fun `상품 옵션 좋아요 생성 API`() {
         val requestBody =
             LikeRequest(
-                userId = 1L,
                 targetId = 1L,
             )
 
-        val command = SaveLikeCommand(requestBody.userId, requestBody.targetId)
+        val command = SaveLikeCommand(userId, requestBody.targetId)
         val expectedResponse = LikeResponse(likeId = 1L)
 
         every { likeUseCase.productOptionsLike(command) } returns expectedResponse
@@ -70,7 +68,6 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 상품 옵션 좋아요 조회 API`() {
-        val userId = 1L
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
 
         val userLikes =
@@ -124,15 +121,12 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .get("/api/likes/product-options/{userId}", userId)
+                .get("/api/likes/product-options")
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
                 "get-user-product-option-likes",
-                pathParameters(
-                    "userId" means "조회할 유저 ID",
-                ),
                 responseBody(
                     "data" type OBJECT means "응답 데이터 배열",
                     "data.content" type ARRAY means "유저 상품 옵션 좋아요 리스트",

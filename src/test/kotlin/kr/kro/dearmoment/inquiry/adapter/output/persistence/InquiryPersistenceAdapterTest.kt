@@ -17,6 +17,7 @@ import kr.kro.dearmoment.inquiry.domain.StudioInquiry
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductRepository
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import java.util.UUID
 
 @RepositoryTest
 class InquiryPersistenceAdapterTest(
@@ -37,12 +38,12 @@ class InquiryPersistenceAdapterTest(
 
         describe("saveProductOptionInquiry()는") {
             context("CreateProductOptionInquiry 가 전달되면") {
-                val savedStudio = studioRepository.save(studioEntityFixture(userId = 33333L))
-                val savedProduct = productRepository.save(productEntityFixture(33333L, savedStudio))
+                val savedStudio = studioRepository.save(studioEntityFixture())
+                val savedProduct = productRepository.save(productEntityFixture(savedStudio.userId, savedStudio))
                 val option = productOptionRepository.save(productOptionEntityFixture(savedProduct))
                 val inquiry =
                     CreateProductOptionInquiry(
-                        userId = 1L,
+                        userId = UUID.randomUUID(),
                         productId = savedProduct.productId!!,
                         optionId = option.optionId,
                     )
@@ -55,7 +56,7 @@ class InquiryPersistenceAdapterTest(
 
         describe("saveStudioInquiry()는") {
             context("StudioInquiry 가 전달되면") {
-                val inquiry = StudioInquiry(userId = 1L, title = "작가의 상풍 정보 문의", content = "작가 상풍 정보가 잘못되었습니다.")
+                val inquiry = StudioInquiry(userId = UUID.randomUUID(), title = "작가의 상풍 정보 문의", content = "작가 상풍 정보가 잘못되었습니다.")
                 it("엔티티로 변환하여 DB에 저장한다.") {
                     val resultId = adapter.saveStudioInquiry(inquiry)
                     resultId shouldNotBe 0L
@@ -66,7 +67,7 @@ class InquiryPersistenceAdapterTest(
         describe("saveServiceInquiry()는") {
             context("serviceInquiry 가 전달되면") {
                 val inquiry =
-                    ServiceInquiry(userId = 1L, type = ServiceInquiryType.SYSTEM_ERROR_REPORT, content = "디어모먼트 상품이 안열립니다.")
+                    ServiceInquiry(userId = UUID.randomUUID(), type = ServiceInquiryType.SYSTEM_ERROR_REPORT, content = "디어모먼트 상품이 안열립니다.")
                 it("엔티티로 변환하여 DB에 저장한다.") {
                     val resultId = adapter.saveServiceInquiry(inquiry)
                     resultId shouldNotBe 0L

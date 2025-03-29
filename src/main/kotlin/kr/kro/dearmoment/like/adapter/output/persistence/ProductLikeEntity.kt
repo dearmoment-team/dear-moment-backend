@@ -14,6 +14,7 @@ import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.like.domain.Like
 import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductEntity
+import java.util.UUID
 
 @Entity
 @Table(
@@ -26,7 +27,7 @@ class ProductLikeEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
     @Column(nullable = false)
-    val userId: Long,
+    val userId: UUID,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     val product: ProductEntity? = null,

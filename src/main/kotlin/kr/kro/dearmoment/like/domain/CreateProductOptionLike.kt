@@ -1,8 +1,10 @@
 package kr.kro.dearmoment.like.domain
 
+import java.util.UUID
+
 class CreateProductOptionLike(
     id: Long = 0L,
-    userId: Long,
+    userId: UUID,
     val productOptionId: Long,
 ) : Like(id, userId) {
     init {

@@ -19,14 +19,15 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @Tag(name = "Product Option Like API", description = "상품 옵션 좋아요 관련 API")
 @RestController
@@ -49,7 +50,8 @@ class ProductOptionLikeRestAdapter(
     fun productOptionLike(
         @Parameter(description = "생성할 상품 옵션 좋아요 정보", required = true)
         @RequestBody request: LikeRequest,
-    ): LikeResponse = likeUseCase.productOptionsLike(request.toCommand())
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
+    ): LikeResponse = likeUseCase.productOptionsLike(request.toCommand(userId))
 
     @Operation(summary = "나의 상품 옵션 좋아요 조회", description = "유저의 상풉 옵션 좋아요들을 조회합니다.")
     @ApiResponses(
@@ -61,10 +63,8 @@ class ProductOptionLikeRestAdapter(
             ),
         ],
     )
-    @GetMapping("/{userId}")
+    @GetMapping()
     fun getMyProductOptionLikes(
-        @Parameter(description = "유저 식별자", required = true)
-        @PathVariable userId: Long,
         @Parameter(
             description = "페이징 정보",
             example = """{
@@ -76,6 +76,7 @@ class ProductOptionLikeRestAdapter(
             required = true,
         )
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): PagedResponse<GetProductOptionLikeResponse> {
         val query = GetUserProductOptionLikeQuery(userId, pageable)
         return likeQueryUseCase.getUserProductOptionLikes(query)

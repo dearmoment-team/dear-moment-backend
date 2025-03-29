@@ -2,9 +2,10 @@ package kr.kro.dearmoment.like.application.command
 
 import kr.kro.dearmoment.like.domain.CreateProductLike
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
+import java.util.UUID
 
 data class SaveLikeCommand(
-    val userId: Long,
+    val userId: UUID,
     val targetId: Long,
 ) {
     fun toStudioLikeDomain() =

@@ -14,8 +14,12 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import java.time.LocalDateTime
+import java.util.UUID
 
-class ProductEntityTest : StringSpec({
+internal class ProductEntityTest : StringSpec({
+
+    // dummy userId를 UUID로 선언
+    val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
     "ProductEntity는 도메인 모델에서 옵션을 포함하여 올바르게 변환되어야 한다" {
         // given
@@ -45,7 +49,7 @@ class ProductEntityTest : StringSpec({
         val product =
             Product(
                 productId = 1L,
-                userId = 123L,
+                userId = dummyUserId,
                 productType = ProductType.WEDDING_SNAP,
                 shootingPlace = ShootingPlace.JEJU,
                 title = "테스트 제품",
@@ -59,33 +63,33 @@ class ProductEntityTest : StringSpec({
                 retouchStyles = setOf(RetouchStyle.CHIC, RetouchStyle.VINTAGE),
                 mainImage =
                     Image(
-                        userId = 123L,
+                        userId = dummyUserId,
                         fileName = "main.jpg",
                         url = "http://example.com/main.jpg",
                     ),
                 subImages =
                     listOf(
-                        Image(userId = 123L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
-                        Image(userId = 123L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
-                        Image(userId = 123L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
-                        Image(userId = 123L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+                        Image(userId = dummyUserId, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                        Image(userId = dummyUserId, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                        Image(userId = dummyUserId, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                        Image(userId = dummyUserId, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
                     ),
                 additionalImages =
                     listOf(
-                        Image(userId = 123L, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
-                        Image(userId = 123L, fileName = "add2.jpg", url = "http://example.com/add2.jpg"),
+                        Image(userId = dummyUserId, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
+                        Image(userId = dummyUserId, fileName = "add2.jpg", url = "http://example.com/add2.jpg"),
                     ),
                 detailedInfo = "상세 정보",
                 contactInfo = "연락처 정보",
                 options = listOf(dummyOption),
             )
 
-        // when
+        // when: 도메인 모델로부터 엔티티 변환
         val productEntity = ProductEntity.fromDomain(product, studioEntityFixture())
 
         // then
         productEntity.productId shouldBe 1L
-        productEntity.userId shouldBe 123L
+        productEntity.userId shouldBe dummyUserId
         productEntity.productType shouldBe ProductType.WEDDING_SNAP
         productEntity.shootingPlace shouldBe ShootingPlace.JEJU
         productEntity.title shouldBe "테스트 제품"

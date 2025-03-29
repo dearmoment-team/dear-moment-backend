@@ -28,6 +28,7 @@ import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import org.hibernate.annotations.ColumnDefault
+import java.util.UUID
 
 @Entity
 @Table(name = "PRODUCTS")
@@ -38,7 +39,7 @@ class ProductEntity(
     @Column(name = "PRODUCT_ID")
     var productId: Long? = null,
     @Column(name = "USER_ID", nullable = false)
-    var userId: Long,
+    var userId: UUID,
     @Enumerated(EnumType.STRING)
     @Column(name = "PRODUCT_TYPE", nullable = false)
     var productType: ProductType,
@@ -81,6 +82,9 @@ class ProductEntity(
     val options: MutableList<ProductOptionEntity> = mutableListOf(),
     @Column(nullable = false)
     var version: Long = 0L,
+    /**
+     * 여러 Product → 하나의 Studio (N:1)
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studio_id")
     var studio: StudioEntity,

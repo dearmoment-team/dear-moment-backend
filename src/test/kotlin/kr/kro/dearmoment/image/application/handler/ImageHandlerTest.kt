@@ -15,11 +15,15 @@ import kr.kro.dearmoment.product.application.dto.request.SubImageFinalRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateAdditionalImageAction
 import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import org.springframework.web.multipart.MultipartFile
+import java.util.UUID
 
 class ImageHandlerTest : StringSpec({
 
     lateinit var imageService: ImageService
     lateinit var imageHandler: ImageHandler
+
+    // dummy userId (UUID)
+    val dummyUserId: UUID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
     beforeTest {
         imageService = mockk(relaxed = true)
@@ -28,7 +32,7 @@ class ImageHandlerTest : StringSpec({
 
     "updateMainImage - 새 파일 업로드 후 기존 이미지 삭제" {
         // Given
-        val userId = 1L
+        val userId = dummyUserId
         val currentImage =
             Image(
                 imageId = 100L,
@@ -60,7 +64,7 @@ class ImageHandlerTest : StringSpec({
 
     // --- 서브 이미지 부분 업데이트 (processSubImagesPartial) 테스트 ---
     "processSubImagesPartial - 인덱스 범위 벗어나면 예외" {
-        val userId = 1L
+        val userId = dummyUserId
         // 서브 이미지는 반드시 4장이어야 함
         val currentSubImages =
             listOf(
@@ -82,7 +86,7 @@ class ImageHandlerTest : StringSpec({
     }
 
     "processSubImagesPartial - ALL KEEP" {
-        val userId = 1L
+        val userId = dummyUserId
         val currentSubImages =
             listOf(
                 Image(11L, userId, "sub1.jpg", "url1", ""),
@@ -100,7 +104,7 @@ class ImageHandlerTest : StringSpec({
     }
 
     "processSubImagesPartial - DELETE 액션 단독 호출 시 예외 발생" {
-        val userId = 1L
+        val userId = dummyUserId
         val currentSubImages =
             listOf(
                 Image(11L, userId, "sub1.jpg", "url1", ""),
@@ -119,7 +123,7 @@ class ImageHandlerTest : StringSpec({
     }
 
     "processSubImagesPartial - KEEP와 UPLOAD 액션 정상 수행" {
-        val userId = 1L
+        val userId = dummyUserId
         val existingImg1 = Image(11L, userId, "sub1.jpg", "url1", "")
         val existingImg2 = Image(22L, userId, "sub2.jpg", "url2", "")
         val existingImg3 = Image(33L, userId, "sub3.jpg", "url3", "")
@@ -165,7 +169,7 @@ class ImageHandlerTest : StringSpec({
 
     // --- 추가 이미지 최종 처리 (processAdditionalImagesFinal) 테스트 ---
     "processAdditionalImagesFinal - 추가 이미지 결과 개수가 최대 개수(5장)를 초과하면 예외" {
-        val userId = 1L
+        val userId = dummyUserId
         val currentAdditionalImages = emptyList<Image>()
         // 6개의 UPLOAD 요청 생성
         val finalRequests =
@@ -183,7 +187,7 @@ class ImageHandlerTest : StringSpec({
     }
 
     "processAdditionalImagesFinal - ALL KEEP" {
-        val userId = 1L
+        val userId = dummyUserId
         val existingAdd1 = Image(1001L, userId, "add1.jpg", "addUrl1", "")
         val existingAdd2 = Image(1002L, userId, "add2.jpg", "addUrl2", "")
         val currentAdditionalImages = listOf(existingAdd1, existingAdd2)
@@ -197,7 +201,7 @@ class ImageHandlerTest : StringSpec({
     }
 
     "processAdditionalImagesFinal - ALL DELETE" {
-        val userId = 1L
+        val userId = dummyUserId
         val existingAdd1 = Image(1001L, userId, "add1.jpg", "addUrl1", "")
         val existingAdd2 = Image(1002L, userId, "add2.jpg", "addUrl2", "")
         val currentAdditionalImages = listOf(existingAdd1, existingAdd2)
@@ -214,11 +218,11 @@ class ImageHandlerTest : StringSpec({
     }
 
     "processAdditionalImagesFinal - KEEP, DELETE, UPLOAD 액션 정상 수행" {
-        val userId = 1L
+        val userId = dummyUserId
         val existingAdd1 = Image(imageId = 1001L, userId = userId, fileName = "add1.jpg", url = "addUrl1", parId = "")
         val existingAdd2 = Image(imageId = 1002L, userId = userId, fileName = "add2.jpg", url = "addUrl2", parId = "")
         val currentAdditionalImages = listOf(existingAdd1, existingAdd2)
-        // 요청: 1) KEEP(1001), 2) DELETE(1002), 3) UPLOAD(새 이미지)
+        // 요청: 1) KEEP(1001), 2) DELETE(1002), 3) UPLOAD (새 이미지)
         val newFile = mockk<MultipartFile>()
         val uploadedAdd =
             Image(

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.util.UUID
 
 interface JpaProductRepository : JpaRepository<ProductEntity, Long>, KotlinJdslJpqlExecutor {
     @Modifying
@@ -62,7 +63,7 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long>, KotlinJdslJ
      * @param userId 사용자 ID
      * @return 해당 사용자의 Product 리스트
      */
-    fun findByUserId(userId: Long): List<ProductEntity>
+    fun findByUserId(userId: UUID): List<ProductEntity>
 
     @Query(
         """
@@ -89,7 +90,7 @@ interface JpaProductRepository : JpaRepository<ProductEntity, Long>, KotlinJdslJ
      * @return 존재 여부 (true/false)
      */
     fun existsByUserIdAndTitle(
-        userId: Long,
+        userId: UUID,
         title: String,
     ): Boolean
 }

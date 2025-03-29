@@ -1,10 +1,12 @@
 package kr.kro.dearmoment.like.domain
 
+import java.util.UUID
+
 sealed class Like(
     val id: Long = 0L,
-    val userId: Long,
+    val userId: UUID,
 ) {
     init {
-        require(userId > 0) { "유저 ID는 양수이어야 합니다." }
+        require(userId != UUID(0L, 0L)) { "유저 ID는 필수입니다." }
     }
 }

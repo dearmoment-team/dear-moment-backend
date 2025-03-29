@@ -1,8 +1,10 @@
 package kr.kro.dearmoment.inquiry.domain
 
+import java.util.UUID
+
 class CreateProductOptionInquiry(
     id: Long = 0L,
-    userId: Long = 0L,
+    userId: UUID,
     val productId: Long,
     val optionId: Long,
 ) : Inquiry(id, userId) {

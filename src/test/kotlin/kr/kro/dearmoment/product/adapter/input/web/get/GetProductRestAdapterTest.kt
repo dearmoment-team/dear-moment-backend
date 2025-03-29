@@ -24,7 +24,6 @@ class GetProductRestAdapterTest : RestApiTestBase() {
         val productResponse =
             ProductResponse(
                 productId = 1L,
-                userId = 1L,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "New Product",
@@ -65,7 +64,7 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                     "code" type NUMBER means "HTTP 상태 코드",
                     "data" type OBJECT means "상품 데이터",
                     "data.productId" type NUMBER means "상품 ID",
-                    "data.userId" type NUMBER means "사용자 ID",
+                    "data.userId" type STRING means "사용자 ID",
                     "data.productType" type STRING means "상품 유형",
                     "data.shootingPlace" type STRING means "촬영 장소",
                     "data.title" type STRING means "상품명",
@@ -94,7 +93,8 @@ class GetProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 단건 조회 API 테스트 - 존재하지 않는 상품`() {
         // given
-        every { getProductUseCase.getProductById(999L) } throws IllegalArgumentException("Product with ID 999 not found.")
+        every { getProductUseCase.getProductById(999L) } throws
+            IllegalArgumentException("Product with ID 999 not found.")
 
         // when
         val requestBuilder =

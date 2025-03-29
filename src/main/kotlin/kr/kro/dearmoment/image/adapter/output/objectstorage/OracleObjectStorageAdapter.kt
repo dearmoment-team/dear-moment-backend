@@ -30,7 +30,7 @@ class OracleObjectStorageAdapter(
 
     override fun upload(
         file: MultipartFile,
-        userId: Long,
+        userId: UUID,
     ): Image {
         val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"

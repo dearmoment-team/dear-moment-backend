@@ -42,15 +42,15 @@ class SecurityConfig(
                     "/v3/**",
                     "/oauth/kakao/callback",
                 ).permitAll()
-                    // 스튜디오 조회 - 비회원도 가능
+                    // 상품 조회
                     .requestMatchers(HttpMethod.GET, "/api/products/main").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                     // 1. 스튜디오 문의
                     .requestMatchers("/api/inquiries/studios/**").hasRole("USER")
                     // 2. 스튜디오
-                    .requestMatchers(HttpMethod.PUT, "/api/studios/*").permitAll()
-                    .requestMatchers(HttpMethod.DELETE, "/api/studios/*").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/studios").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/studios/*").hasRole("STUDIO")
+                    .requestMatchers(HttpMethod.DELETE, "/api/studios/*").hasRole("STUDIO")
+                    .requestMatchers(HttpMethod.POST, "/api/studios").hasRole("STUDIO")
                     // 3. 서비스 문의
                     .requestMatchers("/api/inquiries/services").hasRole("USER")
                     // 4. 상품 옵션 문의
@@ -58,9 +58,9 @@ class SecurityConfig(
                     // 5. /api/likes/** → ROLE_USER
                     .requestMatchers("/api/likes/**").hasRole("USER")
                     // 6. /api/products
-                    .requestMatchers(HttpMethod.DELETE, "/api/products/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/products")permitAll()
-                    .requestMatchers(HttpMethod.PATCH, "/api/products/**").permitAll()
+                    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("STUDIO")
+                    .requestMatchers(HttpMethod.POST, "/api/products").hasRole("STUDIO")
+                    .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole("STUDIO")
                     // 그 외 경로는 인증만 되어 있으면 접근 가능
                     .anyRequest().authenticated()
             }

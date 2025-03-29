@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import java.util.UUID
 
 class LikeQueryServiceTest : DescribeSpec({
     val getLikePort = mockk<GetLikePort>()
@@ -25,7 +26,7 @@ class LikeQueryServiceTest : DescribeSpec({
 
     describe("isProductLike()는") {
         context("ExistLikeQuery가 전달되면") {
-            val query = ExistLikeQuery(userId = 1L, targetId = 1L)
+            val query = ExistLikeQuery(userId = UUID.randomUUID(), targetId = 1L)
             every { getLikePort.existProductLike(query.userId, query.targetId) } returns true
 
             it("좋아요가 존재하는지 알 수 있다.") {
@@ -37,7 +38,7 @@ class LikeQueryServiceTest : DescribeSpec({
 
     describe("isProductOptionLike()는") {
         context("ExistLikeQuery가 전달되면") {
-            val query = ExistLikeQuery(userId = 1L, targetId = 1L)
+            val query = ExistLikeQuery(userId = UUID.randomUUID(), targetId = 1L)
             every { getLikePort.existProductOptionLike(query.userId, query.targetId) } returns true
 
             it("좋아요가 존재하는지 알 수 있다.") {
@@ -49,7 +50,7 @@ class LikeQueryServiceTest : DescribeSpec({
 
     describe("getUserProductLikes()") {
         context("userId가 전달되면") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val likes = List(3) { productLikeFixture(userId) }
             val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
             val page: Page<ProductLike> = PageImpl(likes, pageable, likes.size.toLong())
@@ -71,7 +72,7 @@ class LikeQueryServiceTest : DescribeSpec({
 
     describe("getUserProductOptionLikes()") {
         context("userId가 전달되면") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val likes = List(3) { productOptionLikeFixture(userId) }
             val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
             val page: Page<ProductOptionLike> = PageImpl(likes, pageable, likes.size.toLong())

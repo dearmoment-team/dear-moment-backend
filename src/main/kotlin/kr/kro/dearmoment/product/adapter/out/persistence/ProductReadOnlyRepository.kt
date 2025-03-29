@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
+import java.util.UUID
 
 @Repository
 class ProductReadOnlyRepository(
@@ -58,7 +59,7 @@ class ProductReadOnlyRepository(
     }
 
     override fun existsByUserIdAndTitle(
-        userId: Long,
+        userId: UUID,
         title: String,
     ): Boolean = productJpaRepository.existsByUserIdAndTitle(userId, title)
 
@@ -70,7 +71,7 @@ class ProductReadOnlyRepository(
         return productJpaRepository.findAll().map { it.toDomain() }
     }
 
-    override fun findByUserId(userId: Long): List<Product> {
+    override fun findByUserId(userId: UUID): List<Product> {
         return productJpaRepository.findByUserId(userId).map { it.toDomain() }
     }
 

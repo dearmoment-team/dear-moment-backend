@@ -9,6 +9,7 @@ import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.domain.Image
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class ImagePersistenceAdapter(
@@ -25,7 +26,7 @@ class ImagePersistenceAdapter(
             .map { it.id }
     }
 
-    override fun findUserImages(userId: Long): List<Image> =
+    override fun findUserImages(userId: UUID): List<Image> =
         imageRepository.findAllByUserId(userId)
             .map { it.toDomain() }
 

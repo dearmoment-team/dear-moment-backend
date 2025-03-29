@@ -20,6 +20,7 @@ import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import org.springframework.data.domain.PageRequest
+import java.util.UUID
 
 @RepositoryTest
 class ProductReadOnlyPersistenceRepositoryTest(
@@ -36,8 +37,7 @@ class ProductReadOnlyPersistenceRepositoryTest(
 
         describe("searchByCriteria()는") {
             val studios = mutableListOf<StudioEntity>()
-            var userId = 1L
-            repeat(5) { studios.add(studioRepository.save(studioEntityFixture(userId = userId++))) }
+            repeat(5) { studios.add(studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))) }
 
             val products = mutableListOf<Product>()
             val options = mutableListOf<ProductOption>()

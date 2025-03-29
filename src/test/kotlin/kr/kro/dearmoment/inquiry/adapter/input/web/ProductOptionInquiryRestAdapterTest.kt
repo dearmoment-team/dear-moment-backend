@@ -13,7 +13,6 @@ import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.queryParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
@@ -38,7 +37,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
     fun `상품 옵션 문의 생성 API`() {
         val requestBody =
             CreateProductOptionInquiryRequest(
-                userId = 123L,
                 optionId = 11L,
                 productId = 1L,
             )
@@ -73,7 +71,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 상품 옵션 문의 조회 API`() {
-        val userId = 123L
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
 
         val inquiries =
@@ -111,7 +108,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .get("/api/inquiries/product-options/{userId}", userId)
+                .get("/api/inquiries/product-options")
                 .queryParam("page", "0")
                 .queryParam("size", "10")
 
@@ -119,7 +116,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
             .andExpect(status().isOk)
             .andDocument(
                 "get-product_options_inquiries",
-                pathParameters("userId" means "상품 문의를 생성한 userId"),
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",
                     "size" means "페이지 크기 (기본값: 10)",

@@ -11,14 +11,16 @@ import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
-import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
+import java.util.UUID
 
 @RepositoryTest
 class ProductOptionPersistenceAdapterTest(
@@ -29,6 +31,7 @@ class ProductOptionPersistenceAdapterTest(
     private val entityManager: EntityManager,
     private val jpqlRenderContext: JpqlRenderContext,
 ) : DescribeSpec({
+
         val adapter = ProductOptionRepositoryAdapter(jpaProductOptionRepository, jpaProductRepository)
         val readOnlyAdapter =
             ProductOptionReadOnlyRepository(
@@ -37,27 +40,54 @@ class ProductOptionPersistenceAdapterTest(
                 jpqlRenderContext,
             )
 
+        // 테스트용 dummy userId (UUID)
+        val dummyUserId: UUID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+
         describe("ProductOptionRepositoryAdapter 테스트") {
             lateinit var testProductEntity: ProductEntity
             lateinit var testProductDomain: Product
 
             beforeEach {
                 productOptionLikeJpaRepository.deleteAllInBatch()
-                val studio = studioRepository.save(studioEntityFixture(userId = 1L))
-                // 테스트용 ProductEntity 생성
+
+                // 스튜디오 엔티티를 명시적으로 생성하여 저장 (userId: dummyUserId)
+                val studio =
+                    StudioEntity(
+                        id = 0L,
+                        name = "스튜디오 디어모먼트",
+                        userId = dummyUserId,
+                        contact = "010-1234-5678",
+                        studioIntro = "소개글",
+                        artistsIntro = "스튜디오 A 작가 입니다.",
+                        instagramUrl = "instagram.com",
+                        kakaoChannelUrl = "kakaotalk.com",
+                        reservationNotice = "예약 안내",
+                        cancellationPolicy = "취소 정책",
+                        status = "ACTIVE",
+                        partnerShops =
+                            mutableSetOf(
+                                StudioPartnerShopEmbeddable(
+                                    category = "HAIR_MAKEUP",
+                                    name = "Test Shop",
+                                    urlLink = "http://testshop.com",
+                                ),
+                            ),
+                        cast = 1,
+                    )
+                val savedStudio = studioRepository.save(studio)
+
+                // 테스트용 ProductEntity 생성 (userId를 dummyUserId로 설정)
                 testProductEntity =
                     jpaProductRepository.save(
                         ProductEntity(
-                            userId = 1L,
-                            // 변경된 도메인: price, typeCode, images, partnerShops 등이 제거되고,
-                            // productType와 shootingPlace가 추가됨.
+                            userId = dummyUserId,
                             productType = ProductType.WEDDING_SNAP,
                             shootingPlace = ShootingPlace.JEJU,
                             title = "테스트 상품",
                             mainImage =
                                 ImageEmbeddable.fromDomainImage(
                                     kr.kro.dearmoment.image.domain.Image(
-                                        userId = 1L,
+                                        userId = dummyUserId,
                                         fileName = "main.jpg",
                                         url = "http://example.com/main.jpg",
                                     ),
@@ -66,35 +96,35 @@ class ProductOptionPersistenceAdapterTest(
                                 listOf(
                                     ImageEmbeddable.fromDomainImage(
                                         kr.kro.dearmoment.image.domain.Image(
-                                            userId = 1L,
+                                            userId = dummyUserId,
                                             fileName = "sub1.jpg",
                                             url = "http://example.com/sub1.jpg",
                                         ),
                                     ),
                                     ImageEmbeddable.fromDomainImage(
                                         kr.kro.dearmoment.image.domain.Image(
-                                            userId = 1L,
+                                            userId = dummyUserId,
                                             fileName = "sub2.jpg",
                                             url = "http://example.com/sub2.jpg",
                                         ),
                                     ),
                                     ImageEmbeddable.fromDomainImage(
                                         kr.kro.dearmoment.image.domain.Image(
-                                            userId = 1L,
+                                            userId = dummyUserId,
                                             fileName = "sub3.jpg",
                                             url = "http://example.com/sub3.jpg",
                                         ),
                                     ),
                                     ImageEmbeddable.fromDomainImage(
                                         kr.kro.dearmoment.image.domain.Image(
-                                            userId = 1L,
+                                            userId = dummyUserId,
                                             fileName = "sub4.jpg",
                                             url = "http://example.com/sub4.jpg",
                                         ),
                                     ),
                                 ).toMutableList(),
-                            additionalImages = emptyList<ImageEmbeddable>().toMutableList(),
-                            studio = studio,
+                            additionalImages = mutableListOf(),
+                            studio = savedStudio,
                         ),
                     )
                 testProductDomain = testProductEntity.toDomain()
@@ -144,9 +174,7 @@ class ProductOptionPersistenceAdapterTest(
                         listOf(
                             createSampleOption("옵션A", 10_000L),
                             createSampleOption("옵션B", 20_000L),
-                        ).map {
-                            adapter.save(it, testProductDomain)
-                        }
+                        ).map { adapter.save(it, testProductDomain) }
                     jpaProductOptionRepository.flush()
                 }
 

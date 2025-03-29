@@ -2,6 +2,7 @@ package kr.kro.dearmoment.inquiry.domain
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import java.util.UUID
 
 class ProductOptionInquiryTest : DescribeSpec({
     describe("상품 문의는") {
@@ -11,6 +12,7 @@ class ProductOptionInquiryTest : DescribeSpec({
                     CreateProductOptionInquiry(
                         productId = -1,
                         optionId = 1L,
+                        userId = UUID.randomUUID(),
                     )
                 }
             }
@@ -21,6 +23,7 @@ class ProductOptionInquiryTest : DescribeSpec({
                     CreateProductOptionInquiry(
                         productId = 1L,
                         optionId = -1L,
+                        userId = UUID.randomUUID(),
                     )
                 }
             }

@@ -16,6 +16,7 @@ import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductRepository
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import java.util.UUID
 
 @RepositoryTest
 class InquiryReadOnlyPersistenceAdapterTest(
@@ -44,7 +45,7 @@ class InquiryReadOnlyPersistenceAdapterTest(
         }
 
         describe("findUserStudioInquiries()는") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val studioInquiries = List(3) { studioInquiryEntityFixture(userId) }
             studioInquiries.forEach { studioInquiryJpaRepository.save(it) }
 
@@ -65,7 +66,7 @@ class InquiryReadOnlyPersistenceAdapterTest(
         }
 
         describe("findUserProductOptionInquiries()는") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))

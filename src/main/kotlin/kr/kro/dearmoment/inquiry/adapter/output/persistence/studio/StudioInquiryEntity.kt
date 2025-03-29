@@ -8,6 +8,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.inquiry.domain.StudioInquiry
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity
 @Table(name = "studio_inquires")
@@ -17,7 +19,7 @@ class StudioInquiryEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
     @Column
-    val userId: Long,
+    val userId: UUID,
     @Column(nullable = false)
     val title: String,
     @Column(nullable = false)
@@ -29,7 +31,7 @@ class StudioInquiryEntity(
             userId = userId,
             title = title,
             content = content,
-            createdDate = createdDate ?: throw IllegalStateException("createdDate is null"),
+            createdDate = createdDate ?: LocalDateTime.now(),
         )
 
     companion object {

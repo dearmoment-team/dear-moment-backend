@@ -16,15 +16,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class DeleteProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 삭제 API 테스트 - 정상 삭제`() {
-        // given
-        every { (deleteProductUseCase).deleteProduct(1L) } just Runs
+        // 인증된 userId와 상품 ID를 함께 전달
+        every { deleteProductUseCase.deleteProduct(userId, 1L) } just Runs
 
         val requestBuilder =
             RestDocumentationRequestBuilders
                 .delete("/api/products/{id}", 1L)
+                .header("X-USER-ID", userId.toString())
                 .contentType(MediaType.APPLICATION_JSON)
 
-        // then
         mockMvc.perform(requestBuilder)
             .andExpect(status().isNoContent)
             .andDocument("delete-product")
@@ -32,15 +32,15 @@ class DeleteProductRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `상품 삭제 API 테스트 - 존재하지 않는 상품`() {
-        // given
-        every { deleteProductUseCase.deleteProduct(999L) } throws IllegalArgumentException("The product to delete does not exist: 999.")
+        every { deleteProductUseCase.deleteProduct(userId, 999L) } throws
+            IllegalArgumentException("The product to delete does not exist: 999.")
 
         val requestBuilder =
             RestDocumentationRequestBuilders
                 .delete("/api/products/{id}", 999L)
+                .header("X-USER-ID", userId.toString())
                 .contentType(MediaType.APPLICATION_JSON)
 
-        // then
         mockMvc.perform(requestBuilder)
             .andExpect(status().isBadRequest)
             .andDocument(

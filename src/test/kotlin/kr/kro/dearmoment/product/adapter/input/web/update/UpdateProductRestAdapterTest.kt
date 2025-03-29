@@ -26,12 +26,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class UpdateProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 업데이트 API 테스트 - 정상 케이스`() {
-        // 1) 업데이트 요청 DTO(JSON)
+        // 1) 업데이트 요청 DTO(JSON) - DTO에는 userId가 없고, studioId가 포함됩니다.
         val requestJson =
             """
             {
               "productId": 1,
-              "userId": 10,
+              "studioId": 100,
               "productType": "WEDDING_SNAP",
               "shootingPlace": "JEJU",
               "title": "Updated Product Title",
@@ -106,7 +106,6 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
         val updatedResponse =
             ProductResponse(
                 productId = 1L,
-                userId = 10L,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "Updated Product Title",
@@ -152,9 +151,9 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                     ),
             )
 
-        // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게 mainImageFile, subImageFiles, additionalImageFiles 포함)
+        // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게, 인증된 userId를 첫 번째 파라미터로 전달)
         every {
-            updateProductUseCase.updateProduct(eq(1L), any(), any(), any(), any(), any())
+            updateProductUseCase.updateProduct(eq(userId), eq(1L), any(), any(), any(), any(), any())
         } returns updatedResponse
 
         // 5) multipart/form-data PATCH 요청
@@ -166,8 +165,7 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                 requestJson.toByteArray(),
             )
         val requestBuilder =
-            MockMvcRequestBuilders
-                .multipart("/api/products/{id}", 1L)
+            MockMvcRequestBuilders.multipart("/api/products/{id}", 1L)
                 .file(requestPart)
                 .file(mainImageFile)
                 .file(subImageFile1)
@@ -180,7 +178,7 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
-        // 6) 요청 실행
+        // 6) 요청 실행 및 검증
         mockMvc.perform(requestBuilder)
             .andExpect(status().isOk)
             .andDocument(
@@ -190,7 +188,7 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                     "code" type NUMBER means "HTTP 상태 코드",
                     "data" type OBJECT means "수정된 상품 데이터",
                     "data.productId" type NUMBER means "상품 ID",
-                    "data.userId" type NUMBER means "사용자 ID",
+                    "data.userId" type STRING means "사용자 ID",
                     "data.productType" type STRING means "상품 유형",
                     "data.shootingPlace" type STRING means "촬영 장소",
                     "data.title" type STRING means "상품명",

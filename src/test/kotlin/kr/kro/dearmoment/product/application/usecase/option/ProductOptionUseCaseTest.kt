@@ -24,11 +24,11 @@ import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import java.time.LocalDateTime
+import java.util.UUID
 
 class ProductOptionUseCaseTest : BehaviorSpec({
 
-    // 인터페이스 타입으로 선언하고 실제 구현체 주입
-    // 기존 테스트 설정
+    // 목 객체 생성
     val productOptionPersistencePort = mockk<ProductOptionPersistencePort>()
     val getProductOptionPort = mockk<GetProductOptionPort>()
     val getProductPort = mockk<GetProductPort>()
@@ -39,10 +39,14 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             getProductPort,
         )
 
+    // dummy user ID (UUID)
+    val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+
+    // mockProduct: Product의 userId를 UUID로 설정
     val mockProduct =
         Product(
             productId = 1L,
-            userId = 1L,
+            userId = dummyUserId,
             productType = ProductType.WEDDING_SNAP,
             shootingPlace = ShootingPlace.JEJU,
             title = "Test Product",
@@ -50,13 +54,13 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             availableSeasons = emptySet(),
             cameraTypes = emptySet(),
             retouchStyles = emptySet(),
-            mainImage = Image(userId = 1L, fileName = "main.jpg", url = "http://example.com/main.jpg"),
+            mainImage = Image(userId = dummyUserId, fileName = "main.jpg", url = "http://example.com/main.jpg"),
             subImages =
                 listOf(
-                    Image(userId = 1L, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
-                    Image(userId = 1L, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
-                    Image(userId = 1L, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
-                    Image(userId = 1L, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
+                    Image(userId = dummyUserId, fileName = "sub1.jpg", url = "http://example.com/sub1.jpg"),
+                    Image(userId = dummyUserId, fileName = "sub2.jpg", url = "http://example.com/sub2.jpg"),
+                    Image(userId = dummyUserId, fileName = "sub3.jpg", url = "http://example.com/sub3.jpg"),
+                    Image(userId = dummyUserId, fileName = "sub4.jpg", url = "http://example.com/sub4.jpg"),
                 ),
             additionalImages = emptyList(),
             detailedInfo = "Test Info",
@@ -261,7 +265,7 @@ class ProductOptionUseCaseTest : BehaviorSpec({
                     discountAvailable = true,
                     originalPrice = 200000,
                     discountPrice = 150000,
-                    description = "New Option Added",
+                    description = "New option added",
                     costumeCount = 0,
                     shootingLocationCount = 0,
                     shootingHours = 0,

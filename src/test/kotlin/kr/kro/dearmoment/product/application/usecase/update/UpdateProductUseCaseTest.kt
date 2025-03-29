@@ -37,6 +37,7 @@ import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import org.springframework.mock.web.MockMultipartFile
 import java.time.LocalDateTime
+import java.util.UUID
 
 class UpdateProductUseCaseTest : BehaviorSpec({
 
@@ -47,6 +48,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val getStudioPort = mockk<GetStudioPort>()
     val productOptionUseCase = mockk<ProductOptionUseCase>(relaxed = true)
     val studio = studioFixture()
+    val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
     // 실제 테스트 대상 UseCase
     val useCase =
@@ -62,7 +64,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyExistingMainImage =
         Image(
             imageId = 101L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "existing_main.jpg",
             url = "http://example.com/existing_main.jpg",
@@ -70,7 +72,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyExistingSubImage =
         Image(
             imageId = 200L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "existing_sub.jpg",
             url = "http://example.com/existing_sub.jpg",
@@ -78,7 +80,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyExistingAdditionalImage =
         Image(
             imageId = 300L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "existing_add.jpg",
             url = "http://example.com/existing_add.jpg",
@@ -87,7 +89,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val existingProduct =
         Product(
             productId = 999L,
-            userId = 1L,
+            userId = dummyUserId,
             productType = ProductType.WEDDING_SNAP,
             shootingPlace = ShootingPlace.JEJU,
             title = "Existing Product",
@@ -96,13 +98,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             cameraTypes = setOf(CameraType.FILM),
             retouchStyles = setOf(RetouchStyle.NATURAL),
             mainImage = dummyExistingMainImage,
-            subImages =
-                listOf(
-                    dummyExistingSubImage,
-                    dummyExistingSubImage,
-                    dummyExistingSubImage,
-                    dummyExistingSubImage,
-                ),
+            subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
             additionalImages = listOf(dummyExistingAdditionalImage),
             detailedInfo = "Existing Detailed Info",
             contactInfo = "Existing Contact",
@@ -111,12 +107,11 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             options = emptyList(),
         )
 
-    // 업데이트 요청 DTO
+    // 업데이트 요청 DTO (userId 필드 제거됨)
     val updateRequest =
         UpdateProductRequest(
             productId = 999L,
             studioId = 1L,
-            userId = 1L,
             productType = "WEDDING_SNAP",
             shootingPlace = "JEJU",
             title = "Updated Title",
@@ -173,7 +168,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewMainImage =
         Image(
             imageId = 201L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "new_main.jpg",
             url = "http://example.com/new_main.jpg",
@@ -181,7 +176,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewSubImage1 =
         Image(
             imageId = 202L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "sub3.jpg",
             url = "http://example.com/sub3.jpg",
@@ -189,7 +184,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewSubImage2 =
         Image(
             imageId = 203L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "sub4.jpg",
             url = "http://example.com/sub4.jpg",
@@ -197,7 +192,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewAdditionalImage =
         Image(
             imageId = 400L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "add2.jpg",
             url = "http://example.com/add2.jpg",
@@ -214,7 +209,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyExistingSubImage1 =
         Image(
             imageId = 201L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "existing_sub1.jpg",
             url = "http://example.com/existing_sub1.jpg",
@@ -222,7 +217,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyExistingSubImage2 =
         Image(
             imageId = 202L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "existing_sub2.jpg",
             url = "http://example.com/existing_sub2.jpg",
@@ -230,7 +225,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyExistingSubImage3 =
         Image(
             imageId = 203L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "existing_sub3.jpg",
             url = "http://example.com/existing_sub3.jpg",
@@ -238,7 +233,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewSubImageA =
         Image(
             imageId = 301L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "new_subA.jpg",
             url = "http://example.com/new_subA.jpg",
@@ -246,7 +241,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewSubImageB =
         Image(
             imageId = 302L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "new_subB.jpg",
             url = "http://example.com/new_subB.jpg",
@@ -254,7 +249,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewSubImageC =
         Image(
             imageId = 303L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "new_subC.jpg",
             url = "http://example.com/new_subC.jpg",
@@ -262,7 +257,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val dummyNewSubImageD =
         Image(
             imageId = 304L,
-            userId = 1L,
+            userId = dummyUserId,
             parId = "",
             fileName = "new_subD.jpg",
             url = "http://example.com/new_subD.jpg",
@@ -277,6 +272,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 val exception =
                     shouldThrow<CustomException> {
                         useCase.updateProduct(
+                            userId = dummyUserId,
                             productId = updateRequest.productId,
                             rawRequest = updateRequest,
                             mainImageFile = null,
@@ -293,14 +289,14 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             every { getStudioPort.findById(studio.id) } returns studio
             every { getProductPort.findById(999L) } returns existingProduct
             every {
-                imageHandler.updateMainImage(mainImageFileTest, updateRequest.userId, existingProduct.mainImage)
+                imageHandler.updateMainImage(mainImageFileTest, dummyUserId, existingProduct.mainImage)
             } returns dummyNewMainImage
             every {
                 imageHandler.processSubImagesPartial(
                     currentSubImages = existingProduct.subImages,
                     finalRequests = updateRequest.subImagesFinal!!,
                     subImageFiles = listOf(subImageFileForUpload1, subImageFileForUpload2),
-                    userId = updateRequest.userId,
+                    userId = dummyUserId,
                 )
             } returns
                 listOf(
@@ -314,7 +310,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     currentAdditionalImages = existingProduct.additionalImages,
                     finalRequests = updateRequest.additionalImagesFinal ?: emptyList(),
                     additionalImageFiles = listOf(additionalImageFileTest),
-                    userId = updateRequest.userId,
+                    userId = dummyUserId,
                 )
             } returns listOf(dummyNewAdditionalImage)
 
@@ -331,13 +327,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     cameraTypes = setOf(CameraType.DIGITAL),
                     retouchStyles = setOf(RetouchStyle.CALM),
                     mainImage = dummyNewMainImage,
-                    subImages =
-                        listOf(
-                            dummyExistingSubImage,
-                            dummyNewSubImage1,
-                            dummyNewSubImage2,
-                            dummyExistingSubImage,
-                        ),
+                    subImages = listOf(dummyExistingSubImage, dummyNewSubImage1, dummyNewSubImage2, dummyExistingSubImage),
                     additionalImages = listOf(dummyNewAdditionalImage),
                     detailedInfo = "Updated Detailed Info",
                     contactInfo = "Updated Contact",
@@ -346,6 +336,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             val result =
                 useCase.updateProduct(
+                    userId = dummyUserId,
                     productId = updateRequest.productId,
                     rawRequest = updateRequest,
                     mainImageFile = mainImageFileTest,
@@ -389,7 +380,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     any(),
                     oneChangeRequest.subImagesFinal!!,
                     listOf(mockSubFileD),
-                    updateRequest.userId,
+                    dummyUserId,
                 )
             } returns
                 listOf(
@@ -403,7 +394,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     any(),
                     any(),
                     any(),
-                    updateRequest.userId,
+                    dummyUserId,
                 )
             } returns listOf(dummyExistingAdditionalImage)
 
@@ -427,6 +418,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             val result =
                 useCase.updateProduct(
+                    userId = dummyUserId,
                     productId = oneChangeRequest.productId,
                     rawRequest = oneChangeRequest,
                     mainImageFile = null,
@@ -437,7 +429,6 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             Then("서브 이미지 4개 중 3개는 기존 그대로, 1개만 새로운 이미지로 교체") {
                 result.subImages shouldHaveSize 4
-                // [중요] url 필드와 비교해야 함
                 result.subImages[0].url shouldBe dummyExistingSubImage1.url
                 result.subImages[1].url shouldBe dummyExistingSubImage2.url
                 result.subImages[2].url shouldBe dummyExistingSubImage3.url
@@ -467,7 +458,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     any(),
                     twoChangeRequest.subImagesFinal!!,
                     listOf(mockSubFileC, mockSubFileD),
-                    updateRequest.userId,
+                    dummyUserId,
                 )
             } returns
                 listOf(
@@ -481,7 +472,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     any(),
                     any(),
                     any(),
-                    updateRequest.userId,
+                    dummyUserId,
                 )
             } returns listOf(dummyExistingAdditionalImage)
 
@@ -505,6 +496,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             val result =
                 useCase.updateProduct(
+                    userId = dummyUserId,
                     productId = twoChangeRequest.productId,
                     rawRequest = twoChangeRequest,
                     mainImageFile = null,
@@ -543,7 +535,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     any(),
                     threeChangeRequest.subImagesFinal!!,
                     listOf(mockSubFileA, mockSubFileB, mockSubFileC),
-                    updateRequest.userId,
+                    dummyUserId,
                 )
             } returns
                 listOf(
@@ -576,6 +568,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             val result =
                 useCase.updateProduct(
+                    userId = dummyUserId,
                     productId = threeChangeRequest.productId,
                     rawRequest = threeChangeRequest,
                     mainImageFile = null,
@@ -585,7 +578,6 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                 )
 
             Then("서브 이미지 4개 중 1개는 기존 그대로, 3개가 새로운 이미지로 교체된다") {
-                // url 필드 비교
                 result.subImages[0].url shouldBe dummyExistingSubImage1.url
                 result.subImages[1].url shouldBe dummyNewSubImageA.url
                 result.subImages[2].url shouldBe dummyNewSubImageB.url
@@ -615,7 +607,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     any(),
                     allChangeRequest.subImagesFinal!!,
                     listOf(mockSubFileA, mockSubFileB, mockSubFileC, mockSubFileD),
-                    updateRequest.userId,
+                    dummyUserId,
                 )
             } returns
                 listOf(
@@ -648,6 +640,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
 
             val result =
                 useCase.updateProduct(
+                    userId = dummyUserId,
                     productId = allChangeRequest.productId,
                     rawRequest = allChangeRequest,
                     mainImageFile = null,
@@ -735,24 +728,16 @@ class UpdateProductUseCaseTest : BehaviorSpec({
                     cameraTypes = setOf(CameraType.DIGITAL),
                     retouchStyles = setOf(RetouchStyle.CALM),
                     mainImage = dummyNewMainImage,
-                    subImages =
-                        listOf(
-                            dummyExistingSubImage,
-                            dummyExistingSubImage,
-                            dummyExistingSubImage,
-                            dummyExistingSubImage,
-                        ),
+                    subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
                     additionalImages = listOf(dummyExistingAdditionalImage),
                     detailedInfo = "Updated Detailed Info",
                     contactInfo = "Updated Contact",
-                    options =
-                        optionRequestList.map {
-                            UpdateProductOptionRequest.toDomain(it, 999L)
-                        },
+                    options = optionRequestList.map { UpdateProductOptionRequest.toDomain(it, 999L) },
                 )
 
             val result =
                 useCase.updateProduct(
+                    userId = dummyUserId,
                     productId = updateRequest.productId,
                     rawRequest = updateRequest,
                     mainImageFile = mainImageFileTest,

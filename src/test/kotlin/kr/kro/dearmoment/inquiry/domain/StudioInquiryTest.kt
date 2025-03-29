@@ -2,6 +2,7 @@ package kr.kro.dearmoment.inquiry.domain
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import java.util.UUID
 
 class StudioInquiryTest : DescribeSpec({
     describe("작가 문의는") {
@@ -11,6 +12,7 @@ class StudioInquiryTest : DescribeSpec({
                     StudioInquiry(
                         title = "",
                         content = "content",
+                        userId = UUID.randomUUID(),
                     )
                 }
             }
@@ -22,6 +24,7 @@ class StudioInquiryTest : DescribeSpec({
                     StudioInquiry(
                         title = "title",
                         content = "",
+                        userId = UUID.randomUUID(),
                     )
                 }
             }

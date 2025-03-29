@@ -14,6 +14,7 @@ import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.hibernate.annotations.ColumnDefault
+import java.util.UUID
 
 @Entity
 @Table(name = "studios")
@@ -23,7 +24,7 @@ class StudioEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
     @Column(nullable = false)
-    val userId: Long,
+    val userId: UUID,
     @Column
     @ColumnDefault(value = "0")
     val cast: Int,

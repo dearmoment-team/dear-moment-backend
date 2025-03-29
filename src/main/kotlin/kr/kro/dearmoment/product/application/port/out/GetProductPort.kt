@@ -4,6 +4,7 @@ import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import java.util.UUID
 
 interface GetProductPort {
     /**
@@ -13,7 +14,7 @@ interface GetProductPort {
      * @return 존재 여부 (true/false)
      */
     fun existsByUserIdAndTitle(
-        userId: Long,
+        userId: UUID,
         title: String,
     ): Boolean
 
@@ -35,7 +36,7 @@ interface GetProductPort {
      * @param userId 사용자 ID
      * @return 해당 사용자의 Product 리스트
      */
-    fun findByUserId(userId: Long): List<Product>
+    fun findByUserId(userId: UUID): List<Product>
 
     /**
      * Product가 존재하는지 확인합니다.
