@@ -43,7 +43,7 @@ class ProductReadOnlyPersistenceRepositoryTest(
                             kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity(
                                 id = 0L,
                                 name = "스튜디오 디어모먼트",
-                                userId = 123L,
+                                userId = dummyUserId,
                                 contact = "010-1234-5678",
                                 studioIntro = "소개글",
                                 artistsIntro = "작가 소개",

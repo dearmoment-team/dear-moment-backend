@@ -11,10 +11,11 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductOption
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.studio.domain.Studio
+import java.util.UUID
 
 fun studioFixture(
     id: Long = 1L,
-    userId: Long = 1L,
+    userId: UUID = UUID.randomUUID(),
 ): Studio =
     fixtureBuilder.giveMeKotlinBuilder<Studio>()
         .setExp(Studio::id, id)
@@ -58,20 +59,20 @@ fun productOptionFixture(): ProductOption =
         .setExp(ProductOption::name, "Basic")
         .sample()
 
-fun productLikeFixture(userId: Long): ProductLike =
+fun productLikeFixture(userId: UUID): ProductLike =
     fixtureBuilder.giveMeKotlinBuilder<ProductLike>()
         .setExp(ProductLike::userId, userId)
         .setExp(ProductLike::product, productFixture())
         .sample()
 
-fun productOptionLikeFixture(userId: Long): ProductOptionLike =
+fun productOptionLikeFixture(userId: UUID): ProductOptionLike =
     fixtureBuilder.giveMeKotlinBuilder<ProductOptionLike>()
         .setExp(ProductOptionLike::userId, userId)
         .setExp(ProductOptionLike::product, productFixture())
         .setExp(ProductOptionLike::productOptionId, 1L)
         .sample()
 
-fun productOptionInquiryFixture(userId: Long): ProductOptionInquiry =
+fun productOptionInquiryFixture(userId: UUID): ProductOptionInquiry =
     fixtureBuilder.giveMeKotlinBuilder<ProductOptionInquiry>()
         .setExp(ProductOptionInquiry::userId, userId)
         .sample()

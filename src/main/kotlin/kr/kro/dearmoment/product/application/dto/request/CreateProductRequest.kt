@@ -14,7 +14,7 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
-import java.util.*
+import java.util.UUID
 
 data class CreateProductRequest(
     @Schema(description = "스튜디오 ID", example = "1", required = true)

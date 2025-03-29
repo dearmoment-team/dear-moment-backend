@@ -2,6 +2,7 @@ package kr.kro.dearmoment.inquiry.domain
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import java.util.UUID
 
 class ServiceInquiryTest : DescribeSpec({
     describe("서비스 문의는") {
@@ -11,6 +12,7 @@ class ServiceInquiryTest : DescribeSpec({
                     ServiceInquiry(
                         type = ServiceInquiryType.from("invalid"),
                         content = "content",
+                        userId = UUID.randomUUID(),
                     )
                 }
             }
@@ -22,6 +24,7 @@ class ServiceInquiryTest : DescribeSpec({
                     ServiceInquiry(
                         type = ServiceInquiryType.SERVICE_COMPLIMENT,
                         content = "",
+                        userId = UUID.randomUUID(),
                     )
                 }
             }

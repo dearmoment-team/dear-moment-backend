@@ -23,7 +23,6 @@ class ServiceInquiryRestAdapterTest : RestApiTestBase() {
     fun `서비스 문의 생성 API`() {
         val requestBody =
             CreateServiceInquiryRequest(
-                userId = 123L,
                 type = "SERVICE_COMPLIMENT",
                 content = "서비스가 너무 편합니다.",
                 email = "email@email.com",

@@ -19,14 +19,15 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @Tag(name = "Like API", description = "좋아요 관련 API")
 @RestController
@@ -49,12 +50,11 @@ class ProductLikeRestAdapter(
     fun productLike(
         @Parameter(description = "생성할 상품 좋아요 정보", required = true)
         @RequestBody request: LikeRequest,
-    ): LikeResponse = likeUseCase.productLike(request.toCommand())
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
+    ): LikeResponse = likeUseCase.productLike(request.toCommand(userId))
 
-    @GetMapping("/{userId}")
+    @GetMapping
     fun getMyProductLikes(
-        @Parameter(description = "유저 식별자", required = true)
-        @PathVariable userId: Long,
         @Parameter(
             description = "페이징 정보",
             example = """{
@@ -66,6 +66,7 @@ class ProductLikeRestAdapter(
             required = true,
         )
         @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): PagedResponse<GetProductLikeResponse> {
         val query = GetUserProductLikeQuery(userId, pageable)
         return likeQueryUseCase.getUserProductLikes(query)

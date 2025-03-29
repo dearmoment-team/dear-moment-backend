@@ -86,7 +86,7 @@ data class UpdateProductRequest(
             subImages: List<Image>,
             additionalImages: List<Image>,
             options: List<UpdateProductOptionRequest> = emptyList(),
-            userId: java.util.UUID, // 인증 principal에서 전달된 userId
+            userId: java.util.UUID,
         ): Product {
             val productTypeEnum = req.productType?.let { ProductType.from(it) } ?: existingProduct.productType
             val shootingPlaceEnum = req.shootingPlace?.let { ShootingPlace.from(it) } ?: existingProduct.shootingPlace

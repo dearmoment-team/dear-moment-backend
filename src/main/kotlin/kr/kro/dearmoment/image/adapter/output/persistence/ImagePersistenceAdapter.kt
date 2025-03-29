@@ -9,7 +9,7 @@ import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.domain.Image
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
-import java.util.*
+import java.util.UUID
 
 @Component
 class ImagePersistenceAdapter(

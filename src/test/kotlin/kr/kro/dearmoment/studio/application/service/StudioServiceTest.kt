@@ -19,6 +19,7 @@ import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
 import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import java.util.UUID
 
 class StudioServiceTest : DescribeSpec({
     val saveStudioPort = mockk<SaveStudioPort>()
@@ -37,7 +38,7 @@ class StudioServiceTest : DescribeSpec({
                 )
             val registerCommand =
                 RegisterStudioCommand(
-                    userId = 1L,
+                    userId = UUID.randomUUID(),
                     name = "스튜디오 A",
                     contact = "010-1234-5678",
                     studioIntro = "스튜디오 소개글",
@@ -82,7 +83,7 @@ class StudioServiceTest : DescribeSpec({
             val modifyCommand =
                 ModifyStudioCommand(
                     id = 1L,
-                    userId = 1L,
+                    userId = UUID.randomUUID(),
                     name = "스튜디오 A(수정)",
                     contact = "010-1234-5678(수정)",
                     studioIntro = "스튜디오 소개글(수정)",

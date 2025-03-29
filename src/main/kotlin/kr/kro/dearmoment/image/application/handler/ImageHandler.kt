@@ -9,7 +9,7 @@ import kr.kro.dearmoment.product.application.dto.request.UpdateAdditionalImageAc
 import kr.kro.dearmoment.product.application.dto.request.UpdateSubImageAction
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
-import java.util.*
+import java.util.UUID
 
 @Component
 class ImageHandler(

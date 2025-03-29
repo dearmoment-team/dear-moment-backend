@@ -30,21 +30,22 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
+import java.util.UUID
 
 class StudioInquiryRestAdapterTest : RestApiTestBase() {
     @Test
     fun `스튜디오 문의 생성 API`() {
         val requestBody =
             CreateStudioInquiryRequest(
-                userId = 123L,
                 title = "작가 정보 오류 문의합니다.",
                 content = "연락처가 잘못 된 것 같습니다.",
                 email = "email@email.com",
             )
 
+        val userId = UUID.randomUUID()
         val expected = CreateInquiryResponse(1L)
 
-        every { createInquiryUseCase.createStudioInquiry(any()) } returns expected
+        every { createInquiryUseCase.createStudioInquiry(requestBody.toCommand(userId)) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
@@ -73,7 +74,7 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 스튜디오 문의 조회 API`() {
-        val userId = 123L
+        val userId = UUID.randomUUID()
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
         val inquiries =
             listOf(
@@ -106,7 +107,7 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .get("/api/inquiries/studios/{userId}", userId)
+                .get("/api/inquiries/studios")
                 .queryParam("page", "0")
                 .queryParam("size", "10")
 

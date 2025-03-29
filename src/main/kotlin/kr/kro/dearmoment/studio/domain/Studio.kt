@@ -1,11 +1,13 @@
 package kr.kro.dearmoment.studio.domain
 
+import java.util.UUID
+
 /***
  * TODO: 유저 연동 필요
  */
 data class Studio(
     val id: Long = 0L,
-    val userId: Long,
+    val userId: UUID,
     val name: String,
     val contact: String,
     val studioIntro: String,

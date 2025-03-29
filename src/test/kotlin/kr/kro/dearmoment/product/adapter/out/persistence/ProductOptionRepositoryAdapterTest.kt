@@ -55,7 +55,7 @@ class ProductOptionRepositoryAdapterTest(
                     StudioEntity(
                         id = 0L,
                         name = "스튜디오 디어모먼트",
-                        userId = 123L,
+                        userId = dummyUserId,
                         contact = "010-1234-5678",
                         studioIntro = "소개글",
                         artistsIntro = "스튜디오 A 작가 입니다.",

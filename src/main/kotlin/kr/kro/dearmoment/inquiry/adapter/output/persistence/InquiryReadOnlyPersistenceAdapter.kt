@@ -10,6 +10,7 @@ import kr.kro.dearmoment.inquiry.domain.StudioInquiry
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
+import java.util.UUID
 
 @Repository
 class InquiryReadOnlyPersistenceAdapter(
@@ -17,7 +18,7 @@ class InquiryReadOnlyPersistenceAdapter(
     private val productOptionInquiryJpaRepository: ProductOptionInquiryJpaRepository,
 ) : GetInquiryPort {
     override fun findUserStudioInquiries(
-        userId: Long,
+        userId: UUID,
         pageable: Pageable,
     ): Page<StudioInquiry> =
         studioInquiryJpaRepository.findPage(pageable) {
@@ -31,7 +32,7 @@ class InquiryReadOnlyPersistenceAdapter(
         }.map { it?.toDomain() }
 
     override fun findUserProductOptionInquiries(
-        userId: Long,
+        userId: UUID,
         pageable: Pageable,
     ): Page<ProductOptionInquiry> =
         productOptionInquiryJpaRepository.findPage(pageable) {

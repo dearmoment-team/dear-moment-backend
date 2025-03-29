@@ -4,7 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import kr.kro.dearmoment.image.domain.Image
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Embeddable
 class ImageEmbeddable(

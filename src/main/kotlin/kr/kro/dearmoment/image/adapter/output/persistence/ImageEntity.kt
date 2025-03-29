@@ -8,7 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.image.domain.Image
-import java.util.*
+import java.util.UUID
 
 @Entity
 @Table(name = "images")

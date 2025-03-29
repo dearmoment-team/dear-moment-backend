@@ -1,10 +1,11 @@
 package kr.kro.dearmoment.like.domain
 
 import kr.kro.dearmoment.product.domain.model.Product
+import java.util.UUID
 
 class ProductOptionLike(
     id: Long = 0L,
-    userId: Long,
+    userId: UUID,
     val studioName: String,
     val productOptionId: Long,
     val product: Product,

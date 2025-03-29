@@ -13,6 +13,7 @@ import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import java.util.UUID
 
 @Entity
 @Table(name = "studios")
@@ -22,7 +23,7 @@ class StudioEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
     name: String,
-    userId: Long,
+    userId: UUID,
     contact: String,
     studioIntro: String,
     artistsIntro: String,
@@ -34,7 +35,7 @@ class StudioEntity(
     partnerShops: MutableSet<StudioPartnerShopEmbeddable>,
 ) : Auditable() {
     @Column(nullable = false)
-    val userId: Long = userId
+    val userId: UUID = userId
 
     @Column(nullable = false)
     var name: String = name

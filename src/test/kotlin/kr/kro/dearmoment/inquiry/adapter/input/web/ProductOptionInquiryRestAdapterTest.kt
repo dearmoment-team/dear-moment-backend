@@ -32,17 +32,18 @@ import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
+import java.util.UUID
 
 class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 옵션 문의 생성 API`() {
         val requestBody =
             CreateProductOptionInquiryRequest(
-                userId = 123L,
                 optionId = 11L,
                 productId = 1L,
             )
 
+        val userId = UUID.randomUUID()
         val expected = CreateInquiryResponse(1L)
 
         every { createInquiryUseCase.createProductOptionInquiry(any()) } returns expected
@@ -73,7 +74,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 상품 옵션 문의 조회 API`() {
-        val userId = 123L
+        val userId = UUID.randomUUID()
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
 
         val inquiries =
@@ -111,7 +112,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .get("/api/inquiries/product-options/{userId}", userId)
+                .get("/api/inquiries/product-options")
                 .queryParam("page", "0")
                 .queryParam("size", "10")
 

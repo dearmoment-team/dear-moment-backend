@@ -15,8 +15,9 @@ import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
+import java.util.UUID
 
-fun studioEntityFixture(userId: Long = 12345L): StudioEntity =
+fun studioEntityFixture(userId: UUID = UUID.randomUUID()): StudioEntity =
     fixtureBuilder.giveMeKotlinBuilder<StudioEntity>()
         .setExp(StudioEntity::id, 0L)
         .setExp(StudioEntity::name, "스튜디오 디어모먼트")
@@ -38,7 +39,7 @@ fun studioPartnerShopEmbeddableFixture(): StudioPartnerShopEmbeddable =
         .sample()
 
 fun productEntityFixture(
-    userId: Long = 12345L,
+    userId: UUID = UUID.randomUUID(),
     studioEntity: StudioEntity,
 ): ProductEntity =
     fixtureBuilder.giveMeKotlinBuilder<ProductEntity>()
@@ -84,7 +85,7 @@ fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntit
         .sample()
 }
 
-fun studioInquiryEntityFixture(userId: Long = 1L) =
+fun studioInquiryEntityFixture(userId: UUID = UUID.randomUUID()) =
     fixtureBuilder.giveMeKotlinBuilder<StudioInquiryEntity>()
         .setExp(StudioInquiryEntity::id, 0)
         .setExp(StudioInquiryEntity::userId, userId)
@@ -93,7 +94,7 @@ fun studioInquiryEntityFixture(userId: Long = 1L) =
         .sample()
 
 fun productOptionInquiryEntityFixture(
-    userId: Long = 1L,
+    userId: UUID = UUID.randomUUID(),
     option: ProductOptionEntity = productOptionEntityFixture(productEntityFixture(studioEntity = studioEntityFixture())),
 ) = fixtureBuilder.giveMeKotlinBuilder<ProductOptionInquiryEntity>()
     .setExp(ProductOptionInquiryEntity::id, 0)

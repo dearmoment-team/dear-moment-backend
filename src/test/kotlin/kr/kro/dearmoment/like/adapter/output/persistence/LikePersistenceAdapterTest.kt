@@ -16,6 +16,7 @@ import kr.kro.dearmoment.like.domain.CreateProductOptionLike
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductRepository
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
+import java.util.UUID
 
 @RepositoryTest
 class LikePersistenceAdapterTest(
@@ -34,7 +35,7 @@ class LikePersistenceAdapterTest(
             )
 
         describe("saveProductLike() 는") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val studioLike = CreateProductLike(userId = userId, productId = savedProduct.productId!!)
@@ -48,7 +49,7 @@ class LikePersistenceAdapterTest(
         }
 
         describe("[예외] saveProductLike() 는") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val productLike = CreateProductLike(userId = userId, productId = savedProduct.productId!!)
@@ -66,7 +67,7 @@ class LikePersistenceAdapterTest(
         }
 
         describe("saveProductOptionLike()는") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture(userId))
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
@@ -82,7 +83,7 @@ class LikePersistenceAdapterTest(
         }
 
         describe("[예외] saveProductOptionLike()는") {
-            val userId = 1L
+            val userId = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture(userId))
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))

@@ -26,11 +26,13 @@ import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
 import kotlin.test.Test
 
 class StudioRestAdapterTest : RestApiTestBase() {
     @Test
     fun `스튜디오 등록(생성) API`() {
+        val userId = UUID.randomUUID()
         val partnerShopsDto =
             listOf(
                 StudioPartnerShopDto(
@@ -46,7 +48,6 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
         val requestBody =
             RegisterStudioRequest(
-                userId = 1L,
                 name = "디어모먼트 스튜디오",
                 contact = "010-1234-5678",
                 studioIntro = "스튜디오 소개글",
@@ -62,7 +63,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
         val expected =
             StudioResponse(id = 1L)
 
-        every { registerStudioUseCase.register(requestBody.toCommand()) } returns expected
+        every { registerStudioUseCase.register(requestBody.toCommand(userId)) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
@@ -120,7 +121,6 @@ class StudioRestAdapterTest : RestApiTestBase() {
         val expected =
             GetStudioResponse(
                 id = existedStudioId,
-                userId = 1L,
                 name = "디어모먼트 스튜디오(수정)",
                 contact = "010-1111-2222",
                 studioIntro = "스튜디오 소개글(수정)",
@@ -171,6 +171,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `스튜디오 수정 API`() {
+        val userId = UUID.randomUUID()
         val existedStudioId = 1L
         val partnerShopsDto =
             listOf(
@@ -187,7 +188,6 @@ class StudioRestAdapterTest : RestApiTestBase() {
             )
         val requestBody =
             ModifyStudioRequest(
-                userId = 1L,
                 name = "디어모먼트 스튜디오(수정)",
                 contact = "010-1111-2222",
                 studioIntro = "스튜디오 소개글(수정)",
@@ -203,7 +203,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
         val expected =
             StudioResponse(id = existedStudioId)
 
-        every { modifyStudioUseCase.modify(requestBody.toCommand(existedStudioId)) } returns expected
+        every { modifyStudioUseCase.modify(requestBody.toCommand(existedStudioId, userId)) } returns expected
 
         val request =
             RestDocumentationRequestBuilders

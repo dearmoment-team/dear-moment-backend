@@ -8,7 +8,7 @@ import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
-import java.util.*
+import java.util.UUID
 
 @Repository
 class ProductReadOnlyRepository(

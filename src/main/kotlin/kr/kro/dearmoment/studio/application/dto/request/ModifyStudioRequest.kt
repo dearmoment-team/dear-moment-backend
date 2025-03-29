@@ -3,15 +3,12 @@ package kr.kro.dearmoment.studio.application.dto.request
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
+import java.util.UUID
 
 data class ModifyStudioRequest(
-    @Schema(description = "사용자 ID", example = "1", required = true)
-    @field:NotNull(message = "유저 ID는 필수입니다.")
-    val userId: Long,
     @Schema(description = "스튜디오 이름", example = "디어모먼트 스튜디오", required = true)
     @field:NotBlank(message = "스튜디오 이름은 필수입니다.")
     val name: String,
@@ -48,19 +45,21 @@ data class ModifyStudioRequest(
     )
     val status: String,
 ) {
-    fun toCommand(studioId: Long) =
-        ModifyStudioCommand(
-            id = studioId,
-            userId = userId,
-            name = name,
-            contact = contact,
-            studioIntro = studioIntro,
-            artistsIntro = artistsIntro,
-            instagramUrl = instagramUrl,
-            kakaoChannelUrl = kakaoChannelUrl,
-            reservationNotice = reservationNotice,
-            cancellationPolicy = cancellationPolicy,
-            partnerShops = partnerShops.map { it.toCommand() },
-            status = status,
-        )
+    fun toCommand(
+        studioId: Long,
+        userId: UUID,
+    ) = ModifyStudioCommand(
+        id = studioId,
+        userId = userId,
+        name = name,
+        contact = contact,
+        studioIntro = studioIntro,
+        artistsIntro = artistsIntro,
+        instagramUrl = instagramUrl,
+        kakaoChannelUrl = kakaoChannelUrl,
+        reservationNotice = reservationNotice,
+        cancellationPolicy = cancellationPolicy,
+        partnerShops = partnerShops.map { it.toCommand() },
+        status = status,
+    )
 }

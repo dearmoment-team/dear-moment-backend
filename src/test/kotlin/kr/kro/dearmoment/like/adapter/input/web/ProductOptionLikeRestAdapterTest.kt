@@ -29,17 +29,18 @@ import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
 
 class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 옵션 좋아요 생성 API`() {
         val requestBody =
             LikeRequest(
-                userId = 1L,
                 targetId = 1L,
             )
+        val userId = UUID.randomUUID()
 
-        val command = SaveLikeCommand(requestBody.userId, requestBody.targetId)
+        val command = SaveLikeCommand(userId, requestBody.targetId)
         val expectedResponse = LikeResponse(likeId = 1L)
 
         every { likeUseCase.productOptionsLike(command) } returns expectedResponse
@@ -69,7 +70,7 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 상품 옵션 좋아요 조회 API`() {
-        val userId = 1L
+        val userId = UUID.randomUUID()
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
 
         val userLikes =

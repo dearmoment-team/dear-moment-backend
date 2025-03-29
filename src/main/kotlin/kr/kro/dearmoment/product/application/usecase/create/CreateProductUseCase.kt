@@ -3,7 +3,7 @@ package kr.kro.dearmoment.product.application.usecase.create
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.springframework.web.multipart.MultipartFile
-import java.util.*
+import java.util.UUID
 
 interface CreateProductUseCase {
     fun saveProduct(

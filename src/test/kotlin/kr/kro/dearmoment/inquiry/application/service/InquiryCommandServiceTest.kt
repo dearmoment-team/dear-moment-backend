@@ -18,6 +18,7 @@ import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import java.util.UUID
 
 class InquiryCommandServiceTest : DescribeSpec({
     val savePort = mockk<SaveInquiryPort>()
@@ -31,7 +32,7 @@ class InquiryCommandServiceTest : DescribeSpec({
         context("작가 문의 생성 명령을 전달 받으면") {
             val command =
                 CreateStudioInquiryCommand(
-                    userId = 1L,
+                    userId = UUID.randomUUID(),
                     title = "작가 정보 문의",
                     content = "전화번호 정보가 잘못되었습니다.",
                     email = "email@email.com",
@@ -49,7 +50,7 @@ class InquiryCommandServiceTest : DescribeSpec({
 
     describe("createProductOptionInquiry()는") {
         context("상품 문의 생성 명령을 전달 받으면") {
-            val command = CreateProductOptionInquiryCommand(userId = 1L, productId = 1L, optionId = 1L)
+            val command = CreateProductOptionInquiryCommand(userId = UUID.randomUUID(), productId = 1L, optionId = 1L)
             val expectedId = 1L
             every { savePort.saveProductOptionInquiry(any()) } returns expectedId
             every { productPersistencePort.increaseInquiryCount(command.productId) } just Runs
@@ -66,7 +67,7 @@ class InquiryCommandServiceTest : DescribeSpec({
         context("서비스 문의 생성 명령을 전달 받으면") {
             val command =
                 CreateServiceInquiryCommand(
-                    userId = 1L,
+                    userId = UUID.randomUUID(),
                     type = ServiceInquiryType.SYSTEM_ERROR_REPORT.name,
                     content = "홈페이지에 접속이 안됩니다..",
                     email = "email@email.com",
@@ -84,7 +85,7 @@ class InquiryCommandServiceTest : DescribeSpec({
         context("서비스 문의 생성 명령이 유효하지 않으면") {
             val command =
                 CreateServiceInquiryCommand(
-                    userId = 1L,
+                    userId = UUID.randomUUID(),
                     type = "invalid type",
                     content = "홈페이지에 접속이 안됩니다..",
                     email = "email@email.com",

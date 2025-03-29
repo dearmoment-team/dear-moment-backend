@@ -4,25 +4,26 @@ import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import java.util.UUID
 
 interface GetLikePort {
     fun findUserProductLikes(
-        userId: Long,
+        userId: UUID,
         pageable: Pageable,
     ): Page<ProductLike>
 
     fun findUserProductOptionLikes(
-        userId: Long,
+        userId: UUID,
         pageable: Pageable,
     ): Page<ProductOptionLike>
 
     fun existProductLike(
-        userId: Long,
+        userId: UUID,
         productId: Long,
     ): Boolean
 
     fun existProductOptionLike(
-        userId: Long,
+        userId: UUID,
         productOptionId: Long,
     ): Boolean
 }

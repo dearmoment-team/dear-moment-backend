@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.product.application.port.out
 
 import kr.kro.dearmoment.product.domain.model.Product
-import java.util.*
+import java.util.UUID
 
 interface GetProductPort {
     /**

@@ -8,6 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.inquiry.domain.StudioInquiry
+import java.util.UUID
 
 @Entity
 @Table(name = "studio_inquires")
@@ -17,7 +18,7 @@ class StudioInquiryEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
     @Column
-    val userId: Long,
+    val userId: UUID,
     @Column(nullable = false)
     val title: String,
     @Column(nullable = false)

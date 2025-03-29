@@ -13,6 +13,7 @@ import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.inquiry.domain.CreateProductOptionInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
+import java.util.UUID
 
 @Entity
 @Table(name = "product_option_inquires")
@@ -22,7 +23,7 @@ class ProductOptionInquiryEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
     @Column
-    val userId: Long,
+    val userId: UUID,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_id")
     val option: ProductOptionEntity,

@@ -1,8 +1,10 @@
 package kr.kro.dearmoment.inquiry.domain
 
+import java.util.UUID
+
 class ServiceInquiry(
     id: Long = 0L,
-    userId: Long = 0L,
+    userId: UUID,
     val type: ServiceInquiryType,
     val content: String,
     val answered: Boolean = false,

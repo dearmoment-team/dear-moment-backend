@@ -54,9 +54,9 @@ class ProductOptionEntityTest : StringSpec({
         // 직접 StudioEntity 생성 (fixture 대신)
         val studio =
             StudioEntity(
-                id = 0L, // auto-generated
+                id = 0L,
                 name = "스튜디오 디어모먼트",
-                userId = 123L,
+                userId = dummyUserId,
                 contact = "010-1234-5678",
                 studioIntro = "소개글",
                 artistsIntro = "작가 소개",
@@ -140,7 +140,7 @@ class ProductOptionEntityTest : StringSpec({
             StudioEntity(
                 id = 0L,
                 name = "스튜디오 디어모먼트",
-                userId = 123L,
+                userId = dummyUserId,
                 contact = "010-1234-5678",
                 studioIntro = "소개글",
                 artistsIntro = "작가 소개",

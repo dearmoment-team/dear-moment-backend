@@ -7,8 +7,6 @@ import kr.kro.dearmoment.studio.domain.Studio
 data class GetStudioResponse(
     @Schema(description = "스튜디오 ID", example = "1")
     val id: Long,
-    @Schema(description = "사용자 ID", example = "12345")
-    val userId: Long,
     @Schema(description = "스튜디오 이름", example = "디어모먼트 스튜디오")
     val name: String,
     @Schema(description = "연락처", example = "010-1234-5678")
@@ -38,7 +36,6 @@ data class GetStudioResponse(
         fun from(domain: Studio) =
             GetStudioResponse(
                 id = domain.id,
-                userId = domain.userId,
                 name = domain.name,
                 contact = domain.contact,
                 studioIntro = domain.studioIntro,

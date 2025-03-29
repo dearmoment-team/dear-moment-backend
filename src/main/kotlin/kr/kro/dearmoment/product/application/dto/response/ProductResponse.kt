@@ -13,7 +13,7 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Schema(description = "이미지 응답 DTO")
 data class ImageResponse(

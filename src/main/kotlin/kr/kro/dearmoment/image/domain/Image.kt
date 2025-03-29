@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.image.domain
 
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Image(
     val imageId: Long = 0L,
