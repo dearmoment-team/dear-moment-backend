@@ -30,7 +30,7 @@ data class SearchProductResponse(
     val maxPrice: Long,
     @Schema(description = "할인율", example = "10")
     val discountRate: Int,
-    @Schema(description = "사용자가 좋아요를 눌렀는지 여부", example = "true")
+    @Schema(description = "사용자가 상품 좋아요를 눌렀는지 여부", example = "true")
     val isLiked: Boolean,
 ) {
     companion object {
