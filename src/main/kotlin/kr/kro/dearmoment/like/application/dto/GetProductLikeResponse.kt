@@ -43,7 +43,7 @@ data class GetProductLikeResponse(
                 likeId = like.id,
                 productId = product.productId,
                 name = studio.name,
-                thumbnailUrls = product.subImages.map { it.url },
+                thumbnailUrls = product.subImages.take(3).map { it.url },
                 minPrice = product.options.minOf { it.originalPrice },
                 maxPrice = product.options.minOf { it.originalPrice },
                 availableSeasons = product.availableSeasons.map { it.name },
