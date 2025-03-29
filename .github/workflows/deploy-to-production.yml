@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   workflow_run:
-    workflows: ["Docker Publish"]      # Docker Build & Push가 성공하면 실행
+    workflows: ["Docker Publish"]      # Docker Publish가 성공하면 실행
     types:
       - completed
 
@@ -15,8 +15,8 @@ jobs:
         uses: appleboy/ssh-action@v1.2.1
         with:
           host: ${{ secrets.SERVER_IP }}         # 원격 서버 IP (예: OCI VM)
-          username: ${{ secrets.SERVER_USER }}   # 원격 서버 접속 사용자 (예: ubuntu)
-          key: ${{ secrets.SSH_PRIVATE_KEY }}    # SSH 개인키 (GitHub Secrets)
+          username: ${{ secrets.SERVER_USER }}     # 원격 서버 접속 사용자 (예: ubuntu)
+          key: ${{ secrets.SSH_PRIVATE_KEY }}      # SSH 개인키 (GitHub Secrets)
           script: |
             echo "==== Creating/updating .env in ~/env/.env ===="
             cat <<EOF > ~/env/.env
@@ -70,9 +70,9 @@ jobs:
             echo "==== Logging into GHCR... ===="
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
             echo "==== Pulling the latest image from GHCR... ===="
-            docker pull ghcr.io/${{ github.repository }}/dear-moment-backend:latest
+            docker pull ghcr.io/${{ github.repository }}/dearmoment-backend:latest
             echo "==== Shutting down existing containers ===="
             docker compose down
             echo "==== Starting containers (using the new image + updated .env) ===="
-            docker compose up -d
+            docker compose up --pull always -d --force-recreate
             docker images prune
