@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   workflow_run:
-    workflows: ["ci"]      # Docker Build & Push가 성공하면 실행
+    workflows: ["Docker Publish"]      # Docker Build & Push가 성공하면 실행
     types:
       - completed
 
