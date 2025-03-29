@@ -16,6 +16,7 @@ import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
+import java.io.BufferedInputStream
 import java.time.ZoneId
 import java.util.Date
 import java.util.UUID
@@ -33,28 +34,31 @@ class OracleObjectStorageAdapter(
         file: MultipartFile,
         userId: UUID,
     ): Image {
-        val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"
         val extension = convertFileExtension(file.contentType)
         val fileName = "$fileDir/${NanoId.generate()}.$extension"
         val contentType = "img/${file.contentType?.takeLast(3) ?: "JPG"}"
 
-        val putRequest =
-            PutObjectRequest.builder()
-                .bucketName(objectStorageProperties.bucketName)
-                .namespaceName(objectStorageProperties.namespaceName)
-                .objectName(fileName)
-                .contentLength(inputStream.available().toLong())
-                .contentType(contentType)
-                .putObjectBody(inputStream)
-                .build()
+        BufferedInputStream(file.inputStream).use { inputStream ->
 
-        val uploadRequest =
-            UploadRequest.builder(inputStream, inputStream.available().toLong())
-                .allowOverwrite(true)
-                .build(putRequest)
+            val fileSize = file.size
 
-        objectStorageUtil.uploadManager.upload(uploadRequest)
+            val putRequest =
+                PutObjectRequest.builder()
+                    .bucketName(objectStorageProperties.bucketName)
+                    .namespaceName(objectStorageProperties.namespaceName)
+                    .objectName(fileName)
+                    .contentLength(fileSize)
+                    .contentType(contentType)
+                    .putObjectBody(inputStream)
+                    .build()
+
+            val uploadRequest =
+                UploadRequest.builder(inputStream, fileSize)
+                    .allowOverwrite(true)
+                    .build(putRequest)
+            objectStorageUtil.uploadManager.upload(uploadRequest)
+        }
 
         val image =
             Image(
