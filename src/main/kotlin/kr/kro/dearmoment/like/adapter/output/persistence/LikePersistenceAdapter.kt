@@ -11,6 +11,7 @@ import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductRepository
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
+import java.util.UUID
 
 @Repository
 class LikePersistenceAdapter(
@@ -45,11 +46,23 @@ class LikePersistenceAdapter(
         }
     }
 
-    override fun deleteProductLike(likeId: Long) {
-        productLikeRepository.deleteById(likeId)
+    override fun deleteProductLike(
+        userId: UUID,
+        likeId: Long,
+    ) {
+        val entity =
+            productLikeRepository.findByIdAndUserId(likeId, userId)
+                ?: throw CustomException(ErrorCode.LIKE_NOT_FOUND)
+        productLikeRepository.delete(entity)
     }
 
-    override fun deleteProductOptionLike(likeId: Long) {
-        productOptionLikeRepository.deleteById(likeId)
+    override fun deleteProductOptionLike(
+        userId: UUID,
+        likeId: Long,
+    ) {
+        val entity =
+            productOptionLikeRepository.findByIdAndUserId(likeId, userId)
+                ?: throw CustomException(ErrorCode.LIKE_NOT_FOUND)
+        productOptionLikeRepository.delete(entity)
     }
 }

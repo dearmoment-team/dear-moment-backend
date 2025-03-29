@@ -77,9 +77,10 @@ class LikeServiceTest : DescribeSpec({
                 UnlikeProductCommand(
                     productId = 1L,
                     likeId = 1L,
+                    userId = UUID.randomUUID(),
                 )
 
-            every { deleteLikePort.deleteProductLike(command.likeId) } just Runs
+            every { deleteLikePort.deleteProductLike(command.userId, command.likeId) } just Runs
             every { productPersistencePort.decreaseLikeCount(command.productId) } just Runs
             it("like를 삭제한다.") {
                 shouldNotThrow<Throwable> { likeCommandService.productUnlike(command) }
@@ -93,9 +94,10 @@ class LikeServiceTest : DescribeSpec({
                 UnlikeProductOptionCommand(
                     likeId = 1L,
                     productOptionId = 1L,
+                    userId = UUID.randomUUID(),
                 )
 
-            every { deleteLikePort.deleteProductOptionLike(command.likeId) } just Runs
+            every { deleteLikePort.deleteProductOptionLike(command.userId, command.likeId) } just Runs
             every { optionReadRepository.findById(command.productOptionId) } returns productOptionFixture()
             every { productPersistencePort.decreaseOptionLikeCount(any()) } just Runs
             it("like를 삭제한다.") {

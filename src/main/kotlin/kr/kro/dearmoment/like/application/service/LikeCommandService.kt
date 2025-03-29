@@ -40,12 +40,12 @@ class LikeCommandService(
     }
 
     override fun productUnlike(command: UnlikeProductCommand) {
-        deleteLikePort.deleteProductLike(command.likeId)
+        deleteLikePort.deleteProductLike(command.userId, command.likeId)
         productPersistencePort.decreaseLikeCount(command.productId)
     }
 
     override fun productOptionUnlike(command: UnlikeProductOptionCommand) {
-        deleteLikePort.deleteProductOptionLike(command.likeId)
+        deleteLikePort.deleteProductOptionLike(command.userId, command.likeId)
         val option = productOptionReadOnlyRepository.findById(command.productOptionId)
         productPersistencePort.decreaseOptionLikeCount(option.productId)
     }

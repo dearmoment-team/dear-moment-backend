@@ -86,5 +86,6 @@ class ProductLikeRestAdapter(
     fun productUnlike(
         @Parameter(description = "삭제할 상품 좋아요 정보", required = true)
         @RequestBody request: UnlikeProductRequest,
-    ): Unit = likeUseCase.productUnlike(request.toCommand())
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
+    ): Unit = likeUseCase.productUnlike(request.toCommand(userId))
 }

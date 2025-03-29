@@ -103,10 +103,25 @@ class LikePersistenceAdapterTest(
         }
 
         describe("deleteXXXLike()는") {
-            context("like ID가 전달되면") {
+            val userId = UUID.randomUUID()
+            val savedStudio = studioRepository.save(studioEntityFixture(userId))
+            val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
+            val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
+            val productOptionLike =
+                CreateProductOptionLike(userId = userId, productOptionId = savedProductOption.optionId)
+            val productOptionLikeId = adapter.saveProductOptionLike(productOptionLike)
+            val studioLike = CreateProductLike(userId = userId, productId = savedProduct.productId!!)
+            val productId = adapter.saveProductLike(studioLike)
+
+            context("userId와 like ID가 전달되면") {
                 it("like ID에 해당하는 데이터를 db에서 삭제한다. ") {
-                    shouldNotThrow<Throwable> { adapter.deleteProductLike(1L) }
-                    shouldNotThrow<Throwable> { adapter.deleteProductOptionLike(1L) }
+                    shouldNotThrow<Throwable> { adapter.deleteProductLike(userId, productId) }
+                    shouldNotThrow<Throwable> { adapter.deleteProductOptionLike(userId, productOptionLikeId) }
+                }
+
+                it("존재하지 않는 유저의 좋아요를 삭제하려면 예외를 발생 시킨다") {
+                    shouldThrow<CustomException> { adapter.deleteProductLike(UUID.randomUUID(), 1124124L) }
+                    shouldThrow<CustomException> { adapter.deleteProductOptionLike(UUID.randomUUID(), 1241251L) }
                 }
             }
         }

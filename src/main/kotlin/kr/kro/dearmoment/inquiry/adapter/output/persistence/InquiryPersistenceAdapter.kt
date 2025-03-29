@@ -47,5 +47,10 @@ class InquiryPersistenceAdapter(
     override fun deleteProductOptionInquiry(
         inquiryId: Long,
         userId: UUID,
-    ): Unit = productOptionInquiryJpaRepository.deleteByIdAndUserId(inquiryId, userId)
+    ) {
+        val entity =
+            productOptionInquiryJpaRepository.findByIdAndUserId(inquiryId, userId)
+                ?: throw CustomException(ErrorCode.INQUIRY_NOT_FOUND)
+        productOptionInquiryJpaRepository.delete(entity)
+    }
 }

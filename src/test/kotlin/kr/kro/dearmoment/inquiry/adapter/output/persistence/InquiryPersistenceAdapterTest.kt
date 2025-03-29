@@ -1,9 +1,11 @@
 package kr.kro.dearmoment.inquiry.adapter.output.persistence
 
 import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
+import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
@@ -76,9 +78,23 @@ class InquiryPersistenceAdapterTest(
         }
 
         describe("deleteProductOptionInquiry()는") {
-            context("inquiryId가 전될되면") {
+            val savedStudio = studioRepository.save(studioEntityFixture())
+            val savedProduct = productRepository.save(productEntityFixture(savedStudio.userId, savedStudio))
+            val option = productOptionRepository.save(productOptionEntityFixture(savedProduct))
+            val inquiry =
+                CreateProductOptionInquiry(
+                    userId = UUID.randomUUID(),
+                    productId = savedProduct.productId!!,
+                    optionId = option.optionId,
+                )
+            val savedInquiry = adapter.saveProductOptionInquiry(inquiry)
+            context("userId와 inquiryId가 전될되면") {
                 it("DB의 종류별 문의 테이블에서 해당 PK를 가진 데이터를 삭제한다.") {
-                    shouldNotThrow<Throwable> { adapter.deleteProductOptionInquiry(1L, UUID.randomUUID()) }
+                    shouldNotThrow<Throwable> { adapter.deleteProductOptionInquiry(savedInquiry, inquiry.userId) }
+                }
+
+                it("존재하지 않는 유저의 문의를 삭제하려면 예외를 발생 시킨다") {
+                    shouldThrow<CustomException> { adapter.deleteProductOptionInquiry(savedInquiry, UUID.randomUUID()) }
                 }
             }
         }

@@ -1,7 +1,15 @@
 package kr.kro.dearmoment.like.application.port.output
 
-interface DeleteLikePort {
-    fun deleteProductLike(likeId: Long)
+import java.util.UUID
 
-    fun deleteProductOptionLike(likeId: Long)
+interface DeleteLikePort {
+    fun deleteProductLike(
+        userId: UUID,
+        likeId: Long,
+    )
+
+    fun deleteProductOptionLike(
+        userId: UUID,
+        likeId: Long,
+    )
 }
