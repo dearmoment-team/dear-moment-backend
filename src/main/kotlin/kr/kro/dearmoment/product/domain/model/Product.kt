@@ -96,7 +96,12 @@ data class Product(
     }
 
     fun calculateDiscountRate(): Int {
+        if (options.isEmpty()) {
+            return 0
+        }
+
         val discountRate = options.maxOf { (it.discountPrice.toDouble() / it.originalPrice) * 100 }.toInt()
+
         return if (discountRate == MAX_DISCOUNT_RATE) {
             return MIN_DISCOUNT_RATE
         } else {
