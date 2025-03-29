@@ -11,7 +11,6 @@ import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.queryParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
@@ -30,7 +29,6 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
-import java.util.UUID
 
 class StudioInquiryRestAdapterTest : RestApiTestBase() {
     @Test
@@ -42,10 +40,9 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
                 email = "email@email.com",
             )
 
-        val userId = UUID.randomUUID()
         val expected = CreateInquiryResponse(1L)
 
-        every { createInquiryUseCase.createStudioInquiry(requestBody.toCommand(userId)) } returns expected
+        every { createInquiryUseCase.createStudioInquiry(any()) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
@@ -58,7 +55,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
             .andDocument(
                 "create-studio_inquiry",
                 requestBody(
-                    "userId" type NUMBER means "유저 ID",
                     "title" type STRING means "문의 제목",
                     "content" type STRING means "문의 내용",
                     "email" type STRING means "답변 받을 이메일",
@@ -74,7 +70,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 스튜디오 문의 조회 API`() {
-        val userId = UUID.randomUUID()
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
         val inquiries =
             listOf(
@@ -119,7 +114,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
             .andExpect(jsonPath("$.data.totalPages").value(expectedResponse.totalPages))
             .andDocument(
                 "get-studios_inquiries",
-                pathParameters("userId" means "작가 문의를 생성한 userId"),
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",
                     "size" means "페이지 크기 (기본값: 10)",

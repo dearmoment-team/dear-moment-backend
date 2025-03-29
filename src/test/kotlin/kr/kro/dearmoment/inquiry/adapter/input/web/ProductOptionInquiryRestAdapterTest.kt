@@ -13,7 +13,6 @@ import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.queryParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
@@ -32,7 +31,6 @@ import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
-import java.util.UUID
 
 class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
     @Test
@@ -43,7 +41,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                 productId = 1L,
             )
 
-        val userId = UUID.randomUUID()
         val expected = CreateInquiryResponse(1L)
 
         every { createInquiryUseCase.createProductOptionInquiry(any()) } returns expected
@@ -74,7 +71,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 상품 옵션 문의 조회 API`() {
-        val userId = UUID.randomUUID()
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
 
         val inquiries =
@@ -120,7 +116,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
             .andExpect(status().isOk)
             .andDocument(
                 "get-product_options_inquiries",
-                pathParameters("userId" means "상품 문의를 생성한 userId"),
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",
                     "size" means "페이지 크기 (기본값: 10)",

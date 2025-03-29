@@ -19,7 +19,6 @@ import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 
 /**
  * [상품 업데이트] Controller 테스트 예시 (PATCH 방식)
@@ -104,11 +103,10 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
             )
 
         // 3) 수정 결과(응답) 예시
-        val authUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
         val updatedResponse =
             ProductResponse(
                 productId = 1L,
-                userId = authUserId,
+                userId = userId,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "Updated Product Title",
@@ -156,7 +154,7 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
 
         // 4) updateProductUseCase 모킹 (새로운 시그니처에 맞게, 인증된 userId를 첫 번째 파라미터로 전달)
         every {
-            updateProductUseCase.updateProduct(eq(authUserId), eq(1L), any(), any(), any(), any(), any())
+            updateProductUseCase.updateProduct(eq(userId), eq(1L), any(), any(), any(), any(), any())
         } returns updatedResponse
 
         // 5) multipart/form-data PATCH 요청

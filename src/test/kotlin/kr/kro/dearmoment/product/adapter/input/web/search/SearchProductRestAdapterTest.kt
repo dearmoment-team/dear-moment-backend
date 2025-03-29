@@ -23,12 +23,10 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 검색 API 테스트 - 정상 검색`() {
         // given
-        val dummyUserId1 = UUID.fromString("11111111-1111-1111-1111-111111111111")
-        val dummyUserId2 = UUID.fromString("22222222-2222-2222-2222-222222222222")
         val product1 =
             ProductResponse(
                 productId = 1L,
-                userId = dummyUserId1,
+                userId = userId,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "My Wedding Snap",
@@ -48,7 +46,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
         val product2 =
             ProductResponse(
                 productId = 2L,
-                userId = dummyUserId2,
+                userId = userId,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "SEOUL",
                 title = "Another Snap",

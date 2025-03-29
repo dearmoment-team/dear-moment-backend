@@ -11,8 +11,6 @@ import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
-import kr.kro.dearmoment.common.restdocs.means
-import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
@@ -31,7 +29,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 
 class ProductLikeRestAdapterTest : RestApiTestBase() {
     @Test
@@ -40,7 +37,6 @@ class ProductLikeRestAdapterTest : RestApiTestBase() {
             LikeRequest(
                 targetId = 1L,
             )
-        val userId = UUID.randomUUID()
         val command = requestBody.toCommand(userId)
         val expectedResponse = LikeResponse(likeId = 1L)
 
@@ -71,7 +67,6 @@ class ProductLikeRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `유저 상품 좋아요 조회 API`() {
-        val userId = UUID.randomUUID()
         val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
         val userLikes =
             listOf(
@@ -128,15 +123,12 @@ class ProductLikeRestAdapterTest : RestApiTestBase() {
 
         val request =
             RestDocumentationRequestBuilders
-                .get("/api/likes/products/{userId}", userId)
+                .get("/api/likes/products")
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
                 "get-user-studio-likes",
-                pathParameters(
-                    "userId" means "조회할 유저 ID",
-                ),
                 responseBody(
                     "data" type OBJECT means "응답 데이터 배열",
                     "data.content" type ARRAY means "유저 상품 좋아요 리스트",

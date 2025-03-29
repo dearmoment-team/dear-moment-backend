@@ -26,13 +26,11 @@ import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 import kotlin.test.Test
 
 class StudioRestAdapterTest : RestApiTestBase() {
     @Test
     fun `스튜디오 등록(생성) API`() {
-        val userId = UUID.randomUUID()
         val partnerShopsDto =
             listOf(
                 StudioPartnerShopDto(
@@ -171,7 +169,6 @@ class StudioRestAdapterTest : RestApiTestBase() {
 
     @Test
     fun `스튜디오 수정 API`() {
-        val userId = UUID.randomUUID()
         val existedStudioId = 1L
         val partnerShopsDto =
             listOf(

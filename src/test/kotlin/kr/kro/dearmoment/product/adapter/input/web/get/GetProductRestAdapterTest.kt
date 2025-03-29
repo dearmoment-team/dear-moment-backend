@@ -16,17 +16,15 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 
 class GetProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
-        val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
         val productResponse =
             ProductResponse(
                 productId = 1L,
-                userId = dummyUserId,
+                userId = userId,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "New Product",

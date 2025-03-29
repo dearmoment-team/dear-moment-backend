@@ -20,7 +20,6 @@ import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 
 class CreateProductRestAdapterTest : RestApiTestBase() {
     @Test
@@ -125,7 +124,6 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
             )
 
         // 응답 객체 설정 (userId는 UUID 타입, 예: "550e8400-e29b-41d4-a716-446655440000")
-        val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
         val productOptionResponse1 =
             ProductOptionResponse(
                 optionId = 1L,
@@ -174,7 +172,7 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
         val productResponse =
             ProductResponse(
                 productId = 1L,
-                userId = dummyUserId,
+                userId = userId,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "New Product",
@@ -215,8 +213,9 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
 
+        val authenticatedRequest = withAuthenticatedUser(userId, requestBuilder)
         // 요청 실행 및 검증
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(authenticatedRequest)
             .andExpect(status().isOk)
             .andDocument(
                 "create-product",
