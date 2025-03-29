@@ -68,6 +68,8 @@ dependencies {
     implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$jdslVersion")
     implementation("com.linecorp.kotlin-jdsl:hibernate-support:$jdslVersion")
 
+    implementation("io.viascom.nanoid:nanoid:1.0.1")
+
     // JUnit5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     // H2

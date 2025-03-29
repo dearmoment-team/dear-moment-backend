@@ -8,6 +8,7 @@ import com.oracle.bmc.objectstorage.requests.DeleteObjectRequest
 import com.oracle.bmc.objectstorage.requests.DeletePreauthenticatedRequestRequest
 import com.oracle.bmc.objectstorage.requests.PutObjectRequest
 import com.oracle.bmc.objectstorage.transfer.UploadManager.UploadRequest
+import io.viascom.nanoid.NanoId
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
@@ -34,7 +35,7 @@ class OracleObjectStorageAdapter(
     ): Image {
         val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"
-        val fileName = "$fileDir/${UUID.randomUUID()}.${file.contentType?.takeLast(3) ?: "JPG"}"
+        val fileName = "$fileDir/${NanoId.generate()}.${file.contentType?.takeLast(3) ?: "JPG"}"
         val contentType = "img/${file.contentType?.takeLast(3) ?: "JPG"}"
 
         val putRequest =
