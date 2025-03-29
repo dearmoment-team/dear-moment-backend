@@ -41,11 +41,12 @@ fun studioPartnerShopEmbeddableFixture(): StudioPartnerShopEmbeddable =
 fun productEntityFixture(
     userId: UUID = UUID.randomUUID(),
     studioEntity: StudioEntity,
+    productId: Long? = null,
 ): ProductEntity =
     fixtureBuilder.giveMeKotlinBuilder<ProductEntity>()
-        .setNull(ProductEntity::productId)
         .setNotNull(ProductEntity::title)
         .setNotNull(ProductEntity::version)
+        .set(ProductEntity::productId, productId)
         .set(ProductEntity::productType, ProductType.entries.shuffled().first())
         .set(ProductEntity::shootingPlace, ShootingPlace.JEJU)
         .set(ProductEntity::userId, userId)
@@ -73,9 +74,12 @@ fun partnerShopEmbeddableFixture(): PartnerShopEmbeddable =
         .setExp(PartnerShopEmbeddable::link, "http://testshop.com")
         .sample()
 
-fun productOptionEntityFixture(productEntity: ProductEntity): ProductOptionEntity {
+fun productOptionEntityFixture(
+    productEntity: ProductEntity,
+    optionId: Long? = null,
+): ProductOptionEntity {
     return fixtureBuilder.giveMeKotlinBuilder<ProductOptionEntity>()
-        .setNull(ProductOptionEntity::optionId)
+        .set(ProductOptionEntity::optionId, optionId)
         .set(ProductOptionEntity::product, productEntity)
         .set(ProductOptionEntity::discountPrice, (50_000L..150_000L).random())
         .set(ProductOptionEntity::originalPrice, (150_000L..300_000L).random())

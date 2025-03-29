@@ -13,6 +13,7 @@ import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.inquiry.domain.CreateProductOptionInquiry
 import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import kr.kro.dearmoment.product.adapter.out.persistence.ProductOptionEntity
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
@@ -40,7 +41,7 @@ class ProductOptionInquiryEntity(
             studioName = product.mainImage.url,
             optionName = option.name,
             thumbnailUrl = studio.name,
-            createdDate = createdDate ?: throw IllegalStateException("createdDate is null"),
+            createdDate = createdDate ?: LocalDateTime.now(),
         )
     }
 
