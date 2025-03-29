@@ -67,7 +67,7 @@ dependencies {
     implementation("com.linecorp.kotlin-jdsl:jpql-render:$jdslVersion")
     implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$jdslVersion")
     implementation("com.linecorp.kotlin-jdsl:hibernate-support:$jdslVersion")
-
+// 2
     implementation("io.viascom.nanoid:nanoid:1.0.1")
 
     // JUnit5
