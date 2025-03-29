@@ -106,7 +106,6 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
         val updatedResponse =
             ProductResponse(
                 productId = 1L,
-                userId = userId,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "Updated Product Title",

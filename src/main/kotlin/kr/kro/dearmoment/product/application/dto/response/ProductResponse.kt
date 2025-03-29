@@ -36,8 +36,6 @@ data class ImageResponse(
 data class ProductResponse(
     @Schema(description = "상품 ID", example = "100")
     val productId: Long,
-    @Schema(description = "사용자 ID", example = "1")
-    val userId: UUID,
     @Schema(
         description = "상품 유형 (도메인: ProductType)",
         example = "WEDDING_SNAP",
@@ -100,7 +98,6 @@ data class ProductResponse(
         fun fromDomain(prod: Product): ProductResponse {
             return ProductResponse(
                 productId = prod.productId,
-                userId = prod.userId,
                 productType = prod.productType.name,
                 shootingPlace = prod.shootingPlace.name,
                 title = prod.title,
@@ -123,7 +120,6 @@ data class ProductResponse(
     fun toDomain(): Product {
         return Product(
             productId = this.productId,
-            userId = this.userId,
             productType = ProductType.valueOf(this.productType),
             shootingPlace = ShootingPlace.valueOf(this.shootingPlace),
             title = this.title,
@@ -133,14 +129,12 @@ data class ProductResponse(
             retouchStyles = this.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet(),
             mainImage =
                 Image(
-                    userId = this.userId,
                     fileName = this.mainImage.url.substringAfterLast('/'),
                     url = this.mainImage.url,
                 ),
             subImages =
                 this.subImages.map { img ->
                     Image(
-                        userId = this.userId,
                         fileName = img.url.substringAfterLast('/'),
                         url = img.url,
                     )
@@ -148,7 +142,6 @@ data class ProductResponse(
             additionalImages =
                 this.additionalImages.map { img ->
                     Image(
-                        userId = this.userId,
                         fileName = img.url.substringAfterLast('/'),
                         url = img.url,
                     )

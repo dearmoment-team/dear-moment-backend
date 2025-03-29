@@ -1,0 +1,512 @@
+.
+├── .DS_Store
+├── .env
+├── .env.example
+├── .gitattributes
+├── .github
+│   ├── ISSUE_TEMPLATE
+│   │   ├── bug.md
+│   │   └── issue.md
+│   ├── pull_request_template.md
+│   └── workflows
+│       ├── ci.yml
+│       ├── closed-issue-discord-webhook.yml
+│       ├── closed-pr-discord-webhook.yml
+│       ├── deploy-to-production.yml
+│       ├── docker-publish.yml
+│       ├── opened-issue-discord-webhook.yml
+│       ├── opened-pr-discord-webhook.yml
+│       ├── setup-oci.yml
+│       └── sonarqube.yml
+├── .gitignore
+├── .gitmessage.txt
+├── .kotlin
+│   └── sessions
+├── Dockerfile
+├── README.md
+├── build.gradle.kts
+├── docker
+│   ├── Dockerfile-prod
+│   └── docker-compose-prod.yml
+├── docker-compose.yml
+├── entrypoint.sh
+├── file_structure.txt
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── image
+│   ├── img.png
+│   ├── img2.png
+│   └── img3.png
+├── settings.gradle.kts
+├── src
+│   ├── .DS_Store
+│   ├── main
+│   │   ├── .DS_Store
+│   │   ├── kotlin
+│   │   │   ├── .DS_Store
+│   │   │   └── kr
+│   │   │       └── kro
+│   │   │           └── dearmoment
+│   │   │               ├── DearMomentApplication.kt
+│   │   │               ├── common
+│   │   │               │   ├── config
+│   │   │               │   │   ├── JpaConfig.kt
+│   │   │               │   │   ├── OpenApiConfig.kt
+│   │   │               │   │   ├── OpenApiSecurityConfig.kt
+│   │   │               │   │   └── WebConfig.kt
+│   │   │               │   ├── converter
+│   │   │               │   │   └── CustomHttpMessageConverter.kt
+│   │   │               │   ├── dto
+│   │   │               │   │   ├── CustomResponse.kt
+│   │   │               │   │   ├── PagedResponse.kt
+│   │   │               │   │   └── ResponseWrapper.kt
+│   │   │               │   ├── exception
+│   │   │               │   │   ├── CustomException.kt
+│   │   │               │   │   ├── ErrorCode.kt
+│   │   │               │   │   └── GlobalExceptionHandler.kt
+│   │   │               │   ├── persistence
+│   │   │               │   │   └── Auditable.kt
+│   │   │               │   └── validation
+│   │   │               │       ├── NotBlankIfPresent.kt
+│   │   │               │       └── NotBlankIfPresentValidator.kt
+│   │   │               ├── image
+│   │   │               │   ├── adapter
+│   │   │               │   │   ├── input
+│   │   │               │   │   │   └── web
+│   │   │               │   │   │       └── dto
+│   │   │               │   │   │           ├── GetImageResponse.kt
+│   │   │               │   │   │           └── GetImagesResponse.kt
+│   │   │               │   │   └── output
+│   │   │               │   │       ├── objectstorage
+│   │   │               │   │       │   ├── OracleObjectStorageAdapter.kt
+│   │   │               │   │       │   ├── OracleObjectStorageProperties.kt
+│   │   │               │   │       │   └── OracleObjectStorageUtil.kt
+│   │   │               │   │       └── persistence
+│   │   │               │   │           ├── ImageEntity.kt
+│   │   │               │   │           ├── ImagePersistenceAdapter.kt
+│   │   │               │   │           └── JpaImageRepository.kt
+│   │   │               │   ├── application
+│   │   │               │   │   ├── command
+│   │   │               │   │   │   └── SaveImageCommand.kt
+│   │   │               │   │   ├── handler
+│   │   │               │   │   │   └── ImageHandler.kt
+│   │   │               │   │   ├── port
+│   │   │               │   │   │   ├── input
+│   │   │               │   │   │   │   ├── DeleteImageUseCase.kt
+│   │   │               │   │   │   │   ├── GetImageUseCase.kt
+│   │   │               │   │   │   │   ├── SaveImageUseCase.kt
+│   │   │               │   │   │   │   └── UpdateImagePort.kt
+│   │   │               │   │   │   └── output
+│   │   │               │   │   │       ├── DeleteImageFromDBPort.kt
+│   │   │               │   │   │       ├── DeleteImageFromObjectStoragePort.kt
+│   │   │               │   │   │       ├── GetImageFromObjectStoragePort.kt
+│   │   │               │   │   │       ├── GetImagePort.kt
+│   │   │               │   │   │       ├── SaveImagePort.kt
+│   │   │               │   │   │       └── UploadImagePort.kt
+│   │   │               │   │   └── service
+│   │   │               │   │       └── ImageService.kt
+│   │   │               │   └── domain
+│   │   │               │       └── Image.kt
+│   │   │               ├── inquiry
+│   │   │               │   ├── adapter
+│   │   │               │   │   ├── input
+│   │   │               │   │   │   └── web
+│   │   │               │   │   │       ├── ProductOptionInquiryRestAdapter.kt
+│   │   │               │   │   │       ├── ServiceInquiryRestAdapter.kt
+│   │   │               │   │   │       └── StudioInquiryRestAdapter.kt
+│   │   │               │   │   └── output
+│   │   │               │   │       ├── mail
+│   │   │               │   │       │   ├── MailAdapter.kt
+│   │   │               │   │       │   └── MailProperties.kt
+│   │   │               │   │       └── persistence
+│   │   │               │   │           ├── InquiryPersistenceAdapter.kt
+│   │   │               │   │           ├── InquiryReadOnlyPersistenceAdapter.kt
+│   │   │               │   │           ├── product
+│   │   │               │   │           │   ├── ProductOptionInquiryEntity.kt
+│   │   │               │   │           │   └── ProductOptionInquiryJpaRepository.kt
+│   │   │               │   │           ├── service
+│   │   │               │   │           │   ├── ServiceInquiryEntity.kt
+│   │   │               │   │           │   └── ServiceInquiryJpaRepository.kt
+│   │   │               │   │           └── studio
+│   │   │               │   │               ├── StudioInquiryEntity.kt
+│   │   │               │   │               └── StudioInquiryJpaRepository.kt
+│   │   │               │   ├── application
+│   │   │               │   │   ├── command
+│   │   │               │   │   │   ├── CreateProductOptionInquiryCommand.kt
+│   │   │               │   │   │   ├── CreateServiceInquiryCommand.kt
+│   │   │               │   │   │   ├── CreateStudioInquiryCommand.kt
+│   │   │               │   │   │   └── RemoveProductOptionInquiryCommand.kt
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── CreateInquiryResponse.kt
+│   │   │               │   │   │   ├── CreateProductOptionInquiryRequest.kt
+│   │   │               │   │   │   ├── CreateServiceInquiryRequest.kt
+│   │   │               │   │   │   ├── CreateStudioInquiryRequest.kt
+│   │   │               │   │   │   ├── GetProductOptionInquiryResponse.kt
+│   │   │               │   │   │   ├── GetStudioInquiryResponse.kt
+│   │   │               │   │   │   └── RemoveProductOptionInquiryRequest.kt
+│   │   │               │   │   ├── port
+│   │   │               │   │   │   ├── input
+│   │   │               │   │   │   │   ├── CreateInquiryUseCase.kt
+│   │   │               │   │   │   │   ├── GetInquiryUseCase.kt
+│   │   │               │   │   │   │   └── RemoveInquiryUseCase.kt
+│   │   │               │   │   │   └── output
+│   │   │               │   │   │       ├── DeleteInquiryPort.kt
+│   │   │               │   │   │       ├── GetInquiryPort.kt
+│   │   │               │   │   │       ├── SaveInquiryPort.kt
+│   │   │               │   │   │       └── SendInquiryPort.kt
+│   │   │               │   │   ├── query
+│   │   │               │   │   │   ├── GetProductInquiresQuery.kt
+│   │   │               │   │   │   └── GetStudioInquiresQuery.kt
+│   │   │               │   │   └── service
+│   │   │               │   │       ├── InquiryCommandService.kt
+│   │   │               │   │       └── InquiryQueryService.kt
+│   │   │               │   └── domain
+│   │   │               │       ├── CreateProductOptionInquiry.kt
+│   │   │               │       ├── Inquiry.kt
+│   │   │               │       ├── ProductOptionInquiry.kt
+│   │   │               │       ├── ServiceInquiry.kt
+│   │   │               │       ├── ServiceInquiryType.kt
+│   │   │               │       └── StudioInquiry.kt
+│   │   │               ├── like
+│   │   │               │   ├── adapter
+│   │   │               │   │   ├── input
+│   │   │               │   │   │   └── web
+│   │   │               │   │   │       ├── ProductLikeRestAdapter.kt
+│   │   │               │   │   │       └── ProductOptionLikeRestAdapter.kt
+│   │   │               │   │   └── output
+│   │   │               │   │       └── persistence
+│   │   │               │   │           ├── LikePersistenceAdapter.kt
+│   │   │               │   │           ├── LikeReadOnlyPersistenceAdapter.kt
+│   │   │               │   │           ├── ProductLikeEntity.kt
+│   │   │               │   │           ├── ProductLikeJpaRepository.kt
+│   │   │               │   │           ├── ProductOptionLikeEntity.kt
+│   │   │               │   │           └── ProductOptionLikeJpaRepository.kt
+│   │   │               │   ├── application
+│   │   │               │   │   ├── command
+│   │   │               │   │   │   ├── SaveLikeCommand.kt
+│   │   │               │   │   │   └── UnlikeProductCommand.kt
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── GetProductLikeResponse.kt
+│   │   │               │   │   │   ├── GetProductOptionLikeResponse.kt
+│   │   │               │   │   │   ├── LikeRequest.kt
+│   │   │               │   │   │   ├── LikeResponse.kt
+│   │   │               │   │   │   └── UnlikeProductRequest.kt
+│   │   │               │   │   ├── port
+│   │   │               │   │   │   ├── input
+│   │   │               │   │   │   │   ├── LikeQueryUseCase.kt
+│   │   │               │   │   │   │   └── LikeUseCase.kt
+│   │   │               │   │   │   └── output
+│   │   │               │   │   │       ├── DeleteLikePort.kt
+│   │   │               │   │   │       ├── GetLikePort.kt
+│   │   │               │   │   │       └── SaveLikePort.kt
+│   │   │               │   │   ├── query
+│   │   │               │   │   │   ├── ExistLikeQuery.kt
+│   │   │               │   │   │   ├── GetUserProductLikeQuery.kt
+│   │   │               │   │   │   └── GetUserProductOptionLikeQuery.kt
+│   │   │               │   │   └── service
+│   │   │               │   │       ├── LikeCommandService.kt
+│   │   │               │   │       └── LikeQueryService.kt
+│   │   │               │   └── domain
+│   │   │               │       ├── CreateProductLike.kt
+│   │   │               │       ├── CreateProductOptionLike.kt
+│   │   │               │       ├── Like.kt
+│   │   │               │       ├── ProductLike.kt
+│   │   │               │       └── ProductOptionLike.kt
+│   │   │               ├── product
+│   │   │               │   ├── adapter
+│   │   │               │   │   ├── input
+│   │   │               │   │   │   └── web
+│   │   │               │   │   │       └── ProductRestAdapter.kt
+│   │   │               │   │   └── out
+│   │   │               │   │       └── persistence
+│   │   │               │   │           ├── ImageEmbeddable.kt
+│   │   │               │   │           ├── JpaProductOptionRepository.kt
+│   │   │               │   │           ├── JpaProductRepository.kt
+│   │   │               │   │           ├── PartnerShopEmbeddable.kt
+│   │   │               │   │           ├── ProductEntity.kt
+│   │   │               │   │           ├── ProductOptionEntity.kt
+│   │   │               │   │           ├── ProductOptionReadOnlyRepository.kt
+│   │   │               │   │           ├── ProductOptionRepositoryAdapter.kt
+│   │   │               │   │           ├── ProductPersistenceAdapter.kt
+│   │   │               │   │           └── ProductReadOnlyRepository.kt
+│   │   │               │   ├── application
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── request
+│   │   │               │   │   │   │   ├── CreateProductRequest.kt
+│   │   │               │   │   │   │   ├── ProductSearchRequest.kt
+│   │   │               │   │   │   │   └── UpdateProductRequest.kt
+│   │   │               │   │   │   └── response
+│   │   │               │   │   │       └── ProductResponse.kt
+│   │   │               │   │   ├── port
+│   │   │               │   │   │   └── out
+│   │   │               │   │   │       ├── GetProductOptionPort.kt
+│   │   │               │   │   │       ├── GetProductPort.kt
+│   │   │               │   │   │       ├── ProductOptionPersistencePort.kt
+│   │   │               │   │   │       └── ProductPersistencePort.kt
+│   │   │               │   │   └── usecase
+│   │   │               │   │       ├── create
+│   │   │               │   │       │   ├── CreateProductUseCase.kt
+│   │   │               │   │       │   └── CreateProductUseCaseImpl.kt
+│   │   │               │   │       ├── delete
+│   │   │               │   │       │   ├── DeleteProductOptionUseCase.kt
+│   │   │               │   │       │   ├── DeleteProductOptionUseCaseImpl.kt
+│   │   │               │   │       │   ├── DeleteProductUseCase.kt
+│   │   │               │   │       │   └── DeleteProductUseCaseImpl.kt
+│   │   │               │   │       ├── get
+│   │   │               │   │       │   ├── GetProductUseCase.kt
+│   │   │               │   │       │   └── GetProductUseCaseImpl.kt
+│   │   │               │   │       ├── option
+│   │   │               │   │       │   ├── ProductOptionUseCase.kt
+│   │   │               │   │       │   └── ProductOptionUseCaseImpl.kt
+│   │   │               │   │       ├── search
+│   │   │               │   │       │   ├── ProductSearchUseCase.kt
+│   │   │               │   │       │   └── ProductSearchUseCaseImpl.kt
+│   │   │               │   │       ├── update
+│   │   │               │   │       │   ├── UpdateProductUseCase.kt
+│   │   │               │   │       │   └── UpdateProductUseCaseImpl.kt
+│   │   │               │   │       └── util
+│   │   │               │   │           └── PaginationUtil.kt
+│   │   │               │   └── domain
+│   │   │               │       └── model
+│   │   │               │           ├── Product.kt
+│   │   │               │           ├── ProductOption.kt
+│   │   │               │           └── ProductOptionUpdateResult.kt
+│   │   │               ├── security
+│   │   │               │   ├── JwtAuthenticationFilter.kt
+│   │   │               │   ├── JwtTokenProvider.kt
+│   │   │               │   └── SecurityConfig.kt
+│   │   │               ├── studio
+│   │   │               │   ├── adapter
+│   │   │               │   │   ├── input
+│   │   │               │   │   │   └── StudioRestAdapter.kt
+│   │   │               │   │   └── output
+│   │   │               │   │       └── persistence
+│   │   │               │   │           ├── StudioEntity.kt
+│   │   │               │   │           ├── StudioJpaRepository.kt
+│   │   │               │   │           ├── StudioPartnerShopEmbeddable.kt
+│   │   │               │   │           └── StudioPersistenceAdapter.kt
+│   │   │               │   ├── application
+│   │   │               │   │   ├── command
+│   │   │               │   │   │   ├── ModifyStudioCommand.kt
+│   │   │               │   │   │   ├── RegisterStudioCommand.kt
+│   │   │               │   │   │   └── StudioPartnerShopCommand.kt
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── StudioPartnerShopDto.kt
+│   │   │               │   │   │   ├── request
+│   │   │               │   │   │   │   ├── ModifyStudioRequest.kt
+│   │   │               │   │   │   │   └── RegisterStudioRequest.kt
+│   │   │               │   │   │   └── response
+│   │   │               │   │   │       ├── GetStudioResponse.kt
+│   │   │               │   │   │       └── StudioResponse.kt
+│   │   │               │   │   ├── port
+│   │   │               │   │   │   ├── input
+│   │   │               │   │   │   │   ├── DeleteStudioUseCase.kt
+│   │   │               │   │   │   │   ├── GetStudioUseCase.kt
+│   │   │               │   │   │   │   ├── ModifyStudioUseCase.kt
+│   │   │               │   │   │   │   └── RegisterStudioUseCase.kt
+│   │   │               │   │   │   └── output
+│   │   │               │   │   │       ├── DeleteStudioPort.kt
+│   │   │               │   │   │       ├── GetStudioPort.kt
+│   │   │               │   │   │       ├── SaveStudioPort.kt
+│   │   │               │   │   │       └── UpdateStudioPort.kt
+│   │   │               │   │   └── service
+│   │   │               │   │       └── StudioService.kt
+│   │   │               │   └── domain
+│   │   │               │       ├── Studio.kt
+│   │   │               │       ├── StudioPartnerShop.kt
+│   │   │               │       ├── StudioPartnerShopCategory.kt
+│   │   │               │       └── StudioStatus.kt
+│   │   │               └── user
+│   │   │                   ├── adapter
+│   │   │                   │   ├── input
+│   │   │                   │   │   └── web
+│   │   │                   │   │       ├── KakaoOAuthController.kt
+│   │   │                   │   │       └── UserRestAdapter.kt
+│   │   │                   │   └── output
+│   │   │                   │       ├── oauth
+│   │   │                   │       │   └── KakaoOAuthApiClient.kt
+│   │   │                   │       └── persistence
+│   │   │                   │           ├── UserEntity.kt
+│   │   │                   │           ├── UserJpaRepository.kt
+│   │   │                   │           └── UserPersistenceAdapter.kt
+│   │   │                   ├── application
+│   │   │                   │   ├── command
+│   │   │                   │   │   └── RegisterUserCommand.kt
+│   │   │                   │   ├── dto
+│   │   │                   │   │   ├── request
+│   │   │                   │   │   │   ├── LoginUserRequest.kt
+│   │   │                   │   │   │   ├── RegisterUserRequest.kt
+│   │   │                   │   │   │   └── UpdateUserNameRequest.kt
+│   │   │                   │   │   └── response
+│   │   │                   │   │       ├── LoginUserResponse.kt
+│   │   │                   │   │       └── UserResponse.kt
+│   │   │                   │   ├── port
+│   │   │                   │   │   ├── input
+│   │   │                   │   │   │   └── RegisterUserUseCase.kt
+│   │   │                   │   │   └── output
+│   │   │                   │   │       ├── GetUserByIdPort.kt
+│   │   │                   │   │       ├── GetUserByKakaoIdPort.kt
+│   │   │                   │   │       └── SaveUserPort.kt
+│   │   │                   │   └── service
+│   │   │                   │       ├── KakaoOAuthService.kt
+│   │   │                   │       ├── UserCommandService.kt
+│   │   │                   │       └── UserProfileService.kt
+│   │   │                   ├── domain
+│   │   │                   │   └── User.kt
+│   │   │                   └── security
+│   │   │                       ├── CustomUserDetails.kt
+│   │   │                       └── CustomUserDetailsService.kt
+│   │   └── resources
+│   │       ├── application-local.yml
+│   │       ├── application-prod.yml
+│   │       ├── application.yml
+│   │       └── static
+│   │           └── swagger-ui
+│   │               ├── favicon-16x16.png
+│   │               ├── favicon-32x32.png
+│   │               ├── openapi3.json
+│   │               ├── swagger-ui-bundle.js
+│   │               ├── swagger-ui-bundle.js.map
+│   │               ├── swagger-ui-standalone-preset.js
+│   │               ├── swagger-ui-standalone-preset.js.map
+│   │               ├── swagger-ui.css
+│   │               ├── swagger-ui.css.map
+│   │               └── swagger-ui.html
+│   └── test
+│       ├── kotlin
+│       │   └── kr
+│       │       └── kro
+│       │           └── dearmoment
+│       │               ├── DearMomentApplicationTests.kt
+│       │               ├── TestAnnotations.kt
+│       │               ├── common
+│       │               │   ├── MockBaseApiTest.kt
+│       │               │   ├── RestApiTestBase.kt
+│       │               │   ├── TestSpringExtensions.kt
+│       │               │   ├── dto
+│       │               │   │   └── ResponseWrapperTest.kt
+│       │               │   ├── exception
+│       │               │   │   └── GlobalExceptionHandlerTest.kt
+│       │               │   ├── fixture
+│       │               │   │   ├── DomainFixtureFactory.kt
+│       │               │   │   ├── EntityFixtureFactory.kt
+│       │               │   │   └── FixtureBase.kt
+│       │               │   └── restdocs
+│       │               │       ├── Field.kt
+│       │               │       ├── FieldType.kt
+│       │               │       ├── JsonUtil.kt
+│       │               │       ├── Param.kt
+│       │               │       ├── RestDocsAttributeKeys.kt
+│       │               │       └── RestDocsUtils.kt
+│       │               ├── image
+│       │               │   ├── adapter
+│       │               │   │   └── output
+│       │               │   │       ├── objectstorage
+│       │               │   │       │   └── OracleObjectStorageAdapterTest.kt
+│       │               │   │       └── persistence
+│       │               │   │           └── ImagePersistenceAdapterTest.kt
+│       │               │   └── application
+│       │               │       ├── handler
+│       │               │       │   └── ImageHandlerTest.kt
+│       │               │       └── service
+│       │               │           └── ImageServiceTest.kt
+│       │               ├── inquiry
+│       │               │   ├── adapter
+│       │               │   │   ├── input
+│       │               │   │   │   └── web
+│       │               │   │   │       ├── ProductOptionInquiryRestAdapterTest.kt
+│       │               │   │   │       ├── ServiceInquiryRestAdapterTest.kt
+│       │               │   │   │       └── StudioInquiryRestAdapterTest.kt
+│       │               │   │   └── output
+│       │               │   │       └── persistence
+│       │               │   │           ├── InquiryPersistenceAdapterTest.kt
+│       │               │   │           └── InquiryReadOnlyPersistenceAdapterTest.kt
+│       │               │   ├── application
+│       │               │   │   └── service
+│       │               │   │       ├── InquiryCommandServiceTest.kt
+│       │               │   │       └── InquiryQueryServiceTest.kt
+│       │               │   └── domain
+│       │               │       ├── ProductOptionInquiryTest.kt
+│       │               │       ├── ServiceInquiryTest.kt
+│       │               │       └── StudioInquiryTest.kt
+│       │               ├── like
+│       │               │   ├── adapter
+│       │               │   │   ├── input
+│       │               │   │   │   └── web
+│       │               │   │   │       ├── ProductLikeRestAdapterTest.kt
+│       │               │   │   │       └── ProductOptionLikeRestAdapterTest.kt
+│       │               │   │   └── output
+│       │               │   │       └── persistence
+│       │               │   │           ├── LikePersistenceAdapterTest.kt
+│       │               │   │           └── LikeReadOnlyPersistenceAdapterTest.kt
+│       │               │   ├── application
+│       │               │   │   └── service
+│       │               │   │       ├── LikeQueryServiceTest.kt
+│       │               │   │       └── LikeServiceTest.kt
+│       │               │   └── domain
+│       │               │       └── LikeTest.kt
+│       │               ├── product
+│       │               │   ├── adapter
+│       │               │   │   ├── input
+│       │               │   │   │   └── web
+│       │               │   │   │       ├── create
+│       │               │   │   │       │   └── CreateProductRestAdapterTest.kt
+│       │               │   │   │       ├── delete
+│       │               │   │   │       │   └── DeleteProductRestAdapterTest.kt
+│       │               │   │   │       ├── get
+│       │               │   │   │       │   └── GetProductRestAdapterTest.kt
+│       │               │   │   │       ├── search
+│       │               │   │   │       │   └── SearchProductRestAdapterTest.kt
+│       │               │   │   │       └── update
+│       │               │   │   │           └── UpdateProductRestAdapterTest.kt
+│       │               │   │   └── out
+│       │               │   │       └── persistence
+│       │               │   │           ├── ProductEntityTest.kt
+│       │               │   │           ├── ProductOptionEntityTest.kt
+│       │               │   │           ├── ProductOptionRepositoryAdapterTest.kt
+│       │               │   │           ├── ProductPersistenceAdapterTest.kt
+│       │               │   │           └── ProductReadOnlyPersistenceRepositoryTest.kt
+│       │               │   ├── application
+│       │               │   │   └── usecase
+│       │               │   │       ├── create
+│       │               │   │       │   └── CreateProductUseCaseTest.kt
+│       │               │   │       ├── delete
+│       │               │   │       │   ├── DeleteProductOptionUseCaseTest.kt
+│       │               │   │       │   └── DeleteProductUseCaseTest.kt
+│       │               │   │       ├── get
+│       │               │   │       │   └── GetProductUseCaseTest.kt
+│       │               │   │       ├── option
+│       │               │   │       │   └── ProductOptionUseCaseTest.kt
+│       │               │   │       ├── search
+│       │               │   │       │   └── ProductSearchUseCaseTest.kt
+│       │               │   │       └── update
+│       │               │   │           └── UpdateProductUseCaseTest.kt
+│       │               │   └── domain
+│       │               │       └── model
+│       │               │           ├── ProductOptionTest.kt
+│       │               │           └── ProductTest.kt
+│       │               ├── studio
+│       │               │   ├── adapter
+│       │               │   │   ├── input
+│       │               │   │   │   └── StudioRestAdapterTest.kt
+│       │               │   │   └── output
+│       │               │   │       └── persistence
+│       │               │   │           └── StudioPersistenceAdapterTest.kt
+│       │               │   ├── application
+│       │               │   │   └── service
+│       │               │   │       └── StudioServiceTest.kt
+│       │               │   └── domain
+│       │               │       └── StudioTest.kt
+│       │               └── user
+│       │                   └── domain
+│       │                       └── UserTest.kt
+│       └── resources
+│           ├── application-test.yml
+│           └── test-image.jpg
+└── wait-for-it.sh
+
+199 directories, 310 files
