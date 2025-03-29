@@ -98,5 +98,6 @@ class ProductOptionInquiryRestAdapter(
     fun removeProductOptionInquiry(
         @Parameter(description = "삭제할 상품 옵션 문의 정보", required = true)
         @RequestBody request: RemoveProductOptionInquiryRequest,
-    ): Unit = removeInquiryUseCase.removeProductOptionInquiry(request.toCommand())
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
+    ): Unit = removeInquiryUseCase.removeProductOptionInquiry(request.toCommand(userId))
 }

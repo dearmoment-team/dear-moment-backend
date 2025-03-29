@@ -147,7 +147,7 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                 productId = 1L,
             )
 
-        every { removeInquiryUseCase.removeProductOptionInquiry(requestBody.toCommand()) } just Runs
+        every { removeInquiryUseCase.removeProductOptionInquiry(requestBody.toCommand(userId)) } just Runs
 
         val request =
             RestDocumentationRequestBuilders

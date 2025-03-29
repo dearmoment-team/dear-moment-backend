@@ -16,6 +16,7 @@ import kr.kro.dearmoment.inquiry.domain.StudioInquiry
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
+import java.util.UUID
 
 @Repository
 class InquiryPersistenceAdapter(
@@ -43,5 +44,8 @@ class InquiryPersistenceAdapter(
         return serviceInquiryJpaRepository.save(entity).id
     }
 
-    override fun deleteProductOptionInquiry(inquiryId: Long): Unit = productOptionInquiryJpaRepository.deleteById(inquiryId)
+    override fun deleteProductOptionInquiry(
+        inquiryId: Long,
+        userId: UUID,
+    ): Unit = productOptionInquiryJpaRepository.deleteByIdAndUserId(inquiryId, userId)
 }
