@@ -35,7 +35,8 @@ class OracleObjectStorageAdapter(
     ): Image {
         val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"
-        val fileName = "$fileDir/${NanoId.generate()}.${file.contentType?.takeLast(3) ?: "JPG"}"
+        val extension = convertFileExtension(file.contentType)
+        val fileName = "$fileDir/${NanoId.generate()}.$extension"
         val contentType = "img/${file.contentType?.takeLast(3) ?: "JPG"}"
 
         val putRequest =
@@ -129,6 +130,15 @@ class OracleObjectStorageAdapter(
                 .build()
 
         objectStorageUtil.client.deletePreauthenticatedRequest(request)
+    }
+
+    private fun convertFileExtension(contentType: String?): String {
+        return when (contentType) {
+            "image/jpeg" -> "jpg"
+            "image/png" -> "png"
+            "image/gif" -> "gif"
+            else -> "jpg"
+        }
     }
 
     companion object {
