@@ -46,14 +46,12 @@ class ProductReadOnlyRepository(
                 if (query.availableSeasons.isNotEmpty()) join(ProductEntity::availableSeasons) else null,
                 if (query.cameraTypes.isNotEmpty()) join(ProductEntity::cameraTypes) else null,
                 if (query.retouchStyles.isNotEmpty()) join(ProductEntity::retouchStyles) else null,
-            ).where(
-                and(
-                    path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                    inPartnerShopsPredicate,
-                    inAvailableSeasonsPredicate,
-                    inCameraTypesPredicate,
-                    inRetouchStylesPredicate,
-                ),
+            ).whereAnd(
+                path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
+                inPartnerShopsPredicate,
+                inAvailableSeasonsPredicate,
+                inCameraTypesPredicate,
+                inRetouchStylesPredicate,
             ).orderBy(query.sortBy.strategy)
         }.map { it?.toDomain() }
     }

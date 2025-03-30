@@ -215,8 +215,9 @@ class ProductRestAdapter(
     fun getMainPageProducts(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
+        @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : id") userId: UUID?,
     ): PagedResponse<SearchProductResponse> {
-        return productSearchUseCase.searchProducts(SearchProductRequest(), page, size)
+        return productSearchUseCase.searchProducts(userId, SearchProductRequest(), page, size)
     }
 
     @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
@@ -234,8 +235,9 @@ class ProductRestAdapter(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
         @RequestBody request: SearchProductRequest,
+        @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : id") userId: UUID?,
     ): PagedResponse<SearchProductResponse> {
-        return productSearchUseCase.searchProducts(request, page, size)
+        return productSearchUseCase.searchProducts(userId, request, page, size)
     }
 
     // 7. 상품 옵션 삭제

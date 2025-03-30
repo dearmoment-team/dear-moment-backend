@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kr.kro.dearmoment.common.fixture.productFixture
+import kr.kro.dearmoment.like.application.port.output.GetLikePort
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.domain.model.Product
@@ -14,7 +15,8 @@ import org.springframework.data.domain.PageRequest
 
 class ProductSearchUseCaseTest : BehaviorSpec({
     val getProductPort = mockk<GetProductPort>()
-    val service = ProductSearchUseCaseImpl(getProductPort)
+    val getLikePort = mockk<GetLikePort>()
+    val service = ProductSearchUseCaseImpl(getProductPort, getLikePort)
 
     Given("searchProducts는") {
         val request = SearchProductRequest()
@@ -27,7 +29,7 @@ class ProductSearchUseCaseTest : BehaviorSpec({
             every { getProductPort.searchByCriteria(request.toQuery(), pageable) } returns productsPage
 
             Then("상품들을 조회한다.") {
-                val response = service.searchProducts(request, pageable.pageNumber, pageable.pageSize)
+                val response = service.searchProducts(null, request, pageable.pageNumber, pageable.pageSize)
 
                 response.page shouldBe 0
                 response.size shouldBe 10

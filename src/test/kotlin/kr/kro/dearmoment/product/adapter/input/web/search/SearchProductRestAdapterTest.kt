@@ -64,7 +64,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 totalPages = 1,
             )
 
-        every { productSearchUseCase.searchProducts(requestBody, page, size) } returns response
+        every { productSearchUseCase.searchProducts(userId, requestBody, page, size) } returns response
 
         val request =
             RestDocumentationRequestBuilders.get("/api/products/main")
@@ -154,7 +154,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 totalPages = 1,
             )
 
-        every { productSearchUseCase.searchProducts(requestBody, page, size) } returns response
+        every { productSearchUseCase.searchProducts(userId, requestBody, page, size) } returns response
 
         val request =
             RestDocumentationRequestBuilders.get("/api/products/search")

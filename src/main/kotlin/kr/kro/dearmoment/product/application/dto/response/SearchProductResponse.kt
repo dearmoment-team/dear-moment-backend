@@ -34,10 +34,10 @@ data class SearchProductResponse(
     val isLiked: Boolean,
 ) {
     companion object {
-        /***
-         * TODO: 좋아요 여부, 할인율
-         */
-        fun from(product: Product): SearchProductResponse {
+        fun from(
+            product: Product,
+            userLikes: Set<Long>,
+        ): SearchProductResponse {
             requireNotNull(product.studio)
 
             return SearchProductResponse(
@@ -49,7 +49,7 @@ data class SearchProductResponse(
                 minPrice = product.options.minOf { it.discountPrice },
                 maxPrice = product.options.maxOf { it.discountPrice },
                 discountRate = product.calculateDiscountRate(),
-                isLiked = false,
+                isLiked = userLikes.contains(product.productId),
             )
         }
     }
