@@ -19,7 +19,9 @@ import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
-import kr.kro.dearmoment.user.application.port.output.GetStudioUserPort
+import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
+import kr.kro.dearmoment.studio.domain.Studio
+import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.mock.web.MockMultipartFile
 import java.time.LocalDateTime
 import java.util.UUID
@@ -30,14 +32,14 @@ class CreateProductUseCaseTest : BehaviorSpec({
     val productPersistencePort = mockk<ProductPersistencePort>()
     val getProductPort = mockk<GetProductPort>()
     val imageService = mockk<ImageService>()
-    val getStudioUserPort = mockk<GetStudioUserPort>()
+    val getStudioPort = mockk<GetStudioPort>()
 
     val useCase =
         CreateProductUseCaseImpl(
             productPersistencePort = productPersistencePort,
             imageService = imageService,
             getProductPort = getProductPort,
-            getStudioUserPort = getStudioUserPort,
+            getStudioPort = getStudioPort,
         )
 
     // 더미 파일 생성
@@ -54,7 +56,25 @@ class CreateProductUseCaseTest : BehaviorSpec({
     // dummy user id (UUID)
     val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
-    // 유효한 상품 생성 요청 객체 (userId 필드는 이제 UUID 타입)
+    // dummy studio 객체 (권한이 있는 경우)
+    val dummyStudio =
+        Studio(
+            id = 1L,
+            userId = dummyUserId,
+            name = "Dummy Studio",
+            contact = "123-456",
+            studioIntro = "Studio Intro",
+            artistsIntro = "Artists Intro",
+            instagramUrl = "http://insta.com",
+            kakaoChannelUrl = "http://kakao.com",
+            reservationNotice = "Notice",
+            cancellationPolicy = "Policy",
+            status = StudioStatus.ACTIVE,
+            partnerShops = emptyList(),
+            isCasted = false,
+        )
+
+    // 유효한 상품 생성 요청 객체
     val validRequest =
         CreateProductRequest(
             studioId = 1L,
@@ -105,18 +125,8 @@ class CreateProductUseCaseTest : BehaviorSpec({
             // 이미지 업로드 성공 모킹
             every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
 
-            // 스튜디오 사용자 검증: 스튜디오 권한이 있는 사용자를 반환
-            every { getStudioUserPort.findStudioUserById(dummyUserId) } returns
-                kr.kro.dearmoment.user.domain.User(
-                    id = dummyUserId,
-                    loginId = "dummy",
-                    password = "dummy",
-                    name = "Studio User",
-                    isStudio = true,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    kakaoId = null,
-                )
+            // 스튜디오 조회: 권한이 있는 스튜디오를 반환
+            every { getStudioPort.findById(validRequest.studioId) } returns dummyStudio
 
             Then("CustomException이 발생해야 한다") {
                 val exception =
@@ -135,17 +145,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
     Given("이미지 개수 검증 시나리오") {
         When("서브 이미지가 4장 미만일 경우") {
             val invalidSubFiles = dummySubFiles.take(3)
-            every { getStudioUserPort.findStudioUserById(dummyUserId) } returns
-                kr.kro.dearmoment.user.domain.User(
-                    id = dummyUserId,
-                    loginId = "dummy",
-                    password = "dummy",
-                    name = "Studio User",
-                    isStudio = true,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    kakaoId = null,
-                )
+            every { getStudioPort.findById(validRequest.studioId) } returns dummyStudio
             Then("CustomException이 발생해야 한다") {
                 val exception =
                     shouldThrow<CustomException> {
@@ -157,17 +157,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
 
         When("추가 이미지가 5장 초과일 경우") {
             val invalidAdditionalFiles = List(6) { dummyAdditionalFiles[0] }
-            every { getStudioUserPort.findStudioUserById(dummyUserId) } returns
-                kr.kro.dearmoment.user.domain.User(
-                    id = dummyUserId,
-                    loginId = "dummy",
-                    password = "dummy",
-                    name = "Studio User",
-                    isStudio = true,
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    kakaoId = null,
-                )
+            every { getStudioPort.findById(validRequest.studioId) } returns dummyStudio
             Then("CustomException이 발생해야 한다") {
                 val exception =
                     shouldThrow<CustomException> {
@@ -180,8 +170,9 @@ class CreateProductUseCaseTest : BehaviorSpec({
 
     // 스튜디오 권한 검증 시나리오
     Given("스튜디오 권한이 없는 사용자가 상품 생성 요청 시") {
-        // 모킹: 스튜디오 권한이 없음을 나타내도록 예외 발생
-        every { getStudioUserPort.findStudioUserById(dummyUserId) } throws CustomException(ErrorCode.UNAUTHORIZED_ACCESS)
+        // 모킹: 스튜디오 조회 시, 권한이 없는 스튜디오를 반환 (userId가 다른 경우)
+        val unauthorizedStudio = dummyStudio.copy(userId = UUID.randomUUID())
+        every { getStudioPort.findById(validRequest.studioId) } returns unauthorizedStudio
         When("상품 생성 요청 시") {
             Then("CustomException이 발생해야 한다") {
                 val exception =
@@ -195,18 +186,8 @@ class CreateProductUseCaseTest : BehaviorSpec({
 
     // 정상 생성 시나리오 (옵션 리스트 포함)
     Given("정상 생성 시나리오 (옵션 리스트 포함)") {
-        // 스튜디오 권한 검증: 스튜디오 사용자를 반환
-        every { getStudioUserPort.findStudioUserById(dummyUserId) } returns
-            kr.kro.dearmoment.user.domain.User(
-                id = dummyUserId,
-                loginId = "dummy",
-                password = "dummy",
-                name = "Studio User",
-                isStudio = true,
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
-                kakaoId = null,
-            )
+        // 스튜디오 조회: 권한이 있는 스튜디오를 반환
+        every { getStudioPort.findById(validRequest.studioId) } returns dummyStudio
         val dummyProduct =
             Product(
                 productId = 1L,

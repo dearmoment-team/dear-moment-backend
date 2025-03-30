@@ -20,7 +20,7 @@ class CreateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val getProductPort: GetProductPort,
     private val imageService: ImageService,
-    private val getStudioPort: GetStudioPort // 스튜디오 조회 포트 주입
+    private val getStudioPort: GetStudioPort,
 ) : CreateProductUseCase {
     @Transactional
     override fun saveProduct(
@@ -51,21 +51,23 @@ class CreateProductUseCaseImpl(
         val additionalImgs = additionalImageFiles.map { imageService.save(SaveImageCommand(it, userId)) }
 
         // 도메인 객체 생성 (옵션은 DTO 변환에서 이미 포함됨)
-        val product: Product = CreateProductRequest.toDomain(
-            req = request,
-            userId = userId,
-            mainImage = mainImg,
-            subImages = subImgs,
-            additionalImages = additionalImgs,
-        )
+        val product: Product =
+            CreateProductRequest.toDomain(
+                req = request,
+                userId = userId,
+                mainImage = mainImg,
+                subImages = subImgs,
+                additionalImages = additionalImgs,
+            )
 
         // 생성 전 유효성 검사: 동일 제목의 상품이 이미 존재하는지 확인
         validateForCreation(product)
         val savedProduct = productPersistencePort.save(product, request.studioId)
 
         // 저장된 상품 조회 실패 시 예외 처리
-        val completeProduct: Product = getProductPort.findById(savedProduct.productId)
-            ?: throw CustomException(ErrorCode.SAVED_PRODUCT_NOT_FOUND)
+        val completeProduct: Product =
+            getProductPort.findById(savedProduct.productId)
+                ?: throw CustomException(ErrorCode.SAVED_PRODUCT_NOT_FOUND)
 
         return ProductResponse.fromDomain(completeProduct)
     }
