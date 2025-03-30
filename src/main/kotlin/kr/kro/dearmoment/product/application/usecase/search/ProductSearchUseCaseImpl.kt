@@ -27,7 +27,7 @@ class ProductSearchUseCaseImpl(
         val productIds = products.content.map { it.productId }
         val userLikes =
             userId?.let {
-                getLikePort.findUserProductLikesWithoutPage(userId, productIds)
+                getLikePort.findProductLikesByUserIdAndProductIds(userId, productIds)
                     .map { it.product.productId }.toSet()
             } ?: emptySet()
 

@@ -97,7 +97,29 @@ class LikeReadOnlyPersistenceAdapter(
         return likeId.isNotEmpty()
     }
 
-    override fun findUserProductLikesWithoutPage(
+    override fun findOptionLikesByUserIdAndOptionIds(
+        userId: UUID,
+        productOptionId: List<Long>,
+    ): List<ProductOptionLike> {
+        val query =
+            jpql {
+                select(
+                    entity(ProductOptionLikeEntity::class),
+                ).from(
+                    entity(ProductOptionLikeEntity::class),
+                    fetchJoin(ProductOptionLikeEntity::option),
+                ).whereAnd(
+                    path(ProductOptionLikeEntity::userId).eq(userId),
+                    path(ProductOptionEntity::optionId).`in`(productOptionId),
+                )
+            }
+
+        return entityManager.createQuery(query, jpqlRenderContext)
+            .resultList
+            .map { it.toDomain() }
+    }
+
+    override fun findProductLikesByUserIdAndProductIds(
         userId: UUID,
         productIds: List<Long>,
     ): List<ProductLike> {

@@ -10,8 +10,8 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
+import kr.kro.dearmoment.product.application.dto.response.GetProductResponse
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
-import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
@@ -22,7 +22,7 @@ class GetProductRestAdapterTest : RestApiTestBase() {
     fun `상품 단건 조회 API 테스트 - 정상 조회`() {
         // given
         val productResponse =
-            ProductResponse(
+            GetProductResponse(
                 productId = 1L,
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
@@ -46,7 +46,7 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                 updatedAt = null,
                 options = emptyList(),
             )
-        every { getProductUseCase.getProductById(1L) } returns productResponse
+        every { getProductUseCase.getProductById(1L, userId) } returns productResponse
 
         // when
         val requestBuilder =
@@ -93,7 +93,7 @@ class GetProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `상품 단건 조회 API 테스트 - 존재하지 않는 상품`() {
         // given
-        every { getProductUseCase.getProductById(999L) } throws
+        every { getProductUseCase.getProductById(999L, userId) } throws
             IllegalArgumentException("Product with ID 999 not found.")
 
         // when

@@ -10,7 +10,8 @@ import io.mockk.verify
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.domain.Image
-import kr.kro.dearmoment.product.application.dto.response.ProductResponse
+import kr.kro.dearmoment.like.application.port.output.GetLikePort
+import kr.kro.dearmoment.product.application.dto.response.GetProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
@@ -24,7 +25,8 @@ import java.util.UUID
 class GetProductUseCaseTest : BehaviorSpec({
 
     val getProductPort = mockk<GetProductPort>()
-    val useCase = GetProductUseCaseImpl(getProductPort)
+    val getLikePort = mockk<GetLikePort>()
+    val useCase = GetProductUseCaseImpl(getProductPort, getLikePort)
 
     // dummy user ID
     val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
@@ -64,8 +66,8 @@ class GetProductUseCaseTest : BehaviorSpec({
             every { getProductPort.findById(1L) } returns dummyProduct
 
             Then("정상적으로 상품 정보를 반환해야 한다") {
-                val result = useCase.getProductById(1L)
-                result shouldBe ProductResponse.fromDomain(dummyProduct)
+                val result = useCase.getProductById(1L, null)
+                result shouldBe GetProductResponse.fromDomain(dummyProduct)
                 verify(exactly = 1) { getProductPort.findById(1L) }
             }
         }
@@ -78,7 +80,7 @@ class GetProductUseCaseTest : BehaviorSpec({
             Then("CustomException 예외를 발생시켜야 한다") {
                 val exception =
                     shouldThrow<CustomException> {
-                        useCase.getProductById(2L)
+                        useCase.getProductById(2L, null)
                     }
                 exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
                 verify(exactly = 1) { getProductPort.findById(2L) }

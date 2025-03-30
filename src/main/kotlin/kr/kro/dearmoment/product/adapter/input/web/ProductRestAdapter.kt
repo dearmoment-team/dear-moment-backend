@@ -13,6 +13,7 @@ import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
+import kr.kro.dearmoment.product.application.dto.response.GetProductResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
@@ -196,8 +197,9 @@ class ProductRestAdapter(
     fun getProduct(
         @Parameter(description = "조회할 상품의 식별자", required = true)
         @PathVariable id: Long,
-    ): ProductResponse {
-        return getProductUseCase.getProductById(id)
+        @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : id") userId: UUID?,
+    ): GetProductResponse {
+        return getProductUseCase.getProductById(id, userId)
     }
 
     // 5. 메인 페이지 상품 조회

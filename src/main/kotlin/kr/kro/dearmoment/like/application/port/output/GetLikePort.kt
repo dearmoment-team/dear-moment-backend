@@ -27,7 +27,12 @@ interface GetLikePort {
         productOptionId: Long,
     ): Boolean
 
-    fun findUserProductLikesWithoutPage(
+    fun findOptionLikesByUserIdAndOptionIds(
+        userId: UUID,
+        productOptionId: List<Long>,
+    ): List<ProductOptionLike>
+
+    fun findProductLikesByUserIdAndProductIds(
         userId: UUID,
         productIds: List<Long>,
     ): List<ProductLike>
