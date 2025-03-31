@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.application.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.kro.dearmoment.product.domain.model.Product
+import kr.kro.dearmoment.studio.application.dto.response.ProductStudioResponse
 import java.time.LocalDateTime
 
 @Schema(description = "상품 응답 DTO")
@@ -65,28 +66,34 @@ data class GetProductResponse(
     val updatedAt: LocalDateTime?,
     @Schema(description = "상품 옵션 목록")
     val options: List<GetProductOptionResponse>,
+    val studio: ProductStudioResponse,
 ) {
     companion object {
         fun fromDomain(
             prod: Product,
             userOptionLikes: Set<Long> = emptySet(),
-        ) = GetProductResponse(
-            productId = prod.productId,
-            productType = prod.productType.name,
-            shootingPlace = prod.shootingPlace.name,
-            title = prod.title,
-            description = prod.description.takeIf { it.isNotBlank() },
-            availableSeasons = prod.availableSeasons.map { it.name },
-            cameraTypes = prod.cameraTypes.map { it.name },
-            retouchStyles = prod.retouchStyles.map { it.name },
-            mainImage = ImageResponse.fromDomain(prod.mainImage),
-            subImages = prod.subImages.map { ImageResponse.fromDomain(it) },
-            additionalImages = prod.additionalImages.map { ImageResponse.fromDomain(it) },
-            detailedInfo = prod.detailedInfo.takeIf { it.isNotBlank() },
-            contactInfo = prod.contactInfo.takeIf { it.isNotBlank() },
-            createdAt = prod.createdAt,
-            updatedAt = prod.updatedAt,
-            options = prod.options.map { GetProductOptionResponse.fromDomain(it, userOptionLikes) },
-        )
+        ): GetProductResponse {
+            requireNotNull(prod.studio)
+
+            return GetProductResponse(
+                productId = prod.productId,
+                productType = prod.productType.name,
+                shootingPlace = prod.shootingPlace.name,
+                title = prod.title,
+                description = prod.description.takeIf { it.isNotBlank() },
+                availableSeasons = prod.availableSeasons.map { it.name },
+                cameraTypes = prod.cameraTypes.map { it.name },
+                retouchStyles = prod.retouchStyles.map { it.name },
+                mainImage = ImageResponse.fromDomain(prod.mainImage),
+                subImages = prod.subImages.map { ImageResponse.fromDomain(it) },
+                additionalImages = prod.additionalImages.map { ImageResponse.fromDomain(it) },
+                detailedInfo = prod.detailedInfo.takeIf { it.isNotBlank() },
+                contactInfo = prod.contactInfo.takeIf { it.isNotBlank() },
+                createdAt = prod.createdAt,
+                updatedAt = prod.updatedAt,
+                options = prod.options.map { GetProductOptionResponse.fromDomain(it, userOptionLikes) },
+                studio = ProductStudioResponse.from(prod.studio),
+            )
+        }
     }
 }

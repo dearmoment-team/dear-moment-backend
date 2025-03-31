@@ -1,7 +1,5 @@
 package kr.kro.dearmoment.product.application.usecase.get
 
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.like.application.port.output.GetLikePort
 import kr.kro.dearmoment.product.application.dto.response.GetProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
@@ -19,12 +17,8 @@ class GetProductUseCaseImpl(
         productId: Long,
         userId: UUID?,
     ): GetProductResponse {
-        val product =
-            getProductPort.findById(productId)
-                ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
-
+        val product = getProductPort.findWithStudioById(productId)
         val optionIds = product.options.map { it.optionId }
-
         val userOptionLikes =
             userId?.let {
                 getLikePort.findOptionLikesByUserIdAndOptionIds(userId, optionIds)

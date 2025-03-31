@@ -12,6 +12,9 @@ import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.application.dto.response.GetProductResponse
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
+import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
+import kr.kro.dearmoment.studio.application.dto.response.ProductStudioResponse
+import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
@@ -45,6 +48,30 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                 createdAt = null,
                 updatedAt = null,
                 options = emptyList(),
+                studio =
+                    ProductStudioResponse(
+                        name = "디어모먼트 스튜디오",
+                        contact = "010-1234-5678",
+                        studioIntro = "스튜디오 소개글",
+                        artistsIntro = "작가 소개글",
+                        instagramUrl = "https://www.instagram.com/username/",
+                        kakaoChannelUrl = "http://pf.kakao.com/user",
+                        reservationNotice = "예약은 평일만 가능합니다.",
+                        cancellationPolicy = "환불은 불가능합니다.",
+                        partnerShops =
+                            listOf(
+                                StudioPartnerShopDto(
+                                    category = StudioPartnerShopCategory.DRESS.name,
+                                    name = "디어모먼트 드레스샵",
+                                    urlLink = "dear-moment-dress-shop.partner-shop.url",
+                                ),
+                                StudioPartnerShopDto(
+                                    category = StudioPartnerShopCategory.MENS_SUIT.name,
+                                    name = "디어모먼트 남자 수트샵",
+                                    urlLink = "dear-moment-mens-suit.partner-shop.url",
+                                ),
+                            ),
+                    ),
             )
         every { getProductUseCase.getProductById(1L, userId) } returns productResponse
 
@@ -86,6 +113,19 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                     "data.createdAt" type OBJECT means "생성 시간",
                     "data.updatedAt" type OBJECT means "수정 시간",
                     "data.options" type ARRAY means "옵션 목록",
+                    "data.studio" type OBJECT means "스튜디오 정보",
+                    "data.studio.name" type STRING means "스튜디오 이름",
+                    "data.studio.contact" type STRING means "스튜디오 연락처",
+                    "data.studio.studioIntro" type STRING means "스튜디오 소개",
+                    "data.studio.artistsIntro" type STRING means "스튜디오 작가 소개",
+                    "data.studio.instagramUrl" type STRING means "스튜디오 인스타 링크",
+                    "data.studio.kakaoChannelUrl" type STRING means "스튜디오 카카오톡 채널 링크",
+                    "data.studio.reservationNotice" type STRING means "스튜디오 예약 안내",
+                    "data.studio.cancellationPolicy" type STRING means "스튜디오 환불 정책",
+                    "data.studio.partnerShops" type ARRAY means "스튜디오 제휴 업체",
+                    "data.studio.partnerShops[].category" type STRING means "스튜디오 제휴 업체 카테고리",
+                    "data.studio.partnerShops[].name" type STRING means "스튜디오 제휴 업체 이름",
+                    "data.studio.partnerShops[].urlLink" type STRING means "스튜디오 제휴 url 링크",
                 ),
             )
     }
