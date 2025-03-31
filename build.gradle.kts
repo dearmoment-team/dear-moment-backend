@@ -112,6 +112,7 @@ jib {
     }
 }
 
+
 sonar {
     properties {
         property("sonar.projectKey", "Onboarding-serivce_BE-onboarding")
