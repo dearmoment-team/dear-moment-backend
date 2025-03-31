@@ -94,15 +94,16 @@ tasks.named<BootRun>("bootRun") {
 
 jib {
     from {
-        image = "gcr.io/distroless/java21-debian12"
+        image = "adoptopenjdk/openjdk21-openj9:alpine-slim"
     }
     to {
         image = "ghcr.io/dearmoment-team/dear-moment-backend:latest"
     }
     container {
         jvmFlags = listOf(
-            "-Xms256m",
+            "-Xms128m",
             "-Xmx256m",
+            "-Xtune:virtualized",
             "-XX:+UseContainerSupport",
             "-XX:MaxRAMPercentage=75.0"
         )
