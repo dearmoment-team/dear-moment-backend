@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
-@Constraint(validatedBy = [EnumValidator::class, EnumListValidator::class])
+@Constraint(validatedBy = [EnumValidator::class])
 annotation class EnumValue(
     val enumClass: KClass<out Enum<*>>,
     val message: String = "",

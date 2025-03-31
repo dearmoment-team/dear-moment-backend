@@ -1,9 +1,10 @@
 package kr.kro.dearmoment.studio.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.Max
+import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
@@ -21,7 +22,7 @@ data class RegisterStudioRequest(
     )
     val contact: String,
     @Schema(description = "스튜디오 소개글", example = "안녕하세요. 디어모먼트 스튜디오 입니다.", required = true)
-    @field:Max(value = 100L, message = "스튜디오 소개글은 100자 이하여야 합니다.")
+    @field:Size(min = 1, max = 100, message = "스튜디오 소개글은 100자 이하여야 합니다.")
     @field:NotBlank(message = "스튜디오 소개글은 필수입니다.")
     val studioIntro: String,
     @Schema(description = "작가 소개글", example = "안녕하세요. 디어모먼트 스튜디오의 작가 디모입니다.", required = true)
@@ -38,6 +39,7 @@ data class RegisterStudioRequest(
     @Schema(description = "취소 및 환불 정책", example = "환불은 불가능합니다.")
     val cancellationPolicy: String,
     @Schema(description = "파트너샵 정보")
+    @field:Valid
     val partnerShops: List<StudioPartnerShopDto>,
     @Schema(
         description = "스튜디오 상태",

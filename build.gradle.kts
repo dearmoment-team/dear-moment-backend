@@ -36,6 +36,8 @@ dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
     // Spring Data JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     // Kotlin

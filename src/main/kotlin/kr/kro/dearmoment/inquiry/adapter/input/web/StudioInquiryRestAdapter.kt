@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateStudioInquiryRequest
@@ -45,6 +46,7 @@ class StudioInquiryRestAdapter(
     @PostMapping
     fun writeStudioInquiry(
         @Parameter(description = "생성할 스튜디오 문의 정보", required = true)
+        @Valid
         @RequestBody request: CreateStudioInquiryRequest,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): CreateInquiryResponse = createInquiryUseCase.createStudioInquiry(request.toCommand(userId))

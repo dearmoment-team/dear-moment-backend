@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
@@ -68,6 +69,7 @@ class ProductRestAdapter(
                 ),
             ],
         )
+        @Valid
         @RequestPart("request") request: CreateProductRequest,
         @Parameter(
             description = "대표 이미지 파일",
@@ -135,6 +137,7 @@ class ProductRestAdapter(
             description = "상품 수정 요청 정보 (기본정보 및 메타데이터, 사용자 ID는 인증 principal에서 처리됨)",
             required = false,
         )
+        @Valid
         @RequestPart(value = "request", required = false)
         rawRequest: UpdateProductRequest?,
         @Parameter(description = "대표 이미지 파일", required = false)
@@ -146,7 +149,7 @@ class ProductRestAdapter(
         @Parameter(description = "추가 이미지 파일 목록", required = false)
         @RequestPart(value = "additionalImageFiles", required = false)
         additionalImageFiles: List<MultipartFile>?,
-        @Parameter(description = "상품 옵션 목록 (JSON)", required = false)
+        @Valid @Parameter(description = "상품 옵션 목록 (JSON)", required = false)
         @RequestPart(value = "options", required = false)
         options: List<UpdateProductOptionRequest>?,
         @AuthenticationPrincipal(expression = "id") userId: UUID,

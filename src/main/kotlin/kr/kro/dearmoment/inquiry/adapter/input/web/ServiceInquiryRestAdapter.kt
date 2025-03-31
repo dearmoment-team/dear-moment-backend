@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateServiceInquiryRequest
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
@@ -36,6 +37,7 @@ class ServiceInquiryRestAdapter(
     @PostMapping
     fun writeServiceInquiry(
         @Parameter(description = "생성할 서비스 문의 정보", required = true)
+        @Valid
         @RequestBody request: CreateServiceInquiryRequest,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): CreateInquiryResponse = createInquiryUseCase.createServiceInquiry(request.toCommand(userId))

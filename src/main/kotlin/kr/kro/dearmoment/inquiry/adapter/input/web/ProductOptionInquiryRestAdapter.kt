@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateInquiryResponse
 import kr.kro.dearmoment.inquiry.application.dto.CreateProductOptionInquiryRequest
@@ -51,6 +52,7 @@ class ProductOptionInquiryRestAdapter(
     @PostMapping
     fun writeProductOptionInquiry(
         @Parameter(description = "생성할 상품 옵션 문의 정보", required = true)
+        @Valid
         @RequestBody request: CreateProductOptionInquiryRequest,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): CreateInquiryResponse = createInquiryUseCase.createProductOptionInquiry(request.toCommand(userId))

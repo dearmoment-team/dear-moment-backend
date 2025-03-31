@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.like.application.dto.GetProductOptionLikeResponse
 import kr.kro.dearmoment.like.application.dto.LikeRequest
@@ -49,6 +50,7 @@ class ProductOptionLikeRestAdapter(
     @PostMapping
     fun productOptionLike(
         @Parameter(description = "생성할 상품 옵션 좋아요 정보", required = true)
+        @Valid
         @RequestBody request: LikeRequest,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): LikeResponse = likeUseCase.productOptionsLike(request.toCommand(userId))
