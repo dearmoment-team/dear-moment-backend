@@ -103,7 +103,6 @@ jib {
         jvmFlags = listOf(
             "-Xms128m",
             "-Xmx256m",
-            "-Xtune:virtualized",
             "-XX:+UseContainerSupport",
             "-XX:MaxRAMPercentage=75.0"
         )
