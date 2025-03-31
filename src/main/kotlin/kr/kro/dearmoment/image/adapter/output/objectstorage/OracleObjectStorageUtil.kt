@@ -20,44 +20,49 @@ import org.springframework.stereotype.Component
 class OracleObjectStorageUtil(
     private val objectStorageProperties: OracleObjectStorageProperties,
 ) {
-    fun uploadObject(supplier: () -> UploadRequest) =
-        runCatching {
-            val client = initializeClient()
-            val uploadManager = initializeUploadManager(client)
-            val request = supplier()
+    fun uploadObject(supplier: () -> UploadRequest) {
+        val client = initializeClient()
+        val uploadManager = initializeUploadManager(client)
 
+        try {
+            val request = supplier()
             uploadManager.upload(request)
-
-            client.close()
-        }.onFailure { throw it }
-
-    fun getObject(supplier: () -> CreatePreauthenticatedRequestRequest): CreatePreauthenticatedRequestResponse =
-        runCatching {
-            val client = initializeClient()
-            val request = supplier()
-            val response = client.createPreauthenticatedRequest(request)
-            response ?: throw CustomException(ErrorCode.IMAGE_NOT_FOUND)
-        }.getOrElse {
-            throw it
+        } catch (e: Exception) {
+            throw e // 필요하면 로깅 후 다시 던질 수도 있음
+        } finally {
+            client.close() // 예외 발생 여부와 상관없이 실행됨
         }
+    }
 
-    fun deleteObject(supplier: () -> DeleteObjectRequest) =
-        runCatching {
-            val client = initializeClient()
+    fun getObject(supplier: () -> CreatePreauthenticatedRequestRequest): CreatePreauthenticatedRequestResponse {
+        val client = initializeClient()
+        try {
             val request = supplier()
+            return client.createPreauthenticatedRequest(request) ?: throw CustomException(ErrorCode.IMAGE_NOT_FOUND)
+        } finally {
+            client.close()
+        }
+    }
 
+    fun deleteObject(supplier: () -> DeleteObjectRequest) {
+        val client = initializeClient()
+        try {
+            val request = supplier()
             client.deleteObject(request)
+        } finally {
             client.close()
-        }.onFailure { throw it }
+        }
+    }
 
-    fun deletePreAuth(supplier: () -> DeletePreauthenticatedRequestRequest) =
-        runCatching {
-            val client = initializeClient()
+    fun deletePreAuth(supplier: () -> DeletePreauthenticatedRequestRequest) {
+        val client = initializeClient()
+        try {
             val request = supplier()
-
             client.deletePreauthenticatedRequest(request)
+        } finally {
             client.close()
-        }.onFailure { throw it }
+        }
+    }
 
     private fun initializeClient(): ObjectStorage {
         val config = ConfigFileReader.parse(objectStorageProperties.configPath, "DEFAULT")
