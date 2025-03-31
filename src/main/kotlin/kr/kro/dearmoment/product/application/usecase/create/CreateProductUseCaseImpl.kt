@@ -9,7 +9,7 @@ import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
 import kr.kro.dearmoment.product.domain.model.Product
-import kr.kro.dearmoment.user.application.port.output.GetStudioUserPort
+import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -20,7 +20,7 @@ class CreateProductUseCaseImpl(
     private val productPersistencePort: ProductPersistencePort,
     private val getProductPort: GetProductPort,
     private val imageService: ImageService,
-    private val getStudioUserPort: GetStudioUserPort,
+    private val getStudioPort: GetStudioPort,
 ) : CreateProductUseCase {
     @Transactional
     override fun saveProduct(
@@ -30,8 +30,11 @@ class CreateProductUseCaseImpl(
         subImageFiles: List<MultipartFile>,
         additionalImageFiles: List<MultipartFile>,
     ): ProductResponse {
-        // 스튜디오 권한 확인: 스튜디오 소유자가 아닌 경우 예외 발생
-        getStudioUserPort.findStudioUserById(userId)
+        // 스튜디오 조회 및 소유자 검증: 요청한 스튜디오의 소유자(userId)와 현재 userId가 일치하는지 확인
+        val studio = getStudioPort.findById(request.studioId)
+        if (studio.userId != userId) {
+            throw CustomException(ErrorCode.UNAUTHORIZED_ACCESS)
+        }
 
         // 서브 이미지 검증: 정확히 4장이어야 함
         if (subImageFiles.size != 4) {

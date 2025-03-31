@@ -16,7 +16,6 @@
 │       ├── docker-publish.yml
 │       ├── opened-issue-discord-webhook.yml
 │       ├── opened-pr-discord-webhook.yml
-│       ├── setup-oci.yml
 │       └── sonarqube.yml
 ├── .gitignore
 ├── .gitmessage.txt
@@ -56,8 +55,9 @@
 │   │   │               │   ├── config
 │   │   │               │   │   ├── JpaConfig.kt
 │   │   │               │   │   ├── OpenApiConfig.kt
-│   │   │               │   │   ├── OpenApiSecurityConfig.kt
 │   │   │               │   │   └── WebConfig.kt
+│   │   │               │   ├── constants
+│   │   │               │   │   └── GlobalUrls.kt
 │   │   │               │   ├── converter
 │   │   │               │   │   └── CustomHttpMessageConverter.kt
 │   │   │               │   ├── dto
@@ -71,6 +71,9 @@
 │   │   │               │   ├── persistence
 │   │   │               │   │   └── Auditable.kt
 │   │   │               │   └── validation
+│   │   │               │       ├── EnumListValidator.kt
+│   │   │               │       ├── EnumValidator.kt
+│   │   │               │       ├── EnumValue.kt
 │   │   │               │       ├── NotBlankIfPresent.kt
 │   │   │               │       └── NotBlankIfPresentValidator.kt
 │   │   │               ├── image
@@ -188,12 +191,14 @@
 │   │   │               │   ├── application
 │   │   │               │   │   ├── command
 │   │   │               │   │   │   ├── SaveLikeCommand.kt
-│   │   │               │   │   │   └── UnlikeProductCommand.kt
+│   │   │               │   │   │   ├── UnlikeProductCommand.kt
+│   │   │               │   │   │   └── UnlikeProductOptionCommand.kt
 │   │   │               │   │   ├── dto
 │   │   │               │   │   │   ├── GetProductLikeResponse.kt
 │   │   │               │   │   │   ├── GetProductOptionLikeResponse.kt
 │   │   │               │   │   │   ├── LikeRequest.kt
 │   │   │               │   │   │   ├── LikeResponse.kt
+│   │   │               │   │   │   ├── UnlikeProductOptionRequest.kt
 │   │   │               │   │   │   └── UnlikeProductRequest.kt
 │   │   │               │   │   ├── port
 │   │   │               │   │   │   ├── input
@@ -232,15 +237,21 @@
 │   │   │               │   │           ├── ProductOptionReadOnlyRepository.kt
 │   │   │               │   │           ├── ProductOptionRepositoryAdapter.kt
 │   │   │               │   │           ├── ProductPersistenceAdapter.kt
-│   │   │               │   │           └── ProductReadOnlyRepository.kt
+│   │   │               │   │           ├── ProductReadOnlyRepository.kt
+│   │   │               │   │           └── sort
+│   │   │               │   │               └── SortCriteria.kt
 │   │   │               │   ├── application
 │   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── query
+│   │   │               │   │   │   │   └── SearchProductQuery.kt
 │   │   │               │   │   │   ├── request
 │   │   │               │   │   │   │   ├── CreateProductRequest.kt
 │   │   │               │   │   │   │   ├── ProductSearchRequest.kt
+│   │   │               │   │   │   │   ├── SearchProductRequest.kt
 │   │   │               │   │   │   │   └── UpdateProductRequest.kt
 │   │   │               │   │   │   └── response
-│   │   │               │   │   │       └── ProductResponse.kt
+│   │   │               │   │   │       ├── ProductResponse.kt
+│   │   │               │   │   │       └── SearchProductResponse.kt
 │   │   │               │   │   ├── port
 │   │   │               │   │   │   └── out
 │   │   │               │   │   │       ├── GetProductOptionPort.kt
@@ -272,9 +283,18 @@
 │   │   │               │   │           └── PaginationUtil.kt
 │   │   │               │   └── domain
 │   │   │               │       └── model
+│   │   │               │           ├── CameraType.kt
 │   │   │               │           ├── Product.kt
-│   │   │               │           ├── ProductOption.kt
-│   │   │               │           └── ProductOptionUpdateResult.kt
+│   │   │               │           ├── ProductType.kt
+│   │   │               │           ├── RetouchStyle.kt
+│   │   │               │           ├── ShootingPlace.kt
+│   │   │               │           ├── ShootingSeason.kt
+│   │   │               │           └── option
+│   │   │               │               ├── OptionType.kt
+│   │   │               │               ├── PartnerShop.kt
+│   │   │               │               ├── PartnerShopCategory.kt
+│   │   │               │               ├── ProductOption.kt
+│   │   │               │               └── ProductOptionUpdateResult.kt
 │   │   │               ├── security
 │   │   │               │   ├── JwtAuthenticationFilter.kt
 │   │   │               │   ├── JwtTokenProvider.kt
@@ -348,6 +368,7 @@
 │   │   │                   │   │   ├── input
 │   │   │                   │   │   │   └── RegisterUserUseCase.kt
 │   │   │                   │   │   └── output
+│   │   │                   │   │       ├── GetStudioUserPort.kt
 │   │   │                   │   │       ├── GetUserByIdPort.kt
 │   │   │                   │   │       ├── GetUserByKakaoIdPort.kt
 │   │   │                   │   │       └── SaveUserPort.kt
@@ -395,19 +416,22 @@
 │       │               │   │   ├── DomainFixtureFactory.kt
 │       │               │   │   ├── EntityFixtureFactory.kt
 │       │               │   │   └── FixtureBase.kt
-│       │               │   └── restdocs
-│       │               │       ├── Field.kt
-│       │               │       ├── FieldType.kt
-│       │               │       ├── JsonUtil.kt
-│       │               │       ├── Param.kt
-│       │               │       ├── RestDocsAttributeKeys.kt
-│       │               │       └── RestDocsUtils.kt
+│       │               │   ├── restdocs
+│       │               │   │   ├── Field.kt
+│       │               │   │   ├── FieldType.kt
+│       │               │   │   ├── JsonUtil.kt
+│       │               │   │   ├── Param.kt
+│       │               │   │   ├── RestDocsAttributeKeys.kt
+│       │               │   │   └── RestDocsUtils.kt
+│       │               │   └── validation
+│       │               │       └── EnumValidatorTest.kt
 │       │               ├── image
 │       │               │   ├── adapter
 │       │               │   │   └── output
 │       │               │   │       ├── objectstorage
 │       │               │   │       │   └── OracleObjectStorageAdapterTest.kt
 │       │               │   │       └── persistence
+│       │               │   │           ├── ImageEntityTest.kt
 │       │               │   │           └── ImagePersistenceAdapterTest.kt
 │       │               │   └── application
 │       │               │       ├── handler
@@ -424,7 +448,11 @@
 │       │               │   │   └── output
 │       │               │   │       └── persistence
 │       │               │   │           ├── InquiryPersistenceAdapterTest.kt
-│       │               │   │           └── InquiryReadOnlyPersistenceAdapterTest.kt
+│       │               │   │           ├── InquiryReadOnlyPersistenceAdapterTest.kt
+│       │               │   │           ├── product
+│       │               │   │           │   └── ProductOptionInquiryEntityTest.kt
+│       │               │   │           └── studio
+│       │               │   │               └── StudioInquiryEntityTest.kt
 │       │               │   ├── application
 │       │               │   │   └── service
 │       │               │   │       ├── InquiryCommandServiceTest.kt
@@ -442,7 +470,9 @@
 │       │               │   │   └── output
 │       │               │   │       └── persistence
 │       │               │   │           ├── LikePersistenceAdapterTest.kt
-│       │               │   │           └── LikeReadOnlyPersistenceAdapterTest.kt
+│       │               │   │           ├── LikeReadOnlyPersistenceAdapterTest.kt
+│       │               │   │           ├── ProductLikeEntityTest.kt
+│       │               │   │           └── ProductOptionLikeEntityTest.kt
 │       │               │   ├── application
 │       │               │   │   └── service
 │       │               │   │       ├── LikeQueryServiceTest.kt
@@ -456,6 +486,7 @@
 │       │               │   │   │       ├── create
 │       │               │   │   │       │   └── CreateProductRestAdapterTest.kt
 │       │               │   │   │       ├── delete
+│       │               │   │   │       │   ├── DeleteProductOptionRestAdapterTest.kt
 │       │               │   │   │       │   └── DeleteProductRestAdapterTest.kt
 │       │               │   │   │       ├── get
 │       │               │   │   │       │   └── GetProductRestAdapterTest.kt
@@ -467,7 +498,7 @@
 │       │               │   │       └── persistence
 │       │               │   │           ├── ProductEntityTest.kt
 │       │               │   │           ├── ProductOptionEntityTest.kt
-│       │               │   │           ├── ProductOptionRepositoryAdapterTest.kt
+│       │               │   │           ├── ProductOptionPersistenceAdapterTest.kt
 │       │               │   │           ├── ProductPersistenceAdapterTest.kt
 │       │               │   │           └── ProductReadOnlyPersistenceRepositoryTest.kt
 │       │               │   ├── application
@@ -509,4 +540,4 @@
 │           └── test-image.jpg
 └── wait-for-it.sh
 
-199 directories, 310 files
+206 directories, 334 files
