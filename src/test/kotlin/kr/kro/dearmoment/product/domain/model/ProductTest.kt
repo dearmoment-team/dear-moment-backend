@@ -310,4 +310,9 @@ internal class ProductTest : StringSpec({
     "최대 할인율을 계산할 수 있다." {
         createProduct().calculateDiscountRate() shouldBeGreaterThanOrEqual 0
     }
+
+    "최대 할인율이 100이면 0을 반환한다." {
+        val option = createOption(discountPrice = 100_000L)
+        createProduct(options = listOf(option)).calculateDiscountRate() shouldBeGreaterThanOrEqual 0
+    }
 })

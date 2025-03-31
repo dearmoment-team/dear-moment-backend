@@ -12,6 +12,7 @@ import kr.kro.dearmoment.product.domain.model.Product
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import java.util.UUID
 
 class ProductSearchUseCaseTest : BehaviorSpec({
     val getProductPort = mockk<GetProductPort>()
@@ -23,10 +24,12 @@ class ProductSearchUseCaseTest : BehaviorSpec({
         val pageable = PageRequest.of(0, 10)
 
         When("query, page 정보를 전달받으면") {
+            val userId = UUID.randomUUID()
             val products = listOf(productFixture(), productFixture()) // 리스트로 데이터 생성
             val productsPage: Page<Product> = PageImpl(products, pageable, products.size.toLong()) // Page 객체 생성
 
             every { getProductPort.searchByCriteria(request.toQuery(), pageable) } returns productsPage
+            every { getLikePort.findProductLikesByUserIdAndProductIds(userId, products.map { it.productId }) } returns emptyList()
 
             Then("상품들을 조회한다.") {
                 val response = service.searchProducts(null, request, pageable.pageNumber, pageable.pageSize)
