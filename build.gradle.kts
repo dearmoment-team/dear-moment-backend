@@ -94,7 +94,7 @@ tasks.named<BootRun>("bootRun") {
 
 jib {
     from {
-        image = "adoptopenjdk/openjdk21-openj9:alpine-slim"
+        image = "azul/zulu-openjdk-alpine:21-jre"
     }
     to {
         image = "ghcr.io/dearmoment-team/dear-moment-backend:latest"
