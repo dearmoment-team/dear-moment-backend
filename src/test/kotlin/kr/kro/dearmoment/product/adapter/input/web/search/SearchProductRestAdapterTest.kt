@@ -13,7 +13,6 @@ import kr.kro.dearmoment.common.restdocs.means
 import kr.kro.dearmoment.common.restdocs.queryParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
-import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
@@ -160,26 +159,31 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
             RestDocumentationRequestBuilders.get("/api/products/search")
                 .param("page", page.toString())
                 .param("size", size.toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody.toJsonString())
+                .param("sortBy", requestBody.sortBy)
+                .apply {
+                    requestBody.availableSeasons.forEach { season -> param("availableSeasons", season) }
+                    requestBody.retouchStyles.forEach { style -> param("retouchStyles", style) }
+                    requestBody.partnerShopCategories.forEach { category -> param("partnerShopCategories", category) }
+                    requestBody.cameraTypes.forEach { type -> param("cameraTypes", type) }
+                }
+                .param("minPrice", requestBody.minPrice.toString())
+                .param("maxPrice", requestBody.maxPrice.toString())
 
         // When & Then
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
                 "search-products-filter",
-                requestBody(
-                    "sortBy" type STRING means "정렬 기준",
-                    "availableSeasons" type ARRAY means "촬영 시기",
-                    "retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "partnerShopCategories" type ARRAY means "패키지 목록",
-                    "cameraTypes" type ARRAY means "촬영 카메라 타입",
-                    "minPrice" type NUMBER means "최소 가격",
-                    "maxPrice" type NUMBER means "최대 가격",
-                ),
                 queryParameters(
                     "page" means "조회할 페이지 번호 (0부터 시작)",
                     "size" means "페이지 크기 (기본값: 10)",
+                    "sortBy" means "정렬 기준",
+                    "availableSeasons" means "촬영 시기",
+                    "retouchStyles" means "보정 스타일 목록",
+                    "partnerShopCategories" means "패키지 목록",
+                    "cameraTypes" means "촬영 카메라 타입",
+                    "minPrice" means "최소 가격",
+                    "maxPrice" means "최대 가격",
                     "_csrf" means "스프링 시큐리티 사용시 테스트에 넘겨주는 토큰",
                 ),
                 responseBody(

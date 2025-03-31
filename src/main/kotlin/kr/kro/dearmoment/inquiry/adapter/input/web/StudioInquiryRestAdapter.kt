@@ -14,14 +14,14 @@ import kr.kro.dearmoment.inquiry.application.dto.GetStudioInquiryResponse
 import kr.kro.dearmoment.inquiry.application.port.input.CreateInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.port.input.GetInquiryUseCase
 import kr.kro.dearmoment.inquiry.application.query.GetStudioInquiresQuery
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.web.PageableDefault
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -61,19 +61,11 @@ class StudioInquiryRestAdapter(
     )
     @GetMapping
     fun getStudioInquiries(
-        @Parameter(
-            description = "페이징 정보",
-            example = """{
-              "page": 0,
-              "size": 10,
-              "sort": "createdDate",
-              "direction": "DESC"
-            }""",
-            required = true,
-        )
-        @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
+        @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
+        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): PagedResponse<GetStudioInquiryResponse> {
+        val pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdDate")
         val query = GetStudioInquiresQuery(userId, pageable)
         return getInquiryUseCase.getStudioInquiries(query)
     }

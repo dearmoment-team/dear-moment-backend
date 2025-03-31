@@ -15,9 +15,8 @@ import kr.kro.dearmoment.like.application.dto.UnlikeProductRequest
 import kr.kro.dearmoment.like.application.port.input.LikeQueryUseCase
 import kr.kro.dearmoment.like.application.port.input.LikeUseCase
 import kr.kro.dearmoment.like.application.query.GetUserProductLikeQuery
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
@@ -55,19 +55,11 @@ class ProductLikeRestAdapter(
 
     @GetMapping
     fun getMyProductLikes(
-        @Parameter(
-            description = "페이징 정보",
-            example = """{
-              "page": 0,
-              "size": 10,
-              "sort": "createdDate",
-              "direction": "DESC"
-            }""",
-            required = true,
-        )
-        @PageableDefault(size = 10, sort = ["createdDate"], direction = Sort.Direction.DESC) pageable: Pageable,
+        @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
+        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): PagedResponse<GetProductLikeResponse> {
+        val pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdDate")
         val query = GetUserProductLikeQuery(userId, pageable)
         return likeQueryUseCase.getUserProductLikes(query)
     }
