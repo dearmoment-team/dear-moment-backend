@@ -100,7 +100,12 @@ jib {
         image = "ghcr.io/dearmoment-team/dear-moment-backend:latest"
     }
     container {
-        jvmFlags = listOf("-Xms512m", "-Xmx512m")
+        jvmFlags = listOf(
+            "-Xms256m",
+            "-Xmx256m",
+            "-XX:+UseContainerSupport",
+            "-XX:MaxRAMPercentage=75.0"
+        )
         ports = listOf("8080")
         creationTime = "USE_CURRENT_TIMESTAMP"
     }
