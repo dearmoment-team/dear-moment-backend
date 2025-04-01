@@ -35,6 +35,9 @@ val jdslVersion by extra("3.5.5")
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // Spring Data JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
@@ -100,17 +103,17 @@ jib {
         image = "ghcr.io/dearmoment-team/dear-moment-backend:latest"
     }
     container {
-        jvmFlags = listOf(
-            "-Xms128m",
-            "-Xmx256m",
-            "-XX:+UseContainerSupport",
-            "-XX:MaxRAMPercentage=75.0"
-        )
+        jvmFlags =
+            listOf(
+                "-Xms128m",
+                "-Xmx256m",
+                "-XX:+UseContainerSupport",
+                "-XX:MaxRAMPercentage=75.0",
+            )
         ports = listOf("8080")
         creationTime = "USE_CURRENT_TIMESTAMP"
     }
 }
-
 
 sonar {
     properties {

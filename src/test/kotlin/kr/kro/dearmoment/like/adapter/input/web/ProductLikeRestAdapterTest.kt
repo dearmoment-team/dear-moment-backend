@@ -158,7 +158,7 @@ class ProductLikeRestAdapterTest : RestApiTestBase() {
                 productId = 1L,
             )
 
-        every { likeUseCase.productUnlike(requestBody.toCommand()) } just Runs
+        every { likeUseCase.productUnlike(requestBody.toCommand(userId)) } just Runs
 
         val request =
             RestDocumentationRequestBuilders

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.studio.application.dto.request.ModifyStudioRequest
 import kr.kro.dearmoment.studio.application.dto.request.RegisterStudioRequest
 import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
@@ -50,6 +51,7 @@ class StudioRestAdapter(
     @PostMapping
     fun register(
         @Parameter(description = "생성할 스튜디오 정보", required = true)
+        @Valid
         @RequestBody request: RegisterStudioRequest,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): StudioResponse = registerStudioUseCase.register(request.toCommand(userId))
@@ -69,6 +71,7 @@ class StudioRestAdapter(
         @Parameter(description = "수정할 스튜디오 식별자", required = true)
         @PathVariable studioId: Long,
         @Parameter(description = "수정할 스튜디오 정보", required = true)
+        @Valid
         @RequestBody request: ModifyStudioRequest,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): StudioResponse = modifyStudioUseCase.modify(request.toCommand(studioId, userId))

@@ -3,7 +3,7 @@ package kr.kro.dearmoment.common.validation
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 
-class EnumValidator : ConstraintValidator<EnumValue, String> {
+class EnumValidator : ConstraintValidator<EnumValue, Any> {
     private lateinit var enumValue: EnumValue
 
     override fun initialize(constraintAnnotation: EnumValue) {
@@ -11,17 +11,27 @@ class EnumValidator : ConstraintValidator<EnumValue, String> {
     }
 
     override fun isValid(
-        value: String?,
+        value: Any?,
         context: ConstraintValidatorContext?,
     ): Boolean {
-        if (value.isNullOrBlank()) {
-            return false
-        }
+        if (value == null) return true // null 허용
 
         val enumConstants = enumValue.enumClass.java.enumConstants ?: return false
 
+        return when (value) {
+            is String -> validateEnum(value, enumConstants)
+            is Collection<*> -> value.all { it is String && validateEnum(it, enumConstants) }
+            else -> false
+        }
+    }
+
+    private fun validateEnum(
+        value: String,
+        enumConstants: Array<out Enum<*>>,
+    ): Boolean {
+        val trimmedValue = value.trim()
         return enumConstants.any { enumConstant ->
-            convertible(value, enumConstant) || convertibleIgnoreCase(value, enumConstant)
+            convertible(trimmedValue, enumConstant) || convertibleIgnoreCase(trimmedValue, enumConstant)
         }
     }
 
@@ -29,13 +39,13 @@ class EnumValidator : ConstraintValidator<EnumValue, String> {
         value: String,
         enumConstant: Enum<*>,
     ): Boolean {
-        return enumValue.ignoreCase && value.trim().equals(enumConstant.name, ignoreCase = true)
+        return enumValue.ignoreCase && value.equals(enumConstant.name, ignoreCase = true)
     }
 
     private fun convertible(
         value: String,
         enumConstant: Enum<*>,
     ): Boolean {
-        return value.trim() == enumConstant.name
+        return value == enumConstant.name
     }
 }

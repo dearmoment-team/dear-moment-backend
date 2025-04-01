@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.application.command.RegisterUserCommand
@@ -51,6 +52,7 @@ class UserRestAdapter(
     @PostMapping(GlobalUrls.API_USERS_SIGNUP)
     fun register(
         @Parameter(description = "회원가입 요청 정보", required = true)
+        @Valid
         @RequestBody req: RegisterUserRequest,
     ): UserResponse {
         val command =
@@ -75,6 +77,7 @@ class UserRestAdapter(
     @PostMapping(GlobalUrls.API_USERS_LOGIN)
     fun login(
         @Parameter(description = "(작가/스튜디오) 로그인 요청 정보", required = true)
+        @Valid
         @RequestBody req: LoginUserRequest,
         response: HttpServletResponse,
     ): LoginUserResponse {
@@ -121,6 +124,7 @@ class UserRestAdapter(
         @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
         @Parameter(description = "이름 변경 요청 DTO", required = true)
+        @Valid
         @RequestBody req: UpdateUserNameRequest,
     ): UserResponse {
         val updatedUser = userProfileService.updateName(userId, req.name)

@@ -57,7 +57,7 @@ class InquiryCommandService(
     }
 
     override fun removeProductOptionInquiry(command: RemoveProductOptionInquiryCommand) {
-        deleteInquiryPort.deleteProductOptionInquiry(command.inquiryId)
+        deleteInquiryPort.deleteProductOptionInquiry(command.inquiryId, command.userId)
         productPersistencePort.decreaseInquiryCount(command.productId)
     }
 }

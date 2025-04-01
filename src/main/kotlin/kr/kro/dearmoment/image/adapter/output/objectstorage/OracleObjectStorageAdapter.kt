@@ -16,6 +16,7 @@ import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
+import java.io.BufferedInputStream
 import java.time.ZoneId
 import java.util.Date
 import java.util.UUID
@@ -33,29 +34,32 @@ class OracleObjectStorageAdapter(
         file: MultipartFile,
         userId: UUID,
     ): Image {
-        val inputStream = file.inputStream
         val fileDir = "${objectStorageProperties.photoImageDir}$userId"
         val extension = convertFileExtension(file.contentType)
         val fileName = "$fileDir/${NanoId.generate()}.$extension"
         val contentType = "img/${file.contentType?.takeLast(3) ?: "JPG"}"
 
-        val putRequest =
-            PutObjectRequest.builder()
-                .bucketName(objectStorageProperties.bucketName)
-                .namespaceName(objectStorageProperties.namespaceName)
-                .objectName(fileName)
-                .contentLength(inputStream.available().toLong())
-                .contentType(contentType)
-                .putObjectBody(inputStream)
-                .build()
+        objectStorageUtil.uploadObject {
+            val inputStream = BufferedInputStream(file.inputStream)
+            val fileSize = file.size
 
-        val uploadRequest =
-            UploadRequest.builder(inputStream, inputStream.available().toLong())
-                .allowOverwrite(true)
-                .build(putRequest)
+            val putRequest =
+                PutObjectRequest.builder()
+                    .bucketName(objectStorageProperties.bucketName)
+                    .namespaceName(objectStorageProperties.namespaceName)
+                    .objectName(fileName)
+                    .contentLength(fileSize)
+                    .contentType(contentType)
+                    .putObjectBody(inputStream)
+                    .build()
 
-        objectStorageUtil.uploadManager.upload(uploadRequest)
+            val uploadRequest =
+                UploadRequest.builder(inputStream, fileSize)
+                    .allowOverwrite(true)
+                    .build(putRequest)
 
+            uploadRequest
+        }
         val image =
             Image(
                 userId = userId,
@@ -70,17 +74,15 @@ class OracleObjectStorageAdapter(
     }
 
     override fun delete(image: Image) {
-        val request =
+        deletePreAuth(image.parId)
+
+        objectStorageUtil.deleteObject {
             DeleteObjectRequest.builder()
                 .namespaceName(objectStorageProperties.namespaceName)
                 .bucketName(objectStorageProperties.bucketName)
                 .objectName(image.fileName)
                 .build()
-
-        deletePreAuth(image.parId)
-
-        val client = objectStorageUtil.client
-        client.deleteObject(request)
+        }
     }
 
     override fun getImageWithUrl(image: Image): Image {
@@ -88,22 +90,23 @@ class OracleObjectStorageAdapter(
 
         val expireTime = Date(System.currentTimeMillis() + ONE_YEAR_FOR_SECONDS)
 
-        val details =
-            CreatePreauthenticatedRequestDetails.builder()
-                .accessType(AccessType.ObjectReadWrite)
-                .objectName(image.fileName)
-                .timeExpires(expireTime)
-                .name(image.fileName)
-                .build()
+        val response =
+            objectStorageUtil.getObject {
+                val details =
+                    CreatePreauthenticatedRequestDetails.builder()
+                        .accessType(AccessType.ObjectReadWrite)
+                        .objectName(image.fileName)
+                        .timeExpires(expireTime)
+                        .name(image.fileName)
+                        .build()
 
-        val request =
-            CreatePreauthenticatedRequestRequest.builder()
-                .namespaceName(objectStorageProperties.namespaceName)
-                .bucketName(objectStorageProperties.bucketName)
-                .createPreauthenticatedRequestDetails(details)
-                .build()
+                CreatePreauthenticatedRequestRequest.builder()
+                    .namespaceName(objectStorageProperties.namespaceName)
+                    .bucketName(objectStorageProperties.bucketName)
+                    .createPreauthenticatedRequestDetails(details)
+                    .build()
+            }
 
-        val response = objectStorageUtil.client.createPreauthenticatedRequest(request)
         val url = "$baseUrl${response.preauthenticatedRequest.accessUri}"
 
         return Image(
@@ -122,14 +125,13 @@ class OracleObjectStorageAdapter(
     private fun deletePreAuth(parId: String) {
         if (parId.isEmpty()) return
 
-        val request =
+        objectStorageUtil.deletePreAuth {
             DeletePreauthenticatedRequestRequest.builder()
                 .namespaceName(objectStorageProperties.namespaceName)
                 .bucketName(objectStorageProperties.bucketName)
                 .parId(parId)
                 .build()
-
-        objectStorageUtil.client.deletePreauthenticatedRequest(request)
+        }
     }
 
     private fun convertFileExtension(contentType: String?): String {

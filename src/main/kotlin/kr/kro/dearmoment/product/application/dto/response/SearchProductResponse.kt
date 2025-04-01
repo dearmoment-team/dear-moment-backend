@@ -34,24 +34,22 @@ data class SearchProductResponse(
     val isLiked: Boolean,
 ) {
     companion object {
-        /***
-         * TODO: 좋아요 여부, 할인율
-         */
-        fun from(product: Product): SearchProductResponse {
+        fun from(
+            product: Product,
+            userLikes: Set<Long>,
+        ): SearchProductResponse {
             requireNotNull(product.studio)
-
-            val maxDiscountRate = product.options.maxOf { (it.discountPrice.toDouble() / it.originalPrice) * 100 }.toInt()
 
             return SearchProductResponse(
                 productId = product.productId,
                 studioName = product.studio.name,
-                thumbnailUrls = product.subImages.map { it.url },
+                thumbnailUrls = product.extractThumbnailUrls(),
                 retouchStyles = product.retouchStyles.map { it.name },
                 shootingSeason = product.availableSeasons.map { it.name },
                 minPrice = product.options.minOf { it.discountPrice },
                 maxPrice = product.options.maxOf { it.discountPrice },
-                discountRate = if (maxDiscountRate == 100) 0 else maxDiscountRate,
-                isLiked = false,
+                discountRate = product.calculateDiscountRate(),
+                isLiked = userLikes.contains(product.productId),
             )
         }
     }

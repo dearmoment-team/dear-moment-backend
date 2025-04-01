@@ -8,11 +8,14 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.dto.PagedResponse
+import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductRequest
+import kr.kro.dearmoment.product.application.dto.response.GetProductResponse
 import kr.kro.dearmoment.product.application.dto.response.ProductResponse
 import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.usecase.create.CreateProductUseCase
@@ -29,7 +32,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
@@ -67,6 +69,7 @@ class ProductRestAdapter(
                 ),
             ],
         )
+        @Valid
         @RequestPart("request") request: CreateProductRequest,
         @Parameter(
             description = "대표 이미지 파일",
@@ -134,6 +137,7 @@ class ProductRestAdapter(
             description = "상품 수정 요청 정보 (기본정보 및 메타데이터, 사용자 ID는 인증 principal에서 처리됨)",
             required = false,
         )
+        @Valid
         @RequestPart(value = "request", required = false)
         rawRequest: UpdateProductRequest?,
         @Parameter(description = "대표 이미지 파일", required = false)
@@ -145,7 +149,7 @@ class ProductRestAdapter(
         @Parameter(description = "추가 이미지 파일 목록", required = false)
         @RequestPart(value = "additionalImageFiles", required = false)
         additionalImageFiles: List<MultipartFile>?,
-        @Parameter(description = "상품 옵션 목록 (JSON)", required = false)
+        @Valid @Parameter(description = "상품 옵션 목록 (JSON)", required = false)
         @RequestPart(value = "options", required = false)
         options: List<UpdateProductOptionRequest>?,
         @AuthenticationPrincipal(expression = "id") userId: UUID,
@@ -196,8 +200,9 @@ class ProductRestAdapter(
     fun getProduct(
         @Parameter(description = "조회할 상품의 식별자", required = true)
         @PathVariable id: Long,
-    ): ProductResponse {
-        return getProductUseCase.getProductById(id)
+        @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : id") userId: UUID?,
+    ): GetProductResponse {
+        return getProductUseCase.getProductById(id, userId)
     }
 
     // 5. 메인 페이지 상품 조회
@@ -215,8 +220,9 @@ class ProductRestAdapter(
     fun getMainPageProducts(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
+        @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : id") userId: UUID?,
     ): PagedResponse<SearchProductResponse> {
-        return productSearchUseCase.searchProducts(SearchProductRequest(), page, size)
+        return productSearchUseCase.searchProducts(userId, SearchProductRequest(), page, size)
     }
 
     @Operation(summary = "상품 검색", description = "상품을 조건에 맞게 검색합니다.")
@@ -233,9 +239,55 @@ class ProductRestAdapter(
     fun searchProducts(
         @Parameter(description = "페이지 번호(0부터 시작)") @RequestParam(defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") size: Int,
-        @RequestBody request: SearchProductRequest,
+        @Schema(
+            description = "정렬 기준 (기본 값: \"RECOMMENDED\")",
+            allowableValues = ["RECOMMENDED", "POPULAR", "PRICE_LOW", "PRICE_HIGH"],
+            example = "[\"PRICE_LOW\"]",
+        )
+        @RequestParam(required = false) sortBy: String = SortCriteria.POPULAR.name,
+        @Schema(
+            description = "촬영 가능 시기",
+            allowableValues =
+                ["YEAR_2025_FIRST_HALF", "YEAR_2025_SECOND_HALF", "YEAR_2026_FIRST_HALF", "YEAR_2026_SECOND_HALF"],
+            example = "[\"YEAR_2025_FIRST_HALF\",\"YEAR_2025_SECOND_HALF\"]",
+        )
+        @RequestParam(required = false) availableSeasons: List<String> = emptyList(),
+        @Schema(
+            description = "카메라 종류",
+            allowableValues = ["DIGITAL", "FILM"],
+            example = "[\"DIGITAL\"]",
+        )
+        @RequestParam(required = false) cameraTypes: List<String> = emptyList(),
+        @Schema(
+            description = "보정 스타일",
+            allowableValues = [
+                "MODERN", "CHIC", "CALM", "VINTAGE",
+                "FAIRYTALE", "WARM", "DREAMY", "BRIGHT", "NATURAL",
+            ],
+            example = "[\"MODERN\", \"FAIRYTALE\"]",
+        )
+        @RequestParam(required = false) retouchStyles: List<String> = emptyList(),
+        @Schema(
+            description = "제휴 업체",
+            allowableValues = ["HAIR_MAKEUP", "DRESS", "MENS_SUIT", "BOUQUET", "VIDEO", "STUDIO", "ETC"],
+            example = "[\"HAIR_MAKEUP\"]",
+        )
+        @RequestParam(required = false) partnerShopCategories: List<String> = emptyList(),
+        @RequestParam(required = false, defaultValue = "0") minPrice: Long = 0L,
+        @RequestParam(required = false, defaultValue = "10000000") maxPrice: Long = 10_000_000L,
+        @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : id") userId: UUID?,
     ): PagedResponse<SearchProductResponse> {
-        return productSearchUseCase.searchProducts(request, page, size)
+        val request =
+            SearchProductRequest(
+                sortBy = sortBy,
+                availableSeasons = availableSeasons,
+                cameraTypes = cameraTypes,
+                retouchStyles = retouchStyles,
+                partnerShopCategories = partnerShopCategories,
+                minPrice = minPrice,
+                maxPrice = maxPrice,
+            )
+        return productSearchUseCase.searchProducts(userId, request, page, size)
     }
 
     // 7. 상품 옵션 삭제

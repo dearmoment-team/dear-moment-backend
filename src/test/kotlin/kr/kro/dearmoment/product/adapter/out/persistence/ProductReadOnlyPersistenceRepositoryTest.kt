@@ -1,9 +1,12 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import com.linecorp.kotlinjdsl.render.RenderContext
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
+import io.kotest.matchers.shouldBe
+import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
@@ -27,14 +30,28 @@ class ProductReadOnlyPersistenceRepositoryTest(
     private val productRepository: JpaProductRepository,
     private val productOptionRepository: JpaProductOptionRepository,
     private val studioRepository: StudioJpaRepository,
+    private val entityManager: EntityManager,
+    private val jpqlRenderContext: RenderContext,
 ) : DescribeSpec({
-        val readAdapter = ProductReadOnlyRepository(productRepository)
+        val readAdapter = ProductReadOnlyRepository(productRepository, entityManager, jpqlRenderContext)
         afterTest {
             productOptionRepository.deleteAll()
             productRepository.deleteAll()
             studioRepository.deleteAll()
         }
 
+        describe("findWithStudioById()는") {
+            val studio = studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))
+            val product = productRepository.save(productEntityFixture(userId = studio.userId, studioEntity = studio))
+            context("상품 id가 전달되면") {
+                it("해당 상품과 스튜디오를 DB에서 조회한다.") {
+                    val result = readAdapter.findWithStudioById(product.productId!!)
+
+                    result.productId shouldBe product.productId!!
+                    result.studio!!.id shouldBe studio.id
+                }
+            }
+        }
         describe("searchByCriteria()는") {
             val studios = mutableListOf<StudioEntity>()
             repeat(5) { studios.add(studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))) }

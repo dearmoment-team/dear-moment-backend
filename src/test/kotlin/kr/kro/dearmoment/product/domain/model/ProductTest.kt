@@ -3,7 +3,9 @@ package kr.kro.dearmoment.product.domain.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
@@ -298,5 +300,19 @@ internal class ProductTest : StringSpec({
         shouldThrow<IllegalArgumentException> {
             createOption(name = "")
         }.message shouldBe "옵션명은 비어 있을 수 없습니다."
+    }
+
+    "썸네일에 사용할 이미지를 추출한다" {
+        val thumbnailUrls = createProduct().extractThumbnailUrls()
+        thumbnailUrls shouldNotBe emptyList<String>()
+    }
+
+    "최대 할인율을 계산할 수 있다." {
+        createProduct().calculateDiscountRate() shouldBeGreaterThanOrEqual 0
+    }
+
+    "최대 할인율이 100이면 0을 반환한다." {
+        val option = createOption(discountPrice = 100_000L)
+        createProduct(options = listOf(option)).calculateDiscountRate() shouldBeGreaterThanOrEqual 0
     }
 })

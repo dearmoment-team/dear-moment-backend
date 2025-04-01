@@ -1,11 +1,18 @@
 package kr.kro.dearmoment.product.adapter.out.persistence
 
+import com.linecorp.kotlinjdsl.dsl.jpql.jpql
+import com.linecorp.kotlinjdsl.render.RenderContext
+import com.linecorp.kotlinjdsl.support.hibernate.extension.createQuery
+import jakarta.persistence.EntityManager
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.domain.model.CameraType
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
+import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
@@ -15,6 +22,8 @@ import java.util.UUID
 @Repository
 class ProductReadOnlyRepository(
     private val productJpaRepository: JpaProductRepository,
+    private val entityManager: EntityManager,
+    private val jpqlRenderContext: RenderContext,
 ) : GetProductPort {
     override fun searchByCriteria(
         query: SearchProductQuery,
@@ -46,14 +55,13 @@ class ProductReadOnlyRepository(
                 if (query.availableSeasons.isNotEmpty()) join(ProductEntity::availableSeasons) else null,
                 if (query.cameraTypes.isNotEmpty()) join(ProductEntity::cameraTypes) else null,
                 if (query.retouchStyles.isNotEmpty()) join(ProductEntity::retouchStyles) else null,
-            ).where(
-                and(
-                    path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                    inPartnerShopsPredicate,
-                    inAvailableSeasonsPredicate,
-                    inCameraTypesPredicate,
-                    inRetouchStylesPredicate,
-                ),
+            ).whereAnd(
+                path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
+                path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
+                inPartnerShopsPredicate,
+                inAvailableSeasonsPredicate,
+                inCameraTypesPredicate,
+                inRetouchStylesPredicate,
             ).orderBy(query.sortBy.strategy)
         }.map { it?.toDomain() }
     }
@@ -77,5 +85,25 @@ class ProductReadOnlyRepository(
 
     override fun existsById(id: Long): Boolean {
         return productJpaRepository.existsById(id)
+    }
+
+    override fun findWithStudioById(id: Long): Product {
+        val query =
+            jpql {
+                select(
+                    entity(ProductEntity::class),
+                ).from(
+                    entity(ProductEntity::class),
+                    fetchJoin(ProductEntity::studio),
+                ).where(
+                    path(ProductEntity::productId).eq(id),
+                )
+            }
+
+        val product =
+            entityManager.createQuery(query, jpqlRenderContext).singleResult
+                ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+
+        return product.toDomain()
     }
 }

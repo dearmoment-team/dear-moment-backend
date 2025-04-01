@@ -102,8 +102,9 @@ class InquiryCommandServiceTest : DescribeSpec({
                 RemoveProductOptionInquiryCommand(
                     inquiryId = 1L,
                     productId = 1L,
+                    userId = UUID.randomUUID(),
                 )
-            every { deletePort.deleteProductOptionInquiry(command.inquiryId) } just Runs
+            every { deletePort.deleteProductOptionInquiry(command.inquiryId, command.userId) } just Runs
             every { productPersistencePort.decreaseInquiryCount(command.productId) } just Runs
             it("해당 문의를 삭제한다") {
                 shouldNotThrow<Throwable> { service.removeProductOptionInquiry(command) }

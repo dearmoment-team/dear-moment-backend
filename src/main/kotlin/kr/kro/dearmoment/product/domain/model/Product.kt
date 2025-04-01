@@ -87,4 +87,30 @@ data class Product(
             deletedOptionIds = toDelete,
         )
     }
+
+    fun extractThumbnailUrls(): List<String> {
+        return buildList {
+            add(mainImage.url)
+            addAll(subImages.take(2).map { it.url })
+        }
+    }
+
+    fun calculateDiscountRate(): Int {
+        if (options.isEmpty()) {
+            return 0
+        }
+
+        val discountRate = options.maxOf { (it.discountPrice.toDouble() / it.originalPrice) * 100 }.toInt()
+
+        return if (discountRate == MAX_DISCOUNT_RATE) {
+            return MIN_DISCOUNT_RATE
+        } else {
+            discountRate
+        }
+    }
+
+    companion object {
+        private const val MIN_DISCOUNT_RATE = 0
+        private const val MAX_DISCOUNT_RATE = 100
+    }
 }

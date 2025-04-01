@@ -49,4 +49,6 @@ interface GetProductPort {
         query: SearchProductQuery,
         pageable: Pageable,
     ): Page<Product>
+
+    fun findWithStudioById(id: Long): Product
 }

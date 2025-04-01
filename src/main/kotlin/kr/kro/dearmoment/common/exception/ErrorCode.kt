@@ -39,8 +39,11 @@ enum class ErrorCode(
     // PartnerShop
     INVALID_PARTNER_SHOP_CATEGORY(HttpStatus.BAD_REQUEST, "유효하지 않은 제휴 업체 카테고리입니다."),
 
-    // Validation
+    // LIKE
     LIKE_DUPLICATED(HttpStatus.BAD_REQUEST, "이미 좋아요가 존재합니다."),
+    LIKE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 좋아요 입니다."),
+
+    // Validation
     INVALID_PRODUCT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 상품 유형입니다."),
     INVALID_SHOOTING_PLACE(HttpStatus.BAD_REQUEST, "유효하지 않은 촬영 장소입니다."),
     INVALID_SEASON(HttpStatus.BAD_REQUEST, "유효하지 않은 촬영 가능 시기입니다."),
