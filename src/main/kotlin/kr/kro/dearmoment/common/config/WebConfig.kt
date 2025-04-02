@@ -2,6 +2,10 @@ package kr.kro.dearmoment.common.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
+import kr.kro.dearmoment.common.constants.ALLOWED_METHODS
+import kr.kro.dearmoment.common.constants.ALLOWED_ORIGINS
+import kr.kro.dearmoment.common.constants.AUTHORIZATION_HEADER
+import kr.kro.dearmoment.common.constants.MAX_AGE
 import kr.kro.dearmoment.common.converter.CustomHttpMessageConverter
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.HttpMessageConverter
@@ -44,10 +48,10 @@ class WebConfig(
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOriginPatterns("https://*.kro.kr", "https://*.o-r.kr", "http://localhost:*")
-            .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
+            .allowedOriginPatterns(*ALLOWED_ORIGINS)
+            .allowedMethods(*ALLOWED_METHODS)
             .allowCredentials(true)
-            .exposedHeaders("Authorization")
-            .maxAge(3600)
+            .exposedHeaders(AUTHORIZATION_HEADER)
+            .maxAge(MAX_AGE)
     }
 }

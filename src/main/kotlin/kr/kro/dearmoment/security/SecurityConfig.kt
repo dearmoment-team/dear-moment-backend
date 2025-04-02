@@ -1,5 +1,9 @@
 package kr.kro.dearmoment.security
 
+import kr.kro.dearmoment.common.constants.ALLOWED_METHODS
+import kr.kro.dearmoment.common.constants.ALLOWED_ORIGINS
+import kr.kro.dearmoment.common.constants.AUTHORIZATION_HEADER
+import kr.kro.dearmoment.common.constants.MAX_AGE
 import kr.kro.dearmoment.user.security.CustomUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,6 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class SecurityConfig(
@@ -30,8 +37,24 @@ class SecurityConfig(
     }
 
     @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+        configuration.allowedOrigins = ALLOWED_ORIGINS.toList()
+        configuration.allowedMethods = ALLOWED_METHODS.toList()
+        configuration.allowedHeaders = listOf("*")
+        configuration.addExposedHeader(AUTHORIZATION_HEADER)
+        configuration.allowCredentials = true // 쿠키를 이용한 인증 요청을 허용
+        configuration.maxAge = MAX_AGE
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
+    }
+
+    @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .cors { cors -> cors.configurationSource(corsConfigurationSource()) }
             .csrf { it.disable() }
             .authorizeHttpRequests { authz ->
                 authz.requestMatchers(
