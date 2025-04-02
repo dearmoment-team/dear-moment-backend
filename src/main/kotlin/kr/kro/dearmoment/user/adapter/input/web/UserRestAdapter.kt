@@ -17,6 +17,7 @@ import kr.kro.dearmoment.user.application.dto.request.RegisterUserRequest
 import kr.kro.dearmoment.user.application.dto.request.UpdateUserNameRequest
 import kr.kro.dearmoment.user.application.dto.response.LoginUserResponse
 import kr.kro.dearmoment.user.application.dto.response.UserResponse
+import kr.kro.dearmoment.user.application.dto.response.UserStudioResponse
 import kr.kro.dearmoment.user.application.port.input.RegisterUserUseCase
 import kr.kro.dearmoment.user.application.service.UserProfileService
 import kr.kro.dearmoment.user.security.CustomUserDetails
@@ -104,9 +105,8 @@ class UserRestAdapter(
     fun getProfile(
         @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
-    ): UserResponse {
-        val user = userProfileService.getProfile(userId)
-        return UserResponse.from(user)
+    ): UserStudioResponse {
+        return userProfileService.getProfile(userId)
     }
 
     @Operation(summary = "이름 변경", description = "(초기 MVP 제거 예정) 로그인한 사용자의 이름을 변경합니다.")

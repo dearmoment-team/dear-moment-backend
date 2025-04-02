@@ -9,6 +9,7 @@ import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
 import kr.kro.dearmoment.studio.domain.Studio
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class StudioPersistenceAdapter(
@@ -25,6 +26,10 @@ class StudioPersistenceAdapter(
                 ?: throw CustomException(ErrorCode.STUDIO_NOT_FOUND)
 
         return entity.toDomain()
+    }
+
+    override fun findByUserId(id: UUID): Studio? {
+        return studioJpaRepository.findByUserId(id)?.toDomain()
     }
 
     override fun update(studio: Studio): Studio {

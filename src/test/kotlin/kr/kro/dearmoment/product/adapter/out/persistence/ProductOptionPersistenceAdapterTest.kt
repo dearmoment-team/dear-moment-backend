@@ -46,35 +46,35 @@ class ProductOptionPersistenceAdapterTest(
         describe("ProductOptionRepositoryAdapter 테스트") {
             lateinit var testProductEntity: ProductEntity
             lateinit var testProductDomain: Product
+            // 스튜디오 엔티티를 명시적으로 생성하여 저장 (userId: dummyUserId)
+            val studio =
+                StudioEntity(
+                    id = 0L,
+                    name = "스튜디오 디어모먼트",
+                    userId = dummyUserId,
+                    contact = "010-1234-5678",
+                    studioIntro = "소개글",
+                    artistsIntro = "스튜디오 A 작가 입니다.",
+                    instagramUrl = "instagram.com",
+                    kakaoChannelUrl = "kakaotalk.com",
+                    reservationNotice = "예약 안내",
+                    cancellationPolicy = "취소 정책",
+                    status = "ACTIVE",
+                    partnerShops =
+                        mutableSetOf(
+                            StudioPartnerShopEmbeddable(
+                                category = "HAIR_MAKEUP",
+                                name = "Test Shop",
+                                urlLink = "http://testshop.com",
+                            ),
+                        ),
+                    cast = 1,
+                )
+            val savedStudio = studioRepository.save(studio)
 
             beforeEach {
                 productOptionLikeJpaRepository.deleteAllInBatch()
-
-                // 스튜디오 엔티티를 명시적으로 생성하여 저장 (userId: dummyUserId)
-                val studio =
-                    StudioEntity(
-                        id = 0L,
-                        name = "스튜디오 디어모먼트",
-                        userId = dummyUserId,
-                        contact = "010-1234-5678",
-                        studioIntro = "소개글",
-                        artistsIntro = "스튜디오 A 작가 입니다.",
-                        instagramUrl = "instagram.com",
-                        kakaoChannelUrl = "kakaotalk.com",
-                        reservationNotice = "예약 안내",
-                        cancellationPolicy = "취소 정책",
-                        status = "ACTIVE",
-                        partnerShops =
-                            mutableSetOf(
-                                StudioPartnerShopEmbeddable(
-                                    category = "HAIR_MAKEUP",
-                                    name = "Test Shop",
-                                    urlLink = "http://testshop.com",
-                                ),
-                            ),
-                        cast = 1,
-                    )
-                val savedStudio = studioRepository.save(studio)
+                jpaProductOptionRepository.deleteAllInBatch()
 
                 // 테스트용 ProductEntity 생성 (userId를 dummyUserId로 설정)
                 testProductEntity =
@@ -128,7 +128,6 @@ class ProductOptionPersistenceAdapterTest(
                         ),
                     )
                 testProductDomain = testProductEntity.toDomain()
-                jpaProductOptionRepository.deleteAllInBatch()
             }
 
             afterEach {

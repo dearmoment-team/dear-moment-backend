@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
@@ -17,7 +18,10 @@ import org.hibernate.annotations.ColumnDefault
 import java.util.UUID
 
 @Entity
-@Table(name = "studios")
+@Table(
+    name = "studios",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id"])],
+)
 class StudioEntity(
     @Id
     @Column(name = "studio_id")

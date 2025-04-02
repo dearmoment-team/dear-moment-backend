@@ -20,10 +20,19 @@ class StudioPersistenceAdapterTest(
                     savedStudio.id shouldNotBe 0L
                 }
             }
+
             context("조회하려는 스튜디오 식별자를 전달하면") {
                 val expected = adapter.save(studioFixture())
                 it("DB에서 해당 스튜디오 엔티티를 반환한다.") {
                     val result = adapter.findById(expected.id)
+                    result shouldBe expected
+                }
+            }
+
+            context("조회하려는 스튜디오의 유저 식별자 전달하면") {
+                val expected = adapter.save(studioFixture())
+                it("DB에서 해당 스튜디오 엔티티를 반환한다.") {
+                    val result = adapter.findByUserId(expected.userId)
                     result shouldBe expected
                 }
             }

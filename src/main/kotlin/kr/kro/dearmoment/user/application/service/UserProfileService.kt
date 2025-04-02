@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.user.application.service
 
+import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
+import kr.kro.dearmoment.user.application.dto.response.UserStudioResponse
 import kr.kro.dearmoment.user.application.port.output.GetUserByIdPort
 import kr.kro.dearmoment.user.application.port.output.SaveUserPort
 import kr.kro.dearmoment.user.domain.User
@@ -12,10 +14,16 @@ import java.util.UUID
 class UserProfileService(
     private val getUserByIdPort: GetUserByIdPort,
     private val saveUserPort: SaveUserPort,
+    private val getStudioPort: GetStudioPort,
 ) {
-    fun getProfile(userId: UUID): User {
-        return getUserByIdPort.findById(userId)
-            ?: throw UsernameNotFoundException("User not found with id: $userId")
+    fun getProfile(userId: UUID): UserStudioResponse {
+        val user =
+            getUserByIdPort.findById(userId)
+                ?: throw UsernameNotFoundException("User not found with id: $userId")
+
+        val studioId = getStudioPort.findByUserId(userId)?.id ?: 0L
+
+        return UserStudioResponse.from(user, studioId)
     }
 
     fun updateName(
