@@ -43,11 +43,11 @@ class WebConfig(
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        // 다양한 서브도메인을 대응하기 위해 allowedOriginPatterns 사용
-        registry.addMapping("/**")
-            .allowedOriginPatterns("https://*.kro.kr", "https://*.o-r.kr")
-            .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
-            .allowCredentials(true)
-            .maxAge(3600)
+    registry.addMapping("/**")
+        .allowedOriginPatterns("http://localhost:8080", "https://*.kro.kr", "https://*.o-r.kr")
+        .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
+        .allowCredentials(true)
+        .maxAge(3600)
     }
+
 }
