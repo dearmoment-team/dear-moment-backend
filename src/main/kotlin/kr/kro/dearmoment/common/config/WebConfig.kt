@@ -2,15 +2,10 @@ package kr.kro.dearmoment.common.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
-import kr.kro.dearmoment.common.constants.ALLOWED_METHODS
-import kr.kro.dearmoment.common.constants.ALLOWED_ORIGINS
-import kr.kro.dearmoment.common.constants.AUTHORIZATION_HEADER
-import kr.kro.dearmoment.common.constants.MAX_AGE
 import kr.kro.dearmoment.common.converter.CustomHttpMessageConverter
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.StringHttpMessageConverter
-import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import java.nio.charset.StandardCharsets
@@ -44,14 +39,5 @@ class WebConfig(
             .addResourceLocations("classpath:/static/swagger-ui/")
         registry.addResourceHandler("/webjars/**")
             .addResourceLocations("classpath:/META-INF/resources/webjars/")
-    }
-
-    override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**")
-            .allowedOriginPatterns(*ALLOWED_ORIGINS)
-            .allowedMethods(*ALLOWED_METHODS)
-            .allowCredentials(true)
-            .exposedHeaders(AUTHORIZATION_HEADER)
-            .maxAge(MAX_AGE)
     }
 }

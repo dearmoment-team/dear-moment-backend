@@ -1,9 +1,5 @@
 package kr.kro.dearmoment.security
 
-import kr.kro.dearmoment.common.constants.ALLOWED_METHODS
-import kr.kro.dearmoment.common.constants.ALLOWED_ORIGINS
-import kr.kro.dearmoment.common.constants.AUTHORIZATION_HEADER
-import kr.kro.dearmoment.common.constants.MAX_AGE
 import kr.kro.dearmoment.user.security.CustomUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -93,5 +89,12 @@ class SecurityConfig(
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
+    }
+
+    companion object {
+        val ALLOWED_ORIGINS = arrayOf("https://*.kro.kr", "https://*.o-r.kr", "http://localhost:*")
+        val ALLOWED_METHODS = arrayOf("OPTIONS", "GET", "POST", "PUT", "DELETE")
+        const val AUTHORIZATION_HEADER = "Authorization"
+        const val MAX_AGE = 3600L
     }
 }
