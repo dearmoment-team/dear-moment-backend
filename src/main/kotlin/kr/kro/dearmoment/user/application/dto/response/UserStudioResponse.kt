@@ -19,9 +19,6 @@ data class UserStudioResponse(
     @Schema(description = "최종 수정 시각(UTC)", example = "2025-01-03T10:00:00")
     val updatedAt: LocalDateTime?,
 ) {
-    @Schema(description = "스튜디오 유저 여부", example = "true")
-    val isStudio: Boolean = studioId > 0L
-
     companion object {
         fun from(
             user: User,
