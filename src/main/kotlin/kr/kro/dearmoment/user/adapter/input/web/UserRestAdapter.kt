@@ -97,7 +97,7 @@ class UserRestAdapter(
             ApiResponse(
                 responseCode = "200",
                 description = "프로필 조회 성공",
-                content = [Content(schema = Schema(implementation = UserResponse::class))],
+                content = [Content(schema = Schema(implementation = UserStudioResponse::class))],
             ),
         ],
     )
