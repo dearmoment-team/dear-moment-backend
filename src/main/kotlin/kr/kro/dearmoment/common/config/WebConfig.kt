@@ -44,11 +44,12 @@ class WebConfig(
 
     override fun addCorsMappings(registry: CorsRegistry) {
     registry.addMapping("/**")
-        .allowedOriginPatterns("https://*.kro.kr", "https://*.o-r.kr")
+        .allowedOriginPatterns("https://*.kro.kr", "https://*.o-r.kr", "http://localhost:*")
         .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE")
         .allowCredentials(true)
         .exposedHeaders("Authorization")
         .maxAge(3600)
     }
+
 
 }
