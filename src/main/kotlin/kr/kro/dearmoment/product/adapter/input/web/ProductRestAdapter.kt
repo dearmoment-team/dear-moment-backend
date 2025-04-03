@@ -189,7 +189,7 @@ class ProductRestAdapter(
             ApiResponse(
                 responseCode = "200",
                 description = "상품 조회 성공",
-                content = [Content(schema = Schema(implementation = ProductResponse::class))],
+                content = [Content(schema = Schema(implementation = GetProductResponse::class))],
             ),
         ],
     )
