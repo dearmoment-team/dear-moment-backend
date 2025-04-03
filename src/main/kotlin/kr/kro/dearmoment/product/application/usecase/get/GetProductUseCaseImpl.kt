@@ -19,12 +19,16 @@ class GetProductUseCaseImpl(
     ): GetProductResponse {
         val product = getProductPort.findWithStudioById(productId)
         val optionIds = product.options.map { it.optionId }
+        val userProductLikeId =
+            userId?.let {
+                getLikePort.findProductLikesByUserIdAndProductId(userId, productId)
+            }?.id ?: 0L
         val userOptionLikes =
             userId?.let {
                 getLikePort.findOptionLikesByUserIdAndOptionIds(userId, optionIds)
-                    .map { it.productOptionId }.toSet()
-            } ?: emptySet()
+                    .associate { it.productOptionId to it.id }
+            } ?: emptyMap()
 
-        return GetProductResponse.fromDomain(product, userOptionLikes)
+        return GetProductResponse.fromDomain(product, userProductLikeId, userOptionLikes)
     }
 }

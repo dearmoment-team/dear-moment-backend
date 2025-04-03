@@ -65,13 +65,15 @@ class GetProductUseCaseTest : BehaviorSpec({
 
     Given("유효한 상품 ID가 주어졌을 때") {
         When("해당 상품이 존재하는 경우") {
+            val productLikeId = 0L
             val userId = UUID.randomUUID()
             every { getProductPort.findWithStudioById(dummyProduct.productId) } returns dummyProduct
             every { getLikePort.findOptionLikesByUserIdAndOptionIds(userId, dummyProduct.options.map { it.optionId }) } returns emptyList()
+            every { getLikePort.findProductLikesByUserIdAndProductId(userId, dummyProduct.productId) } returns null
 
             Then("정상적으로 상품 정보를 반환해야 한다") {
                 val result = useCase.getProductById(1L, userId)
-                result shouldBe GetProductResponse.fromDomain(dummyProduct)
+                result shouldBe GetProductResponse.fromDomain(dummyProduct, productLikeId)
                 verify(exactly = 1) { getProductPort.findWithStudioById(1L) }
             }
         }

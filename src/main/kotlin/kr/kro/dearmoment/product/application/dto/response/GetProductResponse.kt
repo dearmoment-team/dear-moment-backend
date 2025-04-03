@@ -67,11 +67,14 @@ data class GetProductResponse(
     @Schema(description = "상품 옵션 목록")
     val options: List<GetProductOptionResponse>,
     val studio: ProductStudioResponse,
+    @Schema(description = "상품 좋아요 ID", example = "1", nullable = false)
+    val likeId: Long,
 ) {
     companion object {
         fun fromDomain(
             prod: Product,
-            userOptionLikes: Set<Long> = emptySet(),
+            productLikeId: Long,
+            userOptionLikes: Map<Long, Long> = emptyMap(),
         ): GetProductResponse {
             requireNotNull(prod.studio)
 
@@ -93,6 +96,7 @@ data class GetProductResponse(
                 updatedAt = prod.updatedAt,
                 options = prod.options.map { GetProductOptionResponse.fromDomain(it, userOptionLikes) },
                 studio = ProductStudioResponse.from(prod.studio),
+                likeId = productLikeId,
             )
         }
     }

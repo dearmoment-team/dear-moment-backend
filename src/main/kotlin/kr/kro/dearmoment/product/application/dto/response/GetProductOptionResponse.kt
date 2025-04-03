@@ -42,13 +42,13 @@ data class GetProductOptionResponse(
     val createdAt: LocalDateTime?,
     @Schema(description = "수정 일시", example = "2025-03-09T12:00:00", nullable = true)
     val updatedAt: LocalDateTime?,
-    @Schema(description = "좋아요 여부", example = "false", nullable = false)
-    val isLiked: Boolean,
+    @Schema(description = "좋아요 ID", example = "1", nullable = false)
+    val likeId: Long,
 ) {
     companion object {
         fun fromDomain(
             opt: ProductOption,
-            userOptionLikes: Set<Long> = emptySet(),
+            userOptionLikes: Map<Long, Long> = emptyMap(),
         ): GetProductOptionResponse {
             return GetProductOptionResponse(
                 optionId = opt.optionId,
@@ -67,7 +67,7 @@ data class GetProductOptionResponse(
                 partnerShops = opt.partnerShops.map { PartnerShopResponse.fromDomain(it) },
                 createdAt = opt.createdAt,
                 updatedAt = opt.updatedAt,
-                isLiked = userOptionLikes.contains(opt.optionId),
+                likeId = userOptionLikes[opt.optionId] ?: 0L,
             )
         }
     }

@@ -72,6 +72,7 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                                 ),
                             ),
                     ),
+                likeId = 0L,
             )
         every { getProductUseCase.getProductById(1L, userId) } returns productResponse
 
@@ -91,6 +92,7 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                     "code" type NUMBER means "HTTP 상태 코드",
                     "data" type OBJECT means "상품 데이터",
                     "data.productId" type NUMBER means "상품 ID",
+                    "data.likeId" type NUMBER means "상품 좋아요 ID",
                     "data.userId" type STRING means "사용자 ID",
                     "data.productType" type STRING means "상품 유형",
                     "data.shootingPlace" type STRING means "촬영 장소",

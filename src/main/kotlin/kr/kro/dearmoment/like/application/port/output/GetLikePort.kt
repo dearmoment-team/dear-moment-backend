@@ -36,4 +36,9 @@ interface GetLikePort {
         userId: UUID,
         productIds: List<Long>,
     ): List<ProductLike>
+
+    fun findProductLikesByUserIdAndProductId(
+        userId: UUID,
+        productId: Long,
+    ): ProductLike?
 }

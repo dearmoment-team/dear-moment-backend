@@ -140,4 +140,11 @@ class LikeReadOnlyPersistenceAdapter(
             .resultList
             .map { it.toDomain() }
     }
+
+    override fun findProductLikesByUserIdAndProductId(
+        userId: UUID,
+        productId: Long,
+    ): ProductLike? {
+        return productLikeJpaRepository.findByIdAndUserId(productId, userId)?.toDomain()
+    }
 }
