@@ -73,7 +73,7 @@ data class GetProductResponse(
     companion object {
         fun fromDomain(
             prod: Product,
-            productLikeId: Long,
+            productLikeId: Long = 0L,
             userOptionLikes: Map<Long, Long> = emptyMap(),
         ): GetProductResponse {
             requireNotNull(prod.studio)

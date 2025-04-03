@@ -4,6 +4,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.throwable.shouldHaveMessage
+import io.mockk.clearMocks
+import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -29,10 +31,8 @@ class GetProductUseCaseTest : BehaviorSpec({
     val getLikePort = mockk<GetLikePort>()
     val useCase = GetProductUseCaseImpl(getProductPort, getLikePort)
 
-    // dummy user ID
     val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
-    // 더미 이미지 생성 (userId: dummyUserId)
     val dummyImage =
         Image(
             userId = dummyUserId,
@@ -40,7 +40,6 @@ class GetProductUseCaseTest : BehaviorSpec({
             url = "http://example.com/dummy.jpg",
         )
 
-    // 더미 상품 객체 생성 (userId: dummyUserId)
     val dummyProduct =
         Product(
             productId = 1L,
@@ -63,33 +62,88 @@ class GetProductUseCaseTest : BehaviorSpec({
             studio = studioFixture(userId = dummyUserId),
         )
 
-    Given("유효한 상품 ID가 주어졌을 때") {
+    Given("getProductById를 호출할 때") {
+
         When("해당 상품이 존재하는 경우") {
             val productLikeId = 0L
-            val userId = UUID.randomUUID()
-            every { getProductPort.findWithStudioById(dummyProduct.productId) } returns dummyProduct
-            every { getLikePort.findOptionLikesByUserIdAndOptionIds(userId, dummyProduct.options.map { it.optionId }) } returns emptyList()
-            every { getLikePort.findProductLikesByUserIdAndProductId(userId, dummyProduct.productId) } returns null
+            val randomUserId = UUID.randomUUID()
 
-            Then("정상적으로 상품 정보를 반환해야 한다") {
-                val result = useCase.getProductById(1L, userId)
+            every { getProductPort.findWithStudioById(dummyProduct.productId) } returns dummyProduct
+            every { getLikePort.findProductLikesByUserIdAndProductId(randomUserId, dummyProduct.productId) } returns null
+            every { getLikePort.findOptionLikesByUserIdAndOptionIds(randomUserId, dummyProduct.options.map { it.optionId }) } returns emptyList()
+
+            Then("상품 정보를 정상적으로 반환해야 한다") {
+                val result = useCase.getProductById(1L, randomUserId)
                 result shouldBe GetProductResponse.fromDomain(dummyProduct, productLikeId)
+
+                // 호출 검증
                 verify(exactly = 1) { getProductPort.findWithStudioById(1L) }
+                verify(exactly = 1) {
+                    getLikePort.findProductLikesByUserIdAndProductId(randomUserId, 1L)
+                }
+                verify(exactly = 1) {
+                    // 실제로는 옵션 ID가 empty가 아닐 수도 있으니, dummyProduct.options.map { it.optionId }로 넣으세요
+                    getLikePort.findOptionLikesByUserIdAndOptionIds(randomUserId, emptyList())
+                }
+
+                // 호출 이력 체크 & 리셋
+                confirmVerified(getProductPort, getLikePort)
+                clearMocks(getProductPort, getLikePort, answers = false)
+            }
+        }
+
+        When("상품이 존재하지 않는 경우") {
+            every { getProductPort.findWithStudioById(2L) } throws CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+
+            Then("CustomException 예외가 발생해야 한다") {
+                val exception = shouldThrow<CustomException> {
+                    useCase.getProductById(2L, null)
+                }
+                exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
+
+                verify(exactly = 1) { getProductPort.findWithStudioById(2L) }
+
+                // LikePort 호출이 없었다면 아래 verify를 추가하거나 생략합니다.
+                // verify(exactly = 0) { getLikePort.findProductLikesByUserIdAndProductId(any(), any()) }
+                // verify(exactly = 0) { getLikePort.findOptionLikesByUserIdAndOptionIds(any(), any()) }
+
+                confirmVerified(getProductPort, getLikePort)
+                clearMocks(getProductPort, getLikePort, answers = false)
             }
         }
     }
 
-    Given("존재하지 않는 상품 ID가 주어졌을 때") {
-        When("해당 상품이 존재하지 않는 경우") {
-            every { getProductPort.findWithStudioById(2L) } throws CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+    Given("getMyProduct를 호출할 때") {
 
-            Then("CustomException 예외를 발생시켜야 한다") {
-                val exception =
-                    shouldThrow<CustomException> {
-                        useCase.getProductById(2L, null)
-                    }
-                exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
-                verify(exactly = 1) { getProductPort.findWithStudioById(2L) }
+        When("해당 userId에 매칭되는 상품이 존재하는 경우") {
+            every { getProductPort.findTopByUserId(dummyUserId) } returns dummyProduct
+
+            Then("상품 정보를 정상적으로 반환해야 한다") {
+                val result = useCase.getMyProduct(dummyUserId)
+                result shouldBe GetProductResponse.fromDomain(dummyProduct)
+
+                verify(exactly = 1) { getProductPort.findTopByUserId(dummyUserId) }
+                // getLikePort가 호출되지 않았다면 verify(exactly = 0)로 확인하거나, 그냥 두시면 됩니다.
+
+                confirmVerified(getProductPort, getLikePort)
+                clearMocks(getProductPort, getLikePort, answers = false)
+            }
+        }
+
+        When("해당 userId에 매칭되는 상품이 존재하지 않는 경우") {
+            every { getProductPort.findTopByUserId(dummyUserId) } throws CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+
+            Then("CustomException 예외가 발생해야 한다") {
+                val exception = shouldThrow<CustomException> {
+                    useCase.getMyProduct(dummyUserId)
+                }
+                exception.shouldHaveMessage(ErrorCode.PRODUCT_NOT_FOUND.message)
+
+                verify(exactly = 1) { getProductPort.findTopByUserId(dummyUserId) }
+                // 만약 LikePort도 함께 호출된다면 여기도 verify가 필요합니다.
+
+                confirmVerified(getProductPort, getLikePort)
+                clearMocks(getProductPort, getLikePort, answers = false)
             }
         }
     }
