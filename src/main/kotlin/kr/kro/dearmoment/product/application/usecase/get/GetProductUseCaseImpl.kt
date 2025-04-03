@@ -31,4 +31,10 @@ class GetProductUseCaseImpl(
 
         return GetProductResponse.fromDomain(product, userProductLikeId, userOptionLikes)
     }
+
+    @Transactional(readOnly = true)
+    override fun getMyProduct(userId: UUID): GetProductResponse {
+        val product = getProductPort.findTopByUserId(userId)
+        return GetProductResponse.fromDomain(product)
+    }
 }

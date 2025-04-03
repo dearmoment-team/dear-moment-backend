@@ -8,4 +8,8 @@ interface GetProductUseCase {
         productId: Long,
         userId: UUID?,
     ): GetProductResponse
+
+    fun getMyProduct(
+        userId: UUID
+    ): GetProductResponse
 }
