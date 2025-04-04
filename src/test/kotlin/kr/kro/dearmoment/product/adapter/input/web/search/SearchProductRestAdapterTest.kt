@@ -11,7 +11,6 @@ import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
 import kr.kro.dearmoment.common.restdocs.queryParameters
-import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
@@ -39,7 +38,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 800_000L,
                     maxPrice = 1_000_000L,
                     discountRate = 10,
-                    isLiked = true,
+                    likeId = 1L,
                 ),
                 SearchProductResponse(
                     productId = 2L,
@@ -50,7 +49,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 1_200_000L,
                     maxPrice = 1_500_000L,
                     discountRate = 15,
-                    isLiked = false,
+                    likeId = 2L,
                 ),
             )
 
@@ -92,7 +91,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].discountRate" type NUMBER means "할인율",
                     "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].isLiked" type BOOLEAN means "좋아요 여부",
+                    "data.content[].likeId" type NUMBER means "좋아요 ID",
                     "data.totalPages" type NUMBER means "전체 페이지 수",
                     "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
@@ -129,7 +128,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 800_000L,
                     maxPrice = 1_000_000L,
                     discountRate = 10,
-                    isLiked = true,
+                    likeId = 1L,
                 ),
                 SearchProductResponse(
                     productId = 2L,
@@ -140,7 +139,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     minPrice = 1_200_000L,
                     maxPrice = 1_500_000L,
                     discountRate = 15,
-                    isLiked = false,
+                    likeId = 2L,
                 ),
             )
 
@@ -197,7 +196,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].discountRate" type NUMBER means "할인율",
                     "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
-                    "data.content[].isLiked" type BOOLEAN means "좋아요 여부",
+                    "data.content[].likeId" type NUMBER means "좋아요 ID",
                     "data.totalPages" type NUMBER means "전체 페이지 수",
                     "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",

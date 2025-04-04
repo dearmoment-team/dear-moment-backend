@@ -30,13 +30,13 @@ data class SearchProductResponse(
     val maxPrice: Long,
     @Schema(description = "할인율", example = "10")
     val discountRate: Int,
-    @Schema(description = "사용자가 상품 좋아요를 눌렀는지 여부", example = "true")
-    val isLiked: Boolean,
+    @Schema(description = "사용자가 상품 좋아요를 눌렀는지 여부", example = "1")
+    val likeId: Long,
 ) {
     companion object {
         fun from(
             product: Product,
-            userLikes: Set<Long>,
+            userLikes: Map<Long, Long>,
         ): SearchProductResponse {
             requireNotNull(product.studio)
 
@@ -49,7 +49,7 @@ data class SearchProductResponse(
                 minPrice = product.options.minOf { it.discountPrice },
                 maxPrice = product.options.maxOf { it.discountPrice },
                 discountRate = product.calculateDiscountRate(),
-                isLiked = userLikes.contains(product.productId),
+                likeId = userLikes[product.productId] ?: 0L,
             )
         }
     }
