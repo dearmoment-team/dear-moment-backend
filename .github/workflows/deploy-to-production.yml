@@ -62,6 +62,7 @@ jobs:
             
             # Kakao OAuth
             OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
+            OAUTH_KAKAO_APP_ADMIN_KEY: ${{ secrets.OAUTH_KAKAO_APP_ADMIN_KEY }}
             OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
             
             EOF
