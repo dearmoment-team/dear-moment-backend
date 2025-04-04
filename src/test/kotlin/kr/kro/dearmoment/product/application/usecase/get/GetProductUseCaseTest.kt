@@ -70,9 +70,7 @@ class GetProductUseCaseTest : BehaviorSpec({
 
             every { getProductPort.findWithStudioById(dummyProduct.productId) } returns dummyProduct
             every { getLikePort.findProductLikesByUserIdAndProductId(randomUserId, dummyProduct.productId) } returns null
-            every {
-                getLikePort.findOptionLikesByUserIdAndOptionIds(randomUserId, dummyProduct.options.map { it.optionId })
-            } returns emptyList()
+            every { getLikePort.findOptionLikesByUserIdAndOptionIds(randomUserId, dummyProduct.options.map { it.optionId }) } returns emptyList() // 린트 설정 테스트
 
             Then("상품 정보를 정상적으로 반환해야 한다") {
                 val result = useCase.getProductById(1L, randomUserId)
