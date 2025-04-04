@@ -28,8 +28,8 @@ class ProductSearchUseCaseImpl(
         val userLikes =
             userId?.let {
                 getLikePort.findProductLikesByUserIdAndProductIds(userId, productIds)
-                    .map { it.product.productId }.toSet()
-            } ?: emptySet()
+                    .associate { it.product.productId to it.id }
+            } ?: emptyMap()
 
         return PagedResponse(
             content = products.content.map { SearchProductResponse.from(it, userLikes) },

@@ -9,7 +9,5 @@ interface GetProductUseCase {
         userId: UUID?,
     ): GetProductResponse
 
-    fun getMyProduct(
-        userId: UUID
-    ): GetProductResponse
+    fun getMyProduct(userId: UUID): GetProductResponse
 }

@@ -70,7 +70,7 @@ class GetProductUseCaseTest : BehaviorSpec({
 
             every { getProductPort.findWithStudioById(dummyProduct.productId) } returns dummyProduct
             every { getLikePort.findProductLikesByUserIdAndProductId(randomUserId, dummyProduct.productId) } returns null
-            every { getLikePort.findOptionLikesByUserIdAndOptionIds(randomUserId, dummyProduct.options.map { it.optionId }) } returns emptyList()
+            every { getLikePort.findOptionLikesByUserIdAndOptionIds(randomUserId, dummyProduct.options.map { it.optionId }) } returns emptyList() // 린트 설정 테스트
 
             Then("상품 정보를 정상적으로 반환해야 한다") {
                 val result = useCase.getProductById(1L, randomUserId)
@@ -96,9 +96,10 @@ class GetProductUseCaseTest : BehaviorSpec({
             every { getProductPort.findWithStudioById(2L) } throws CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
             Then("CustomException 예외가 발생해야 한다") {
-                val exception = shouldThrow<CustomException> {
-                    useCase.getProductById(2L, null)
-                }
+                val exception =
+                    shouldThrow<CustomException> {
+                        useCase.getProductById(2L, null)
+                    }
                 exception shouldHaveMessage ErrorCode.PRODUCT_NOT_FOUND.message
 
                 verify(exactly = 1) { getProductPort.findWithStudioById(2L) }
@@ -134,9 +135,10 @@ class GetProductUseCaseTest : BehaviorSpec({
             every { getProductPort.findTopByUserId(dummyUserId) } throws CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
             Then("CustomException 예외가 발생해야 한다") {
-                val exception = shouldThrow<CustomException> {
-                    useCase.getMyProduct(dummyUserId)
-                }
+                val exception =
+                    shouldThrow<CustomException> {
+                        useCase.getMyProduct(dummyUserId)
+                    }
                 exception.shouldHaveMessage(ErrorCode.PRODUCT_NOT_FOUND.message)
 
                 verify(exactly = 1) { getProductPort.findTopByUserId(dummyUserId) }
