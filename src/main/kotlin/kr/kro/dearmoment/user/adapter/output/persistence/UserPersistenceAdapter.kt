@@ -2,6 +2,7 @@ package kr.kro.dearmoment.user.adapter.output.persistence
 
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.user.application.port.output.DeleteUserByIdPort
 import kr.kro.dearmoment.user.application.port.output.GetStudioUserPort
 import kr.kro.dearmoment.user.application.port.output.GetUserByIdPort
 import kr.kro.dearmoment.user.application.port.output.GetUserByKakaoIdPort
@@ -13,7 +14,7 @@ import java.util.UUID
 @Component
 class UserPersistenceAdapter(
     private val userJpaRepository: UserJpaRepository,
-) : SaveUserPort, GetUserByIdPort, GetUserByKakaoIdPort, GetStudioUserPort {
+) : SaveUserPort, GetUserByIdPort, GetUserByKakaoIdPort, GetStudioUserPort, DeleteUserByIdPort {
     override fun save(user: User): User {
         val entity = UserEntity.from(user)
         val saved = userJpaRepository.save(entity)
@@ -43,5 +44,15 @@ class UserPersistenceAdapter(
             throw CustomException(ErrorCode.UNAUTHORIZED_ACCESS)
         }
         return entity.toDomain()
+    }
+
+    override fun deleteUser(id: UUID) {
+        // 1) 존재하지 않으면 예외 발생
+        val entity =
+            userJpaRepository.findById(id)
+                ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
+
+        // 2) 실제 삭제
+        userJpaRepository.delete(entity)
     }
 }

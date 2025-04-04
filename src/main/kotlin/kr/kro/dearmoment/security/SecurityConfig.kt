@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.security
 
+import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.user.security.CustomUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -64,6 +65,8 @@ class SecurityConfig(
                     // 상품 조회
                     .requestMatchers(HttpMethod.GET, "/api/products/main").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
+                    // 카카오 오어스
+                    .requestMatchers(GlobalUrls.OAUTH_KAKAO_WITHDRAW).hasRole("USER")
                     // 1. 스튜디오 문의
                     .requestMatchers("/api/inquiries/studios/**").hasRole("USER")
                     // 2. 스튜디오

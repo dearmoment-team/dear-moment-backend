@@ -11,30 +11,30 @@ class UserTest : DescribeSpec({
         context("모든 필드가 정상적이면") {
             it("정상적으로 객체가 생성된다.") {
                 val now = LocalDateTime.now()
-                    User(
-                        id = null,
-                        loginId = "testUser",
-                        password = "pass1234",
-                        name = "홍길동",
-                        isStudio = false,
-                        createdAt = now,
-                        updatedAt = now,
-                    )
+                User(
+                    id = null,
+                    loginId = "testUser",
+                    password = "pass1234",
+                    name = "홍길동",
+                    isStudio = false,
+                    createdAt = now,
+                    updatedAt = now,
+                )
             }
         }
 
         context("모든 필드가 일부만 있더라도") {
             it("null 허용 필드는 없어도 정상 생성된다.") {
                 val now = LocalDateTime.now()
-                    User(
-                        id = null,
-                        loginId = "anotherUser",
-                        password = "password1234",
-                        name = "홍길동2",
-                        isStudio = null,
-                        createdAt = now,
-                        updatedAt = null,
-                    )
+                User(
+                    id = null,
+                    loginId = "anotherUser",
+                    password = "password1234",
+                    name = "홍길동2",
+                    isStudio = null,
+                    createdAt = now,
+                    updatedAt = null,
+                )
             }
         }
 

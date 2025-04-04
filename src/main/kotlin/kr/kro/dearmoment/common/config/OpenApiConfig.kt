@@ -15,7 +15,7 @@ class OpenApiConfig {
         val bearerAuthSchemeName = "bearerAuth"
 
         return OpenAPI()
-            .servers(listOf(Server().url("https://dearmoment.o-r.kr")))
+            .servers(listOf(Server().url("http://localhost:8080")))
             .components(
                 Components().addSecuritySchemes(
                     bearerAuthSchemeName,

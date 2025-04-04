@@ -1,6 +1,9 @@
 package kr.kro.dearmoment.user.adapter.output.oauth
 
+import kr.kro.dearmoment.user.application.dto.response.KakaoUserInfo
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 
 @Component
@@ -56,9 +59,39 @@ class KakaoOAuthApiClient {
             nickname = nickname,
         )
     }
-}
 
-data class KakaoUserInfo(
-    val kakaoId: Long,
-    val nickname: String,
-)
+    /**
+     * 3) "관리자 키(Admin Key)" 방식으로 특정 kakaoId를 강제 연결 끊기
+     *    - POST /v1/user/unlink
+     *    - Content-Type: application/x-www-form-urlencoded
+     *    - Authorization: KakaoAK {ADMIN_KEY}
+     *    - body: target_id_type=user_id & target_id={kakaoId}
+     *
+     * 응답 예시:
+     *  { "id": 123456789 }
+     */
+    fun unlinkAndGetKakaoIdByAdminKey(
+        adminKey: String,
+        kakaoId: Long,
+    ): Long? {
+        val responseMap =
+            apiClient.post()
+                .uri("/v1/user/unlink")
+                .header("Authorization", "KakaoAK $adminKey")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(
+                    BodyInserters
+                        .fromFormData("target_id_type", "user_id")
+                        .with("target_id", kakaoId.toString()),
+                )
+                .retrieve()
+                .bodyToMono(Map::class.java)
+                .block()
+
+        if (responseMap == null) {
+            return null
+        }
+        // 응답 {"id": 123456789} 식
+        return responseMap["id"]?.toString()?.toLongOrNull()
+    }
+}
