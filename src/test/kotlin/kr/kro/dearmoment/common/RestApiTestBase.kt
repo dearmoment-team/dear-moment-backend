@@ -24,6 +24,8 @@ import kr.kro.dearmoment.studio.application.port.input.DeleteStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.GetStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.ModifyStudioUseCase
 import kr.kro.dearmoment.studio.application.port.input.RegisterStudioUseCase
+import kr.kro.dearmoment.user.adapter.input.web.KakaoOAuthAdapter
+import kr.kro.dearmoment.user.application.service.KakaoOAuthService
 import kr.kro.dearmoment.user.domain.User
 import kr.kro.dearmoment.user.security.CustomUserDetails
 import org.junit.jupiter.api.BeforeEach
@@ -64,6 +66,7 @@ import java.util.UUID
         ServiceInquiryRestAdapter::class,
         StudioRestAdapter::class,
         ProductRestAdapter::class,
+        KakaoOAuthAdapter::class,
     ],
 )
 @TestEnvironment
@@ -115,6 +118,9 @@ abstract class RestApiTestBase {
 
     @MockkBean
     lateinit var deleteProductOptionUseCase: DeleteProductOptionUseCase
+
+    @MockkBean
+    protected lateinit var kakaoOAuthService: KakaoOAuthService
 
     val userId = UUID.randomUUID()
 

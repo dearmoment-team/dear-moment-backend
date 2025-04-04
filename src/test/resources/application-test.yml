@@ -33,4 +33,5 @@ jwt:
 oauth:
   kakao:
     client-id: ${OAUTH_KAKAO_CLIENT_ID}
+    app-admin-key: ${OAUTH_KAKAO_APP_ADMIN_KEY}
     redirect-uri: ${OAUTH_KAKAO_REDIRECT_URI}

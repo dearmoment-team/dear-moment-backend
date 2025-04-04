@@ -2,7 +2,6 @@ package kr.kro.dearmoment.product.adapter.input.web.get
 
 import andDocument
 import io.mockk.every
-import io.swagger.v3.oas.annotations.media.Schema
 import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.restdocs.ARRAY
 import kr.kro.dearmoment.common.restdocs.BOOLEAN
@@ -23,7 +22,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 
 class GetProductRestAdapterTest : RestApiTestBase() {
-
     /**
      * 1) 상품 단건 조회 - 정상 조회
      */
@@ -43,12 +41,12 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                 retouchStyles = listOf("MODERN"),
                 mainImage = ImageResponse(imageId = 1L, url = "http://image-server.com/mainImage.jpg"),
                 subImages =
-                listOf(
-                    ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
-                    ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
-                    ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
-                    ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
-                ),
+                    listOf(
+                        ImageResponse(imageId = 2L, url = "http://image-server.com/subImage1.jpg"),
+                        ImageResponse(imageId = 3L, url = "http://image-server.com/subImage2.jpg"),
+                        ImageResponse(imageId = 4L, url = "http://image-server.com/subImage3.jpg"),
+                        ImageResponse(imageId = 5L, url = "http://image-server.com/subImage4.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "Detailed product information",
                 contactInfo = "contact@example.com",
@@ -56,38 +54,39 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                 updatedAt = null,
                 options = emptyList(),
                 studio =
-                ProductStudioResponse(
-                    name = "디어모먼트 스튜디오",
-                    contact = "010-1234-5678",
-                    studioIntro = "스튜디오 소개글",
-                    artistsIntro = "작가 소개글",
-                    instagramUrl = "https://www.instagram.com/username/",
-                    kakaoChannelUrl = "http://pf.kakao.com/user",
-                    reservationNotice = "예약은 평일만 가능합니다.",
-                    cancellationPolicy = "환불은 불가능합니다.",
-                    partnerShops =
-                    listOf(
-                        StudioPartnerShopDto(
-                            category = StudioPartnerShopCategory.DRESS.name,
-                            name = "디어모먼트 드레스샵",
-                            urlLink = "dear-moment-dress-shop.partner-shop.url",
-                        ),
-                        StudioPartnerShopDto(
-                            category = StudioPartnerShopCategory.MENS_SUIT.name,
-                            name = "디어모먼트 남자 수트샵",
-                            urlLink = "dear-moment-mens-suit.partner-shop.url",
-                        ),
+                    ProductStudioResponse(
+                        name = "디어모먼트 스튜디오",
+                        contact = "010-1234-5678",
+                        studioIntro = "스튜디오 소개글",
+                        artistsIntro = "작가 소개글",
+                        instagramUrl = "https://www.instagram.com/username/",
+                        kakaoChannelUrl = "http://pf.kakao.com/user",
+                        reservationNotice = "예약은 평일만 가능합니다.",
+                        cancellationPolicy = "환불은 불가능합니다.",
+                        partnerShops =
+                            listOf(
+                                StudioPartnerShopDto(
+                                    category = StudioPartnerShopCategory.DRESS.name,
+                                    name = "디어모먼트 드레스샵",
+                                    urlLink = "dear-moment-dress-shop.partner-shop.url",
+                                ),
+                                StudioPartnerShopDto(
+                                    category = StudioPartnerShopCategory.MENS_SUIT.name,
+                                    name = "디어모먼트 남자 수트샵",
+                                    urlLink = "dear-moment-mens-suit.partner-shop.url",
+                                ),
+                            ),
                     ),
-                ),
                 likeId = 0L,
             )
         // UseCase stubbing
         every { getProductUseCase.getProductById(1L, userId) } returns productResponse
 
         // when
-        val requestBuilder = RestDocumentationRequestBuilders
-            .get("/api/products/{id}", 1L)
-            .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .get("/api/products/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
 
         // 인증 정보 추가 (withAuthenticatedUser는 RestApiTestBase 등에 정의된 메서드라고 가정)
         val authenticatedRequest = withAuthenticatedUser(userId, requestBuilder)
@@ -150,12 +149,13 @@ class GetProductRestAdapterTest : RestApiTestBase() {
         // given
         val userId = UUID.randomUUID()
         every { getProductUseCase.getProductById(999L, userId) } throws
-                IllegalArgumentException("Product with ID 999 not found.")
+            IllegalArgumentException("Product with ID 999 not found.")
 
         // when
-        val requestBuilder = RestDocumentationRequestBuilders
-            .get("/api/products/{id}", 999L)
-            .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .get("/api/products/{id}", 999L)
+                .contentType(MediaType.APPLICATION_JSON)
 
         // 인증 정보 추가
         val authenticatedRequest = withAuthenticatedUser(userId, requestBuilder)
@@ -177,7 +177,7 @@ class GetProductRestAdapterTest : RestApiTestBase() {
     @Test
     fun `내 상품 상세 조회 API 테스트 - 정상 조회`() {
         // given
-        val userId = UUID.randomUUID()  // 임의의 인증 사용자
+        val userId = UUID.randomUUID() // 임의의 인증 사용자
         val myProductResponse =
             GetProductResponse(
                 productId = 10L,
@@ -190,10 +190,10 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                 retouchStyles = listOf("NATURAL"),
                 mainImage = ImageResponse(imageId = 100L, url = "http://image-server.com/myMain.jpg"),
                 subImages =
-                listOf(
-                    ImageResponse(imageId = 101L, url = "http://image-server.com/mySub1.jpg"),
-                    ImageResponse(imageId = 102L, url = "http://image-server.com/mySub2.jpg"),
-                ),
+                    listOf(
+                        ImageResponse(imageId = 101L, url = "http://image-server.com/mySub1.jpg"),
+                        ImageResponse(imageId = 102L, url = "http://image-server.com/mySub2.jpg"),
+                    ),
                 additionalImages = emptyList(),
                 detailedInfo = "My product's details",
                 contactInfo = "my-contact@example.com",
@@ -201,26 +201,27 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                 updatedAt = null,
                 options = emptyList(),
                 studio =
-                ProductStudioResponse(
-                    name = "내 스튜디오",
-                    contact = "010-2222-3333",
-                    studioIntro = "내 스튜디오 소개글",
-                    artistsIntro = "내 작가 소개",
-                    instagramUrl = "https://www.instagram.com/mystudio",
-                    kakaoChannelUrl = "https://pf.kakao.com/mystudio",
-                    reservationNotice = "주말만 가능합니다.",
-                    cancellationPolicy = "취소 불가.",
-                    partnerShops = emptyList(),
-                ),
+                    ProductStudioResponse(
+                        name = "내 스튜디오",
+                        contact = "010-2222-3333",
+                        studioIntro = "내 스튜디오 소개글",
+                        artistsIntro = "내 작가 소개",
+                        instagramUrl = "https://www.instagram.com/mystudio",
+                        kakaoChannelUrl = "https://pf.kakao.com/mystudio",
+                        reservationNotice = "주말만 가능합니다.",
+                        cancellationPolicy = "취소 불가.",
+                        partnerShops = emptyList(),
+                    ),
                 likeId = 0L,
             )
 
         every { getProductUseCase.getMyProduct(userId) } returns myProductResponse
 
         // when
-        val requestBuilder = RestDocumentationRequestBuilders
-            .get("/api/products/mine")
-            .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .get("/api/products/mine")
+                .contentType(MediaType.APPLICATION_JSON)
 
         // 인증 정보 추가
         val authenticatedRequest = withAuthenticatedUser(userId, requestBuilder)
@@ -277,12 +278,13 @@ class GetProductRestAdapterTest : RestApiTestBase() {
         // given
         val userId = UUID.randomUUID()
         every { getProductUseCase.getMyProduct(userId) } throws
-                IllegalArgumentException("No product found for user $userId")
+            IllegalArgumentException("No product found for user $userId")
 
         // when
-        val requestBuilder = RestDocumentationRequestBuilders
-            .get("/api/products/mine")
-            .contentType(MediaType.APPLICATION_JSON)
+        val requestBuilder =
+            RestDocumentationRequestBuilders
+                .get("/api/products/mine")
+                .contentType(MediaType.APPLICATION_JSON)
 
         // 인증 정보 추가
         val authenticatedRequest = withAuthenticatedUser(userId, requestBuilder)
