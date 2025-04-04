@@ -38,9 +38,9 @@ class ProductOptionInquiryEntity(
             id = id,
             productId = productId,
             userId = userId,
-            studioName = product.mainImage.url,
+            studioName = studio.name,
             optionName = option.name,
-            thumbnailUrl = studio.name,
+            thumbnailUrl = product.mainImage.url,
             createdDate = createdDate ?: LocalDateTime.now(),
         )
     }
