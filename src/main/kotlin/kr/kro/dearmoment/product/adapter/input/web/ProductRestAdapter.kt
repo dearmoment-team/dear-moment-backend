@@ -309,26 +309,25 @@ class ProductRestAdapter(
 
     @Operation(
         summary = "내 상품 상세 조회",
-        description = "현재 인증된 사용자가 소유한 상품의 상세 정보를 조회합니다."
+        description = "현재 인증된 사용자가 소유한 상품의 상세 정보를 조회합니다.",
     )
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
                 description = "상품 조회 성공",
-                content = [Content(schema = Schema(implementation = ProductResponse::class))]
-            )
-        ]
+                content = [Content(schema = Schema(implementation = ProductResponse::class))],
+            ),
+        ],
     )
     @GetMapping(
         value = ["/mine"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun getMyProduct(
         @Parameter(description = "현재 인증된 사용자의 ID", required = true)
-        @AuthenticationPrincipal(expression = "id") userId: UUID
+        @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): GetProductResponse {
         return getProductUseCase.getMyProduct(userId)
     }
-
 }
