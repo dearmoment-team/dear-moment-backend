@@ -73,6 +73,9 @@ class ProductOptionEntity(
         joinColumns = [JoinColumn(name = "OPTION_ID")],
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
+    // 선택 추가사항 필드 추가 (옵션에 따라 필요한 추가 정보)
+    @Column(name = "OPTIONAL_ADDITIONAL_DETAILS")
+    var optionalAdditionalDetails: String? = null,
     @Column(nullable = false)
     @ColumnDefault(value = "0")
     var version: Long = 0L,
@@ -105,6 +108,7 @@ class ProductOptionEntity(
                             link = it.link,
                         )
                     },
+                optionalAdditionalDetails = option.optionalAdditionalDetails,
                 version = 0L,
             )
         }
@@ -135,6 +139,7 @@ class ProductOptionEntity(
                         link = it.link,
                     )
                 },
+            optionalAdditionalDetails = optionalAdditionalDetails,
             createdAt = createdDate,
             updatedAt = updateDate,
         )
