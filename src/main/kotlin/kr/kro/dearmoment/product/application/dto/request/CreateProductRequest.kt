@@ -127,6 +127,8 @@ data class CreateProductOptionRequest(
     val originalProvided: Boolean = false,
     @Schema(description = "파트너샵 목록")
     val partnerShops: List<CreatePartnerShopRequest> = emptyList(),
+    @Schema(description = "선택 추가사항", example = "추가적인 옵션 상세 정보", required = false)
+    val optionalAdditionalDetails: String? = null,
 ) {
     companion object {
         fun toDomain(
@@ -157,6 +159,7 @@ data class CreateProductOptionRequest(
                             link = it.link,
                         )
                     },
+                optionalAdditionalDetails = dto.optionalAdditionalDetails,
                 createdAt = null,
                 updatedAt = null,
             )
