@@ -26,7 +26,7 @@ data class ProductOption(
     // [패키지용]
     val partnerShops: List<PartnerShop> = emptyList(),
     // 선택 추가사항 필드 (옵션에 따라 필요한 추가 정보)
-    val optionalAdditionalDetails: String? = null,
+    val optionalAdditionalDetails: String? = "",
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
 ) {
