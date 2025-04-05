@@ -18,6 +18,7 @@ import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
+import java.util.UUID
 
 /**
  * [상품 부분 수정] 시 사용하는 요청 DTO
@@ -92,7 +93,7 @@ data class UpdateProductRequest(
             subImages: List<Image>,
             additionalImages: List<Image>,
             options: List<UpdateProductOptionRequest> = emptyList(),
-            userId: java.util.UUID,
+            userId: UUID,
         ): Product {
             val productTypeEnum = req.productType?.let { ProductType.from(it) } ?: existingProduct.productType
             val shootingPlaceEnum = req.shootingPlace?.let { ShootingPlace.from(it) } ?: existingProduct.shootingPlace
@@ -219,6 +220,8 @@ data class UpdateProductOptionRequest(
     @field:Valid
     @Schema(description = "파트너샵 목록")
     val partnerShops: List<UpdatePartnerShopRequest> = emptyList(),
+    @Schema(description = "선택 추가사항", example = "추가적인 옵션 상세 정보", required = false)
+    val optionalAdditionalDetails: String? = null,
 ) {
     companion object {
         fun toDomain(
@@ -249,6 +252,7 @@ data class UpdateProductOptionRequest(
                             link = it.link,
                         )
                     },
+                optionalAdditionalDetails = dto.optionalAdditionalDetails,
                 createdAt = null,
                 updatedAt = null,
             )
