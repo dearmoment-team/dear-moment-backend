@@ -245,13 +245,13 @@ data class UpdateProductOptionRequest(
                 retouchedCount = dto.retouchedCount,
                 originalProvided = dto.originalProvided,
                 partnerShops =
-                dto.partnerShops.map {
-                    PartnerShop(
-                        category = PartnerShopCategory.from(it.category),
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
+                    dto.partnerShops.map {
+                        PartnerShop(
+                            category = PartnerShopCategory.from(it.category),
+                            name = it.name,
+                            link = it.link,
+                        )
+                    },
                 optionalAdditionalDetails = dto.optionalAdditionalDetails,
                 createdAt = null,
                 updatedAt = null,
