@@ -125,7 +125,7 @@ class ProductReadOnlyPersistenceRepositoryTest(
 //                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
 //                    println("JPA Query Execution Time: ${duration}ms")
 
-                    val content = result.content
+                    val content = result
                     content.forEach { product ->
                         product.options.forEach { option ->
                             option.discountPrice shouldBeGreaterThanOrEqualTo query.minPrice
@@ -155,7 +155,46 @@ class ProductReadOnlyPersistenceRepositoryTest(
 //                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
 //                    println("JPA Query Execution Time: ${duration}ms")
 
-                    val content = result.content
+                    val content = result
+                    content.forEach { product ->
+//                        println(
+//                            "Weight: ${product.likeCount * 10 + product.inquiryCount * 12 + product.optionLikeCount * 11}",
+//                        )
+                        if (query.availableSeasons.isNotEmpty()) {
+                            product.availableSeasons.forEach { season -> season shouldBeIn query.availableSeasons }
+                        }
+                        if (query.cameraTypes.isNotEmpty()) {
+                            product.cameraTypes.forEach { cameraType -> cameraType shouldBeIn query.cameraTypes }
+                        }
+                        if (query.retouchStyles.isNotEmpty()) {
+                            product.retouchStyles.forEach { retouchStyle -> retouchStyle shouldBeIn query.retouchStyles }
+                        }
+                    }
+                }
+            }
+
+            context("검색 조건이 가격순이면 있어도") {
+                it("상품이 조회된다.") {
+
+                    val query =
+                        SearchProductQuery(
+                            minPrice = 50_000L,
+                            maxPrice = 200_000L,
+                            partnerShopCategories = partnerShopCategories.toList(),
+                            availableSeasons = shootingSeasons.toList(),
+                            cameraTypes = cameraTypes.toList(),
+                            retouchStyles = retouchStyles.toList(),
+                            sortBy = SortCriteria.PRICE_HIGH,
+                        )
+
+                    val pageable = PageRequest.of(0, 10)
+//                    val startTime = System.nanoTime()
+                    val result = readAdapter.searchByCriteriaOrderByPrice(query, pageable)
+//                    val endTime = System.nanoTime()
+//                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
+//                    println("JPA Query Execution Time: ${duration}ms")
+
+                    val content = result
                     content.forEach { product ->
 //                        println(
 //                            "Weight: ${product.likeCount * 10 + product.inquiryCount * 12 + product.optionLikeCount * 11}",

@@ -1,5 +1,7 @@
 package kr.kro.dearmoment.product.adapter.out.persistence.sort
 
+import com.linecorp.kotlinjdsl.querymodel.jpql.expression.Expressions.max
+import com.linecorp.kotlinjdsl.querymodel.jpql.expression.Expressions.min
 import com.linecorp.kotlinjdsl.querymodel.jpql.expression.Expressions.plus
 import com.linecorp.kotlinjdsl.querymodel.jpql.expression.Expressions.times
 import com.linecorp.kotlinjdsl.querymodel.jpql.expression.Expressions.value
@@ -38,8 +40,8 @@ enum class SortCriteria(
             ),
         ),
     ),
-    PRICE_LOW(Sorts.asc(path(ProductOptionEntity::originalPrice))),
-    PRICE_HIGH(Sorts.desc(path(ProductOptionEntity::originalPrice))),
+    PRICE_LOW(Sorts.asc(min(false, path(ProductOptionEntity::discountPrice)))),
+    PRICE_HIGH(Sorts.desc(max(false, path(ProductOptionEntity::discountPrice)))),
     ;
 
     companion object {

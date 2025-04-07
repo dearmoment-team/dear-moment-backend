@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.application.usecase.search
 
 import kr.kro.dearmoment.common.dto.PagedResponse
 import kr.kro.dearmoment.like.application.port.output.GetLikePort
+import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
@@ -23,8 +24,18 @@ class ProductSearchUseCaseImpl(
         size: Int,
     ): PagedResponse<SearchProductResponse> {
         val pageable = PageRequest.of(page, size)
-        val products = getProductPort.searchByCriteria(request.toQuery(), pageable)
-        val productIds = products.content.map { it.productId }
+        val query = request.toQuery()
+        val products =
+            when (query.sortBy) {
+                SortCriteria.PRICE_LOW, SortCriteria.PRICE_HIGH -> {
+                    getProductPort.searchByCriteriaOrderByPrice(request.toQuery(), pageable)
+                }
+                else -> {
+                    getProductPort.searchByCriteria(request.toQuery(), pageable)
+                }
+            }
+
+        val productIds = products.map { it.productId }
         val userLikes =
             userId?.let {
                 getLikePort.findProductLikesByUserIdAndProductIds(userId, productIds)
@@ -32,11 +43,7 @@ class ProductSearchUseCaseImpl(
             } ?: emptyMap()
 
         return PagedResponse(
-            content = products.content.map { SearchProductResponse.from(it, userLikes) },
-            page = page,
-            size = size,
-            totalElements = products.totalElements,
-            totalPages = products.totalPages,
+            content = products.map { SearchProductResponse.from(it, userLikes) },
         )
     }
 }
