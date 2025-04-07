@@ -152,9 +152,8 @@ class LikeReadOnlyPersistenceAdapter(
                 ).from(
                     entity(ProductLikeEntity::class),
                     fetchJoin(ProductLikeEntity::product),
-                ).whereAnd(
-                    path(ProductLikeEntity::userId).eq(userId),
-                    path(ProductEntity::productId).eq(productId),
+                ).where(
+                    path(ProductLikeEntity::product)(ProductEntity::productId).eq(productId),
                 )
             }
 
