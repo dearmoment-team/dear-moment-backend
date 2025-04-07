@@ -36,6 +36,8 @@ data class GetProductOptionResponse(
     val shootingMinutes: Int,
     @Schema(description = "보정된 사진 수", example = "1")
     val retouchedCount: Int,
+    @Schema(description = "원본 제공 여부", example = "false")
+    val originalProvided: Boolean,
     @Schema(description = "파트너샵 목록")
     val partnerShops: List<PartnerShopResponse>,
     @Schema(description = "생성 일시", example = "2025-03-09T12:00:00", nullable = true)
@@ -64,6 +66,7 @@ data class GetProductOptionResponse(
                 shootingHours = opt.shootingHours,
                 shootingMinutes = opt.shootingMinutes,
                 retouchedCount = opt.retouchedCount,
+                originalProvided = opt.originalProvided,
                 partnerShops = opt.partnerShops.map { PartnerShopResponse.fromDomain(it) },
                 createdAt = opt.createdAt,
                 updatedAt = opt.updatedAt,
