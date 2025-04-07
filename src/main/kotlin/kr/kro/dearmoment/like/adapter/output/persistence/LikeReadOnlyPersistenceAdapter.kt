@@ -145,6 +145,20 @@ class LikeReadOnlyPersistenceAdapter(
         userId: UUID,
         productId: Long,
     ): ProductLike? {
-        return productLikeJpaRepository.findByIdAndUserId(productId, userId)?.toDomain()
+        val query =
+            jpql {
+                select(
+                    entity(ProductLikeEntity::class),
+                ).from(
+                    entity(ProductLikeEntity::class),
+                    fetchJoin(ProductLikeEntity::product),
+                ).whereAnd(
+                    path(ProductLikeEntity::userId).eq(userId),
+                    path(ProductEntity::productId).eq(productId),
+                )
+            }
+
+        return entityManager.createQuery(query, jpqlRenderContext)
+            .singleResult?.toDomain()
     }
 }
