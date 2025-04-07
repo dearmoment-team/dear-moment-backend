@@ -2,7 +2,6 @@ package kr.kro.dearmoment.product.application.port.out
 
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.domain.model.Product
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import java.util.UUID
 
@@ -55,7 +54,12 @@ interface GetProductPort {
     fun searchByCriteria(
         query: SearchProductQuery,
         pageable: Pageable,
-    ): Page<Product>
+    ): List<Product>
+
+    fun searchByCriteriaOrderByPrice(
+        query: SearchProductQuery,
+        pageable: Pageable,
+    ): List<Product>
 
     fun findWithStudioById(id: Long): Product
 }

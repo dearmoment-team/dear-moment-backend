@@ -6,6 +6,7 @@ import com.linecorp.kotlinjdsl.support.hibernate.extension.createQuery
 import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.domain.model.CameraType
@@ -13,7 +14,6 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -28,8 +28,8 @@ class ProductReadOnlyRepository(
     override fun searchByCriteria(
         query: SearchProductQuery,
         pageable: Pageable,
-    ): Page<Product> {
-        return productJpaRepository.findPage(pageable) {
+    ): List<Product> =
+        productJpaRepository.findAll(pageable) {
             val inPartnerShopsPredicate =
                 if (query.partnerShopCategories.isNotEmpty()) {
                     path(
@@ -63,8 +63,56 @@ class ProductReadOnlyRepository(
                 inCameraTypesPredicate,
                 inRetouchStylesPredicate,
             ).orderBy(query.sortBy.strategy)
-        }.map { it?.toDomain() }
-    }
+        }.mapNotNull { it?.toDomain() }
+
+    override fun searchByCriteriaOrderByPrice(
+        query: SearchProductQuery,
+        pageable: Pageable,
+    ): List<Product> =
+        productJpaRepository.findAll(pageable) {
+            val inPartnerShopsPredicate =
+                if (query.partnerShopCategories.isNotEmpty()) {
+                    path(
+                        PartnerShopEmbeddable::category,
+                    ).`in`(query.partnerShopCategories)
+                } else {
+                    null
+                }
+            val inAvailableSeasonsPredicate =
+                if (query.availableSeasons.isNotEmpty()) entity(ShootingSeason::class).`in`(query.availableSeasons) else null
+            val inCameraTypesPredicate =
+                if (query.cameraTypes.isNotEmpty()) entity(CameraType::class).`in`(query.cameraTypes) else null
+            val inRetouchStylesPredicate =
+                if (query.retouchStyles.isNotEmpty()) entity(RetouchStyle::class).`in`(query.retouchStyles) else null
+
+            selectNew<SearchProductResponse2>(
+                entity(ProductEntity::class),
+                if (query.sortBy == SortCriteria.PRICE_HIGH) {
+                    max(path(ProductOptionEntity::discountPrice))
+                } else {
+                    min(path(ProductOptionEntity::discountPrice))
+                }
+            ).from(
+                entity(ProductEntity::class),
+                leftJoin(ProductEntity::options),
+                fetchJoin(ProductEntity::studio),
+                if (query.partnerShopCategories.isNotEmpty()) join(ProductOptionEntity::partnerShops) else null,
+                if (query.availableSeasons.isNotEmpty()) join(ProductEntity::availableSeasons) else null,
+                if (query.cameraTypes.isNotEmpty()) join(ProductEntity::cameraTypes) else null,
+                if (query.retouchStyles.isNotEmpty()) join(ProductEntity::retouchStyles) else null,
+            ).whereAnd(
+                path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
+                path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
+                inPartnerShopsPredicate,
+                inAvailableSeasonsPredicate,
+                inCameraTypesPredicate,
+                inRetouchStylesPredicate,
+            ).groupBy(
+                path(ProductEntity::productId)
+            ).orderBy(
+                query.sortBy.strategy
+            )
+        }.mapNotNull { it?.productEntity?.toDomain() }
 
     override fun existsByUserIdAndTitle(
         userId: UUID,
@@ -111,3 +159,8 @@ class ProductReadOnlyRepository(
         return product.toDomain()
     }
 }
+
+data class SearchProductResponse2(
+    val productEntity: ProductEntity,
+    val priceSum: Long,
+)
