@@ -58,8 +58,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 content = searchResults,
                 page = page,
                 size = size,
-                totalElements = searchResults.size.toLong(),
-                totalPages = 1,
             )
 
         every { productSearchUseCase.searchProducts(userId, requestBody, page, size) } returns response
@@ -92,8 +90,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
                     "data.content[].likeId" type NUMBER means "좋아요 ID",
-                    "data.totalPages" type NUMBER means "전체 페이지 수",
-                    "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "success" type BOOLEAN means "성공 여부",
@@ -148,8 +144,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                 content = searchResults,
                 page = page,
                 size = size,
-                totalElements = searchResults.size.toLong(),
-                totalPages = 1,
             )
 
         every { productSearchUseCase.searchProducts(userId, requestBody, page, size) } returns response
@@ -197,8 +191,6 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
                     "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
                     "data.content[].likeId" type NUMBER means "좋아요 ID",
-                    "data.totalPages" type NUMBER means "전체 페이지 수",
-                    "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "success" type BOOLEAN means "성공 여부",

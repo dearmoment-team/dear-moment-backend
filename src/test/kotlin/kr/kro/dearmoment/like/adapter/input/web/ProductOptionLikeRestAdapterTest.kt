@@ -106,8 +106,6 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
                 content = page.content,
                 page = page.number,
                 size = page.size,
-                totalElements = page.totalElements,
-                totalPages = page.totalPages,
             )
 
         every {
@@ -141,8 +139,6 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
                     "data.content[].shootingLocationCount" type NUMBER means "촬영 장소 개수",
                     "data.content[].costumeCount" type NUMBER means "의상 개수",
                     "data.content[].retouchedCount" type NUMBER means "보정본 제공 개수",
-                    "data.totalPages" type NUMBER means "전체 페이지 수",
-                    "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "success" type BOOLEAN means "성공 여부",

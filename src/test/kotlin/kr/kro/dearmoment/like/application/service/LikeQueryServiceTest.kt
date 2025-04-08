@@ -59,9 +59,7 @@ class LikeQueryServiceTest : DescribeSpec({
             it("유저가 좋아요한 상품 정보를 모두 조회한다.") {
                 val result = service.getUserProductLikes(GetUserProductLikeQuery(userId, pageable))
 
-                result.totalElements shouldBe likes.size.toLong()
                 result.content.size shouldBe likes.size
-                result.totalPages shouldBe 1
                 result.page shouldBe 0
                 result.size shouldBe 10
 
@@ -81,9 +79,7 @@ class LikeQueryServiceTest : DescribeSpec({
             it("유저가 좋아요한 상품 옵션 정보를 모두 조회한다.") {
                 val result = service.getUserProductOptionLikes(GetUserProductOptionLikeQuery(userId, pageable))
 
-                result.totalElements shouldBe likes.size.toLong()
                 result.content.size shouldBe likes.size
-                result.totalPages shouldBe 1
                 result.page shouldBe 0
                 result.size shouldBe 10
 
