@@ -131,10 +131,6 @@ class ProductReadOnlyRepository(
         return productJpaRepository.findByUserId(userId).map { it.toDomain() }
     }
 
-    override fun findTopByUserId(userId: UUID): Product {
-        return productJpaRepository.findTopByUserId(userId).toDomain()
-    }
-
     override fun existsById(id: Long): Boolean {
         return productJpaRepository.existsById(id)
     }
