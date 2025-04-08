@@ -100,8 +100,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                 content = page.content,
                 page = page.number,
                 size = page.size,
-                totalElements = page.totalElements,
-                totalPages = page.totalPages,
             )
 
         every { getInquiryUseCase.getProductOptionInquiries(GetProductInquiresQuery(userId, pageable)) } returns expectedResponse
@@ -129,8 +127,6 @@ class ProductOptionInquiryRestAdapterTest : RestApiTestBase() {
                     "data.content[].optionName" type STRING means "상품 옵션명",
                     "data.content[].thumbnailUrl" type STRING means "대표 이미지 URL",
                     "data.content[].createdDate" type DATETIME means "문의 생성 날짜",
-                    "data.totalPages" type NUMBER means "전체 페이지 수",
-                    "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "success" type BOOLEAN means "성공 여부",

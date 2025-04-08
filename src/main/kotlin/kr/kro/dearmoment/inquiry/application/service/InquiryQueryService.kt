@@ -23,8 +23,6 @@ class InquiryQueryService(
             content = inquiries.content.map { GetStudioInquiryResponse.from(it) },
             page = query.pageable.pageNumber,
             size = query.pageable.pageSize,
-            totalElements = inquiries.totalElements,
-            totalPages = inquiries.totalPages,
         )
     }
 
@@ -35,8 +33,6 @@ class InquiryQueryService(
             content = inquiries.content.map { GetProductOptionInquiryResponse.from(it) },
             page = query.pageable.pageNumber,
             size = query.pageable.pageSize,
-            totalElements = inquiries.totalElements,
-            totalPages = inquiries.totalPages,
         )
     }
 }

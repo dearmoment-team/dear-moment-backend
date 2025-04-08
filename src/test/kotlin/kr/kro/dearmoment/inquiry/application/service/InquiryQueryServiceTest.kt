@@ -48,9 +48,7 @@ class InquiryQueryServiceTest : DescribeSpec({
             it("유저의 스튜디오 문의를 페이징하여 반환한다.") {
                 val result = service.getStudioInquiries(GetStudioInquiresQuery(userId, pageable))
 
-                result.totalElements shouldBe inquiries.size.toLong()
                 result.content.size shouldBe inquiries.size
-                result.totalPages shouldBe 1
                 result.page shouldBe 0
                 result.size shouldBe 10
 
@@ -72,9 +70,7 @@ class InquiryQueryServiceTest : DescribeSpec({
             it("유저의 상품 옵션 문의를 모두 반환한다.") {
                 val result = service.getProductOptionInquiries(GetProductInquiresQuery(userId, pageable))
 
-                result.totalElements shouldBe inquiries.size.toLong()
                 result.content.size shouldBe inquiries.size
-                result.totalPages shouldBe 1
                 result.page shouldBe 0
                 result.size shouldBe 10
 

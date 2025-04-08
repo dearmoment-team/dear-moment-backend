@@ -44,6 +44,8 @@ class ProductSearchUseCaseImpl(
 
         return PagedResponse(
             content = products.map { SearchProductResponse.from(it, userLikes) },
+            page = page,
+            size = size,
         )
     }
 }

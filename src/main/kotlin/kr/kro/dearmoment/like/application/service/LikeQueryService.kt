@@ -22,8 +22,6 @@ class LikeQueryService(
             content = userLikes.content.map { GetProductLikeResponse.from(it) },
             page = query.pageable.pageNumber,
             size = query.pageable.pageSize,
-            totalElements = userLikes.totalElements,
-            totalPages = userLikes.totalPages,
         )
     }
 
@@ -33,8 +31,6 @@ class LikeQueryService(
             content = userLikes.content.map { GetProductOptionLikeResponse.from(it) },
             page = query.pageable.pageNumber,
             size = query.pageable.pageSize,
-            totalElements = userLikes.totalElements,
-            totalPages = userLikes.totalPages,
         )
     }
 

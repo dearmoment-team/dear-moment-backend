@@ -94,8 +94,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
                 content = page.content,
                 page = page.number,
                 size = page.size,
-                totalElements = page.totalElements,
-                totalPages = page.totalPages,
             )
 
         every { getInquiryUseCase.getStudioInquiries(GetStudioInquiresQuery(userId, pageable)) } returns expectedResponse
@@ -110,8 +108,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.page").value(expectedResponse.page))
             .andExpect(jsonPath("$.data.size").value(expectedResponse.size))
-            .andExpect(jsonPath("$.data.totalElements").value(expectedResponse.totalElements))
-            .andExpect(jsonPath("$.data.totalPages").value(expectedResponse.totalPages))
             .andDocument(
                 "get-studios_inquiries",
                 queryParameters(
@@ -125,8 +121,6 @@ class StudioInquiryRestAdapterTest : RestApiTestBase() {
                     "data.content[].title" type STRING means "제목",
                     "data.content[].content" type STRING means "내용",
                     "data.content[].createdDate" type DATETIME means "문의 생성 날짜",
-                    "data.totalPages" type NUMBER means "전체 페이지 수",
-                    "data.totalElements" type NUMBER means "전체 데이터 개수",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "success" type BOOLEAN means "성공 여부",
