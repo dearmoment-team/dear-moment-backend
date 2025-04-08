@@ -153,7 +153,7 @@ class ProductReadOnlyRepository(
             }
 
         val product =
-            entityManager.createQuery(query, jpqlRenderContext).singleResult
+            entityManager.createQuery(query, jpqlRenderContext).resultList.firstOrNull()
                 ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
         return product.toDomain()
