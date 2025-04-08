@@ -158,6 +158,6 @@ class LikeReadOnlyPersistenceAdapter(
             }
 
         return entityManager.createQuery(query, jpqlRenderContext)
-            .singleResult?.toDomain()
+            .resultList.firstOrNull()?.toDomain()
     }
 }
