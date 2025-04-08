@@ -199,6 +199,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 cancellationPolicy = "환불은 가능합니다.(수정)",
                 status = StudioStatus.ACTIVE.name,
                 partnerShops = partnerShopsDto,
+                isCasted = false,
             )
 
         val expected =
@@ -233,6 +234,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                         "(HAIR_MAKEUP, DRESS, MENS_SUIT, BOUQUET, VIDEO, STUDIO, ETC)",
                     "partnerShops[].name" type STRING means "제휴 업체 이름",
                     "partnerShops[].urlLink" type STRING means "제휴 업체 URL",
+                    "isCasted" type BOOLEAN means "영입 여부",
                 ),
                 responseBody(
                     "data" type OBJECT means "응답 데이터",
