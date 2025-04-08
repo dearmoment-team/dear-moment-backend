@@ -49,6 +49,8 @@ data class ModifyStudioRequest(
     )
     @field:EnumValue(enumClass = StudioStatus::class, message = "유효하지 스튜디오 상태입니다.")
     val status: String,
+    @Schema(description = "영입된 스튜디오 여부", example = "false")
+    val isCasted: Boolean,
 ) {
     fun toCommand(
         studioId: Long,
@@ -66,5 +68,6 @@ data class ModifyStudioRequest(
         cancellationPolicy = cancellationPolicy,
         partnerShops = partnerShops.map { it.toCommand() },
         status = status,
+        isCasted = isCasted
     )
 }

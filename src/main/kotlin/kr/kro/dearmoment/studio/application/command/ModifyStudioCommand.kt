@@ -17,6 +17,7 @@ data class ModifyStudioCommand(
     val cancellationPolicy: String,
     val partnerShops: List<StudioPartnerShopCommand>,
     val status: String,
+    val isCasted: Boolean,
 ) {
     fun toDomain() =
         Studio(
@@ -32,5 +33,6 @@ data class ModifyStudioCommand(
             cancellationPolicy = cancellationPolicy,
             partnerShops = partnerShops.map { it.toDomain() },
             status = StudioStatus.from(status),
+            isCasted = isCasted,
         )
 }
