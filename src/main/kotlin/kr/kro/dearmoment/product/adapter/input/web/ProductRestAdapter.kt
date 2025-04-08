@@ -327,7 +327,7 @@ class ProductRestAdapter(
     fun getMyProduct(
         @Parameter(description = "현재 인증된 사용자의 ID", required = true)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
-    ): GetProductResponse {
+    ): List<GetProductResponse> {
         return getProductUseCase.getMyProduct(userId)
     }
 }

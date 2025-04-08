@@ -117,33 +117,31 @@ class GetProductUseCaseTest : BehaviorSpec({
     Given("getMyProduct를 호출할 때") {
 
         When("해당 userId에 매칭되는 상품이 존재하는 경우") {
-            every { getProductPort.findTopByUserId(dummyUserId) } returns dummyProduct
+            // 1. 반환 타입을 List로 변경
+            every { getProductPort.findByUserId(dummyUserId) } returns listOf(dummyProduct)
 
-            Then("상품 정보를 정상적으로 반환해야 한다") {
+            Then("상품 정보 리스트를 반환해야 한다") {
                 val result = useCase.getMyProduct(dummyUserId)
-                result shouldBe GetProductResponse.fromDomain(dummyProduct)
+                // 2. 단일 객체 대신 리스트 비교
+                result shouldBe listOf(GetProductResponse.fromDomain(dummyProduct))
 
-                verify(exactly = 1) { getProductPort.findTopByUserId(dummyUserId) }
-                // getLikePort가 호출되지 않았다면 verify(exactly = 0)로 확인하거나, 그냥 두시면 됩니다.
-
+                // 3. 메서드명 변경 확인
+                verify(exactly = 1) { getProductPort.findByUserId(dummyUserId) }
                 confirmVerified(getProductPort, getLikePort)
                 clearMocks(getProductPort, getLikePort, answers = false)
             }
         }
 
         When("해당 userId에 매칭되는 상품이 존재하지 않는 경우") {
-            every { getProductPort.findTopByUserId(dummyUserId) } throws CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+            // 4. 예외 발생 대신 빈 리스트 반환
+            every { getProductPort.findByUserId(dummyUserId) } returns emptyList()
 
-            Then("CustomException 예외가 발생해야 한다") {
-                val exception =
-                    shouldThrow<CustomException> {
-                        useCase.getMyProduct(dummyUserId)
-                    }
-                exception.shouldHaveMessage(ErrorCode.PRODUCT_NOT_FOUND.message)
+            Then("빈 리스트를 반환해야 한다") {
+                val result = useCase.getMyProduct(dummyUserId)
+                // 5. 예외 체크 대신 빈 리스트 검증
+                result shouldBe emptyList()
 
-                verify(exactly = 1) { getProductPort.findTopByUserId(dummyUserId) }
-                // 만약 LikePort도 함께 호출된다면 여기도 verify가 필요합니다.
-
+                verify(exactly = 1) { getProductPort.findByUserId(dummyUserId) }
                 confirmVerified(getProductPort, getLikePort)
                 clearMocks(getProductPort, getLikePort, answers = false)
             }

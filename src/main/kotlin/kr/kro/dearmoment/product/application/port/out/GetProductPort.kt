@@ -44,13 +44,6 @@ interface GetProductPort {
      */
     fun existsById(id: Long): Boolean
 
-    /**
-     * 특정 사용자의 Product를 조회합니다.
-     * @param userId 사용자 ID
-     * @return 해당 사용자의 Product 리스트
-     */
-    fun findTopByUserId(userId: UUID): Product
-
     fun searchByCriteria(
         query: SearchProductQuery,
         pageable: Pageable,
