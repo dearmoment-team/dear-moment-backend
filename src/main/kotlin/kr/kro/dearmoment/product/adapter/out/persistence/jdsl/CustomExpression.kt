@@ -13,7 +13,7 @@ inline fun <T : Any, reified V, S : Collection<V>> Jpql.joinIfNotEmpty(
     property: () -> KProperty1<T, S>
 ): AssociationJoinOnStep<V & Any>? {
     return if (collection.isNotEmpty()) {
-        join(property())
+        fetchJoin(property())
     } else {
         null
     }
