@@ -18,6 +18,11 @@ data class GetProductOptionLikeResponse(
     val thumbnailUrl: String,
     @Schema(description = "원본 제공 여부", example = "true")
     val originalProvided: Boolean,
+    @Schema(
+        description = "촬영 가능 시기 (도메인: ShootingSeason)",
+        example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
+    )
+    val shootingSeason: List<String>,
     @Schema(description = "촬영 시간", example = "3")
     val shootingHours: Int,
     @Schema(description = "촬영 장소 수", example = "2")
@@ -41,6 +46,7 @@ data class GetProductOptionLikeResponse(
                 originalProvided = like.product.options.any { it.originalProvided },
                 shootingHours = option.shootingHours,
                 shootingLocationCount = option.shootingLocationCount,
+                shootingSeason = like.product.availableSeasons.map { it.name },
                 costumeCount = option.costumeCount,
                 retouchedCount = option.retouchedCount,
             )
