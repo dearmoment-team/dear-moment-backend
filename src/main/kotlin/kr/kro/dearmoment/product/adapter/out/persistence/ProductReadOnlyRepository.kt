@@ -56,36 +56,50 @@ class ProductReadOnlyRepository(
     override fun searchByCriteriaOrderByPrice(
         query: SearchProductQuery,
         pageable: Pageable,
-    ): List<Product> =
-        productJpaRepository.findAll(pageable) {
-            selectNew<SearchProductOrderByPriceDto>(
+    ): List<Product> {
+        val results =
+            productJpaRepository.findAll(pageable) {
+                selectNew<SearchProductOrderByPriceDto>(
+                    path(ProductEntity::productId),
+                    if (query.sortBy == SortCriteria.PRICE_HIGH) {
+                        max(path(ProductOptionEntity::discountPrice))
+                    } else {
+                        min(path(ProductOptionEntity::discountPrice))
+                    }
+                ).from(
+                    entity(ProductEntity::class),
+                    leftJoin(ProductEntity::options),
+                    join(ProductEntity::studio),
+                    if (query.partnerShopCategories.isNotEmpty()) join(ProductOptionEntity::partnerShops) else null,
+                    joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
+                    joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
+                    joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
+                ).whereAnd(
+                    path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
+                    path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
+                    path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
+                    entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
+                    entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
+                    entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
+                ).groupBy(
+                    path(ProductEntity::productId),
+                ).orderBy(
+                    query.sortBy.strategy
+                )
+            }.map { it?.productId }
+
+        return productJpaRepository.findAll {
+            select(
                 entity(ProductEntity::class),
-                if (query.sortBy == SortCriteria.PRICE_HIGH) {
-                    max(path(ProductOptionEntity::discountPrice))
-                } else {
-                    min(path(ProductOptionEntity::discountPrice))
-                }
             ).from(
                 entity(ProductEntity::class),
                 leftJoin(ProductEntity::options),
                 fetchJoin(ProductEntity::studio),
-                if (query.partnerShopCategories.isNotEmpty()) join(ProductOptionEntity::partnerShops) else null,
-                joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
-                joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
-                joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
-            ).whereAnd(
-                path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
-                path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
-                entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
-                entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
-                entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
-            ).groupBy(
-                path(ProductEntity::productId)
-            ).orderBy(
-                query.sortBy.strategy
+            ).where(
+                path(ProductEntity::productId).`in`(results)
             )
-        }.mapNotNull { it?.productEntity?.toDomain() }
+        }.mapNotNull { it?.toDomain() }
+    }
 
     override fun existsByUserIdAndTitle(
         userId: UUID,
