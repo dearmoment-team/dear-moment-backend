@@ -11,7 +11,6 @@ import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
-import kr.kro.dearmoment.common.restdocs.means
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
@@ -78,10 +77,12 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
                     productOptionId = 1L,
                     studioName = "스튜디오 B",
                     price = 1_000_000L,
+                    discountRate = 20,
                     thumbnailUrl = "thumbnailA.url.com",
                     shootingHours = 3,
                     originalProvided = true,
                     shootingLocationCount = 3,
+                    shootingSeason = listOf("YEAR_2025_FIRST_HALF", "YEAR_2026_FIRST_HALF"),
                     costumeCount = 10,
                     retouchedCount = 2,
                 ),
@@ -91,10 +92,12 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
                     productOptionId = 2L,
                     studioName = "스튜디오 B",
                     price = 800_000L,
+                    discountRate = 24,
                     thumbnailUrl = "thumbnailB.url.com",
                     shootingHours = 4,
                     originalProvided = false,
                     shootingLocationCount = 4,
+                    shootingSeason = listOf("YEAR_2025_SECOND_HALF", "YEAR_2026_SECOND_HALF"),
                     costumeCount = 9,
                     retouchedCount = 3,
                 ),
@@ -133,12 +136,14 @@ class ProductOptionLikeRestAdapterTest : RestApiTestBase() {
                     "data.content[].productOptionId" type NUMBER means "상품 ID",
                     "data.content[].studioName" type STRING means "스튜디오 이름",
                     "data.content[].price" type NUMBER means "상품 옵션 가격",
+                    "data.content[].discountRate" type NUMBER means "상품 옵션 할인율",
                     "data.content[].thumbnailUrl" type STRING means "상품 옵션 썸네일 URL",
                     "data.content[].shootingHours" type NUMBER means "촬영 시간 (시간 단위)",
                     "data.content[].originalProvided" type BOOLEAN means "원본 제공 여부",
                     "data.content[].shootingLocationCount" type NUMBER means "촬영 장소 개수",
                     "data.content[].costumeCount" type NUMBER means "의상 개수",
                     "data.content[].retouchedCount" type NUMBER means "보정본 제공 개수",
+                    "data.content[].shootingSeason" type ARRAY means "촬영 가능 시기 목록",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.page" type NUMBER means "현재 페이지 번호",
                     "success" type BOOLEAN means "성공 여부",

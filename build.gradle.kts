@@ -70,7 +70,6 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
     testImplementation("io.kotest:kotest-assertions-core:5.7.0")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("com.navercorp.fixturemonkey:fixture-monkey-kotlin:$fixtureMonkeyVersion")
     testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter-kotlin:$fixtureMonkeyVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
