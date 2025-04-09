@@ -6,6 +6,9 @@ import com.linecorp.kotlinjdsl.support.hibernate.extension.createQuery
 import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.product.adapter.out.persistence.dto.SearchProductOrderByPriceDto
+import kr.kro.dearmoment.product.adapter.out.persistence.jdsl.inIfNotEmpty
+import kr.kro.dearmoment.product.adapter.out.persistence.jdsl.joinIfNotEmpty
 import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
@@ -30,21 +33,6 @@ class ProductReadOnlyRepository(
         pageable: Pageable,
     ): List<Product> =
         productJpaRepository.findAll(pageable) {
-            val inPartnerShopsPredicate =
-                if (query.partnerShopCategories.isNotEmpty()) {
-                    path(
-                        PartnerShopEmbeddable::category,
-                    ).`in`(query.partnerShopCategories)
-                } else {
-                    null
-                }
-            val inAvailableSeasonsPredicate =
-                if (query.availableSeasons.isNotEmpty()) entity(ShootingSeason::class).`in`(query.availableSeasons) else null
-            val inCameraTypesPredicate =
-                if (query.cameraTypes.isNotEmpty()) entity(CameraType::class).`in`(query.cameraTypes) else null
-            val inRetouchStylesPredicate =
-                if (query.retouchStyles.isNotEmpty()) entity(RetouchStyle::class).`in`(query.retouchStyles) else null
-
             select(
                 entity(ProductEntity::class),
             ).from(
@@ -52,16 +40,16 @@ class ProductReadOnlyRepository(
                 leftJoin(ProductEntity::options),
                 fetchJoin(ProductEntity::studio),
                 if (query.partnerShopCategories.isNotEmpty()) join(ProductOptionEntity::partnerShops) else null,
-                if (query.availableSeasons.isNotEmpty()) join(ProductEntity::availableSeasons) else null,
-                if (query.cameraTypes.isNotEmpty()) join(ProductEntity::cameraTypes) else null,
-                if (query.retouchStyles.isNotEmpty()) join(ProductEntity::retouchStyles) else null,
+                joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
+                joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
+                joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
             ).whereAnd(
                 path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
                 path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                inPartnerShopsPredicate,
-                inAvailableSeasonsPredicate,
-                inCameraTypesPredicate,
-                inRetouchStylesPredicate,
+                path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
+                entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
+                entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
+                entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
             ).orderBy(query.sortBy.strategy)
         }.mapNotNull { it?.toDomain() }
 
@@ -70,22 +58,7 @@ class ProductReadOnlyRepository(
         pageable: Pageable,
     ): List<Product> =
         productJpaRepository.findAll(pageable) {
-            val inPartnerShopsPredicate =
-                if (query.partnerShopCategories.isNotEmpty()) {
-                    path(
-                        PartnerShopEmbeddable::category,
-                    ).`in`(query.partnerShopCategories)
-                } else {
-                    null
-                }
-            val inAvailableSeasonsPredicate =
-                if (query.availableSeasons.isNotEmpty()) entity(ShootingSeason::class).`in`(query.availableSeasons) else null
-            val inCameraTypesPredicate =
-                if (query.cameraTypes.isNotEmpty()) entity(CameraType::class).`in`(query.cameraTypes) else null
-            val inRetouchStylesPredicate =
-                if (query.retouchStyles.isNotEmpty()) entity(RetouchStyle::class).`in`(query.retouchStyles) else null
-
-            selectNew<SearchProductResponse2>(
+            selectNew<SearchProductOrderByPriceDto>(
                 entity(ProductEntity::class),
                 if (query.sortBy == SortCriteria.PRICE_HIGH) {
                     max(path(ProductOptionEntity::discountPrice))
@@ -97,16 +70,16 @@ class ProductReadOnlyRepository(
                 leftJoin(ProductEntity::options),
                 fetchJoin(ProductEntity::studio),
                 if (query.partnerShopCategories.isNotEmpty()) join(ProductOptionEntity::partnerShops) else null,
-                if (query.availableSeasons.isNotEmpty()) join(ProductEntity::availableSeasons) else null,
-                if (query.cameraTypes.isNotEmpty()) join(ProductEntity::cameraTypes) else null,
-                if (query.retouchStyles.isNotEmpty()) join(ProductEntity::retouchStyles) else null,
+                joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
+                joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
+                joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
             ).whereAnd(
                 path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
                 path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                inPartnerShopsPredicate,
-                inAvailableSeasonsPredicate,
-                inCameraTypesPredicate,
-                inRetouchStylesPredicate,
+                path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
+                entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
+                entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
+                entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
             ).groupBy(
                 path(ProductEntity::productId)
             ).orderBy(
@@ -159,8 +132,3 @@ class ProductReadOnlyRepository(
         return product.toDomain()
     }
 }
-
-data class SearchProductResponse2(
-    val productEntity: ProductEntity,
-    val priceSum: Long,
-)
