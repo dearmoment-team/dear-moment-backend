@@ -27,6 +27,7 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import org.hibernate.annotations.BatchSize
 import org.hibernate.annotations.ColumnDefault
 import java.util.UUID
 
@@ -78,6 +79,7 @@ class ProductEntity(
     var detailedInfo: String = "",
     @Column(name = "CONTACT_INFO")
     var contactInfo: String = "",
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     val options: MutableList<ProductOptionEntity> = mutableListOf(),
     @Column(nullable = false)

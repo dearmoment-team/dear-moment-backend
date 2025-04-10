@@ -119,11 +119,11 @@ class ProductReadOnlyPersistenceRepositoryTest(
                         )
 
                     val pageable = PageRequest.of(0, 10)
-//                    val startTime = System.nanoTime()
+                    val startTime = System.nanoTime()
                     val result = readAdapter.searchByCriteria(query, pageable)
-//                    val endTime = System.nanoTime()
-//                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
-//                    println("JPA Query Execution Time: ${duration}ms")
+                    val endTime = System.nanoTime()
+                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
+                    println("JPA Query Execution Time: ${duration}ms")
 
                     val content = result
                     content.forEach { product ->
@@ -154,7 +154,6 @@ class ProductReadOnlyPersistenceRepositoryTest(
 //                    val endTime = System.nanoTime()
 //                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
 //                    println("JPA Query Execution Time: ${duration}ms")
-
                     val content = result
                     content.forEach { product ->
 //                        println(
@@ -180,20 +179,23 @@ class ProductReadOnlyPersistenceRepositoryTest(
                         SearchProductQuery(
                             minPrice = 50_000L,
                             maxPrice = 200_000L,
-                            partnerShopCategories = partnerShopCategories.toList(),
-                            availableSeasons = shootingSeasons.toList(),
-                            cameraTypes = cameraTypes.toList(),
-                            retouchStyles = retouchStyles.toList(),
+//                            partnerShopCategories = partnerShopCategories.toList(),
+//                            availableSeasons = shootingSeasons.toList(),
+//                            cameraTypes = cameraTypes.toList(),
+//                            retouchStyles = retouchStyles.toList(),
+                            partnerShopCategories = emptyList(),
+                            availableSeasons = emptyList(),
+                            cameraTypes = emptyList(),
+                            retouchStyles = emptyList(),
                             sortBy = SortCriteria.PRICE_HIGH,
                         )
 
                     val pageable = PageRequest.of(0, 10)
 //                    val startTime = System.nanoTime()
-                    val result = readAdapter.searchByCriteriaOrderByPrice(query, pageable)
+                    val result = readAdapter.searchByCriteria(query, pageable)
 //                    val endTime = System.nanoTime()
 //                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
 //                    println("JPA Query Execution Time: ${duration}ms")
-
                     val content = result
                     content.forEach { product ->
 //                        println(

@@ -17,6 +17,7 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
+import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -31,40 +32,15 @@ class ProductReadOnlyRepository(
     override fun searchByCriteria(
         query: SearchProductQuery,
         pageable: Pageable,
-    ): List<Product> =
-        productJpaRepository.findAll(pageable) {
-            select(
-                entity(ProductEntity::class),
-            ).from(
-                entity(ProductEntity::class),
-                leftJoin(ProductEntity::options),
-                fetchJoin(ProductEntity::studio),
-                if (query.partnerShopCategories.isNotEmpty()) join(ProductOptionEntity::partnerShops) else null,
-                joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
-                joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
-                joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
-            ).whereAnd(
-                path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
-                path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
-                entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
-                entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
-                entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
-            ).orderBy(query.sortBy.strategy)
-        }.mapNotNull { it?.toDomain() }
-
-    override fun searchByCriteriaOrderByPrice(
-        query: SearchProductQuery,
-        pageable: Pageable,
     ): List<Product> {
-        val results =
+        val productIds =
             productJpaRepository.findAll(pageable) {
                 selectNew<SearchProductOrderByPriceDto>(
                     path(ProductEntity::productId),
-                    if (query.sortBy == SortCriteria.PRICE_HIGH) {
-                        max(path(ProductOptionEntity::discountPrice))
-                    } else {
-                        min(path(ProductOptionEntity::discountPrice))
+                    when (query.sortBy) {
+                        SortCriteria.PRICE_HIGH -> max(path(ProductOptionEntity::discountPrice))
+                        SortCriteria.PRICE_LOW -> min(path(ProductOptionEntity::discountPrice))
+                        else -> path(ProductOptionEntity::discountPrice)
                     }
                 ).from(
                     entity(ProductEntity::class),
@@ -75,14 +51,18 @@ class ProductReadOnlyRepository(
                     joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
                     joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
                 ).whereAnd(
-                    path(ProductEntity::studio)(StudioEntity::status).eq("ACTIVE"),
+                    path(ProductEntity::studio)(StudioEntity::status).eq(StudioStatus.ACTIVE.name),
                     path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
                     path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
                     entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
                     entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
                     entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
                 ).groupBy(
-                    path(ProductEntity::productId),
+                    if (query.sortBy == SortCriteria.PRICE_HIGH || query.sortBy == SortCriteria.PRICE_LOW) {
+                        path(ProductEntity::productId)
+                    } else {
+                        null
+                    }
                 ).orderBy(
                     query.sortBy.strategy
                 )
@@ -96,7 +76,7 @@ class ProductReadOnlyRepository(
                 leftJoin(ProductEntity::options),
                 fetchJoin(ProductEntity::studio),
             ).where(
-                path(ProductEntity::productId).`in`(results)
+                path(ProductEntity::productId).`in`(productIds)
             )
         }.mapNotNull { it?.toDomain() }
     }
