@@ -6,6 +6,8 @@ import kr.kro.dearmoment.like.domain.ProductOptionLike
 data class GetProductOptionLikeResponse(
     @Schema(description = "좋아요 ID", example = "1")
     val likeId: Long,
+    @Schema(description = "상품 ID", example = "1")
+    val productId: Long,
     @Schema(description = "상품 옵션 ID", example = "1")
     val productOptionId: Long,
     @Schema(description = "스튜디오 이름", example = "디어모먼트 스튜디오")
@@ -40,6 +42,7 @@ data class GetProductOptionLikeResponse(
 
             return GetProductOptionLikeResponse(
                 likeId = like.id,
+                productId = like.product.productId,
                 productOptionId = like.product.productId,
                 studioName = like.studioName,
                 optionName = like.product.title,
