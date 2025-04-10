@@ -49,10 +49,5 @@ interface GetProductPort {
         pageable: Pageable,
     ): List<Product>
 
-    fun searchByCriteriaOrderByPrice(
-        query: SearchProductQuery,
-        pageable: Pageable,
-    ): List<Product>
-
     fun findWithStudioById(id: Long): Product
 }
