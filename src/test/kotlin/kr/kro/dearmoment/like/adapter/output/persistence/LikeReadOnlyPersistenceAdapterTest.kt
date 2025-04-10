@@ -50,7 +50,7 @@ class LikeReadOnlyPersistenceAdapterTest(
             productRepository.deleteAll()
         }
 
-        describe("findUserProductOptionLikes()는") {
+        describe("findUserProductOptionLikes(userId, pagable)는") {
             val userId1 = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
@@ -75,12 +75,31 @@ class LikeReadOnlyPersistenceAdapterTest(
             }
         }
 
-        describe("findUserProductLikes()는") {
+        describe("findUserProductOptionLikes(userId)는") {
             val userId1 = UUID.randomUUID()
             val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
-            val studioLike = CreateProductLike(userId = userId1, productId = savedProduct.productId!!)
-            likePersistenceAdapter.saveProductLike(studioLike)
+            val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
+
+            val productOptionLike =
+                CreateProductOptionLike(userId = userId1, productOptionId = savedProductOption.optionId)
+
+            likePersistenceAdapter.saveProductOptionLike(productOptionLike)
+
+            context("유저 상품 옵션 좋아요를 조회하기 위해 user ID를 전달하면") {
+                it("DB에서 유저의 상품 옵션 좋아요를 반환한다.") {
+                    val result = adapter.findUserProductOptionLikes(userId1)
+                    result.size shouldBe 1
+                }
+            }
+        }
+
+        describe("findUserProductLikes(userId, pagable)는") {
+            val userId1 = UUID.randomUUID()
+            val savedStudio = studioRepository.save(studioEntityFixture())
+            val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
+            val productLike = CreateProductLike(userId = userId1, productId = savedProduct.productId!!)
+            likePersistenceAdapter.saveProductLike(productLike)
 
             context("유저 스튜디오 좋아요를 조회하기 위해 user ID와 페이징 정보를 전달하면") {
                 val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"))
@@ -92,6 +111,21 @@ class LikeReadOnlyPersistenceAdapterTest(
                     result.totalPages shouldBe (1 / pageable.pageSize) + if (1 % pageable.pageSize > 0) 1 else 0
                     result.number shouldBe pageable.pageNumber
                     result.size shouldBe pageable.pageSize
+                }
+            }
+        }
+
+        describe("findUserProductLikes(userId)는") {
+            val userId1 = UUID.randomUUID()
+            val savedStudio = studioRepository.save(studioEntityFixture())
+            val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
+            val productLike = CreateProductLike(userId = userId1, productId = savedProduct.productId!!)
+            likePersistenceAdapter.saveProductLike(productLike)
+
+            context("유저 스튜디오 좋아요를 조회하기 위해 user ID를 전달하면") {
+                it("DB에서 유저의 스튜디오 좋아요를 반환한다.") {
+                    val result = adapter.findUserProductLikes(userId1)
+                    result.size shouldBe 1
                 }
             }
         }

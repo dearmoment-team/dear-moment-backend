@@ -9,4 +9,6 @@ interface ProductOptionLikeJpaRepository : JpaRepository<ProductOptionLikeEntity
         likeId: Long,
         userId: UUID,
     ): ProductOptionLikeEntity?
+
+    fun findByUserId(userId: UUID): List<ProductOptionLikeEntity>
 }

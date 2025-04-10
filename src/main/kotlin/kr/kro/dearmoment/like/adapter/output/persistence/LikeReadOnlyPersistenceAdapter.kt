@@ -37,6 +37,8 @@ class LikeReadOnlyPersistenceAdapter(
         }.map { it?.toDomain() }
     }
 
+    override fun findUserProductLikes(userId: UUID): List<ProductLike> = productLikeJpaRepository.findByUserId(userId).map { it.toDomain() }
+
     override fun findUserProductOptionLikes(
         userId: UUID,
         pageable: Pageable,
@@ -52,6 +54,9 @@ class LikeReadOnlyPersistenceAdapter(
             )
         }.map { it?.toDomain() }
     }
+
+    override fun findUserProductOptionLikes(userId: UUID): List<ProductOptionLike> =
+        productOptionLikeJpaRepository.findByUserId(userId).map { it.toDomain() }
 
     override fun existProductLike(
         userId: UUID,

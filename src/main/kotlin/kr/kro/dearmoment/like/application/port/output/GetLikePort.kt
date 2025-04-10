@@ -17,6 +17,10 @@ interface GetLikePort {
         pageable: Pageable,
     ): Page<ProductOptionLike>
 
+    fun findUserProductLikes(userId: UUID): List<ProductLike>
+
+    fun findUserProductOptionLikes(userId: UUID): List<ProductOptionLike>
+
     fun existProductLike(
         userId: UUID,
         productId: Long,

@@ -11,10 +11,13 @@ import kr.kro.dearmoment.common.restdocs.BOOLEAN
 import kr.kro.dearmoment.common.restdocs.NUMBER
 import kr.kro.dearmoment.common.restdocs.OBJECT
 import kr.kro.dearmoment.common.restdocs.STRING
+import kr.kro.dearmoment.common.restdocs.means
+import kr.kro.dearmoment.common.restdocs.queryParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
+import kr.kro.dearmoment.like.application.dto.FilterUserLikesRequest
 import kr.kro.dearmoment.like.application.dto.GetProductLikeResponse
 import kr.kro.dearmoment.like.application.dto.LikeRequest
 import kr.kro.dearmoment.like.application.dto.LikeResponse
@@ -128,7 +131,7 @@ class ProductLikeRestAdapterTest : RestApiTestBase() {
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
-                "get-user-studio-likes",
+                "get-user-product-likes",
                 responseBody(
                     "data" type OBJECT means "응답 데이터 배열",
                     "data.content" type ARRAY means "유저 상품 좋아요 리스트",
@@ -143,6 +146,99 @@ class ProductLikeRestAdapterTest : RestApiTestBase() {
                     "data.content[].retouchStyles" type ARRAY means "보정 스타일 목록",
                     "data.size" type NUMBER means "페이지 크기",
                     "data.page" type NUMBER means "현재 페이지 번호",
+                    "success" type BOOLEAN means "성공 여부",
+                    "code" type NUMBER means "HTTP 상태 코드",
+                ),
+            )
+    }
+
+    @Test
+    fun `유저 상품 좋아요 필터 API`() {
+        val expectedResponse =
+            listOf(
+                GetProductLikeResponse(
+                    likeId = 1L,
+                    productId = 1L,
+                    name = "스튜디오 A",
+                    thumbnailUrls =
+                        listOf(
+                            "thumbnailA-A.url.com",
+                            "thumbnailA-B.url.com",
+                            "thumbnailA-C.url.com",
+                        ),
+                    minPrice = 800_000L,
+                    maxPrice = 1_000_000L,
+                    discountRate = 10,
+                    availableSeasons = listOf(ShootingSeason.YEAR_2025_FIRST_HALF.name),
+                    retouchStyles = listOf(RetouchStyle.MODERN.name, RetouchStyle.CALM.name),
+                ),
+                GetProductLikeResponse(
+                    likeId = 2L,
+                    productId = 2L,
+                    name = "스튜디오 B",
+                    thumbnailUrls =
+                        listOf(
+                            "thumbnailB-A.url.com",
+                            "thumbnailB-B.url.com",
+                            "thumbnailB-C.url.com",
+                        ),
+                    minPrice = 1_000_000L,
+                    maxPrice = 2_000_000L,
+                    discountRate = 50,
+                    availableSeasons = listOf(ShootingSeason.YEAR_2026_FIRST_HALF.name),
+                    retouchStyles = listOf(RetouchStyle.CHIC.name, RetouchStyle.WARM.name),
+                ),
+            )
+
+        val filterRequest =
+            FilterUserLikesRequest(
+                sortBy = "POPULAR",
+                availableSeasons = listOf("YEAR_2025_FIRST_HALF", "YEAR_2026_FIRST_HALF"),
+                retouchStyles = listOf("MODERN", "CALM", "CHIC", "WARM"),
+                cameraTypes = listOf("DIGITAL"),
+                partnerShopCategories = listOf("HAIR_MAKEUP", "DRESS", "MENS_SUIT"),
+                minPrice = 800_000L,
+                maxPrice = 1_500_000L,
+            )
+
+        every { likeQueryService.filterUserProductsLikes(userId, filterRequest.toQuery()) } returns expectedResponse
+
+        val request =
+            RestDocumentationRequestBuilders
+                .get("/api/likes/products/filter")
+                .param("minPrice", filterRequest.minPrice.toString())
+                .param("maxPrice", filterRequest.maxPrice.toString())
+                .param("availableSeasons", *filterRequest.availableSeasons.toTypedArray())
+                .param("retouchStyles", *filterRequest.retouchStyles.toTypedArray())
+                .param("partnerShopCategories", *filterRequest.partnerShopCategories.toTypedArray())
+                .param("cameraTypes", *filterRequest.cameraTypes.toTypedArray())
+                .param("sortBy", filterRequest.sortBy)
+
+        mockMvc.perform(request)
+            .andExpect(status().isOk)
+            .andDocument(
+                "filter-user-product-likes",
+                queryParameters(
+                    "sortBy" means "정렬 기준",
+                    "availableSeasons" means "촬영 시기",
+                    "retouchStyles" means "보정 스타일 목록",
+                    "partnerShopCategories" means "패키지 목록",
+                    "cameraTypes" means "촬영 카메라 타입",
+                    "minPrice" means "최소 가격",
+                    "maxPrice" means "최대 가격",
+                    "_csrf" means "스프링 시큐리티 사용시 테스트에 넘겨주는 토큰",
+                ),
+                responseBody(
+                    "data[]" type ARRAY means "유저 상품 좋아요 리스트",
+                    "data[].likeId" type NUMBER means "좋아요 ID",
+                    "data[].productId" type NUMBER means "상품 ID",
+                    "data[].name" type STRING means "스튜디오 이름",
+                    "data[].thumbnailUrls" type ARRAY means "스튜디오 썸네일 이미지 URL 목록",
+                    "data[].minPrice" type NUMBER means "최소 가격",
+                    "data[].maxPrice" type NUMBER means "최대 가격",
+                    "data[].discountRate" type NUMBER means "할인율",
+                    "data[].availableSeasons" type ARRAY means "촬영 가능 시기 목록",
+                    "data[].retouchStyles" type ARRAY means "보정 스타일 목록",
                     "success" type BOOLEAN means "성공 여부",
                     "code" type NUMBER means "HTTP 상태 코드",
                 ),
