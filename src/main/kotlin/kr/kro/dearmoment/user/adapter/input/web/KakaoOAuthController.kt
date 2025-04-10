@@ -27,7 +27,8 @@ class KakaoOAuthController(
 
     @Operation(
         summary = "Kakao OAuth Callback",
-        description = "카카오 로그인 동의 후 콜백 URL입니다. 카카오 서버로부터 전달받은 인가 코드를 이용하여 JWT 토큰을 발급한 후, " +
+        description =
+            "카카오 로그인 동의 후 콜백 URL입니다. 카카오 서버로부터 전달받은 인가 코드를 이용하여 JWT 토큰을 발급한 후, " +
                 "프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 액세스 토큰을 포함합니다."
     )
     @ApiResponses(
@@ -36,9 +37,10 @@ class KakaoOAuthController(
                 responseCode = "302",
                 description = "JWT 토큰이 쿼리 파라미터로 첨부된 프론트엔드 성공 페이지로 리다이렉트합니다.",
                 content = [Content(
-                    schema = Schema(
-                        example = """RedirectView("http:프론트 성공 페이지 URI?accessToken=<JWT_TOKEN>")"""
-                    )
+                    schema =
+                        Schema(
+                            example = """RedirectView("http:프론트 성공 페이지 URI?accessToken=<JWT_TOKEN>")"""
+                        )
                 )]
             )
         ]
@@ -64,9 +66,10 @@ class KakaoOAuthController(
                 responseCode = "302",
                 description = "사용자를 Kakao의 로그인 페이지로 리다이렉트합니다.",
                 content = [Content(
-                    schema = Schema(
-                        example = """RedirectView("https://kauth.kakao.com/oauth/authorize?client_id=1234512345123&redirect_uri=http://localhost:8080/oauth/kakao/callback&response_type=code")"""
-                    )
+                    schema =
+                        Schema(
+                            example = """RedirectView("https://kauth.kakao.com/oauth/authorize?client_id=1234512345123&redirect_uri=http://localhost:8080/oauth/kakao/callback&response_type=code")"""
+                        )
                 )]
             )
         ]
@@ -79,6 +82,6 @@ class KakaoOAuthController(
         val redirectUri = kakaoRedirectUri
         val responseType = "code"
         val redirectUrl = "$baseUrl?client_id=$clientId&redirect_uri=$redirectUri&response_type=$responseType"
-        return  RedirectView(redirectUrl)
+        return RedirectView(redirectUrl)
     }
 }
