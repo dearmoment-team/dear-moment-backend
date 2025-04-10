@@ -9,4 +9,6 @@ interface ProductLikeJpaRepository : JpaRepository<ProductLikeEntity, Long>, Kot
         likeId: Long,
         userId: UUID,
     ): ProductLikeEntity?
+
+    fun findByUserId(userId: UUID): List<ProductLikeEntity>
 }

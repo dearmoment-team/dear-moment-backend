@@ -103,7 +103,7 @@ class SearchProductRestAdapterTest : RestApiTestBase() {
         val requestBody =
             SearchProductRequest(
                 sortBy = "POPULAR",
-                availableSeasons = listOf("2025_FIRST_HALF", "2026_FIRST_HALF"),
+                availableSeasons = listOf("YEAR_2025_FIRST_HALF", "YEAR_2026_FIRST_HALF"),
                 retouchStyles = listOf("MODERN", "CALM", "CHIC", "WARM"),
                 cameraTypes = listOf("DIGITAL"),
                 partnerShopCategories = listOf("HAIR_MAKEUP", "DRESS", "MENS_SUIT"),

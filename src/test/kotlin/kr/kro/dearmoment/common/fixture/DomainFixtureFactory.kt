@@ -40,14 +40,17 @@ fun productFixture(): Product =
         .setExp(Product::additionalImages, listOf("url1", "url2", "url3", "url4"))
         .setExp(Product::options, listOf(productOptionFixture()))
         .setExp(Product::subImages, listOf("url1", "url2", "url3", "url4"))
+        .set(Product::likeCount, (1..100).random().toLong())
+        .set(Product::optionLikeCount, (1..100).random().toLong())
+        .set(Product::inquiryCount, (1..100).random().toLong())
         .setExp(Product::productId, 1L)
         .setExp(Product::studio, studioFixture())
         .sample()
 
 fun productOptionFixture(): ProductOption =
     fixtureBuilder.giveMeKotlinBuilder<ProductOption>()
-        .setExp(ProductOption::discountPrice, 800_000)
-        .setExp(ProductOption::originalPrice, 1_000_000)
+        .setExp(ProductOption::discountPrice, (50_000L..150_000L).random())
+        .setExp(ProductOption::originalPrice, (150_000L..300_000L).random())
         .setExp(ProductOption::optionType, OptionType.PACKAGE)
         .setExp(
             ProductOption::partnerShops,
