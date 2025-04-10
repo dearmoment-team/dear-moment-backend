@@ -1,53 +1,84 @@
 package kr.kro.dearmoment.user.adapter.input.web
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.servlet.http.HttpServletResponse
 import kr.kro.dearmoment.common.constants.GlobalUrls
-import kr.kro.dearmoment.user.application.dto.response.LoginUserResponse
 import kr.kro.dearmoment.user.application.service.KakaoOAuthService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.servlet.view.RedirectView
 
 @Tag(name = "Kakao Oauth API", description = "카카오 로그인 관련 API")
 @RestController
 class KakaoOAuthController(
     private val kakaoOAuthService: KakaoOAuthService,
 ) {
+    @Value("\${oauth.kakao.client-id}")
+    lateinit var kakaoClientId: String
+
+    @Value("\${oauth.kakao.redirect-uri}")
+    lateinit var kakaoRedirectUri: String
+
     @Operation(
-        summary = "카카오 OAuth 콜백",
-        description = "카카오 로그인 동의 후 리다이렉트되는 콜백 URL. code 파라미터로 JWT를 발급받아 반환합니다.",
+        summary = "Kakao OAuth Callback",
+        description = "카카오 로그인 동의 후 콜백 URL입니다. 카카오 서버로부터 전달받은 인가 코드를 이용하여 JWT 토큰을 발급한 후, " +
+                "프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 액세스 토큰을 포함합니다."
     )
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "200",
-                description = "JWT 발급 성공",
-                content = [
-                    Content(
-                        schema =
-                            Schema(
-                                example = """{"success":true,"code":200,"data":{"success":true}}""",
-                            ),
-                    ),
-                ],
-            ),
-        ],
+                responseCode = "302",
+                description = "JWT 토큰이 쿼리 파라미터로 첨부된 프론트엔드 성공 페이지로 리다이렉트합니다.",
+                content = [Content(
+                    schema = Schema(
+                        example = """RedirectView("http:프론트 성공 페이지 URI?accessToken=<JWT_TOKEN>")"""
+                    )
+                )]
+            )
+        ]
     )
     @GetMapping(GlobalUrls.OAUTH_KAKAO_CALLBACK)
     fun kakaoCallback(
-        @Parameter(description = "카카오에서 전달받은 인가 코드", required = true)
-        @RequestParam("code") code: String,
-        response: HttpServletResponse,
-    ): LoginUserResponse {
+        @RequestParam("code") code: String
+    ): RedirectView {
+        // 인가 코드를 이용해 JWT 토큰을 발급합니다.
         val jwtToken = kakaoOAuthService.kakaoLogin(code)
-        response.setHeader("Authorization", "Bearer $jwtToken")
-        return LoginUserResponse(success = true)
+        // 프론트엔드의 성공 페이지 URL에 액세스 토큰을 쿼리 파라미터로 포함시킵니다.
+        val targetUrl = "http://localhost:3000/success?accessToken=$jwtToken"
+        return RedirectView(targetUrl)
+    }
+
+    @Operation(
+        summary = "Kakao OAuth Redirect",
+        description = "클라이언트의 요청을 Kakao OAuth 인증 페이지로 리다이렉트합니다. 이 엔드포인트를 통해 사용자가 카카오 로그인 절차를 진행할 수 있습니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "302",
+                description = "사용자를 Kakao의 로그인 페이지로 리다이렉트합니다.",
+                content = [Content(
+                    schema = Schema(
+                        example = """RedirectView("https://kauth.kakao.com/oauth/authorize?client_id=1234512345123&redirect_uri=http://localhost:8080/oauth/kakao/callback&response_type=code")"""
+                    )
+                )]
+            )
+        ]
+    )
+    @GetMapping(GlobalUrls.OAUTH_KAKAO_REDIRECT)
+    fun redirectToKakaoOauth(): RedirectView {
+        val baseUrl = "https://kauth.kakao.com/oauth/authorize"
+        // 아래 clientId와 redirectUri는 실제 값으로 대체하거나 config에서 주입받도록 처리하세요.
+        val clientId = kakaoClientId
+        val redirectUri = kakaoRedirectUri
+        val responseType = "code"
+        val redirectUrl = "$baseUrl?client_id=$clientId&redirect_uri=$redirectUri&response_type=$responseType"
+        return  RedirectView(redirectUrl)
     }
 }
