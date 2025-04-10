@@ -77,7 +77,6 @@ class KakaoOAuthController(
     @GetMapping(GlobalUrls.OAUTH_KAKAO_REDIRECT)
     fun redirectToKakaoOauth(): RedirectView {
         val baseUrl = "https://kauth.kakao.com/oauth/authorize"
-        // 아래 clientId와 redirectUri는 실제 값으로 대체하거나 config에서 주입받도록 처리하세요.
         val clientId = kakaoClientId
         val redirectUri = kakaoRedirectUri
         val responseType = "code"
