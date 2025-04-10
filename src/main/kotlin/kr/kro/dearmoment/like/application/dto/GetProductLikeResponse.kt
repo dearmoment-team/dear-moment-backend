@@ -21,6 +21,8 @@ data class GetProductLikeResponse(
     val minPrice: Long,
     @Schema(description = "최대 가격", example = "200000")
     val maxPrice: Long,
+    @Schema(description = "할인율", example = "25")
+    val discountRate: Int,
     @Schema(
         description = "촬영 가능 시기",
         example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
@@ -46,6 +48,7 @@ data class GetProductLikeResponse(
                 thumbnailUrls = product.subImages.take(3).map { it.url },
                 minPrice = product.options.minOf { it.originalPrice },
                 maxPrice = product.options.minOf { it.originalPrice },
+                discountRate = product.calculateDiscountRate(),
                 availableSeasons = product.availableSeasons.map { it.name },
                 retouchStyles = product.retouchStyles.map { it.name },
             )
