@@ -30,21 +30,38 @@ class KakaoOAuthController(
 ) {
     @Operation(
         summary = "Kakao OAuth Callback",
-        description =
-            "카카오 로그인 동의 후 콜백 URL 입니다. 카카오 서버로부터 전달받은 인가 코드를 이용하여 JWT 토큰을 발급한 후, " +
-                "프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 액세스 토큰을 포함합니다."
+        description = """
+            카카오 로그인 동의 후 콜백 URL입니다.
+            카카오 서버로부터 전달받은 인가 코드를 이용하여 JWT 토큰을 발급한 후,
+            프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 accessToken을 포함합니다.
+            만약 인증 과정 중 예외 발생 시 실패 페이지로 리다이렉트합니다.
+        """,
     )
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "302",
-                description = "JWT 토큰이 쿼리 파라미터로 첨부된 프론트엔드 성공 페이지로 리다이렉트합니다.",
-                content = [Content(
-                    schema =
-                        Schema(
-                            example = """RedirectView("http:프론트 성공 페이지 URI?accessToken=<JWT_TOKEN>")"""
-                        )
-                )]
+                description = "로그인 성공: JWT 토큰이 쿼리 파라미터 accessToken으로 첨부된 프론트엔드 성공 페이지로 리다이렉트합니다.",
+                content = [
+                    Content(
+                        schema =
+                            Schema(
+                                example = """RedirectView("https://your-frontend.com/login/success?accessToken=<JWT_TOKEN>")"""
+                            )
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "302",
+                description = "로그인 실패: 인증 실패 및 기타 예외 발생 시, 프론트엔드 실패 페이지로 리다이렉트합니다. (쿼리 파라미터: kakao=fail 또는 error=unknown)",
+                content = [
+                    Content(
+                        schema =
+                            Schema(
+                                example = """RedirectView("https://your-frontend.com/login/failure?kakao=fail&error=Some+Error+Message")"""
+                            )
+                    )
+                ]
             )
         ]
     )
