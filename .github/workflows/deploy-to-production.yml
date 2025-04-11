@@ -63,6 +63,8 @@ jobs:
             # Kakao OAuth
             OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
             OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
+            OAUTH_KAKAO_REDIRECT_SUCCESS: ${{ secrets.OAUTH_KAKAO_REDIRECT_SUCCESS }}
+            OAUTH_KAKAO_REDIRECT_FAILURE: ${{ secrets.OAUTH_KAKAO_REDIRECT_FAILURE }}
             
             EOF
             echo "==== .env file updated in ~/env/.env ===="

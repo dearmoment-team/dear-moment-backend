@@ -60,6 +60,7 @@ class SecurityConfig(
                     "/swagger-ui/**",
                     "/v3/**",
                     "/oauth/kakao/callback",
+                    "/oauth/kakao/redirect",
                 ).permitAll()
                     // 상품 조회
                     .requestMatchers(HttpMethod.GET, "/api/products/main").permitAll()

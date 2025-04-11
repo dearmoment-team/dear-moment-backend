@@ -13,5 +13,6 @@ class GlobalUrls {
         // OAuth 관련 경로
         const val OAUTH = "/oauth"
         const val OAUTH_KAKAO_CALLBACK = "$OAUTH/kakao/callback"
+        const val OAUTH_KAKAO_REDIRECT = "$OAUTH/kakao/redirect"
     }
 }
