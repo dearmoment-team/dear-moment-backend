@@ -71,13 +71,13 @@ class KakaoOAuthController(
     ): RedirectView {
         return try {
             val jwtToken = kakaoOAuthService.kakaoLogin(code)
-            // 로그인 성공시 액세스 토큰을 쿼리 파라미터로 포함한 성공 URL로 리다이렉트
+            // 로그인 성공 시, 액세스 토큰을 쿼리 파라미터로 포함한 성공 URL 로 리다이렉트
             RedirectView("$successRedirectUrl?accessToken=$jwtToken")
         } catch (e: CustomException) {
-            // 커스텀 예외를 던진 경우, 카카오 로그인 실패로 간주하여 실패 URL로 리다이렉트
-            RedirectView("$failureRedirectUrl?kakao=fail&error=${e.message}")
+            // CustomException 이 발생한 경우, 에러 코드로 분리하여 실패 URL 로 리다이렉트
+            RedirectView("$failureRedirectUrl?kakao=fail&error=${e.errorCode.name}")
         } catch (e: Exception) {
-            // 기타 예외는 unknown 에러로 처리하여 실패 URL로 리다이렉트
+            // 기타 예외 발생 시 실패 URL 로 리다이렉트
             RedirectView("$failureRedirectUrl?error=unknown")
         }
     }
