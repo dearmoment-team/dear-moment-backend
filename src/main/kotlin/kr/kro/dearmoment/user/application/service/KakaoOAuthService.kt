@@ -59,6 +59,7 @@ class KakaoOAuthService(
                         )
                     saveUserPort.save(newUser)
                 }
+                throw CustomException(ErrorCode.DB_SIGNUP_FAILED)
             } catch (e: Exception) {
                 throw CustomException(ErrorCode.DB_SIGNUP_FAILED)
             }
