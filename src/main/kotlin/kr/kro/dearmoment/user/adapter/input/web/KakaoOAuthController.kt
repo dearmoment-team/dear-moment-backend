@@ -50,18 +50,6 @@ class KakaoOAuthController(
                             )
                     )
                 ]
-            ),
-            ApiResponse(
-                responseCode = "302",
-                description = "로그인 실패: 인증 실패 및 기타 예외 발생 시, 프론트엔드 실패 페이지로 리다이렉트합니다. (쿼리 파라미터: kakao=fail 또는 error=unknown)",
-                content = [
-                    Content(
-                        schema =
-                            Schema(
-                                example = """RedirectView("https://your-frontend.com/login/failure?kakao=fail&error=Some+Error+Message")"""
-                            )
-                    )
-                ]
             )
         ]
     )
