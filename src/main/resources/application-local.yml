@@ -26,6 +26,9 @@ spring:
     kakao:
       client-id: ${OAUTH_KAKAO_CLIENT_ID}
       redirect-uri: ${OAUTH_KAKAO_REDIRECT_URI}
+      redirect:
+        success: ${OAUTH_KAKAO_REDIRECT_SUCCESS}
+        failure: ${OAUTH_KAKAO_REDIRECT_FAILURE}
 
 springdoc:
   packages-to-scan:

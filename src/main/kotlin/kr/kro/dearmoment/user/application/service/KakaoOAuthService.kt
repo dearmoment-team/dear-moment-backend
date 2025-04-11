@@ -1,6 +1,7 @@
-// KakaoOAuthService.kt
 package kr.kro.dearmoment.user.application.service
 
+import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.adapter.output.oauth.KakaoOAuthApiClient
 import kr.kro.dearmoment.user.application.port.output.GetUserByKakaoIdPort
@@ -25,37 +26,49 @@ class KakaoOAuthService(
     lateinit var kakaoRedirectUri: String
 
     fun kakaoLogin(code: String): String {
-        // 1) 인가 코드로 액세스 토큰 발급
-        val accessToken = kakaoOAuthApiClient.getAccessToken(kakaoClientId, kakaoRedirectUri, code)
-
-        // 2) 사용자 정보 조회
-        val kakaoUser = kakaoOAuthApiClient.getKakaoUserInfo(accessToken)
-
-        // 3) DB에서 kakaoId로 조회
-        val existingUser = getUserByKakaoIdPort.findByKakaoId(kakaoUser.kakaoId)
-
-        // 4) 없으면 새로 가입 (isStudio=false)
-        val user =
-            if (existingUser == null) {
-                val newUser =
-                    User(
-                        id = null,
-                        loginId = null,
-                        password = null,
-                        name = kakaoUser.nickname,
-                        // 카카오 OAuth → ROLE_USER
-                        isStudio = false,
-                        createdAt = LocalDateTime.now(),
-                        updatedAt = null,
-                        kakaoId = kakaoUser.kakaoId,
-                    )
-                saveUserPort.save(newUser)
-            } else {
-                existingUser
+        // 1) 인가 코드로 액세스 토큰 발급 시도
+        val accessToken =
+            try {
+                kakaoOAuthApiClient.getAccessToken(kakaoClientId, kakaoRedirectUri, code)
+            } catch (e: Exception) {
+                throw CustomException(ErrorCode.KAKAO_LOGIN_FAILED)
             }
 
-        // 5) CustomUserDetails로 감싸서 JWT 생성
-        val customUserDetails = CustomUserDetails(user)
-        return jwtTokenProvider.generateToken(customUserDetails)
+        // 2) 사용자 정보 조회 시도
+        val kakaoUser =
+            try {
+                kakaoOAuthApiClient.getKakaoUserInfo(accessToken)
+            } catch (e: Exception) {
+                throw CustomException(ErrorCode.KAKAO_LOGIN_FAILED)
+            }
+
+        // 3) DB 에서 kakaoId로 조회 후 회원가입 또는 기존 정보 조회
+        val user =
+            try {
+                getUserByKakaoIdPort.findByKakaoId(kakaoUser.kakaoId) ?: run {
+                    val newUser =
+                        User(
+                            id = null,
+                            loginId = null,
+                            password = null,
+                            name = kakaoUser.nickname,
+                            isStudio = false,
+                            createdAt = LocalDateTime.now(),
+                            updatedAt = null,
+                            kakaoId = kakaoUser.kakaoId,
+                        )
+                    saveUserPort.save(newUser)
+                }
+            } catch (e: Exception) {
+                throw CustomException(ErrorCode.DB_SIGNUP_FAILED)
+            }
+
+        // 4) JWT 생성
+        return try {
+            val customUserDetails = CustomUserDetails(user)
+            jwtTokenProvider.generateToken(customUserDetails)
+        } catch (e: Exception) {
+            throw CustomException(ErrorCode.OAUTH_SERVER_PROCESS_FAILED)
+        }
     }
 }
