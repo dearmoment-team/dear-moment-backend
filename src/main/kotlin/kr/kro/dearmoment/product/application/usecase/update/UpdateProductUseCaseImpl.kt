@@ -28,6 +28,7 @@ class UpdateProductUseCaseImpl(
     private val productOptionUseCase: ProductOptionUseCase,
     private val getStudioPort: GetStudioPort,
 ) : UpdateProductUseCase {
+
     /**
      * 업데이트 요청 시 파일 파라미터(대표, 서브, 추가 이미지 파일)는 컨트롤러에서 별도로 전달받습니다.
      * 옵션(request)은 선택사항입니다.
@@ -106,8 +107,10 @@ class UpdateProductUseCaseImpl(
         val studio = StudioEntity.from(getStudioPort.findById(rawRequest.studioId))
 
         // 7) 기존 Entity의 필드 업데이트 (userId 재할당은 제거합니다)
+        //    여기서 **productFromReq**로 fromDomain을 호출하여, 병합된 도메인 객체가 반영되도록 수정
         val existingEntity =
-            ProductEntity.fromDomain(existingProduct, studio).apply {
+            ProductEntity.fromDomain(productFromReq, studio).apply {
+                // 이후 필요한 재할당(또는 추가 로직)은 그대로 유지
                 productType = productFromReq.productType
                 shootingPlace = productFromReq.shootingPlace
                 title = productFromReq.title
