@@ -6,10 +6,11 @@ import com.linecorp.kotlinjdsl.support.hibernate.extension.createQuery
 import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
-import kr.kro.dearmoment.product.adapter.out.persistence.dto.SearchProductOrderByPriceDto
-import kr.kro.dearmoment.product.adapter.out.persistence.jdsl.inIfNotEmpty
-import kr.kro.dearmoment.product.adapter.out.persistence.jdsl.joinIfNotEmpty
-import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
+import kr.kro.dearmoment.like.domain.SortCriteria
+import kr.kro.dearmoment.product.adapter.out.jdsl.JdslSortStrategy.toJdslComparator
+import kr.kro.dearmoment.product.adapter.out.jdsl.SearchProductOrderByPriceDto
+import kr.kro.dearmoment.product.adapter.out.jdsl.inIfNotEmpty
+import kr.kro.dearmoment.product.adapter.out.jdsl.joinIfNotEmpty
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import kr.kro.dearmoment.product.domain.model.CameraType
@@ -63,9 +64,7 @@ class ProductReadOnlyRepository(
                     } else {
                         null
                     }
-                ).orderBy(
-                    query.sortBy.strategy
-                )
+                ).orderBy(query.sortBy.toJdslComparator())
             }.map { it?.productId }
 
         return productJpaRepository.findAll {

@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.product.adapter.out.persistence.jdsl
+package kr.kro.dearmoment.product.adapter.out.jdsl
 
 import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.join.AssociationJoinOnStep

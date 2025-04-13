@@ -1,4 +1,4 @@
-package kr.kro.dearmoment.product.adapter.out.persistence.dto
+package kr.kro.dearmoment.product.adapter.out.jdsl
 
 data class SearchProductOrderByPriceDto(
     val productId: Long,

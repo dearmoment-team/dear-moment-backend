@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import kr.kro.dearmoment.common.dto.PagedResponse
-import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
+import kr.kro.dearmoment.like.domain.SortCriteria
 import kr.kro.dearmoment.product.application.dto.request.CreateProductRequest
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.request.UpdateProductOptionRequest

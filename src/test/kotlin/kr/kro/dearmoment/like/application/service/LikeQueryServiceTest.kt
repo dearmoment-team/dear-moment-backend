@@ -16,7 +16,7 @@ import kr.kro.dearmoment.like.application.query.GetUserProductLikeQuery
 import kr.kro.dearmoment.like.application.query.GetUserProductOptionLikeQuery
 import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
-import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
+import kr.kro.dearmoment.like.domain.SortCriteria
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
