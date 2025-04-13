@@ -121,6 +121,7 @@ class StudioEntity(
     companion object {
         fun from(domain: Studio) =
             StudioEntity(
+                id = domain.id,
                 name = domain.name,
                 userId = domain.userId,
                 contact = domain.contact,
