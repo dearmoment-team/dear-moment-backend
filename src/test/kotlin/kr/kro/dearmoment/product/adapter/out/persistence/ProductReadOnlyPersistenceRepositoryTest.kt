@@ -11,7 +11,7 @@ import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
-import kr.kro.dearmoment.product.adapter.out.persistence.sort.SortCriteria
+import kr.kro.dearmoment.like.domain.SortCriteria
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.domain.model.CameraType

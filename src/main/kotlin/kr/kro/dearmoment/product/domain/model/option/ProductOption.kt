@@ -56,4 +56,9 @@ data class ProductOption(
             require(partnerShops.isNotEmpty()) { "패키지 옵션은 1개 이상의 파트너샵이 필요합니다." }
         }
     }
+
+    fun isPriceInRange(
+        from: Long,
+        to: Long,
+    ) = discountPrice in from..to
 }
