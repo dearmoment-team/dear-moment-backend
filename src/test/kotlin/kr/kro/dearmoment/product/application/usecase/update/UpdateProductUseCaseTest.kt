@@ -47,7 +47,7 @@ class UpdateProductUseCaseTest : BehaviorSpec({
     val getProductPort = mockk<GetProductPort>()
     val getStudioPort = mockk<GetStudioPort>()
     val productOptionUseCase = mockk<ProductOptionUseCase>(relaxed = true)
-    val studio = studioFixture()
+    val studio = studioFixture(1L)
     val dummyUserId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
 
     // 실제 테스트 대상 UseCase
@@ -318,7 +318,6 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             val spiedEntity = spyk(realEntity)
             mockkObject(ProductEntity.Companion)
             every { ProductEntity.fromDomain(existingProduct, StudioEntity.from(studio)) } returns spiedEntity
-
             every { productPersistencePort.save(any(), any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",

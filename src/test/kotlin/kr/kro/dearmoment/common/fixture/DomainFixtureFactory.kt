@@ -16,7 +16,7 @@ import kr.kro.dearmoment.studio.domain.Studio
 import java.util.UUID
 
 fun studioFixture(
-    id: Long = 1L,
+    id: Long = 0L,
     userId: UUID = UUID.randomUUID(),
 ): Studio =
     fixtureBuilder.giveMeKotlinBuilder<Studio>()
