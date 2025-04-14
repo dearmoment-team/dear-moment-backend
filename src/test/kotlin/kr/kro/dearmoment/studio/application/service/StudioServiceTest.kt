@@ -9,6 +9,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.common.fixture.studioFixture
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.command.StudioPartnerShopCommand
@@ -17,7 +18,6 @@ import kr.kro.dearmoment.studio.application.port.output.DeleteStudioPort
 import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
 import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
-import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import java.util.UUID
 
@@ -32,7 +32,7 @@ class StudioServiceTest : DescribeSpec({
         context("RegisterStudioCommand를 전달하면") {
             val partnerShopCommand =
                 StudioPartnerShopCommand(
-                    category = StudioPartnerShopCategory.DRESS.name,
+                    category = PartnerShopCategory.DRESS.name,
                     name = "드레스 제휴 업체",
                     urlLink = "제휴업체 url link",
                 )
@@ -77,7 +77,7 @@ class StudioServiceTest : DescribeSpec({
         context("ModifyStudioCommand를 전달하면") {
             val partnerShopCommand =
                 StudioPartnerShopCommand(
-                    category = StudioPartnerShopCategory.DRESS.name,
+                    category = PartnerShopCategory.DRESS.name,
                     name = "드레스 제휴 업체",
                     urlLink = "제휴업체 url link",
                 )

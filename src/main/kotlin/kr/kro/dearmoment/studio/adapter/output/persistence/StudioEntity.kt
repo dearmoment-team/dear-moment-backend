@@ -12,6 +12,9 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import kr.kro.dearmoment.common.persistence.Auditable
+import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.hibernate.annotations.ColumnDefault
@@ -41,7 +44,7 @@ class StudioEntity(
     reservationNotice: String,
     cancellationPolicy: String,
     status: String,
-    partnerShops: MutableSet<StudioPartnerShopEmbeddable>,
+    partnerShops: MutableSet<PartnerShopEmbeddable>,
 ) : Auditable() {
     @Column(nullable = false)
     var name: String = name
@@ -84,7 +87,7 @@ class StudioEntity(
         name = "studio_partner_shops",
         joinColumns = [JoinColumn(name = "studio_id")],
     )
-    var partnerShops: MutableSet<StudioPartnerShopEmbeddable> = partnerShops
+    var partnerShops: MutableSet<PartnerShopEmbeddable> = partnerShops
         protected set
 
     fun update(entity: StudioEntity) {
@@ -114,7 +117,14 @@ class StudioEntity(
             reservationNotice = reservationNotice,
             cancellationPolicy = cancellationPolicy,
             status = StudioStatus.from(status),
-            partnerShops = partnerShops.map { it.toDomain() },
+            partnerShops =
+                partnerShops.map {
+                    PartnerShop(
+                        category = it.category ?: PartnerShopCategory.ETC,
+                        name = it.name,
+                        link = it.link,
+                    )
+                },
             isCasted = if (cast == 1) true else false,
         )
 
@@ -134,7 +144,7 @@ class StudioEntity(
                 status = domain.status.name,
                 partnerShops =
                     domain.partnerShops.map {
-                        StudioPartnerShopEmbeddable(it.category.name, it.name, it.urlLink)
+                        PartnerShopEmbeddable(it.category, it.name, it.link)
                     }.toMutableSet(),
                 cast = if (domain.isCasted) 1 else 0,
             )

@@ -52,7 +52,7 @@ data class GetStudioResponse(
                         StudioPartnerShopDto(
                             category = it.category.name,
                             name = it.name,
-                            urlLink = it.urlLink,
+                            urlLink = it.link,
                         )
                     },
                 isCasted = domain.isCasted,
@@ -96,7 +96,7 @@ data class ProductStudioResponse(
                         StudioPartnerShopDto(
                             category = it.category.name,
                             name = it.name,
-                            urlLink = it.urlLink,
+                            urlLink = it.link,
                         )
                     },
             )

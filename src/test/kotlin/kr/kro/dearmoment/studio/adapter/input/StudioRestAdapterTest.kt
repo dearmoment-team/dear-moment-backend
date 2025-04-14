@@ -16,12 +16,12 @@ import kr.kro.dearmoment.common.restdocs.requestBody
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.application.dto.request.ModifyStudioRequest
 import kr.kro.dearmoment.studio.application.dto.request.RegisterStudioRequest
 import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
 import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
-import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
@@ -34,12 +34,12 @@ class StudioRestAdapterTest : RestApiTestBase() {
         val partnerShopsDto =
             listOf(
                 StudioPartnerShopDto(
-                    category = StudioPartnerShopCategory.DRESS.name,
+                    category = PartnerShopCategory.DRESS.name,
                     name = "디어모먼트 드레스샵",
                     urlLink = "dear-moment-dress-shop.partner-shop.url",
                 ),
                 StudioPartnerShopDto(
-                    category = StudioPartnerShopCategory.MENS_SUIT.name,
+                    category = PartnerShopCategory.MENS_SUIT.name,
                     name = "디어모먼트 남자 수트샵",
                     urlLink = "dear-moment-mens-suit.partner-shop.url",
                 ),
@@ -107,12 +107,12 @@ class StudioRestAdapterTest : RestApiTestBase() {
         val partnerShopsDto =
             listOf(
                 StudioPartnerShopDto(
-                    category = StudioPartnerShopCategory.DRESS.name,
+                    category = PartnerShopCategory.DRESS.name,
                     name = "디어모먼트 드레스샵(수정)",
                     urlLink = "dear-moment-dress-shop.partner-shop-modify.url",
                 ),
                 StudioPartnerShopDto(
-                    category = StudioPartnerShopCategory.MENS_SUIT.name,
+                    category = PartnerShopCategory.MENS_SUIT.name,
                     name = "디어모먼트 남자 수트샵(수정)",
                     urlLink = "dear-moment-mens-suit.partner-shop-modify.url",
                 ),
@@ -177,12 +177,12 @@ class StudioRestAdapterTest : RestApiTestBase() {
         val partnerShopsDto =
             listOf(
                 StudioPartnerShopDto(
-                    category = StudioPartnerShopCategory.DRESS.name,
+                    category = PartnerShopCategory.DRESS.name,
                     name = "디어모먼트 드레스샵(수정)",
                     urlLink = "dear-moment-dress-shop.partner-shop-modify.url",
                 ),
                 StudioPartnerShopDto(
-                    category = StudioPartnerShopCategory.MENS_SUIT.name,
+                    category = PartnerShopCategory.MENS_SUIT.name,
                     name = "디어모먼트 남자 수트샵(수정)",
                     urlLink = "dear-moment-mens-suit.partner-shop-modify.url",
                 ),

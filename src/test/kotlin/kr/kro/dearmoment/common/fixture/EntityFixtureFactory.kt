@@ -13,8 +13,6 @@ import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
-import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
-import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import java.util.UUID
 
 fun studioEntityFixture(userId: UUID = UUID.randomUUID()): StudioEntity =
@@ -31,11 +29,11 @@ fun studioEntityFixture(userId: UUID = UUID.randomUUID()): StudioEntity =
         .setExp(StudioEntity::partnerShops, setOf(studioPartnerShopEmbeddableFixture()))
         .sample()
 
-fun studioPartnerShopEmbeddableFixture(): StudioPartnerShopEmbeddable =
-    fixtureBuilder.giveMeKotlinBuilder<StudioPartnerShopEmbeddable>()
-        .setExp(StudioPartnerShopEmbeddable::category, StudioPartnerShopCategory.HAIR_MAKEUP.name)
-        .setExp(StudioPartnerShopEmbeddable::name, "Test Shop")
-        .setExp(StudioPartnerShopEmbeddable::urlLink, "http://testshop.com")
+fun studioPartnerShopEmbeddableFixture(): PartnerShopEmbeddable =
+    fixtureBuilder.giveMeKotlinBuilder<PartnerShopEmbeddable>()
+        .setExp(PartnerShopEmbeddable::category, PartnerShopCategory.HAIR_MAKEUP)
+        .setExp(PartnerShopEmbeddable::name, "Test Shop")
+        .setExp(PartnerShopEmbeddable::link, "http://testshop.com")
         .sample()
 
 fun productEntityFixture(

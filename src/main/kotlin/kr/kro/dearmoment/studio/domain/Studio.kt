@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.studio.domain
 
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
 import java.util.UUID
 
 /***
@@ -17,7 +18,7 @@ data class Studio(
     val reservationNotice: String,
     val cancellationPolicy: String,
     val status: StudioStatus,
-    val partnerShops: List<StudioPartnerShop> = emptyList(),
+    val partnerShops: List<PartnerShop> = emptyList(),
     val isCasted: Boolean = false,
 ) {
     init {

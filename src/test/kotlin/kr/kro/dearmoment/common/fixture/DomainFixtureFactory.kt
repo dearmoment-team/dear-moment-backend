@@ -28,6 +28,16 @@ fun studioFixture(
         .setExp(Studio::artistsIntro, "스튜디오 A 작가 입니다.")
         .setExp(Studio::instagramUrl, "instagramUrl")
         .setExp(Studio::kakaoChannelUrl, "kakaotalkUrl")
+        .setExp(
+            Studio::partnerShops,
+            listOf(
+                PartnerShop(
+                    category = PartnerShopCategory.DRESS,
+                    name = "Dress Partner Shop",
+                    link = "url.link.com",
+                ),
+            ),
+        )
         .sample()
 
 fun productFixture(): Product =
@@ -57,7 +67,7 @@ fun productOptionFixture(): ProductOption =
             listOf(
                 PartnerShop(
                     category = PartnerShopCategory.DRESS,
-                    name = "Dress Partner SHop",
+                    name = "Dress Partner Shop",
                     link = "url.link.com",
                 ),
             ),

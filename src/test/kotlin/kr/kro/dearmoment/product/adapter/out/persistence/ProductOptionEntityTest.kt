@@ -9,7 +9,6 @@ import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
-import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import java.lang.reflect.Field
 import java.time.LocalDateTime
 import java.util.UUID
@@ -67,10 +66,10 @@ class ProductOptionEntityTest : StringSpec({
                 status = "ACTIVE",
                 partnerShops =
                     mutableSetOf(
-                        StudioPartnerShopEmbeddable(
-                            category = "HAIR_MAKEUP",
+                        PartnerShopEmbeddable(
+                            category = PartnerShopCategory.HAIR_MAKEUP,
                             name = "Test Shop",
-                            urlLink = "http://testshop.com",
+                            link = "http://testshop.com",
                         ),
                     ),
                 cast = 1,
@@ -152,10 +151,10 @@ class ProductOptionEntityTest : StringSpec({
                 status = "ACTIVE",
                 partnerShops =
                     mutableSetOf(
-                        StudioPartnerShopEmbeddable(
-                            category = "HAIR_MAKEUP",
+                        PartnerShopEmbeddable(
+                            category = PartnerShopCategory.HAIR_MAKEUP,
                             name = "Test Shop",
-                            urlLink = "http://testshop.com",
+                            link = "http://testshop.com",
                         ),
                     ),
                 cast = 1,

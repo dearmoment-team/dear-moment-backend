@@ -7,6 +7,7 @@ import kr.kro.dearmoment.common.exception.ErrorCode
  * 제휴업체 구분(카테고리)
  */
 enum class PartnerShopCategory {
+    WEDDING_SHOP,
     HAIR_MAKEUP,
     DRESS,
     MENS_SUIT,

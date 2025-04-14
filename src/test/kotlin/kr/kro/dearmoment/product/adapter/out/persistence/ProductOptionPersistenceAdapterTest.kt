@@ -16,10 +16,10 @@ import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.option.OptionType
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
-import kr.kro.dearmoment.studio.adapter.output.persistence.StudioPartnerShopEmbeddable
 import java.util.UUID
 
 @RepositoryTest
@@ -62,10 +62,10 @@ class ProductOptionPersistenceAdapterTest(
                     status = "ACTIVE",
                     partnerShops =
                         mutableSetOf(
-                            StudioPartnerShopEmbeddable(
-                                category = "HAIR_MAKEUP",
+                            PartnerShopEmbeddable(
+                                category = PartnerShopCategory.HAIR_MAKEUP,
                                 name = "Test Shop",
-                                urlLink = "http://testshop.com",
+                                link = "http://testshop.com",
                             ),
                         ),
                     cast = 1,

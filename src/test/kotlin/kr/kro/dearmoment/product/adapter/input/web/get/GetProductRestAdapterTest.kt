@@ -12,9 +12,9 @@ import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.type
 import kr.kro.dearmoment.product.application.dto.response.GetProductResponse
 import kr.kro.dearmoment.product.application.dto.response.ImageResponse
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.application.dto.response.ProductStudioResponse
-import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
@@ -66,12 +66,12 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                         partnerShops =
                             listOf(
                                 StudioPartnerShopDto(
-                                    category = StudioPartnerShopCategory.DRESS.name,
+                                    category = PartnerShopCategory.DRESS.name,
                                     name = "디어모먼트 드레스샵",
                                     urlLink = "dear-moment-dress-shop.partner-shop.url",
                                 ),
                                 StudioPartnerShopDto(
-                                    category = StudioPartnerShopCategory.MENS_SUIT.name,
+                                    category = PartnerShopCategory.MENS_SUIT.name,
                                     name = "디어모먼트 남자 수트샵",
                                     urlLink = "dear-moment-mens-suit.partner-shop.url",
                                 ),

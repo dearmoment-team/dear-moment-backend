@@ -2,8 +2,8 @@ package kr.kro.dearmoment.studio.adapter.output.persistence
 
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
-import kr.kro.dearmoment.studio.domain.StudioPartnerShop
-import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 
 @Embeddable
 class StudioPartnerShopEmbeddable(
@@ -15,9 +15,9 @@ class StudioPartnerShopEmbeddable(
     val urlLink: String,
 ) {
     fun toDomain() =
-        StudioPartnerShop(
-            category = StudioPartnerShopCategory.from(category),
+        PartnerShop(
+            category = PartnerShopCategory.from(category),
             name = name,
-            urlLink = urlLink,
+            link = urlLink,
         )
 }

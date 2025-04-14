@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.studio.application.command
 
-import kr.kro.dearmoment.studio.domain.StudioPartnerShop
-import kr.kro.dearmoment.studio.domain.StudioPartnerShopCategory
+import kr.kro.dearmoment.product.domain.model.option.PartnerShop
+import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 
 data class StudioPartnerShopCommand(
     val category: String,
@@ -9,9 +9,9 @@ data class StudioPartnerShopCommand(
     val urlLink: String,
 ) {
     fun toDomain() =
-        StudioPartnerShop(
-            category = StudioPartnerShopCategory.from(category),
+        PartnerShop(
+            category = PartnerShopCategory.from(category),
             name = name,
-            urlLink = urlLink,
+            link = urlLink,
         )
 }
