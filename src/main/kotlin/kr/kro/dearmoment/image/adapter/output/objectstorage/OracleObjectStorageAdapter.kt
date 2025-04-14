@@ -10,7 +10,6 @@ import com.oracle.bmc.objectstorage.requests.PutObjectRequest
 import com.oracle.bmc.objectstorage.transfer.UploadManager.UploadRequest
 import io.viascom.nanoid.NanoId
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
-import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
@@ -25,7 +24,7 @@ import java.util.UUID
 class OracleObjectStorageAdapter(
     private val objectStorageProperties: OracleObjectStorageProperties,
     private val objectStorageUtil: OracleObjectStorageUtil,
-) : UploadImagePort, DeleteImageFromObjectStoragePort, GetImageFromObjectStoragePort {
+) : UploadImagePort, GetImageFromObjectStoragePort {
     private val baseUrl =
         "https://" + objectStorageProperties.namespaceName +
             ".objectstorage." + Region.AP_CHUNCHEON_1.regionId + ".oci.customer-oci.com"
@@ -73,18 +72,6 @@ class OracleObjectStorageAdapter(
         return commands.map { upload(it.file, it.userId) }
     }
 
-    override fun delete(image: Image) {
-        deletePreAuth(image.parId)
-
-        objectStorageUtil.deleteObject {
-            DeleteObjectRequest.builder()
-                .namespaceName(objectStorageProperties.namespaceName)
-                .bucketName(objectStorageProperties.bucketName)
-                .objectName(image.fileName)
-                .build()
-        }
-    }
-
     override fun getImageWithUrl(image: Image): Image {
         deletePreAuth(image.parId)
 
@@ -120,6 +107,21 @@ class OracleObjectStorageAdapter(
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime(),
         )
+    }
+
+    fun delete(
+        parId: String,
+        fileName: String,
+    ) {
+        deletePreAuth(parId)
+
+        objectStorageUtil.deleteObject {
+            DeleteObjectRequest.builder()
+                .namespaceName(objectStorageProperties.namespaceName)
+                .bucketName(objectStorageProperties.bucketName)
+                .objectName(fileName)
+                .build()
+        }
     }
 
     private fun deletePreAuth(parId: String) {

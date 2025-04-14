@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.image.application.service
 
 import io.kotest.assertions.throwables.shouldNotThrow
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -10,17 +9,16 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.image.adapter.output.objectstorage.event.ImageDeleteEvent
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
-import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImagePort
 import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
+import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -31,8 +29,8 @@ class ImageServiceTest : BehaviorSpec({
     val getImagePort = mockk<GetImagePort>()
     val updateImagePort = mockk<UpdateImagePort>()
     val deleteImageFromDbPort = mockk<DeleteImageFromDBPort>()
-    val deleteImageFromObjectStoragePort = mockk<DeleteImageFromObjectStoragePort>()
     val getImageFromObjectStoragePort = mockk<GetImageFromObjectStoragePort>()
+    val eventPublisher = mockk<ApplicationEventPublisher>() // 이벤트 퍼블리셔 목 생성
     val imageService =
         ImageService(
             uploadImagePort,
@@ -41,7 +39,7 @@ class ImageServiceTest : BehaviorSpec({
             updateImagePort,
             deleteImageFromDbPort,
             getImageFromObjectStoragePort,
-            deleteImageFromObjectStoragePort,
+            eventPublisher
         )
 
     // dummy userId (UUID)
@@ -123,42 +121,17 @@ class ImageServiceTest : BehaviorSpec({
                 fileName = "image.jpg",
             )
         When("이미지를 삭제하면") {
-            clearMocks(getImagePort, deleteImageFromDbPort, deleteImageFromObjectStoragePort)
+            clearMocks(getImagePort, deleteImageFromDbPort, eventPublisher)
 
             every { getImagePort.findOne(1L) } returns image
             every { deleteImageFromDbPort.delete(1L) } just Runs
-            every { deleteImageFromObjectStoragePort.delete(image) } just Runs
+            every { eventPublisher.publishEvent(ImageDeleteEvent.from(image)) } just Runs
 
             Then("해당 이미지를 객체 스토리지와 DB에서 삭제한다.") {
                 shouldNotThrow<Throwable> { imageService.delete(1L) }
                 verify(exactly = 1) { getImagePort.findOne(1L) }
-                verify(exactly = 1) { deleteImageFromObjectStoragePort.delete(image) }
                 verify(exactly = 1) { deleteImageFromDbPort.delete(1L) }
-            }
-        }
-    }
-
-    Given("delete()는 원자성을 보장하기 위해") {
-        val image =
-            Image(
-                userId = dummyUserId,
-                imageId = 1L,
-                url = "localhost:8080/image",
-                parId = "parId",
-                fileName = "image.jpg",
-            )
-        When("이미지 삭제시 객체 스토리지 삭제에 실패하면") {
-            clearMocks(getImagePort, deleteImageFromDbPort, deleteImageFromObjectStoragePort)
-
-            every { getImagePort.findOne(1L) } returns image
-            every { deleteImageFromObjectStoragePort.delete(image) } throws CustomException(ErrorCode.IMAGE_DELETE_FAIL_FROM_OBJECT_STORAGE)
-
-            Then("예외를 발생시키고 DB 삭제가 실행되지 않는다.") {
-                shouldThrow<CustomException> { imageService.delete(1L) }
-
-                verify(exactly = 1) { getImagePort.findOne(1L) }
-                verify(exactly = 1) { deleteImageFromObjectStoragePort.delete(image) }
-                verify(exactly = 0) { deleteImageFromDbPort.delete(1L) }
+                verify(exactly = 1) { eventPublisher.publishEvent(ImageDeleteEvent.from(image)) }
             }
         }
     }

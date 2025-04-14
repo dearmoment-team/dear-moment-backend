@@ -1,21 +1,20 @@
 package kr.kro.dearmoment.image.application.service
 
-import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.image.adapter.input.web.dto.GetImageResponse
 import kr.kro.dearmoment.image.adapter.input.web.dto.GetImagesResponse
+import kr.kro.dearmoment.image.adapter.output.objectstorage.event.ImageDeleteEvent
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.port.input.DeleteImageUseCase
 import kr.kro.dearmoment.image.application.port.input.GetImageUseCase
 import kr.kro.dearmoment.image.application.port.input.SaveImageUseCase
 import kr.kro.dearmoment.image.application.port.input.UpdateImagePort
 import kr.kro.dearmoment.image.application.port.output.DeleteImageFromDBPort
-import kr.kro.dearmoment.image.application.port.output.DeleteImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImageFromObjectStoragePort
 import kr.kro.dearmoment.image.application.port.output.GetImagePort
 import kr.kro.dearmoment.image.application.port.output.SaveImagePort
 import kr.kro.dearmoment.image.application.port.output.UploadImagePort
 import kr.kro.dearmoment.image.domain.Image
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -28,7 +27,7 @@ class ImageService(
     private val updateImagePort: UpdateImagePort,
     private val deleteImageFromDBPort: DeleteImageFromDBPort,
     private val getImageFromObjectStorage: GetImageFromObjectStoragePort,
-    private val deleteImageFromObjectStorage: DeleteImageFromObjectStoragePort,
+    private val eventPublisher: ApplicationEventPublisher,
 ) : SaveImageUseCase, DeleteImageUseCase, GetImageUseCase {
     @Transactional
     override fun save(saveImageCommand: SaveImageCommand): Image {
@@ -76,13 +75,9 @@ class ImageService(
     @Transactional
     override fun delete(imageId: Long) {
         val image = getImagePort.findOne(imageId)
+        val event = ImageDeleteEvent.from(image)
 
-        runCatching {
-            deleteImageFromObjectStorage.delete(image)
-        }.getOrElse { e ->
-            throw CustomException(ErrorCode.IMAGE_DELETE_FAIL_FROM_OBJECT_STORAGE)
-        }
-
+        eventPublisher.publishEvent(event)
         deleteImageFromDBPort.delete(imageId)
     }
 }
