@@ -18,6 +18,8 @@ class UserTest : DescribeSpec({
                         password = "pass1234",
                         name = "홍길동",
                         isStudio = false,
+                        birthDate = null,
+                        sex = null,
                         createdAt = now,
                         updatedAt = now,
                     )
@@ -35,6 +37,8 @@ class UserTest : DescribeSpec({
                         password = "password1234",
                         name = "홍길동2",
                         isStudio = null,
+                        birthDate = null,
+                        sex = null,
                         createdAt = now,
                         updatedAt = null,
                     )
@@ -52,6 +56,8 @@ class UserTest : DescribeSpec({
                         password = "pass1234",
                         name = "홍길동",
                         isStudio = false,
+                        birthDate = null,
+                        sex = null,
                         createdAt = LocalDateTime.now(),
                         updatedAt = null,
                     )
@@ -73,6 +79,8 @@ class UserTest : DescribeSpec({
                         password = "pass1234",
                         name = "홍길동",
                         isStudio = false,
+                        birthDate = null,
+                        sex = null,
                         createdAt = future,
                         updatedAt = now,
                     )

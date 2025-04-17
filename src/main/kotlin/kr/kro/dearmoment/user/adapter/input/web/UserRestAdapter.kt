@@ -14,7 +14,7 @@ import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.application.command.RegisterUserCommand
 import kr.kro.dearmoment.user.application.dto.request.LoginUserRequest
 import kr.kro.dearmoment.user.application.dto.request.RegisterUserRequest
-import kr.kro.dearmoment.user.application.dto.request.UpdateUserNameRequest
+import kr.kro.dearmoment.user.application.dto.request.UpdateUserRequest
 import kr.kro.dearmoment.user.application.dto.response.LoginUserResponse
 import kr.kro.dearmoment.user.application.dto.response.UserResponse
 import kr.kro.dearmoment.user.application.dto.response.UserStudioResponse
@@ -103,31 +103,24 @@ class UserRestAdapter(
     )
     @GetMapping(GlobalUrls.API_USERS)
     fun getProfile(
-        @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
+        @Parameter(description = "인증 후 principal.id 에서 가져온 사용자 UUID", required = false)
         @AuthenticationPrincipal(expression = "id") userId: UUID,
     ): UserStudioResponse {
         return userProfileService.getProfile(userId)
     }
 
-    @Operation(summary = "이름 변경", description = "(초기 MVP 제거 예정) 로그인한 사용자의 이름을 변경합니다.")
+    @Operation(summary = "사용자 프로필 수정", description = "로그인된 사용자의 이름/isStudio/생년월일/성별을 업데이트합니다.")
     @ApiResponses(
         value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "이름 변경 성공",
-                content = [Content(schema = Schema(implementation = UserResponse::class))],
-            ),
-        ],
+            ApiResponse(responseCode = "200", description = "수정 완료"),
+        ]
     )
     @PatchMapping(GlobalUrls.API_USERS)
-    fun updateName(
-        @Parameter(description = "인증 후 principal.id에서 가져온 사용자 UUID", required = false)
+    fun updateUser(
         @AuthenticationPrincipal(expression = "id") userId: UUID,
-        @Parameter(description = "이름 변경 요청 DTO", required = true)
-        @Valid
-        @RequestBody req: UpdateUserNameRequest,
+        @Valid @RequestBody req: UpdateUserRequest
     ): UserResponse {
-        val updatedUser = userProfileService.updateName(userId, req.name)
-        return UserResponse.from(updatedUser)
+        val updated = userProfileService.updateUser(userId, req)
+        return UserResponse.from(updated)
     }
 }

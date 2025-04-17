@@ -1,7 +1,9 @@
 package kr.kro.dearmoment.user.application.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.kro.dearmoment.user.domain.Sex
 import kr.kro.dearmoment.user.domain.User
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -14,6 +16,10 @@ data class UserStudioResponse(
     val name: String,
     @Schema(description = "스튜디오 ID", example = "1")
     val studioId: Long = 0L,
+    @Schema(description = "생년월일", example = "2001-01-02")
+    val birthDate: LocalDate?,
+    @Schema(description = "성별", example = "MALE")
+    val sex: Sex?,
     @Schema(description = "생성 시각(UTC)", example = "2025-01-02T15:04:05")
     val createdAt: LocalDateTime,
     @Schema(description = "최종 수정 시각(UTC)", example = "2025-01-03T10:00:00")
@@ -29,6 +35,8 @@ data class UserStudioResponse(
                 loginId = user.loginId,
                 name = user.name,
                 studioId = studioId,
+                birthDate = user.birthDate,
+                sex = user.sex,
                 createdAt = user.createdAt,
                 updatedAt = user.updatedAt,
             )

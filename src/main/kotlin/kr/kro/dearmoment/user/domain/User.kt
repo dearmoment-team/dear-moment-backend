@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.user.domain
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -12,6 +13,8 @@ import java.util.UUID
  * - isStudio: 스튜디오 유저 여부
  * - createdAt, updatedAt: 생성/수정 시각
  * - kakaoId: 카카오 로그인 고유식별 id
+ * - birthDate: 생년월일
+ * - sex: 성별
  */
 data class User(
     val id: UUID? = null,
@@ -19,10 +22,12 @@ data class User(
     val password: String? = null,
     val name: String,
     val isStudio: Boolean? = false,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime? = null,
     // 추후 null 불가
     val kakaoId: Long? = null,
+    val birthDate: LocalDate? = null,
+    val sex: Sex? = null,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime? = null,
 ) {
     init {
         // 이메일 가입 유저인 경우, loginId/password가 필수
@@ -44,16 +49,20 @@ data class User(
         return this.password == rawPassword
     }
 
-    fun updateName(
-        newName: String,
-        now: LocalDateTime,
+    fun updateProfile(
+        newName: String?,
+        newIsStudio: Boolean?,
+        newBirthDate: LocalDate?,
+        newSex: Sex?,
+        now: LocalDateTime
     ): User {
-        require(newName.isNotBlank()) { "새로운 이름은 비어있을 수 없습니다." }
         require(!createdAt.isAfter(now)) { "수정 시점이 생성 시점보다 이를 수 없습니다." }
-
         return this.copy(
-            name = newName,
-            updatedAt = now,
+            name = newName ?: this.name,
+            isStudio = newIsStudio ?: this.isStudio,
+            birthDate = newBirthDate ?: this.birthDate,
+            sex = newSex ?: this.sex,
+            updatedAt = now
         )
     }
 }
