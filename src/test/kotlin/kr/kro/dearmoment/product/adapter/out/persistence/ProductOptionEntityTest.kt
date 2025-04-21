@@ -72,7 +72,7 @@ class ProductOptionEntityTest : StringSpec({
                             link = "http://testshop.com",
                         ),
                     ),
-                cast = 1,
+                isCasted = true,
             )
 
         val productEntity =
@@ -157,7 +157,7 @@ class ProductOptionEntityTest : StringSpec({
                             link = "http://testshop.com",
                         ),
                     ),
-                cast = 1,
+                isCasted = true,
             )
 
         val productEntity =

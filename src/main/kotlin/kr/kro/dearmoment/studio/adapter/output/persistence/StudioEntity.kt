@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
-import jakarta.persistence.UniqueConstraint
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
@@ -23,7 +22,6 @@ import java.util.UUID
 @Entity
 @Table(
     name = "studios",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id"])],
 )
 class StudioEntity(
     @Id
@@ -32,9 +30,6 @@ class StudioEntity(
     val id: Long = 0L,
     @Column(nullable = false)
     val userId: UUID,
-    @Column
-    @ColumnDefault(value = "0")
-    val cast: Int,
     name: String,
     contact: String,
     studioIntro: String,
@@ -45,6 +40,7 @@ class StudioEntity(
     cancellationPolicy: String,
     status: String,
     partnerShops: MutableSet<PartnerShopEmbeddable>,
+    isCasted: Boolean = false,
 ) : Auditable() {
     @Column(nullable = false)
     var name: String = name
@@ -90,6 +86,11 @@ class StudioEntity(
     var partnerShops: MutableSet<PartnerShopEmbeddable> = partnerShops
         protected set
 
+    @Column
+    @ColumnDefault(value = "0")
+    var cast: Int = if (isCasted) 1 else 0
+        protected set
+
     fun update(entity: StudioEntity) {
         name = entity.name
         contact = entity.contact
@@ -102,6 +103,7 @@ class StudioEntity(
         status = entity.status
 
         partnerShops = entity.partnerShops.toMutableSet()
+        cast = entity.cast
     }
 
     fun toDomain() =
@@ -125,7 +127,7 @@ class StudioEntity(
                         link = it.link,
                     )
                 },
-            isCasted = if (cast == 1) true else false,
+            isCasted = cast == 1,
         )
 
     companion object {
@@ -146,7 +148,7 @@ class StudioEntity(
                     domain.partnerShops.map {
                         PartnerShopEmbeddable(it.category, it.name, it.link)
                     }.toMutableSet(),
-                cast = if (domain.isCasted) 1 else 0,
+                isCasted = domain.isCasted,
             )
     }
 }

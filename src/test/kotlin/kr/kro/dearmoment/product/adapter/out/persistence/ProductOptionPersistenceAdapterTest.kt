@@ -68,7 +68,7 @@ class ProductOptionPersistenceAdapterTest(
                                 link = "http://testshop.com",
                             ),
                         ),
-                    cast = 1,
+                    isCasted = true,
                 )
             val savedStudio = studioRepository.save(studio)
 
