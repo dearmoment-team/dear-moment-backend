@@ -36,9 +36,9 @@ class KakaoOAuthAdapter(
     @Operation(
         summary = "Kakao OAuth Callback",
         description = """
-            카카오 로그인 동의 후 콜백 URL입니다.
+            카카오 로그인 동의 후 콜백 URL 입니다.
             카카오 서버로부터 전달받은 인가 코드를 이용하여 JWT 토큰을 발급한 후,
-            프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 accessToken을 포함합니다.
+            프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 accessToken 을 포함합니다.
             만약 인증 과정 중 예외 발생 시 실패 페이지로 리다이렉트합니다.
         """,
     )
