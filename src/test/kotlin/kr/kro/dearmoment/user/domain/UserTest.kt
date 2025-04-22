@@ -45,8 +45,6 @@ class UserTest : DescribeSpec({
             }
         }
 
-        // ---- 아래는 필수 필드 검증 테스트 ----
-
         context("loginId가 비어있으면") {
             it("예외를 발생시킨다.") {
                 shouldThrow<IllegalArgumentException> {
@@ -64,8 +62,6 @@ class UserTest : DescribeSpec({
                 }
             }
         }
-
-        // ... 비밀번호, name, createdUser 등 필수 값 테스트 동일
 
         context("updatedAt이 존재하지만 createdAt 이후이면") {
             it("예외를 발생시킨다.") {

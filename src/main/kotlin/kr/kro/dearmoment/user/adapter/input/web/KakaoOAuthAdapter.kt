@@ -10,14 +10,19 @@ import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.user.application.service.KakaoOAuthService
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
+import java.util.UUID
 
 @Tag(name = "Kakao Oauth API", description = "카카오 로그인 관련 API")
 @RestController
-class KakaoOAuthController(
+class KakaoOAuthAdapter(
     private val kakaoOAuthService: KakaoOAuthService,
     @Value("\${oauth.kakao.redirect.success}")
     private val successRedirectUrl: String,
@@ -31,9 +36,9 @@ class KakaoOAuthController(
     @Operation(
         summary = "Kakao OAuth Callback",
         description = """
-            카카오 로그인 동의 후 콜백 URL입니다.
+            카카오 로그인 동의 후 콜백 URL 입니다.
             카카오 서버로부터 전달받은 인가 코드를 이용하여 JWT 토큰을 발급한 후,
-            프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 accessToken을 포함합니다.
+            프론트엔드의 성공 페이지로 리다이렉트하며 쿼리 파라미터에 accessToken 을 포함합니다.
             만약 인증 과정 중 예외 발생 시 실패 페이지로 리다이렉트합니다.
         """,
     )
@@ -96,5 +101,26 @@ class KakaoOAuthController(
         val responseType = "code"
         val redirectUrl = "$baseUrl?client_id=$clientId&redirect_uri=$redirectUri&response_type=$responseType"
         return RedirectView(redirectUrl)
+    }
+
+    /**
+     * (예시) DELETE OAUTH_KAKAO_WITHDRAW
+     * 헤더: Authorization: Bearer <카카오_사용자_액세스_토큰>
+     */
+    @Operation(summary = "카카오 연결 끊기 + 회원 탈퇴", description = "카카오에서 응답받은 id 값과 DB 매칭 후 하드딜리트")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "탈퇴 성공",
+            ),
+        ],
+    )
+    @DeleteMapping(GlobalUrls.OAUTH_KAKAO_WITHDRAW)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun unlinkAndWithdraw(
+        @AuthenticationPrincipal(expression = "id") userUuid: UUID,
+    ) {
+        kakaoOAuthService.unlinkAndWithdraw(userUuid)
     }
 }
