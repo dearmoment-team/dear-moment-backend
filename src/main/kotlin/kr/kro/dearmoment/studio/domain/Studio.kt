@@ -1,5 +1,6 @@
 package kr.kro.dearmoment.studio.domain
 
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
 import java.util.UUID
 
@@ -20,6 +21,7 @@ data class Studio(
     val status: StudioStatus,
     val partnerShops: List<PartnerShop> = emptyList(),
     val isCasted: Boolean = false,
+    val profileImage: Image,
 ) {
     init {
         require(name.isNotEmpty()) { "스튜디오 이름은 필수 입니다." }

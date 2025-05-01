@@ -1,7 +1,9 @@
 package kr.kro.dearmoment.studio.application.command
 
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.studio.domain.Studio
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import org.springframework.web.multipart.MultipartFile
 import java.util.UUID
 
 data class ModifyStudioCommand(
@@ -18,8 +20,9 @@ data class ModifyStudioCommand(
     val partnerShops: List<StudioPartnerShopCommand>,
     val status: String,
     val isCasted: Boolean,
+    val profileImage: MultipartFile? = null,
 ) {
-    fun toDomain() =
+    fun toDomain(profileImage: Image) =
         Studio(
             id = id,
             userId = userId,
@@ -34,5 +37,6 @@ data class ModifyStudioCommand(
             partnerShops = partnerShops.map { it.toDomain() },
             status = StudioStatus.from(status),
             isCasted = isCasted,
+            profileImage = profileImage
         )
 }

@@ -8,9 +8,11 @@ import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.RepositoryTest
+import kr.kro.dearmoment.common.fixture.imageEntityFixture
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
+import kr.kro.dearmoment.image.adapter.output.persistence.JpaImageRepository
 import kr.kro.dearmoment.like.domain.SortCriteria
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
@@ -32,6 +34,7 @@ class ProductReadOnlyPersistenceRepositoryTest(
     private val studioRepository: StudioJpaRepository,
     private val entityManager: EntityManager,
     private val jpqlRenderContext: RenderContext,
+    private val imageRepository: JpaImageRepository,
 ) : DescribeSpec({
         val readAdapter = ProductReadOnlyRepository(productRepository, entityManager, jpqlRenderContext)
         afterTest {
@@ -41,7 +44,9 @@ class ProductReadOnlyPersistenceRepositoryTest(
         }
 
         describe("findWithStudioById()는") {
-            val studio = studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))
+            val userId = UUID.randomUUID()
+            val image = imageRepository.save(imageEntityFixture(userId))
+            val studio = studioRepository.save(studioEntityFixture(userId, image))
             val product = productRepository.save(productEntityFixture(userId = studio.userId, studioEntity = studio))
             context("상품 id가 전달되면") {
                 it("해당 상품과 스튜디오를 DB에서 조회한다.") {
@@ -52,9 +57,14 @@ class ProductReadOnlyPersistenceRepositoryTest(
                 }
             }
         }
+
         describe("searchByCriteria()는") {
             val studios = mutableListOf<StudioEntity>()
-            repeat(5) { studios.add(studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))) }
+            repeat(5) {
+                val userId = UUID.randomUUID()
+                val image = imageRepository.save(imageEntityFixture(userId))
+                studios.add(studioRepository.save(studioEntityFixture(userId, image)))
+            }
 
             val products = mutableListOf<Product>()
             val options = mutableListOf<ProductOption>()

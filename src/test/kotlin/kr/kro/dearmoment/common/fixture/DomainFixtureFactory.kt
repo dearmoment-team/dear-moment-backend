@@ -1,6 +1,7 @@
 package kr.kro.dearmoment.common.fixture
 
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
+import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.inquiry.domain.ProductOptionInquiry
 import kr.kro.dearmoment.like.domain.ProductLike
 import kr.kro.dearmoment.like.domain.ProductOptionLike
@@ -18,6 +19,7 @@ import java.util.UUID
 fun studioFixture(
     id: Long = 0L,
     userId: UUID = UUID.randomUUID(),
+    image: Image = imageFixture(userId),
 ): Studio =
     fixtureBuilder.giveMeKotlinBuilder<Studio>()
         .setExp(Studio::id, id)
@@ -28,6 +30,7 @@ fun studioFixture(
         .setExp(Studio::artistsIntro, "스튜디오 A 작가 입니다.")
         .setExp(Studio::instagramUrl, "instagramUrl")
         .setExp(Studio::kakaoChannelUrl, "kakaotalkUrl")
+        .setExp(Studio::profileImage, image)
         .setExp(
             Studio::partnerShops,
             listOf(
@@ -92,4 +95,9 @@ fun productOptionLikeFixture(userId: UUID): ProductOptionLike =
 fun productOptionInquiryFixture(userId: UUID): ProductOptionInquiry =
     fixtureBuilder.giveMeKotlinBuilder<ProductOptionInquiry>()
         .setExp(ProductOptionInquiry::userId, userId)
+        .sample()
+
+fun imageFixture(userId: UUID): Image =
+    fixtureBuilder.giveMeKotlinBuilder<Image>()
+        .setExp(Image::userId, userId)
         .sample()
