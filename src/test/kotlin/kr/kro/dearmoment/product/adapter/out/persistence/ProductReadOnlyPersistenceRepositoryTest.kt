@@ -41,6 +41,7 @@ class ProductReadOnlyPersistenceRepositoryTest(
             productOptionRepository.deleteAll()
             productRepository.deleteAll()
             studioRepository.deleteAll()
+            imageRepository.deleteAll()
         }
 
         describe("findWithStudioById()는") {
@@ -48,10 +49,11 @@ class ProductReadOnlyPersistenceRepositoryTest(
             val image = imageRepository.save(imageEntityFixture(userId))
             val studio = studioRepository.save(studioEntityFixture(userId, image))
             val product = productRepository.save(productEntityFixture(userId = studio.userId, studioEntity = studio))
+            entityManager.flush()
+            entityManager.clear()
             context("상품 id가 전달되면") {
                 it("해당 상품과 스튜디오를 DB에서 조회한다.") {
                     val result = readAdapter.findWithStudioById(product.productId!!)
-
                     result.productId shouldBe product.productId!!
                     result.studio!!.id shouldBe studio.id
                 }
@@ -114,6 +116,9 @@ class ProductReadOnlyPersistenceRepositoryTest(
                     products.add(savedProduct.toDomain())
                 }
             }
+
+            entityManager.flush()
+            entityManager.clear()
 
             context("검색 조건이 전달되면") {
                 it("상품이 조회된다.") {

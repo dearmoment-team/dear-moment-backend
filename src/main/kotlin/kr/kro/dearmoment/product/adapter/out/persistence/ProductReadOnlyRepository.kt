@@ -74,6 +74,7 @@ class ProductReadOnlyRepository(
                 entity(ProductEntity::class),
                 leftJoin(ProductEntity::options),
                 fetchJoin(ProductEntity::studio),
+                fetchJoin(StudioEntity::profileImage)
             ).where(
                 path(ProductEntity::productId).`in`(productIds)
             )
@@ -109,6 +110,7 @@ class ProductReadOnlyRepository(
                 ).from(
                     entity(ProductEntity::class),
                     fetchJoin(ProductEntity::studio),
+                    fetchJoin(StudioEntity::profileImage)
                 ).where(
                     path(ProductEntity::productId).eq(id),
                 )
