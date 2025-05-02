@@ -9,6 +9,7 @@ import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import org.springframework.web.multipart.MultipartFile
 import java.util.UUID
 
 data class ModifyStudioRequest(
@@ -54,6 +55,7 @@ data class ModifyStudioRequest(
 ) {
     fun toCommand(
         studioId: Long,
+        profileImage: MultipartFile?,
         userId: UUID,
     ) = ModifyStudioCommand(
         id = studioId,
@@ -68,6 +70,7 @@ data class ModifyStudioRequest(
         cancellationPolicy = cancellationPolicy,
         partnerShops = partnerShops.map { it.toCommand() },
         status = status,
-        isCasted = isCasted
+        isCasted = isCasted,
+        profileImage = profileImage,
     )
 }

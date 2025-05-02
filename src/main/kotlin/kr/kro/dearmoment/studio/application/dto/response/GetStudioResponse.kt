@@ -33,6 +33,8 @@ data class GetStudioResponse(
     val status: String,
     @Schema(description = "영입 스튜디오 여부")
     val isCasted: Boolean,
+    @Schema(description = "프로필 이미지 url")
+    val profileImageUrl: String,
 ) {
     companion object {
         fun from(domain: Studio) =
@@ -56,6 +58,7 @@ data class GetStudioResponse(
                         )
                     },
                 isCasted = domain.isCasted,
+                profileImageUrl = domain.profileImage.url,
             )
     }
 }
@@ -79,6 +82,8 @@ data class ProductStudioResponse(
     val cancellationPolicy: String,
     @Schema(description = "파트너샵 정보")
     val partnerShops: List<StudioPartnerShopDto>,
+    @Schema(description = "프로필 이미지 url")
+    val profileImageUrl: String,
 ) {
     companion object {
         fun from(domain: Studio) =
@@ -99,6 +104,7 @@ data class ProductStudioResponse(
                             urlLink = it.link,
                         )
                     },
+                profileImageUrl = domain.profileImage.url,
             )
     }
 }

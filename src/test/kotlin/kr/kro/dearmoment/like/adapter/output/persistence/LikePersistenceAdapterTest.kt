@@ -8,9 +8,11 @@ import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
+import kr.kro.dearmoment.common.fixture.imageEntityFixture
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
+import kr.kro.dearmoment.image.adapter.output.persistence.JpaImageRepository
 import kr.kro.dearmoment.like.domain.CreateProductLike
 import kr.kro.dearmoment.like.domain.CreateProductOptionLike
 import kr.kro.dearmoment.product.adapter.out.persistence.JpaProductOptionRepository
@@ -25,6 +27,7 @@ class LikePersistenceAdapterTest(
     private val studioRepository: StudioJpaRepository,
     private val productOptionRepository: JpaProductOptionRepository,
     private val productRepository: JpaProductRepository,
+    private val imageRepository: JpaImageRepository,
 ) : DescribeSpec({
         val adapter =
             LikePersistenceAdapter(
@@ -36,7 +39,8 @@ class LikePersistenceAdapterTest(
 
         describe("saveProductLike() 는") {
             val userId = UUID.randomUUID()
-            val savedStudio = studioRepository.save(studioEntityFixture())
+            val image = imageRepository.save(imageEntityFixture(UUID.randomUUID()))
+            val savedStudio = studioRepository.save(studioEntityFixture(userId, image))
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val studioLike = CreateProductLike(userId = userId, productId = savedProduct.productId!!)
             val productId = adapter.saveProductLike(studioLike)
@@ -50,7 +54,8 @@ class LikePersistenceAdapterTest(
 
         describe("[예외] saveProductLike() 는") {
             val userId = UUID.randomUUID()
-            val savedStudio = studioRepository.save(studioEntityFixture())
+            val image = imageRepository.save(imageEntityFixture(userId))
+            val savedStudio = studioRepository.save(studioEntityFixture(userId, image))
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val productLike = CreateProductLike(userId = userId, productId = savedProduct.productId!!)
 
@@ -68,7 +73,8 @@ class LikePersistenceAdapterTest(
 
         describe("saveProductOptionLike()는") {
             val userId = UUID.randomUUID()
-            val savedStudio = studioRepository.save(studioEntityFixture(userId))
+            val image = imageRepository.save(imageEntityFixture(userId))
+            val savedStudio = studioRepository.save(studioEntityFixture(userId, image))
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val productOptionLike =
@@ -84,7 +90,8 @@ class LikePersistenceAdapterTest(
 
         describe("[예외] saveProductOptionLike()는") {
             val userId = UUID.randomUUID()
-            val savedStudio = studioRepository.save(studioEntityFixture(userId))
+            val image = imageRepository.save(imageEntityFixture(UUID.randomUUID()))
+            val savedStudio = studioRepository.save(studioEntityFixture(userId, image))
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val productOptionLike =
@@ -104,7 +111,8 @@ class LikePersistenceAdapterTest(
 
         describe("deleteXXXLike()는") {
             val userId = UUID.randomUUID()
-            val savedStudio = studioRepository.save(studioEntityFixture(userId))
+            val image = imageRepository.save(imageEntityFixture(userId))
+            val savedStudio = studioRepository.save(studioEntityFixture(userId, image))
             val savedProduct = productRepository.save(productEntityFixture(userId, savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val productOptionLike =

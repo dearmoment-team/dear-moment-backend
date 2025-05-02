@@ -13,6 +13,7 @@ import kr.kro.dearmoment.common.restdocs.STRING
 import kr.kro.dearmoment.common.restdocs.means
 import kr.kro.dearmoment.common.restdocs.pathParameters
 import kr.kro.dearmoment.common.restdocs.requestBody
+import kr.kro.dearmoment.common.restdocs.requestParts
 import kr.kro.dearmoment.common.restdocs.responseBody
 import kr.kro.dearmoment.common.restdocs.toJsonString
 import kr.kro.dearmoment.common.restdocs.type
@@ -24,6 +25,7 @@ import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
 import kr.kro.dearmoment.studio.application.dto.response.StudioResponse
 import kr.kro.dearmoment.studio.domain.StudioStatus
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.Test
@@ -59,22 +61,40 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 isCasted = false,
             )
 
+        val requestPart =
+            MockMultipartFile(
+                "request",
+                "request.json",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestBody.toJsonString().toByteArray(),
+            )
+
+        val profileImage =
+            MockMultipartFile(
+                "profileImageFile",
+                "profileImage.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "profile image content".toByteArray(),
+            )
+
         val expected =
             StudioResponse(id = 1L)
 
-        every { registerStudioUseCase.register(requestBody.toCommand(userId)) } returns expected
+        every { registerStudioUseCase.register(requestBody.toCommand(userId, profileImage)) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
-                .post("/api/studios")
-                .content(requestBody.toJsonString())
-                .contentType(MediaType.APPLICATION_JSON)
+                .multipart("/api/studios")
+                .file(requestPart)
+                .file(profileImage)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
                 "register-studio",
-                requestBody(
+                requestParts(
+                    "request",
                     "userId" type NUMBER means "유저 ID",
                     "isCasted" type BOOLEAN means "영입 여부",
                     "name" type STRING means "스튜디오 이름",
@@ -132,6 +152,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 status = StudioStatus.ACTIVE.name,
                 partnerShops = partnerShopsDto,
                 isCasted = true,
+                profileImageUrl = "image.url.link.com"
             )
 
         every { getStudioUseCase.getStudio(existedStudioId) } returns expected
@@ -151,6 +172,7 @@ class StudioRestAdapterTest : RestApiTestBase() {
                     "data.id" type NUMBER means "등록된 스튜디오 ID",
                     "data.userId" type NUMBER means "유저 ID",
                     "data.isCasted" type BOOLEAN means "영입 여부",
+                    "data.profileImageUrl" type STRING means "프로필 이미지 url",
                     "data.name" type STRING means "스튜디오 이름",
                     "data.contact" type STRING means "연락처",
                     "data.studioIntro" type STRING means "스튜디오 소개",
@@ -202,23 +224,45 @@ class StudioRestAdapterTest : RestApiTestBase() {
                 isCasted = false,
             )
 
+        val requestPart =
+            MockMultipartFile(
+                "request",
+                "request.json",
+                MediaType.APPLICATION_JSON_VALUE,
+                requestBody.toJsonString().toByteArray(),
+            )
+
+        val profileImage =
+            MockMultipartFile(
+                "profileImageFile",
+                "profileImage.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "profile image content".toByteArray(),
+            )
+
         val expected =
             StudioResponse(id = existedStudioId)
 
-        every { modifyStudioUseCase.modify(requestBody.toCommand(existedStudioId, userId)) } returns expected
+        every { modifyStudioUseCase.modify(requestBody.toCommand(existedStudioId, profileImage, userId)) } returns expected
 
         val request =
             RestDocumentationRequestBuilders
-                .put("/api/studios/{studioId}", existedStudioId)
-                .content(requestBody.toJsonString())
-                .contentType(MediaType.APPLICATION_JSON)
+                .multipart("/api/studios/{studioId}", existedStudioId)
+                .file(requestPart)
+                .file(profileImage)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .with {
+                    it.method = "PUT"
+                    it
+                }
 
         mockMvc.perform(request)
             .andExpect(status().isOk)
             .andDocument(
                 "modify-studio",
                 pathParameters("studioId" means "수정할 스튜디오 id"),
-                requestBody(
+                requestParts(
+                    "request",
                     "userId" type NUMBER means "유저 ID",
                     "name" type STRING means "스튜디오 이름",
                     "contact" type STRING means "연락처",

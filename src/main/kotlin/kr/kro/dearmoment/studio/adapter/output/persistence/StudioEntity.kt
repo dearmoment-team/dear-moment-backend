@@ -9,8 +9,10 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
+import kr.kro.dearmoment.image.adapter.output.persistence.ImageEntity
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
@@ -41,6 +43,7 @@ class StudioEntity(
     status: String,
     partnerShops: MutableSet<PartnerShopEmbeddable>,
     isCasted: Boolean = false,
+    profileImage: ImageEntity,
 ) : Auditable() {
     @Column(nullable = false)
     var name: String = name
@@ -91,6 +94,11 @@ class StudioEntity(
     var cast: Int = if (isCasted) 1 else 0
         protected set
 
+    @OneToOne
+    @JoinColumn(name = "image_id", unique = true)
+    var profileImage: ImageEntity = profileImage
+        protected set
+
     fun update(entity: StudioEntity) {
         name = entity.name
         contact = entity.contact
@@ -101,9 +109,9 @@ class StudioEntity(
         reservationNotice = entity.reservationNotice
         cancellationPolicy = entity.cancellationPolicy
         status = entity.status
-
         partnerShops = entity.partnerShops.toMutableSet()
         cast = entity.cast
+        profileImage = entity.profileImage
     }
 
     fun toDomain() =
@@ -128,6 +136,7 @@ class StudioEntity(
                     )
                 },
             isCasted = cast == 1,
+            profileImage = profileImage.toDomain()
         )
 
     companion object {
@@ -149,6 +158,7 @@ class StudioEntity(
                         PartnerShopEmbeddable(it.category, it.name, it.link)
                     }.toMutableSet(),
                 isCasted = domain.isCasted,
+                profileImage = ImageEntity.from(domain.profileImage)
             )
     }
 }
