@@ -3,7 +3,6 @@ package kr.kro.dearmoment.like.adapter.output.persistence
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.common.fixture.imageEntityFixture
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
@@ -13,7 +12,7 @@ import java.util.UUID
 class ProductOptionLikeEntityTest : DescribeSpec({
     describe("ProductOptionLikeEntity") {
         val userId = UUID.randomUUID()
-        val studio = studioEntityFixture(userId, imageEntityFixture(userId))
+        val studio = studioEntityFixture(userId)
         val product = productEntityFixture(userId, studio, 1L)
         val productOptionEntity = productOptionEntityFixture(product, 1L)
 

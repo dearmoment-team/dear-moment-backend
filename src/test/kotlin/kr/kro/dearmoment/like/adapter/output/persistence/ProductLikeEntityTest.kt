@@ -2,7 +2,6 @@ package kr.kro.dearmoment.like.adapter.output.persistence
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.common.fixture.imageEntityFixture
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.like.domain.ProductLike
@@ -11,7 +10,7 @@ import java.util.UUID
 class ProductLikeEntityTest : DescribeSpec({
     describe("ProductLikeEntity") {
         val userId = UUID.randomUUID()
-        val product = productEntityFixture(userId, studioEntityFixture(userId, imageEntityFixture(userId)), 1L)
+        val product = productEntityFixture(userId, studioEntityFixture(userId), 1L)
 
         context("생성 테스트") {
             it("ProductLikeEntity가 정상적으로 생성된다") {

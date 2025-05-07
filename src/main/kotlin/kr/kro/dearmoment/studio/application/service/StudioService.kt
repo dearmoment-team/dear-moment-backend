@@ -1,7 +1,5 @@
 package kr.kro.dearmoment.studio.application.service
 
-import kr.kro.dearmoment.image.application.command.SaveImageCommand
-import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.dto.response.GetStudioResponse
@@ -23,12 +21,10 @@ class StudioService(
     private val getStudioPort: GetStudioPort,
     private val updateStudioPort: UpdateStudioPort,
     private val deleteStudioPort: DeleteStudioPort,
-    private val imageService: ImageService,
 ) : RegisterStudioUseCase, GetStudioUseCase, ModifyStudioUseCase, DeleteStudioUseCase {
     @Transactional
     override fun register(command: RegisterStudioCommand): StudioResponse {
-        val profileImage = imageService.save(SaveImageCommand(command.profileImage, command.userId))
-        val studio = command.toDomain(profileImage)
+        val studio = command.toDomain()
 
         return StudioResponse.from(saveStudioPort.save(studio))
     }
@@ -41,26 +37,14 @@ class StudioService(
 
     @Transactional
     override fun modify(command: ModifyStudioCommand): StudioResponse {
-        val studio = getStudioPort.findById(command.id)
-
-        val newProfileImage =
-            command.profileImage?.let {
-                imageService.delete(studio.profileImage.imageId)
-                imageService.save(SaveImageCommand(it, command.userId))
-            }
-
-        val updatedStudio =
-            updateStudioPort.update(
-                command.toDomain(newProfileImage ?: studio.profileImage)
-            )
+        val studio = command.toDomain()
+        val updatedStudio = updateStudioPort.update(studio)
 
         return StudioResponse.from(updatedStudio)
     }
 
     @Transactional
     override fun delete(id: Long) {
-        val studio = getStudioPort.findById(id)
-        imageService.delete(studio.profileImage.imageId)
         deleteStudioPort.delete(id)
     }
 }

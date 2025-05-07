@@ -4,7 +4,6 @@ import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation
 import org.springframework.restdocs.payload.RequestFieldsSnippet
-import org.springframework.restdocs.payload.RequestPartFieldsSnippet
 import org.springframework.restdocs.payload.ResponseFieldsSnippet
 
 open class Field(
@@ -167,13 +166,6 @@ private fun createField(
  */
 fun requestBody(vararg fields: Field): RequestFieldsSnippet {
     return PayloadDocumentation.requestFields(fields.map { it.descriptor })
-}
-
-fun requestParts(
-    part: String,
-    vararg fields: Field
-): RequestPartFieldsSnippet {
-    return PayloadDocumentation.requestPartFields(part, fields.map { it.descriptor })
 }
 
 /**

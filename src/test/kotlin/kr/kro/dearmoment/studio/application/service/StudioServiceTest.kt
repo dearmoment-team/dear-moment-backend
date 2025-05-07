@@ -8,9 +8,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kr.kro.dearmoment.common.fixture.imageFixture
 import kr.kro.dearmoment.common.fixture.studioFixture
-import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.application.command.ModifyStudioCommand
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
@@ -21,8 +19,6 @@ import kr.kro.dearmoment.studio.application.port.output.GetStudioPort
 import kr.kro.dearmoment.studio.application.port.output.SaveStudioPort
 import kr.kro.dearmoment.studio.application.port.output.UpdateStudioPort
 import kr.kro.dearmoment.studio.domain.StudioStatus
-import org.springframework.http.MediaType
-import org.springframework.mock.web.MockMultipartFile
 import java.util.UUID
 
 class StudioServiceTest : DescribeSpec({
@@ -30,18 +26,10 @@ class StudioServiceTest : DescribeSpec({
     val getStudioPort = mockk<GetStudioPort>()
     val updateStudioPort = mockk<UpdateStudioPort>()
     val deleteStudioPort = mockk<DeleteStudioPort>()
-    val imageService = mockk<ImageService>()
-    val service = StudioService(saveStudioPort, getStudioPort, updateStudioPort, deleteStudioPort, imageService)
+    val service = StudioService(saveStudioPort, getStudioPort, updateStudioPort, deleteStudioPort)
 
     describe("StudioService 클래스는") {
         context("RegisterStudioCommand를 전달하면") {
-            val profileImage =
-                MockMultipartFile(
-                    "profileImageFile",
-                    "profileImage.jpg",
-                    MediaType.IMAGE_JPEG_VALUE,
-                    "profile image content".toByteArray(),
-                )
             val partnerShopCommand =
                 StudioPartnerShopCommand(
                     category = PartnerShopCategory.DRESS.name,
@@ -62,19 +50,15 @@ class StudioServiceTest : DescribeSpec({
                     status = StudioStatus.ACTIVE.name,
                     partnerShops = listOf(partnerShopCommand),
                     isCasted = true,
-                    profileImage = profileImage,
                 )
 
-            val image = imageFixture(registerCommand.userId)
-            val expected = registerCommand.toDomain(image)
+            val expected = registerCommand.toDomain()
 
             every { saveStudioPort.save(any()) } returns expected
-            every { imageService.save(any()) } returns image
             it("스튜디오를 저장하고 반환한다.") {
                 val result = service.register(registerCommand)
                 result.id shouldBe expected.id
                 verify(exactly = 1) { saveStudioPort.save(any()) }
-                verify(exactly = 1) { imageService.save(any()) }
             }
         }
 
@@ -112,23 +96,11 @@ class StudioServiceTest : DescribeSpec({
                     status = StudioStatus.ACTIVE.name,
                     partnerShops = listOf(partnerShopCommand),
                     isCasted = true,
-                    profileImage =
-                        MockMultipartFile(
-                            "profileImageFile",
-                            "profileImage.jpg",
-                            MediaType.IMAGE_JPEG_VALUE,
-                            "profile image content".toByteArray(),
-                        )
                 )
 
-            val updateImage = imageFixture(modifyCommand.userId)
-            val expected = modifyCommand.toDomain(updateImage)
+            val expected = modifyCommand.toDomain()
 
-            every { getStudioPort.findById(any()) } returns expected
             every { updateStudioPort.update(any()) } returns expected
-            every { imageService.delete(any()) } just Runs
-            every { imageService.save(any()) } returns updateImage
-
             it("스튜디오를 저장하고 반환한다.") {
                 val result = service.modify(modifyCommand)
                 result.id shouldBe expected.id

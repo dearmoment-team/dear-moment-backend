@@ -3,7 +3,6 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kr.kro.dearmoment.common.fixture.imageEntityFixture
 import kr.kro.dearmoment.product.domain.model.ProductType
 import kr.kro.dearmoment.product.domain.model.ShootingPlace
 import kr.kro.dearmoment.product.domain.model.option.OptionType
@@ -74,7 +73,6 @@ class ProductOptionEntityTest : StringSpec({
                         ),
                     ),
                 isCasted = true,
-                profileImage = imageEntityFixture(dummyUserId),
             )
 
         val productEntity =
@@ -160,7 +158,6 @@ class ProductOptionEntityTest : StringSpec({
                         ),
                     ),
                 isCasted = true,
-                profileImage = imageEntityFixture(dummyUserId),
             )
 
         val productEntity =

@@ -76,7 +76,6 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                                     urlLink = "dear-moment-mens-suit.partner-shop.url",
                                 ),
                             ),
-                        profileImageUrl = "profile.image.url.com"
                     ),
                 likeId = 0L,
             )
@@ -138,7 +137,6 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                     "data.studio.partnerShops[].category" type STRING means "제휴 업체 카테고리",
                     "data.studio.partnerShops[].name" type STRING means "제휴 업체 이름",
                     "data.studio.partnerShops[].urlLink" type STRING means "제휴 업체 링크",
-                    "data.studio.profileImageUrl" type STRING means "프로필 이미지 url",
                 ),
             )
     }
@@ -213,7 +211,6 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                         reservationNotice = "주말만 가능합니다.",
                         cancellationPolicy = "취소 불가.",
                         partnerShops = emptyList(),
-                        profileImageUrl = "profile.image.url.com"
                     ),
                 likeId = 0L,
             )
@@ -269,7 +266,6 @@ class GetProductRestAdapterTest : RestApiTestBase() {
                     "data[].studio.reservationNotice" type STRING means "예약 안내",
                     "data[].studio.cancellationPolicy" type STRING means "취소·환불 정책",
                     "data[].studio.partnerShops" type ARRAY means "제휴 업체 목록",
-                    "data[].studio.profileImageUrl" type STRING means "프로필 이미지 url",
                 ),
             )
     }

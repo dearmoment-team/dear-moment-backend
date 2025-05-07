@@ -1,7 +1,7 @@
 package kr.kro.dearmoment.common.fixture
 
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import kr.kro.dearmoment.image.adapter.output.persistence.ImageEntity
+import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductOptionInquiryEntity
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.studio.StudioInquiryEntity
 import kr.kro.dearmoment.product.adapter.out.persistence.ImageEmbeddable
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
@@ -15,10 +15,7 @@ import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import java.util.UUID
 
-fun studioEntityFixture(
-    userId: UUID = UUID.randomUUID(),
-    imageEntity: ImageEntity
-): StudioEntity =
+fun studioEntityFixture(userId: UUID = UUID.randomUUID()): StudioEntity =
     fixtureBuilder.giveMeKotlinBuilder<StudioEntity>()
         .setExp(StudioEntity::id, 0L)
         .setExp(StudioEntity::name, "스튜디오 디어모먼트")
@@ -30,7 +27,6 @@ fun studioEntityFixture(
         .setExp(StudioEntity::instagramUrl, "instagram.com")
         .setExp(StudioEntity::kakaoChannelUrl, "kakaotalk.com")
         .setExp(StudioEntity::partnerShops, setOf(studioPartnerShopEmbeddableFixture()))
-        .setExp(StudioEntity::profileImage, imageEntity)
         .sample()
 
 fun studioPartnerShopEmbeddableFixture(): PartnerShopEmbeddable =
@@ -112,8 +108,11 @@ fun studioInquiryEntityFixture(userId: UUID = UUID.randomUUID()) =
         .setPostCondition { it.content.isNotBlank() }
         .sample()
 
-fun imageEntityFixture(userId: UUID) =
-    fixtureBuilder.giveMeKotlinBuilder<ImageEntity>()
-        .setExp(ImageEntity::id, 0)
-        .setExp(ImageEntity::userId, userId)
-        .sample()
+fun productOptionInquiryEntityFixture(
+    userId: UUID = UUID.randomUUID(),
+    option: ProductOptionEntity = productOptionEntityFixture(productEntityFixture(studioEntity = studioEntityFixture())),
+) = fixtureBuilder.giveMeKotlinBuilder<ProductOptionInquiryEntity>()
+    .setExp(ProductOptionInquiryEntity::id, 0)
+    .setExp(ProductOptionInquiryEntity::userId, userId)
+    .setExp(ProductOptionInquiryEntity::option, option)
+    .sample()

@@ -11,8 +11,6 @@ import jakarta.persistence.EntityManager
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
-import kr.kro.dearmoment.common.fixture.imageEntityFixture
-import kr.kro.dearmoment.image.adapter.output.persistence.JpaImageRepository
 import kr.kro.dearmoment.like.adapter.output.persistence.ProductOptionLikeJpaRepository
 import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.ProductType
@@ -32,7 +30,6 @@ class ProductOptionPersistenceAdapterTest(
     private val studioRepository: StudioJpaRepository,
     private val entityManager: EntityManager,
     private val jpqlRenderContext: JpqlRenderContext,
-    private val imageRepository: JpaImageRepository,
 ) : DescribeSpec({
 
         val adapter = ProductOptionRepositoryAdapter(jpaProductOptionRepository, jpaProductRepository)
@@ -49,7 +46,6 @@ class ProductOptionPersistenceAdapterTest(
         describe("ProductOptionRepositoryAdapter 테스트") {
             lateinit var testProductEntity: ProductEntity
             lateinit var testProductDomain: Product
-            val profileImage = imageRepository.save(imageEntityFixture(dummyUserId))
             // 스튜디오 엔티티를 명시적으로 생성하여 저장 (userId: dummyUserId)
             val studio =
                 StudioEntity(
@@ -73,7 +69,6 @@ class ProductOptionPersistenceAdapterTest(
                             ),
                         ),
                     isCasted = true,
-                    profileImage = profileImage,
                 )
             val savedStudio = studioRepository.save(studio)
 

@@ -9,7 +9,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
-import kr.kro.dearmoment.common.fixture.imageFixture
 import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
@@ -73,7 +72,6 @@ class CreateProductUseCaseTest : BehaviorSpec({
             status = StudioStatus.ACTIVE,
             partnerShops = emptyList(),
             isCasted = false,
-            profileImage = imageFixture(dummyUserId),
         )
 
     // 유효한 상품 생성 요청 객체

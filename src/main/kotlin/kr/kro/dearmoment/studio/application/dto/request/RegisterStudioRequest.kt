@@ -9,7 +9,6 @@ import kr.kro.dearmoment.common.validation.EnumValue
 import kr.kro.dearmoment.studio.application.command.RegisterStudioCommand
 import kr.kro.dearmoment.studio.application.dto.StudioPartnerShopDto
 import kr.kro.dearmoment.studio.domain.StudioStatus
-import org.springframework.web.multipart.MultipartFile
 import java.util.UUID
 
 data class RegisterStudioRequest(
@@ -53,22 +52,19 @@ data class RegisterStudioRequest(
     @Schema(description = "영입 스튜디오 여부")
     val isCasted: Boolean,
 ) {
-    fun toCommand(
-        userId: UUID,
-        profileImage: MultipartFile,
-    ) = RegisterStudioCommand(
-        name = name,
-        profileImage = profileImage,
-        userId = userId,
-        contact = contact,
-        studioIntro = studioIntro,
-        artistsIntro = artistsIntro,
-        instagramUrl = instagramUrl,
-        kakaoChannelUrl = kakaoChannelUrl,
-        reservationNotice = reservationNotice,
-        cancellationPolicy = cancellationPolicy,
-        partnerShops = partnerShops.map { it.toCommand() },
-        status = status,
-        isCasted = isCasted,
-    )
+    fun toCommand(userId: UUID) =
+        RegisterStudioCommand(
+            name = name,
+            userId = userId,
+            contact = contact,
+            studioIntro = studioIntro,
+            artistsIntro = artistsIntro,
+            instagramUrl = instagramUrl,
+            kakaoChannelUrl = kakaoChannelUrl,
+            reservationNotice = reservationNotice,
+            cancellationPolicy = cancellationPolicy,
+            partnerShops = partnerShops.map { it.toCommand() },
+            status = status,
+            isCasted = isCasted,
+        )
 }

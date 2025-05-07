@@ -3,12 +3,10 @@ package kr.kro.dearmoment.inquiry.adapter.output.persistence
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import kr.kro.dearmoment.RepositoryTest
-import kr.kro.dearmoment.common.fixture.imageEntityFixture
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
 import kr.kro.dearmoment.common.fixture.studioInquiryEntityFixture
-import kr.kro.dearmoment.image.adapter.output.persistence.JpaImageRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductOptionInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.studio.StudioInquiryJpaRepository
@@ -28,7 +26,6 @@ class InquiryReadOnlyPersistenceAdapterTest(
     private val productOptionRepository: JpaProductOptionRepository,
     private val productRepository: JpaProductRepository,
     private val studioRepository: StudioJpaRepository,
-    private val imageRepository: JpaImageRepository,
 ) : DescribeSpec({
         val adapter = InquiryReadOnlyPersistenceAdapter(studioInquiryJpaRepository, productOptionInquiryJpaRepository)
 
@@ -70,8 +67,7 @@ class InquiryReadOnlyPersistenceAdapterTest(
 
         describe("findUserProductOptionInquiries()는") {
             val userId = UUID.randomUUID()
-            val image = imageRepository.save(imageEntityFixture(userId))
-            val savedStudio = studioRepository.save(studioEntityFixture(userId, image))
+            val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(studioEntity = savedStudio))
             val savedProductOption = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val inquiries =

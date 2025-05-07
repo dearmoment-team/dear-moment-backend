@@ -6,11 +6,9 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldNotBe
 import kr.kro.dearmoment.RepositoryTest
 import kr.kro.dearmoment.common.exception.CustomException
-import kr.kro.dearmoment.common.fixture.imageEntityFixture
 import kr.kro.dearmoment.common.fixture.productEntityFixture
 import kr.kro.dearmoment.common.fixture.productOptionEntityFixture
 import kr.kro.dearmoment.common.fixture.studioEntityFixture
-import kr.kro.dearmoment.image.adapter.output.persistence.JpaImageRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.product.ProductOptionInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.service.ServiceInquiryJpaRepository
 import kr.kro.dearmoment.inquiry.adapter.output.persistence.studio.StudioInquiryJpaRepository
@@ -31,7 +29,6 @@ class InquiryPersistenceAdapterTest(
     private val productOptionRepository: JpaProductOptionRepository,
     private val productRepository: JpaProductRepository,
     private val studioRepository: StudioJpaRepository,
-    private val imageRepository: JpaImageRepository,
 ) : DescribeSpec({
         val adapter =
             InquiryPersistenceAdapter(
@@ -43,8 +40,7 @@ class InquiryPersistenceAdapterTest(
 
         describe("saveProductOptionInquiry()는") {
             context("CreateProductOptionInquiry 가 전달되면") {
-                val image = imageRepository.save(imageEntityFixture(UUID.randomUUID()))
-                val savedStudio = studioRepository.save(studioEntityFixture(image.userId, image))
+                val savedStudio = studioRepository.save(studioEntityFixture())
                 val savedProduct = productRepository.save(productEntityFixture(savedStudio.userId, savedStudio))
                 val option = productOptionRepository.save(productOptionEntityFixture(savedProduct))
                 val inquiry =
@@ -82,8 +78,7 @@ class InquiryPersistenceAdapterTest(
         }
 
         describe("deleteProductOptionInquiry()는") {
-            val image = imageRepository.save(imageEntityFixture(UUID.randomUUID()))
-            val savedStudio = studioRepository.save(studioEntityFixture(image.userId, image))
+            val savedStudio = studioRepository.save(studioEntityFixture())
             val savedProduct = productRepository.save(productEntityFixture(savedStudio.userId, savedStudio))
             val option = productOptionRepository.save(productOptionEntityFixture(savedProduct))
             val inquiry =
