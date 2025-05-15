@@ -24,6 +24,10 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION}
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 300MB
 
 springdoc:
   packages-to-scan:
@@ -38,4 +42,3 @@ springdoc:
 
 sentry:
   enabled: false
-
