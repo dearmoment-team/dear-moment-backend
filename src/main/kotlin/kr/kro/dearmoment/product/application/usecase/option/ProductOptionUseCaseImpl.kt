@@ -27,7 +27,6 @@ class ProductOptionUseCaseImpl(
         request: CreateProductOptionRequest,
     ): ProductOptionResponse {
         val product = getProductOrThrow(productId)
-        validateDuplicateOption(productId, request.name)
 
         val option = CreateProductOptionRequest.toDomain(request, productId)
         val savedOption = productOptionPersistencePort.save(option, product)
@@ -158,14 +157,5 @@ class ProductOptionUseCaseImpl(
     private fun getProductOrThrow(productId: Long): Product {
         return getProductPort.findById(productId)
             ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
-    }
-
-    private fun validateDuplicateOption(
-        productId: Long,
-        name: String,
-    ) {
-        if (getProductOptionPort.existsByProductIdAndName(productId, name)) {
-            throw CustomException(ErrorCode.DUPLICATE_OPTION_NAME)
-        }
     }
 }
