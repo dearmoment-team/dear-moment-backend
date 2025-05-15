@@ -40,7 +40,7 @@ data class ModifyStudioRequest(
     val cancellationPolicy: String,
     @Schema(description = "파트너샵 정보")
     @field:Valid
-    val partnerShops: List<StudioPartnerShopDto>,
+    val partnerShops: List<StudioPartnerShopDto> = emptyList(),
     @Schema(
         description = "스튜디오 상태",
         example = "ACTIVE",
