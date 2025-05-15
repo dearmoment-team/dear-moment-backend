@@ -9,7 +9,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kr.kro.dearmoment.common.exception.CustomException
 import kr.kro.dearmoment.common.exception.ErrorCode
-import kr.kro.dearmoment.image.application.command.SaveImageCommand
 import kr.kro.dearmoment.image.application.service.ImageService
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.product.application.dto.request.CreateProductOptionRequest
@@ -115,6 +114,16 @@ class CreateProductUseCaseTest : BehaviorSpec({
             parId = "",
         )
 
+    val dummyImages =
+        List(6) {
+            Image(
+                userId = dummyUserId,
+                fileName = "dummy.jpg",
+                url = "http://example.com/dummy.jpg",
+                parId = "",
+            )
+        }
+
     // 중복된 제목 검증 시나리오
     Given("중복된 제목 검증 시나리오") {
         When("중복된 제목이 존재할 경우") {
@@ -123,7 +132,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
             } returns true
 
             // 이미지 업로드 성공 모킹
-            every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
+            every { imageService.saveAll(any()) } returns dummyImages
 
             // 스튜디오 조회: 권한이 있는 스튜디오를 반환
             every { getStudioPort.findById(validRequest.studioId) } returns dummyStudio
@@ -210,7 +219,7 @@ class CreateProductUseCaseTest : BehaviorSpec({
             )
 
         every { getProductPort.existsByUserIdAndTitle(any(), any()) } returns false
-        every { imageService.save(any<SaveImageCommand>()) } returns dummyImage
+        every { imageService.saveAll(any()) } returns dummyImages
         every { productPersistencePort.save(any(), 1L) } returns dummyProduct
         every { getProductPort.findById(1L) } returns dummyProduct
 

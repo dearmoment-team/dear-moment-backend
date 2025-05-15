@@ -6,5 +6,5 @@ import kr.kro.dearmoment.image.domain.Image
 interface SaveImageUseCase {
     fun save(saveImageCommand: SaveImageCommand): Image
 
-    fun saveAll(commands: List<SaveImageCommand>): List<Long>
+    fun saveAll(commands: List<SaveImageCommand>): List<Image>
 }

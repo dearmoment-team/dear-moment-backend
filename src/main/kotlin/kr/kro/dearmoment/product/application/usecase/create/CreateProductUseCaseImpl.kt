@@ -45,10 +45,35 @@ class CreateProductUseCaseImpl(
             throw CustomException(ErrorCode.INVALID_ADDITIONAL_IMAGE_COUNT)
         }
 
-        // 이미지 업로드
-        val mainImg = imageService.save(SaveImageCommand(mainImageFile, userId))
-        val subImgs = subImageFiles.map { imageService.save(SaveImageCommand(it, userId)) }
-        val additionalImgs = additionalImageFiles.map { imageService.save(SaveImageCommand(it, userId)) }
+        val totalImages =
+            buildList {
+                add(mainImageFile)
+                addAll(subImageFiles)
+                addAll(additionalImageFiles)
+            }.map { file ->
+                SaveImageCommand(file, userId)
+            }
+
+        val savedImages = imageService.saveAll(totalImages)
+
+        val subImageSize = subImageFiles.size
+        val additionalImageSize = additionalImageFiles.size
+
+        // 순서대로 나누기
+        val mainImg = savedImages.first()
+        val subImgs =
+            if (subImageSize > 0 && subImageFiles.isNotEmpty()) {
+                savedImages.subList(1, 1 + subImageSize)
+            } else {
+                emptyList()
+            }
+
+        val additionalImgs =
+            if (additionalImageSize > 0 && additionalImageFiles.isNotEmpty()) {
+                savedImages.subList(subImageSize, 1 + subImageSize + additionalImageSize)
+            } else {
+                emptyList()
+            }
 
         // 도메인 객체 생성 (옵션은 DTO 변환에서 이미 포함됨)
         val product: Product =

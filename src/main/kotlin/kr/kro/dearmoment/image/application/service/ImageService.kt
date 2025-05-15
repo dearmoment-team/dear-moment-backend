@@ -36,7 +36,7 @@ class ImageService(
     }
 
     @Transactional
-    override fun saveAll(commands: List<SaveImageCommand>): List<Long> {
+    override fun saveAll(commands: List<SaveImageCommand>): List<Image> {
         val images = uploadImagePort.uploadAll(commands)
         return saveImagePort.saveAll(images)
     }
