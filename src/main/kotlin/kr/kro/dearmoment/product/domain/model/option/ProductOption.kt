@@ -53,8 +53,7 @@ data class ProductOption(
             require(totalMinutes >= 1) {
                 "단품 옵션의 촬영 시간은 최소 1분 이상이어야 합니다."
             }
-        }
-        else {
+        } else {
             // PACKAGE
             require(partnerShops.isNotEmpty()) { "패키지 옵션은 1개 이상의 파트너샵이 필요합니다." }
         }

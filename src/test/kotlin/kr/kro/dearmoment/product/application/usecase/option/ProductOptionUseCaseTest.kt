@@ -119,7 +119,6 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             }
         }
 
-
         When("유효한 옵션 정보일 경우") {
             every { getProductPort.findById(1L) } returns mockProduct
             every { getProductOptionPort.existsByProductIdAndName(1L, "Option 1") } returns false
