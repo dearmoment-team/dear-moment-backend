@@ -20,10 +20,10 @@ class ImagePersistenceAdapter(
         return imageRepository.save(entity).toDomain()
     }
 
-    override fun saveAll(images: List<Image>): List<Long> {
+    override fun saveAll(images: List<Image>): List<Image> {
         val entities = images.map { ImageEntity.from(it) }
         return imageRepository.saveAll(entities)
-            .map { it.id }
+            .map { it.toDomain() }
     }
 
     override fun findUserImages(userId: UUID): List<Image> =
