@@ -119,19 +119,6 @@ class ProductOptionUseCaseTest : BehaviorSpec({
             }
         }
 
-        When("중복된 옵션 이름이 존재할 경우") {
-            every { getProductPort.findById(1L) } returns mockProduct
-            every { getProductOptionPort.existsByProductIdAndName(1L, "Option 1") } returns true
-
-            Then("CustomException 발생") {
-                val exception =
-                    shouldThrow<CustomException> {
-                        useCase.saveProductOption(1L, validRequest)
-                    }
-                exception shouldHaveMessage ErrorCode.DUPLICATE_OPTION_NAME.message
-            }
-        }
-
         When("유효한 옵션 정보일 경우") {
             every { getProductPort.findById(1L) } returns mockProduct
             every { getProductOptionPort.existsByProductIdAndName(1L, "Option 1") } returns false

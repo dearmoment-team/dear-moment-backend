@@ -76,32 +76,6 @@ class ProductOptionTest : FunSpec({
         option.name shouldBe "테스트 단품 옵션"
     }
 
-    test("Single product option with zero costumeCount throws exception") {
-        val exception =
-            shouldThrow<IllegalArgumentException> {
-                ProductOption(
-                    optionId = 1,
-                    productId = 1,
-                    name = "테스트 단품 옵션",
-                    optionType = OptionType.SINGLE,
-                    discountAvailable = false,
-                    originalPrice = 100,
-                    discountPrice = 80,
-                    description = "테스트 설명",
-                    costumeCount = 0,
-                    shootingLocationCount = 1,
-                    shootingHours = 1,
-                    shootingMinutes = 0,
-                    retouchedCount = 1,
-                    originalProvided = true,
-                    partnerShops = emptyList(),
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                )
-            }
-        exception.message shouldContain "단품 옵션은 의상 수가 1개 이상이어야 합니다."
-    }
-
     test("Single product option with discount greater than original price throws exception") {
         val exception =
             shouldThrow<IllegalArgumentException> {

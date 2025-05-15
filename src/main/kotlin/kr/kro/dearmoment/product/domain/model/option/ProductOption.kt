@@ -42,15 +42,17 @@ data class ProductOption(
         }
 
         if (optionType == OptionType.SINGLE) {
-            require(costumeCount > 0) { "단품 옵션은 의상 수가 1개 이상이어야 합니다." }
-            require(shootingLocationCount > 0) { "단품 옵션은 촬영 장소 수가 1개 이상이어야 합니다." }
+            require(shootingLocationCount > 0) {
+                "단품 옵션은 촬영 장소 수가 1개 이상이어야 합니다."
+            }
             require(shootingHours >= 0 && shootingMinutes >= 0) {
                 "단품 옵션 촬영시간은 음수가 될 수 없습니다."
             }
-            require((shootingHours + shootingMinutes) > 0) {
+            // ↓ 단순 시+분 합이 아니라 '총 분'으로 계산하도록 수정
+            val totalMinutes = shootingHours * 60 + shootingMinutes
+            require(totalMinutes >= 1) {
                 "단품 옵션의 촬영 시간은 최소 1분 이상이어야 합니다."
             }
-            require(retouchedCount > 0) { "단품 옵션은 보정본이 1장 이상이어야 합니다." }
         } else {
             // PACKAGE
             require(partnerShops.isNotEmpty()) { "패키지 옵션은 1개 이상의 파트너샵이 필요합니다." }

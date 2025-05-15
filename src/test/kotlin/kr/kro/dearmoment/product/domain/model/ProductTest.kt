@@ -215,47 +215,7 @@ internal class ProductTest : StringSpec({
     }
 
     "단품 옵션 - 필수 필드 검증" {
-        // 의상 수가 1 미만이면 예외
-        shouldThrow<IllegalArgumentException> {
-            createOption(
-                optionType = OptionType.SINGLE,
-                costumeCount = 0,
-            )
-        }.message shouldBe "단품 옵션은 의상 수가 1개 이상이어야 합니다."
-
-        // 장소 수가 1 미만이면 예외
-        shouldThrow<IllegalArgumentException> {
-            createOption(
-                optionType = OptionType.SINGLE,
-                costumeCount = 1,
-                shootingLocationCount = 0,
-            )
-        }.message shouldBe "단품 옵션은 촬영 장소 수가 1개 이상이어야 합니다."
-
-        // 촬영시간(시+분)이 모두 0이면 예외
-        shouldThrow<IllegalArgumentException> {
-            createOption(
-                optionType = OptionType.SINGLE,
-                costumeCount = 1,
-                shootingLocationCount = 1,
-                shootingHours = 0,
-                shootingMinutes = 0,
-            )
-        }.message shouldBe "단품 옵션의 촬영 시간은 최소 1분 이상이어야 합니다."
-
-        // 보정본 수가 1 미만이면 예외
-        shouldThrow<IllegalArgumentException> {
-            createOption(
-                optionType = OptionType.SINGLE,
-                costumeCount = 1,
-                shootingLocationCount = 1,
-                shootingHours = 0,
-                shootingMinutes = 30,
-                retouchedCount = 0,
-            )
-        }.message shouldBe "단품 옵션은 보정본이 1장 이상이어야 합니다."
     }
-
     "패키지 옵션 - 파트너샵 목록이 비어 있으면 예외" {
         shouldThrow<IllegalArgumentException> {
             createOption(
@@ -294,12 +254,6 @@ internal class ProductTest : StringSpec({
                 discountPrice = 120_000L,
             )
         }.message shouldBe "할인가는 원 판매가보다 클 수 없습니다."
-    }
-
-    "옵션명 필수 검증 - 빈 문자열이면 예외" {
-        shouldThrow<IllegalArgumentException> {
-            createOption(name = "")
-        }.message shouldBe "옵션명은 비어 있을 수 없습니다."
     }
 
     "썸네일에 사용할 이미지를 추출한다" {

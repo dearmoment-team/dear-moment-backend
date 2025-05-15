@@ -49,7 +49,7 @@ class ProductEntity(
     var shootingPlace: ShootingPlace,
     @Column(name = "TITLE", nullable = false)
     var title: String = "",
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", nullable = false)
     var description: String = "",
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_AVAILABLE_SEASONS", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
