@@ -24,4 +24,9 @@ data class UpdateUserRequest(
         example = "FEMALE"
     )
     val sex: Sex? = null,
+    @Schema(
+        description = "초기 입력 정보 스킵 유무(입력 완료시에도 true)",
+        example = "false"
+    )
+    val addInfoIsSkip: Boolean? = null,
 )

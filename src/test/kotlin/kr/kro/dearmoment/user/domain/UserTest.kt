@@ -20,6 +20,7 @@ class UserTest : DescribeSpec({
                         isStudio = false,
                         birthDate = null,
                         sex = null,
+                        addInfoIsSkip = false,
                         createdAt = now,
                         updatedAt = now,
                     )
@@ -37,15 +38,17 @@ class UserTest : DescribeSpec({
                         password = "password1234",
                         name = "홍길동2",
                         isStudio = null,
+                        kakaoId = null,
                         birthDate = null,
                         sex = null,
+                        addInfoIsSkip = null,
                         createdAt = now,
                         updatedAt = null,
                     )
             }
         }
 
-        context("loginId가 비어있으면") {
+        context("kakaoId, loginId가 비어있으면") {
             it("예외를 발생시킨다.") {
                 shouldThrow<IllegalArgumentException> {
                     User(
@@ -54,8 +57,10 @@ class UserTest : DescribeSpec({
                         password = "pass1234",
                         name = "홍길동",
                         isStudio = false,
+                        kakaoId = null,
                         birthDate = null,
                         sex = null,
+                        addInfoIsSkip = null,
                         createdAt = LocalDateTime.now(),
                         updatedAt = null,
                     )
@@ -75,8 +80,10 @@ class UserTest : DescribeSpec({
                         password = "pass1234",
                         name = "홍길동",
                         isStudio = false,
+                        kakaoId = null,
                         birthDate = null,
                         sex = null,
+                        addInfoIsSkip = null,
                         createdAt = future,
                         updatedAt = now,
                     )

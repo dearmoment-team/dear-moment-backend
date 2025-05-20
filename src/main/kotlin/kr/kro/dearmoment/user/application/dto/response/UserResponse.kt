@@ -20,6 +20,8 @@ data class UserResponse(
     val birthDate: LocalDate?,
     @Schema(description = "성별", example = "female")
     val sex: Sex?,
+    @Schema(description = "초기 입력 정보 스킵 유무(입력 완료시에도 true)", example = "true")
+    val addInfoIsSkip: Boolean?,
     @Schema(description = "생성 시각(UTC)", example = "2025-01-02T15:04:05")
     val createdAt: LocalDateTime,
     @Schema(description = "최종 수정 시각(UTC)", example = "2025-01-03T10:00:00")
@@ -34,6 +36,7 @@ data class UserResponse(
                 isStudio = user.isStudio,
                 birthDate = user.birthDate,
                 sex = user.sex,
+                addInfoIsSkip = user.addInfoIsSkip,
                 createdAt = user.createdAt,
                 updatedAt = user.updatedAt,
             )

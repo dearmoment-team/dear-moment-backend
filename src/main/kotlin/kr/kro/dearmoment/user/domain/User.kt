@@ -26,6 +26,7 @@ data class User(
     val kakaoId: Long? = null,
     val birthDate: LocalDate? = null,
     val sex: Sex? = null,
+    val addInfoIsSkip: Boolean? = false,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime? = null,
 ) {
@@ -40,13 +41,9 @@ data class User(
         // createdAt < updatedAt 검증
         if (updatedAt != null) {
             require(!createdAt.isAfter(updatedAt)) {
-                "createdAt이 updatedAt보다 이후일 수 없습니다."
+                "createdAt이 updatedAt 보다 이후일 수 없습니다."
             }
         }
-    }
-
-    fun checkPassword(rawPassword: String): Boolean {
-        return this.password == rawPassword
     }
 
     fun updateProfile(
@@ -54,15 +51,30 @@ data class User(
         newIsStudio: Boolean?,
         newBirthDate: LocalDate?,
         newSex: Sex?,
-        now: LocalDateTime
+        now: LocalDateTime,
+        newAddInfoIsSkip: Boolean? = null,
     ): User {
         require(!createdAt.isAfter(now)) { "수정 시점이 생성 시점보다 이를 수 없습니다." }
+
+        // ① 업데이트 후 최종적으로 들어갈 birthDate/sex 계산
+        val finalBirthDate = newBirthDate ?: this.birthDate
+        val finalSex = newSex ?: this.sex
+        val calculatedAddInfoIsSkip: Boolean =
+            if (newAddInfoIsSkip == true) {
+                true
+            } else {
+                // ② 규칙: 두 값 중 모두 존재하면 true
+                (finalBirthDate != null && finalSex != null)
+            }
+
         return this.copy(
             name = newName ?: this.name,
             isStudio = newIsStudio ?: this.isStudio,
-            birthDate = newBirthDate ?: this.birthDate,
-            sex = newSex ?: this.sex,
-            updatedAt = now
+            birthDate = finalBirthDate,
+            sex = finalSex,
+            updatedAt = now,
+            // ③ newAddInfoIsSkip 파라미터 무시, 계산된 값 사용
+            addInfoIsSkip = calculatedAddInfoIsSkip
         )
     }
 }
