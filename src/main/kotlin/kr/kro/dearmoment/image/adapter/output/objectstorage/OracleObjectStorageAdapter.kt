@@ -40,9 +40,6 @@ class OracleObjectStorageAdapter(
         val extension = convertFileExtension(file.contentType)
         val fileName = "$fileDir/${NanoId.generate()}.$extension"
         val contentType = "img/${file.contentType?.takeLast(3) ?: "JPG"}"
-
-        val client = objectStorageUtil.initializeClient()
-
         val inputStream = BufferedInputStream(file.inputStream)
         val fileSize = file.size
 
@@ -61,7 +58,7 @@ class OracleObjectStorageAdapter(
                 .allowOverwrite(true)
                 .build(putRequest)
 
-        val uploadManager = objectStorageUtil.initializeUploadManager(client)
+        val uploadManager = objectStorageUtil.uploadManager
 
         uploadManager.upload(uploadRequest)
 
@@ -71,9 +68,8 @@ class OracleObjectStorageAdapter(
                 fileName = fileName,
             )
 
+        val client = objectStorageUtil.client
         val imageWithUrl = getImageWithUrl(image, client)
-
-        client.close()
 
         return imageWithUrl
     }
@@ -83,7 +79,7 @@ class OracleObjectStorageAdapter(
     }
 
     override fun getImageWithUrl(image: Image): Image {
-        val client = objectStorageUtil.initializeClient()
+        val client = objectStorageUtil.client
 
         deletePreAuth(image.parId, client)
 
@@ -108,8 +104,6 @@ class OracleObjectStorageAdapter(
             client.createPreauthenticatedRequest(request)
                 ?: throw CustomException(ErrorCode.IMAGE_NOT_FOUND)
 
-        client.close()
-
         val url = "$baseUrl${response.preauthenticatedRequest.accessUri}"
 
         return Image(
@@ -129,7 +123,7 @@ class OracleObjectStorageAdapter(
         parId: String,
         fileName: String,
     ) {
-        val client = objectStorageUtil.initializeClient()
+        val client = objectStorageUtil.client
 
         deletePreAuth(parId, client)
 
@@ -141,8 +135,6 @@ class OracleObjectStorageAdapter(
                 .build()
 
         client.deleteObject(request)
-
-        client.close()
     }
 
     private fun getImageWithUrl(
