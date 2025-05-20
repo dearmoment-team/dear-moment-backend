@@ -7,13 +7,17 @@ import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStorageClient
 import com.oracle.bmc.objectstorage.transfer.UploadConfiguration
 import com.oracle.bmc.objectstorage.transfer.UploadManager
+import jakarta.annotation.PreDestroy
 import org.springframework.stereotype.Component
 
 @Component
 class OracleObjectStorageUtil(
     private val objectStorageProperties: OracleObjectStorageProperties,
 ) {
-    fun initializeClient(): ObjectStorage {
+    val client: ObjectStorage by lazy { initializeClient() }
+    val uploadManager: UploadManager by lazy { initializeUploadManager(client) }
+
+    private fun initializeClient(): ObjectStorage {
         val config = ConfigFileReader.parse(objectStorageProperties.configPath, "DEFAULT")
         val provider = ConfigFileAuthenticationDetailsProvider(config)
 
@@ -22,7 +26,7 @@ class OracleObjectStorageUtil(
             .build(provider)
     }
 
-    fun initializeUploadManager(client: ObjectStorage): UploadManager {
+    private fun initializeUploadManager(client: ObjectStorage): UploadManager {
         val config =
             UploadConfiguration.builder()
                 .allowMultipartUploads(true)
@@ -30,5 +34,10 @@ class OracleObjectStorageUtil(
                 .build()
 
         return UploadManager(client, config)
+    }
+
+    @PreDestroy
+    fun free() {
+        client.close()
     }
 }
