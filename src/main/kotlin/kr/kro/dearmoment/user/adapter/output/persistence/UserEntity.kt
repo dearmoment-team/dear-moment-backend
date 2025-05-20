@@ -41,6 +41,12 @@ class UserEntity(
     @Enumerated(EnumType.STRING)
     @Column(nullable = true, length = 10)
     var sex: Sex? = null,
+    @Column(
+        name = "add_info_is_skip",
+        nullable = true,
+        columnDefinition = "NUMBER(1)"
+    )
+    var addInfoIsSkip: Boolean? = false,
     @Column(nullable = false)
     var createdAt: LocalDateTime,
     @Column
@@ -60,6 +66,7 @@ class UserEntity(
             kakaoId = kakaoId,
             birthDate = birthDate,
             sex = sex,
+            addInfoIsSkip = addInfoIsSkip,
             createdAt = createdAt,
             updatedAt = updatedAt
         )
@@ -75,6 +82,7 @@ class UserEntity(
                 kakaoId = domain.kakaoId,
                 birthDate = domain.birthDate,
                 sex = domain.sex,
+                addInfoIsSkip = domain.addInfoIsSkip,
                 createdAt = domain.createdAt,
                 updatedAt = domain.updatedAt
             )
@@ -88,6 +96,7 @@ class UserEntity(
         this.kakaoId = entity.kakaoId
         this.birthDate = entity.birthDate
         this.sex = entity.sex
+        this.addInfoIsSkip = entity.addInfoIsSkip
         this.createdAt = entity.createdAt
         this.updatedAt = entity.updatedAt
     }
