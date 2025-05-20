@@ -41,7 +41,11 @@ class UserEntity(
     @Enumerated(EnumType.STRING)
     @Column(nullable = true, length = 10)
     var sex: Sex? = null,
-    @Column(nullable = true)
+    @Column(
+        name = "add_info_is_skip",
+        nullable = true,
+        columnDefinition = "NUMBER(1)"
+    )
     var addInfoIsSkip: Boolean? = false,
     @Column(nullable = false)
     var createdAt: LocalDateTime,
