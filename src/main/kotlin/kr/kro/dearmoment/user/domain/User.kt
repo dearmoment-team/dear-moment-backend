@@ -27,6 +27,7 @@ data class User(
     val birthDate: LocalDate? = null,
     val sex: Sex? = null,
     val addInfoIsSkip: Boolean? = false,
+    val addInfoIsAgree: Boolean? = false,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime? = null,
 ) {
@@ -53,28 +54,46 @@ data class User(
         newSex: Sex?,
         now: LocalDateTime,
         newAddInfoIsSkip: Boolean? = null,
+        newAddInfoIsAgree: Boolean? = null,
     ): User {
         require(!createdAt.isAfter(now)) { "수정 시점이 생성 시점보다 이를 수 없습니다." }
 
-        // ① 업데이트 후 최종적으로 들어갈 birthDate/sex 계산
-        val finalBirthDate = newBirthDate ?: this.birthDate
-        val finalSex = newSex ?: this.sex
-        val calculatedAddInfoIsSkip: Boolean =
-            if (newAddInfoIsSkip == true) {
-                true
-            } else {
-                // ② 규칙: 두 값 중 모두 존재하면 true
-                (finalBirthDate != null && finalSex != null)
-            }
+        /* ───── 1) 이번 호출로 확정될 ‘최종 값’ 계산 ───── */
+        var nextName       = newName       ?: this.name
+        var nextBirthDate  = newBirthDate  ?: this.birthDate
+        var nextSex        = newSex        ?: this.sex
+        val nextIsStudio   = newIsStudio   ?: this.isStudio
+        val nextAgree      = newAddInfoIsAgree ?: this.addInfoIsAgree
+        val nextSkip       = when (newAddInfoIsSkip) {
+            true -> true                // 명시적 true
+            false -> false              // 명시적 false
+            else -> (nextBirthDate != null && nextSex != null)  // 자동 계산
+        }
 
-        return this.copy(
-            name = newName ?: this.name,
-            isStudio = newIsStudio ?: this.isStudio,
-            birthDate = finalBirthDate,
-            sex = finalSex,
-            updatedAt = now,
-            // ③ newAddInfoIsSkip 파라미터 무시, 계산된 값 사용
-            addInfoIsSkip = calculatedAddInfoIsSkip
+        /* ───── 2) 규칙 검증 ───── */
+        // 2-1. 동의가 true 면 필수 정보 3종이 모두 채워져 있어야 한다
+        if (nextAgree == true) {
+            require(nextName.isNotBlank()) { "동의가 true일 때 이름은 비어 있을 수 없습니다." }
+            require(nextBirthDate != null) { "동의가 true일 때 출생연도는 비어 있을 수 없습니다." }
+            require(nextSex != null) { "동의가 true일 때 성별은 비어 있을 수 없습니다." }
+        }
+
+        // 2-2. 동의를 false 로 변경 시 이름·성별·출생연도가 모두 빈값으로 저장
+        if (newAddInfoIsAgree == false) {
+            nextName = ""
+            nextBirthDate = null
+            nextSex = null
+        }
+
+        /* ───── 3) 값 적용 ───── */
+        return copy(
+            name          = nextName,
+            isStudio      = nextIsStudio,
+            birthDate     = nextBirthDate,
+            sex           = nextSex,
+            updatedAt     = now,
+            addInfoIsSkip = nextSkip,
+            addInfoIsAgree = nextAgree
         )
     }
 }

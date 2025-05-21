@@ -29,4 +29,9 @@ data class UpdateUserRequest(
         example = "false"
     )
     val addInfoIsSkip: Boolean? = null,
+    @Schema(
+        description = "추가 입력 정보 동의 여부",
+        example = "false"
+    )
+    val addInfoIsAgree: Boolean? = null,
 )

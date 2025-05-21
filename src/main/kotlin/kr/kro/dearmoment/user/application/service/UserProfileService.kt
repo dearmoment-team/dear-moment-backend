@@ -43,6 +43,7 @@ class UserProfileService(
                 newBirthDate = req.birthDate,
                 newSex = req.sex,
                 newAddInfoIsSkip = req.addInfoIsSkip,
+                newAddInfoIsAgree = req.addInfoIsAgree,
                 now = now
             )
         return saveUserPort.save(updated)

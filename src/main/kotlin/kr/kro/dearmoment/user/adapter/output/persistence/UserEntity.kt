@@ -47,6 +47,12 @@ class UserEntity(
         columnDefinition = "NUMBER(1)"
     )
     var addInfoIsSkip: Boolean? = false,
+    @Column(
+        name = "add_info_is_agree",
+        nullable = true,
+        columnDefinition = "NUMBER(1)"
+    )
+    var addInfoIsAgree: Boolean? = false,
     @Column(nullable = false)
     var createdAt: LocalDateTime,
     @Column
@@ -67,6 +73,7 @@ class UserEntity(
             birthDate = birthDate,
             sex = sex,
             addInfoIsSkip = addInfoIsSkip,
+            addInfoIsAgree = addInfoIsAgree,
             createdAt = createdAt,
             updatedAt = updatedAt
         )
@@ -83,6 +90,7 @@ class UserEntity(
                 birthDate = domain.birthDate,
                 sex = domain.sex,
                 addInfoIsSkip = domain.addInfoIsSkip,
+                addInfoIsAgree = domain.addInfoIsAgree,
                 createdAt = domain.createdAt,
                 updatedAt = domain.updatedAt
             )
@@ -97,6 +105,7 @@ class UserEntity(
         this.birthDate = entity.birthDate
         this.sex = entity.sex
         this.addInfoIsSkip = entity.addInfoIsSkip
+        this.addInfoIsAgree = entity.addInfoIsAgree
         this.createdAt = entity.createdAt
         this.updatedAt = entity.updatedAt
     }
