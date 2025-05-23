@@ -13,7 +13,7 @@ data class UserResponse(
     @Schema(description = "로그인 ID(소셜 로그인의 경우 null)", example = "testUser123")
     val loginId: String?,
     @Schema(description = "사용자 이름", example = "홍길동")
-    val name: String,
+    val name: String?,
     @Schema(description = "스튜디오 유저 여부", example = "true")
     val isStudio: Boolean?,
     @Schema(description = "출생 연도", example = "1995-03-03")
