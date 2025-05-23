@@ -30,8 +30,8 @@ class UserEntity(
     var loginId: String? = null,
     @Column(nullable = true)
     var password: String? = null,
-    @Column(nullable = false)
-    var name: String,
+    @Column(nullable = true)
+    var name: String?,
     var isStudio: Boolean? = false,
     // 카카오 OAuth 식별자 (중복 가입 방지를 위해 unique 권장)
     @Column(nullable = true, unique = true)
