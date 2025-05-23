@@ -12,6 +12,7 @@ import jakarta.validation.Valid
 import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.application.command.RegisterUserCommand
+import kr.kro.dearmoment.user.application.dto.request.AgreeProfileConsentRequest
 import kr.kro.dearmoment.user.application.dto.request.LoginUserRequest
 import kr.kro.dearmoment.user.application.dto.request.RegisterUserRequest
 import kr.kro.dearmoment.user.application.dto.request.UpdateUserRequest
@@ -21,14 +22,17 @@ import kr.kro.dearmoment.user.application.dto.response.UserStudioResponse
 import kr.kro.dearmoment.user.application.port.input.RegisterUserUseCase
 import kr.kro.dearmoment.user.application.service.UserProfileService
 import kr.kro.dearmoment.user.security.CustomUserDetails
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -109,7 +113,7 @@ class UserRestAdapter(
         return userProfileService.getProfile(userId)
     }
 
-    @Operation(summary = "사용자 프로필 수정", description = "로그인된 사용자의 이름/isStudio/생년월일/성별을 업데이트합니다.")
+    @Operation(summary = "사용자 프로필 수정", description = "로그인된 사용자의 이름/isStudio/생년월일/성별/스킵/동의유무 등을 업데이트합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 완료"),
@@ -122,5 +126,66 @@ class UserRestAdapter(
     ): UserResponse {
         val updated = userProfileService.updateUser(userId, req)
         return UserResponse.from(updated)
+    }
+
+    @Operation(summary = "프로필 정보 입력 ‘스킵’", description = "추가 정보 입력을 건너뜁니다. addInfoIsSkip 필드가 true 로 저장되고, 응답 본문은 없습니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "스킵 처리 완료 (No Content)"
+            )
+        ]
+    )
+    @PostMapping(GlobalUrls.API_USERS_ADD_INFO_SKIP)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun skipAddInfo(
+        @AuthenticationPrincipal(expression = "id") uid: UUID
+    ) {
+        userProfileService.skipAddInfo(uid)
+    }
+
+    @Operation(
+        summary = "프로필 정보 입력 & 동의/거부",
+        description = """
+            - agree=true : 이름·성별·출생연도 입력 → 추가정보 저장 및 동의 완료  
+            - agree=false : 동의 거부 → 추가정보는 모두 초기화
+            스킵 플래그(addInfoIsSkip)는 항상 true 로 업데이트됩니다.
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "처리 성공 – 수정된 사용자 정보 반환",
+                content = [Content(schema = Schema(implementation = UserResponse::class))]
+            ),
+            ApiResponse(responseCode = "400", description = "요청 값 검증 실패")
+        ]
+    )
+    @PostMapping(GlobalUrls.API_USERS_ADD_INFO)
+    fun agreeAddInfo(
+        @AuthenticationPrincipal(expression = "id") uid: UUID,
+        @Valid @RequestBody body: AgreeProfileConsentRequest
+    ): UserResponse = UserResponse.from(userProfileService.agreeAddInfo(uid, body.toCommand()))
+
+    @Operation(
+        summary = "프로필 정보 ‘철회’",
+        description = "약관 동의 여부를 false 로 바꾸고 이름·성별·출생연도를 모두 초기화합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "철회 완료 (No Content)"
+            )
+        ]
+    )
+    @DeleteMapping(GlobalUrls.API_USERS_ADD_INFO)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun withdrawAddInfo(
+        @AuthenticationPrincipal(expression = "id") uid: UUID
+    ) {
+        userProfileService.withdrawAddInfo(uid)
     }
 }

@@ -21,6 +21,7 @@ class UserTest : DescribeSpec({
                         birthDate = null,
                         sex = null,
                         addInfoIsSkip = false,
+                        addInfoIsAgree = false,
                         createdAt = now,
                         updatedAt = now,
                     )
@@ -30,7 +31,7 @@ class UserTest : DescribeSpec({
         context("모든 필드가 일부만 있더라도") {
             it("null 허용 필드는 없어도 정상 생성된다.") {
                 val now = LocalDateTime.now()
-                // isStudio, updatedAt, updatedUser를 null로
+                // isStudio, updatedAt, updatedUser 를 null 로
                 val user =
                     User(
                         id = null,
@@ -42,6 +43,7 @@ class UserTest : DescribeSpec({
                         birthDate = null,
                         sex = null,
                         addInfoIsSkip = null,
+                        addInfoIsAgree = null,
                         createdAt = now,
                         updatedAt = null,
                     )
@@ -61,6 +63,7 @@ class UserTest : DescribeSpec({
                         birthDate = null,
                         sex = null,
                         addInfoIsSkip = null,
+                        addInfoIsAgree = null,
                         createdAt = LocalDateTime.now(),
                         updatedAt = null,
                     )
@@ -84,6 +87,7 @@ class UserTest : DescribeSpec({
                         birthDate = null,
                         sex = null,
                         addInfoIsSkip = null,
+                        addInfoIsAgree = null,
                         createdAt = future,
                         updatedAt = now,
                     )

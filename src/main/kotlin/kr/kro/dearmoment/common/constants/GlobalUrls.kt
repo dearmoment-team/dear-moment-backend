@@ -10,6 +10,9 @@ class GlobalUrls {
         const val API_USERS_SIGNUP = "$API_USERS/signup"
         const val API_USERS_LOGIN = "$API_USERS/login"
 
+        const val API_USERS_ADD_INFO = "$API_USERS/add-info"
+        const val API_USERS_ADD_INFO_SKIP = "$API_USERS_ADD_INFO/skip"
+
         // OAuth 관련 경로
         const val OAUTH = "/oauth"
         const val OAUTH_KAKAO = "$OAUTH/kakao"
