@@ -15,6 +15,7 @@ enum class ErrorCode(
     KAKAO_LOGIN_FAILED(HttpStatus.BAD_REQUEST, "Kakao 로그인에 실패하였습니다."),
     DB_SIGNUP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DB 회원가입에 실패하였습니다."),
     OAUTH_SERVER_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "오어스 서버 데이터 처리에 실패하였습니다."),
+    KAKAO_UNLINK_FAILED(HttpStatus.BAD_REQUEST, "Kakao 연결 해제에 실패하였습니다."),
 
     // Image
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),

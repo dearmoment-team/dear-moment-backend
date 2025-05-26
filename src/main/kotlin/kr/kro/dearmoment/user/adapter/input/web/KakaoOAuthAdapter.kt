@@ -6,14 +6,17 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.user.application.dto.request.RegisterWithdrawalFeedbackRequest
 import kr.kro.dearmoment.user.application.service.KakaoOAuthService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -120,7 +123,8 @@ class KakaoOAuthAdapter(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun unlinkAndWithdraw(
         @AuthenticationPrincipal(expression = "id") userUuid: UUID,
+        @RequestBody @Valid body: RegisterWithdrawalFeedbackRequest
     ) {
-        kakaoOAuthService.unlinkAndWithdraw(userUuid)
+        kakaoOAuthService.unlinkAndWithdraw(userUuid, body)
     }
 }
