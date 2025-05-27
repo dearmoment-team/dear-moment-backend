@@ -105,9 +105,9 @@ class KakaoOAuthService(
         userId: UUID,
         req: RegisterWithdrawalFeedbackRequest,
     ) {
-        val user = loadUser(userId) // 1.
-        unlinkOnKakao(user.kakaoId!!) // 2.
-        saveFeedbackAndDelete(userId, req) // 3.
+        val user = loadUser(userId)
+        unlinkOnKakao(user.kakaoId!!)
+        saveFeedbackAndDelete(userId, req)
     }
 
     /** 1. 사용자 + kakaoId 검증 */

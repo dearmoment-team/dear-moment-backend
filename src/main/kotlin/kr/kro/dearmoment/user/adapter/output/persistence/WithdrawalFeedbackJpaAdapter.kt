@@ -5,11 +5,10 @@ import kr.kro.dearmoment.user.domain.WithdrawalFeedback
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-@Component                             // 또는 @Repository
+@Component
 class WithdrawalFeedbackJpaAdapter(
-    private val repository: WithdrawalFeedbackRepository  // ✅ 변경
+    private val repository: WithdrawalFeedbackRepository
 ) : SaveWithdrawalFeedbackPort {
-
     @Transactional
     override fun save(feedback: WithdrawalFeedback): WithdrawalFeedback =
         repository.save(WithdrawalFeedbackEntity.from(feedback)).toDomain()
