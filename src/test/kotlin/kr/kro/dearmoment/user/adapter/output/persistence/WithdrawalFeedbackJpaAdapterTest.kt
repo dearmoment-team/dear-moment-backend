@@ -12,27 +12,27 @@ class WithdrawalFeedbackJpaAdapterTest(
     private val withdrawalFeedbackJpaRepository: WithdrawalFeedbackRepository,
 ) : DescribeSpec({
 
-    val adapter = WithdrawalFeedbackJpaAdapter(withdrawalFeedbackJpaRepository)
+        val adapter = WithdrawalFeedbackJpaAdapter(withdrawalFeedbackJpaRepository)
 
-    fun feedbackFixture(
-        reason: WithdrawalReason = WithdrawalReason.NO_PHOTOGRAPHER_FOUND,
-        customReason: String? = null,
-        createdAt: LocalDateTime = LocalDateTime.now(),
-        id: Long? = null,
-    ) = WithdrawalFeedback(
-        id = id,
-        reason = reason,
-        customReason = customReason,
-        createdAt = createdAt,
-    )
+        fun feedbackFixture(
+            reason: WithdrawalReason = WithdrawalReason.NO_PHOTOGRAPHER_FOUND,
+            customReason: String? = null,
+            createdAt: LocalDateTime = LocalDateTime.now(),
+            id: Long? = null,
+        ) = WithdrawalFeedback(
+            id = id,
+            reason = reason,
+            customReason = customReason,
+            createdAt = createdAt,
+        )
 
-    describe("WithdrawalFeedbackJpaAdapter") {
+        describe("WithdrawalFeedbackJpaAdapter") {
 
-        context("save 를 호출하면") {
-            it("엔티티가 저장되고 PK 가 부여된다") {
-                val saved = adapter.save(feedbackFixture())
-                saved.id shouldNotBe null
+            context("save 를 호출하면") {
+                it("엔티티가 저장되고 PK 가 부여된다") {
+                    val saved = adapter.save(feedbackFixture())
+                    saved.id shouldNotBe null
+                }
             }
         }
-    }
-})
+    })
