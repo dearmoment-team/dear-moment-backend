@@ -5,13 +5,18 @@ import kr.kro.dearmoment.common.exception.ErrorCode
 import kr.kro.dearmoment.security.JwtTokenProvider
 import kr.kro.dearmoment.user.adapter.output.oauth.KakaoOAuthApiClient
 import kr.kro.dearmoment.user.adapter.output.persistence.UserPersistenceAdapter
+import kr.kro.dearmoment.user.application.dto.request.RegisterWithdrawalFeedbackRequest
+import kr.kro.dearmoment.user.application.port.input.RegisterWithdrawalFeedbackUseCase
 import kr.kro.dearmoment.user.application.port.output.GetUserByIdPort
 import kr.kro.dearmoment.user.application.port.output.GetUserByKakaoIdPort
 import kr.kro.dearmoment.user.application.port.output.SaveUserPort
 import kr.kro.dearmoment.user.domain.User
+import kr.kro.dearmoment.user.domain.WithdrawalFeedback
+import kr.kro.dearmoment.user.domain.WithdrawalReason
 import kr.kro.dearmoment.user.security.CustomUserDetails
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.support.TransactionTemplate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -23,9 +28,12 @@ class KakaoOAuthService(
     private val kakaoOAuthApiClient: KakaoOAuthApiClient,
     private val getUserByKakaoIdPort: GetUserByKakaoIdPort,
     private val saveUserPort: SaveUserPort,
-    private val getUserByIdPort: GetUserByIdPort,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val userPersistenceAdapter: UserPersistenceAdapter,
+    private val kakaoClient: KakaoOAuthApiClient,
+    private val getUserById: GetUserByIdPort,
+    private val withdrawalUC: RegisterWithdrawalFeedbackUseCase,
+    private val userRepo: UserPersistenceAdapter,
+    private val tx: TransactionTemplate,
 ) {
     @Value("\${oauth.kakao.client-id}")
     lateinit var kakaoClientId: String
@@ -88,31 +96,54 @@ class KakaoOAuthService(
 
     /**
      * Admin Key 기반으로 unlink:
-     * 1) JWT로 식별된 userUuid -> DB에서 찾기
+     * 1) JWT 로 식별된 userUuid -> DB 에서 찾기
      * 2) 해당 user 의 kakaoId 확인
      * 3) kakaoId로 unlinkAndGetKakaoIdByAdminKey(kakaoId) 호출
      * 4) 응답 kakaoId가 같으면 DB 하드 딜리트
      */
-    fun unlinkAndWithdraw(userUuid: UUID) {
-        // 1) DB 조회
+    fun unlinkAndWithdraw(
+        userId: UUID,
+        req: RegisterWithdrawalFeedbackRequest,
+    ) {
+        val user = loadUser(userId)
+        unlinkOnKakao(user.kakaoId!!)
+        saveFeedbackAndDelete(userId, req)
+    }
+
+    /** 1. 사용자 + kakaoId 검증 */
+    private fun loadUser(id: UUID): User {
         val user =
-            getUserByIdPort.findById(userUuid)
-                ?: throw IllegalArgumentException("No user found with UUID=$userUuid")
+            getUserById.findById(id)
+                ?: throw IllegalArgumentException("사용자를 찾을 수 없습니다: $id")
 
-        val userKakaoId =
-            user.kakaoId
-                ?: throw IllegalStateException("User does not have a kakaoId, can't unlink")
+        requireNotNull(user.kakaoId) { "카카오 연동이 없는 사용자입니다." }
+        return user
+    }
 
-        // 2) 카카오 AdminKey 로 unlink
-        val responseKakaoId =
-            kakaoOAuthApiClient.unlinkAndGetKakaoIdByAdminKey(kakaoAppAdminKey, userKakaoId)
-                ?: throw IllegalArgumentException("Unlink failed, no 'id' in response from Kakao")
+    /** 2. Admin-key unlink — 외부 I/O (Tx 밖) */
+    private fun unlinkOnKakao(kakaoId: Long) {
+        val returnedId =
+            kakaoClient.unlinkAndGetKakaoIdByAdminKey(kakaoAppAdminKey, kakaoId)
+                ?: throw CustomException(ErrorCode.KAKAO_UNLINK_FAILED)
 
-        if (responseKakaoId != userKakaoId) {
-            throw IllegalStateException("Mismatch: user.kakaoId=$userKakaoId vs. $responseKakaoId")
+        check(returnedId == kakaoId) {
+            "카카오 unlink 결과 불일치: $kakaoId ≠ $returnedId"
         }
+    }
 
-        // 3) 하드 딜리트
-        userPersistenceAdapter.deleteUser(userUuid)
+    /** 3. 탈퇴사유 저장 + 하드딜리트 — 하나의 DB 트랜잭션  */
+    private fun saveFeedbackAndDelete(
+        id: UUID,
+        req: RegisterWithdrawalFeedbackRequest
+    ) {
+        tx.executeWithoutResult {
+            withdrawalUC.register(
+                WithdrawalFeedback(
+                    reason = WithdrawalReason.from(req.reasonCode),
+                    customReason = req.customReason
+                )
+            )
+            userRepo.deleteUser(id)
+        }
     }
 }

@@ -6,14 +6,17 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import kr.kro.dearmoment.common.constants.GlobalUrls
 import kr.kro.dearmoment.common.exception.CustomException
+import kr.kro.dearmoment.user.application.dto.request.RegisterWithdrawalFeedbackRequest
 import kr.kro.dearmoment.user.application.service.KakaoOAuthService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -46,7 +49,7 @@ class KakaoOAuthAdapter(
         value = [
             ApiResponse(
                 responseCode = "302",
-                description = "로그인 성공: JWT 토큰이 쿼리 파라미터 accessToken으로 첨부된 프론트엔드 성공 페이지로 리다이렉트합니다.",
+                description = "로그인 성공: JWT 토큰이 쿼리 파라미터 accessToken 으로 첨부된 프론트엔드 성공 페이지로 리다이렉트합니다.",
                 content = [
                     Content(
                         schema =
@@ -107,20 +110,44 @@ class KakaoOAuthAdapter(
      * (예시) DELETE OAUTH_KAKAO_WITHDRAW
      * 헤더: Authorization: Bearer <카카오_사용자_액세스_토큰>
      */
-    @Operation(summary = "카카오 연결 끊기 + 회원 탈퇴", description = "카카오에서 응답받은 id 값과 DB 매칭 후 하드딜리트")
+    @Operation(
+        summary = "카카오 연결 끊기 + 회원 탈퇴",
+        description = """
+        ① **카카오 계정 연결 해제 (unlink)**  
+        ② **DB 하드-딜리트**  
+        ③ **탈퇴 사유(선택 / 직접입력) 기록**
+
+        *요청 본문* `reasonCode` 값 –  
+        1 결혼·웨딩촬영 완료
+        2 마음에 드는 작가 없음
+        3 이용 불편
+        4 다른 플랫폼 이용  
+        5 가능한 작가 없음
+        6 기타(직접 입력 필수) + customReason(필수)
+    """
+    )
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "204",
-                description = "탈퇴 성공",
+                description = "연결 해제 및 탈퇴 성공"
             ),
-        ],
+            ApiResponse(
+                responseCode = "400",
+                description = "요청 파라미터 오류 • validation 실패"
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "JWT 토큰 누락·만료"
+            )
+        ]
     )
     @DeleteMapping(GlobalUrls.OAUTH_KAKAO_WITHDRAW)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun unlinkAndWithdraw(
         @AuthenticationPrincipal(expression = "id") userUuid: UUID,
+        @RequestBody @Valid body: RegisterWithdrawalFeedbackRequest
     ) {
-        kakaoOAuthService.unlinkAndWithdraw(userUuid)
+        kakaoOAuthService.unlinkAndWithdraw(userUuid, body)
     }
 }

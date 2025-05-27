@@ -1,44 +1,59 @@
 package kr.kro.dearmoment.user.adapter.input
 
 import andDocument
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
 import kr.kro.dearmoment.common.RestApiTestBase
 import kr.kro.dearmoment.common.constants.GlobalUrls
+import kr.kro.dearmoment.user.application.dto.request.RegisterWithdrawalFeedbackRequest
+import org.springframework.http.MediaType
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 import kotlin.test.Test
 
 class KakaoOAuthAdapterTest : RestApiTestBase() {
+    private val om = jacksonObjectMapper()
+
     @Test
     fun `카카오 유저 회원 탈퇴 API`() {
-        // 가정: 현재 로그인 중인 사용자의 UUID
+        // ---------- given ----------
         val userUuid = UUID.randomUUID()
+        val reqBody =
+            RegisterWithdrawalFeedbackRequest(
+                reasonCode = 6,
+                customReason = "테스트 기타 사유"
+            )
+        val json = om.writeValueAsString(reqBody)
 
-        // kakaoOAuthService.unlinkAndWithdraw(...)를 목킹
-        every { kakaoOAuthService.unlinkAndWithdraw(userUuid) } just runs
+        every { kakaoOAuthService.unlinkAndWithdraw(userUuid, any()) } just runs
 
-        // DELETE 요청 생성
+        // ---------- when ----------
         val request =
             RestDocumentationRequestBuilders
                 .delete(GlobalUrls.OAUTH_KAKAO_WITHDRAW)
-                // 문서화에서 "Authorization" 헤더를 기록하고 싶다면,
-                // 실제 요청에도 이 헤더를 추가해야 REST Docs 검증을 통과함
                 .header("Authorization", "Bearer test_jwt_token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
 
-        // withAuthenticatedUser(...)로 시큐리티 컨텍스트에 userUuid 주입
+        // ---------- then ----------
         mockMvc.perform(withAuthenticatedUser(userUuid, request))
             .andExpect(status().isNoContent)
             .andDocument(
                 "delete-kakao-user",
                 requestHeaders(
-                    headerWithName("Authorization")
-                        .description("JWT 토큰 (Bearer {TOKEN})"),
+                    headerWithName("Authorization").description("JWT 토큰 (Bearer {TOKEN})")
                 ),
+                requestFields(
+                    fieldWithPath("reasonCode").description("탈퇴 사유 코드 (1‒6)"),
+                    fieldWithPath("customReason").description("기타 사유 (코드 6일 때)").optional()
+                )
             )
     }
 }
