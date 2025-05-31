@@ -20,14 +20,6 @@ class ProductOptionRepositoryAdapter(
             jpaProductRepository.findById(product.productId)
                 .orElseThrow { CustomException(ErrorCode.PRODUCT_NOT_FOUND) }
 
-        if (jpaProductOptionRepository.existsByProductProductIdAndName(
-                productEntity.productId!!,
-                productOption.name,
-            )
-        ) {
-            throw CustomException(ErrorCode.DUPLICATE_OPTION_NAME)
-        }
-
         val optionEntity = ProductOptionEntity.fromDomain(productOption, productEntity)
         val savedEntity = jpaProductOptionRepository.save(optionEntity)
         return savedEntity.toDomain()
