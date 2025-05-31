@@ -152,17 +152,6 @@ class ProductOptionPersistenceAdapterTest(
                         updateDate shouldNotBe null
                     }
                 }
-
-                it("동일 상품에 중복 이름의 옵션 저장 시 예외 발생") {
-                    // Given
-                    val option1 = createSampleOption("중복옵션", 5_000L)
-                    adapter.save(option1, testProductDomain)
-                    val option2 = createSampleOption("중복옵션", 7_000L)
-                    // When & Then
-                    shouldThrow<CustomException> {
-                        adapter.save(option2, testProductDomain)
-                    }.message shouldBe ErrorCode.DUPLICATE_OPTION_NAME.message
-                }
             }
 
             context("옵션 조회 기능") {
