@@ -5,7 +5,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import kr.kro.dearmoment.common.validation.EnumValue
-import kr.kro.dearmoment.common.validation.NotBlankIfPresent
 import kr.kro.dearmoment.image.domain.Image
 import kr.kro.dearmoment.image.domain.withUserId
 import kr.kro.dearmoment.product.domain.model.CameraType
