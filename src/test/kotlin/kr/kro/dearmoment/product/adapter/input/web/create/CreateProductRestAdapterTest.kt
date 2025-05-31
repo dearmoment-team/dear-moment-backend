@@ -258,6 +258,7 @@ class CreateProductRestAdapterTest : RestApiTestBase() {
                     "data.options[].shootingHours" type NUMBER means "촬영 시간(시)",
                     "data.options[].shootingMinutes" type NUMBER means "촬영 시간(분)",
                     "data.options[].retouchedCount" type NUMBER means "보정본 수",
+                    "data.options[].originalProvided" type BOOLEAN means "원본 제공 여부",
                     "data.options[].partnerShops" type ARRAY means "제휴 업체 목록",
                     "data.options[].partnerShops[].category" type STRING means "제휴 업체 카테고리",
                     "data.options[].partnerShops[].name" type STRING means "제휴 업체 이름",
