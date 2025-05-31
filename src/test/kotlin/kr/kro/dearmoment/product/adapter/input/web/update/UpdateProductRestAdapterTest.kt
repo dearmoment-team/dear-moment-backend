@@ -223,6 +223,7 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                     "data.options[].shootingHours" type NUMBER means "촬영 시간(시)",
                     "data.options[].shootingMinutes" type NUMBER means "촬영 시간(분)",
                     "data.options[].retouchedCount" type NUMBER means "보정본 수",
+                    "data.options[].originalProvided" type BOOLEAN means "원본 제공 여부",
                     "data.options[].partnerShops" type ARRAY means "제휴 업체 목록",
                     "data.options[].createdAt" type OBJECT means "옵션 생성 시간",
                     "data.options[].updatedAt" type OBJECT means "옵션 수정 시간",

@@ -42,9 +42,7 @@ data class UpdateProductRequest(
     @field:EnumValue(enumClass = ShootingPlace::class, message = "유효하지 촬영 장소입니다.")
     val shootingPlace: String? = null,
     @Schema(description = "상품 제목", example = "예쁜 웨딩 사진 촬영", required = false)
-    @field:NotBlankIfPresent(message = "상품 제목이 빈 값일 수 없습니다.")
     val title: String? = null,
-    @field:NotBlankIfPresent(message = "상품 설명이 빈 값일 수 없습니다.")
     @Schema(description = "상품 설명", example = "신랑, 신부의 아름다운 순간을 담은 웨딩 사진", required = false)
     val description: String? = null,
     @Schema(
@@ -74,10 +72,8 @@ data class UpdateProductRequest(
     @field:Valid
     @Schema(description = "최종 추가 이미지 목록 (0~최대 5개)", required = false)
     val additionalImagesFinal: List<AdditionalImageFinalRequest>? = null,
-    @field:NotNull(message = "상세 정보는 필수입니다.")
     @Schema(description = "상세 정보", example = "연락처: 010-1234-5678, 상세 문의는 이메일로", required = false)
     val detailedInfo: String? = null,
-    @field:NotNull(message = "연락처 정보는 필수입니다.")
     @Schema(description = "연락처 정보", example = "010-1234-5678", required = false)
     val contactInfo: String? = null,
 ) {
