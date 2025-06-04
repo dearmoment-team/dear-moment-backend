@@ -26,8 +26,8 @@ spring:
     expiration: ${JWT_EXPIRATION}
   servlet:
     multipart:
-      max-file-size: 300MB
-      max-request-size: 300MB
+      max-file-size: 20MB
+      max-request-size: 40MB
 
 springdoc:
   packages-to-scan:
