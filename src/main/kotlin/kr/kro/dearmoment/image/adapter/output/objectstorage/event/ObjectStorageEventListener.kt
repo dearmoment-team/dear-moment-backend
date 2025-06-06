@@ -1,7 +1,6 @@
 package kr.kro.dearmoment.image.adapter.output.objectstorage.event
 
 import kr.kro.dearmoment.image.adapter.output.objectstorage.OracleObjectStorageAdapter
-import kr.kro.dearmoment.inquiry.adapter.output.mail.event.InquiryEventListener
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -12,7 +11,7 @@ import org.springframework.transaction.event.TransactionalEventListener
 class ObjectStorageEventListener(
     private val objectStorageAdapter: OracleObjectStorageAdapter,
 ) {
-    private val logger = LoggerFactory.getLogger(InquiryEventListener::class.java)
+    private val logger = LoggerFactory.getLogger(ObjectStorageEventListener::class.java)
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
