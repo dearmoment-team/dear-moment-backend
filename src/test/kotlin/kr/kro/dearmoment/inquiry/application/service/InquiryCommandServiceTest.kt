@@ -9,24 +9,25 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kr.kro.dearmoment.inquiry.adapter.output.mail.event.InquiryCreateEvent
 import kr.kro.dearmoment.inquiry.application.command.CreateProductOptionInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateServiceInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.CreateStudioInquiryCommand
 import kr.kro.dearmoment.inquiry.application.command.RemoveProductOptionInquiryCommand
 import kr.kro.dearmoment.inquiry.application.port.output.DeleteInquiryPort
 import kr.kro.dearmoment.inquiry.application.port.output.SaveInquiryPort
-import kr.kro.dearmoment.inquiry.application.port.output.SendInquiryPort
 import kr.kro.dearmoment.inquiry.domain.ServiceInquiryType
 import kr.kro.dearmoment.product.application.port.out.ProductPersistencePort
+import org.springframework.context.ApplicationEventPublisher
 import java.util.UUID
 
 class InquiryCommandServiceTest : DescribeSpec({
     val savePort = mockk<SaveInquiryPort>()
     val deletePort = mockk<DeleteInquiryPort>()
-    val sendPort = mockk<SendInquiryPort>()
     val productPersistencePort = mockk<ProductPersistencePort>()
+    val eventPublisher = mockk<ApplicationEventPublisher>() // 이벤트 퍼블리셔 목 생성
 
-    val service = InquiryCommandService(savePort, deletePort, sendPort, productPersistencePort)
+    val service = InquiryCommandService(savePort, deletePort, productPersistencePort, eventPublisher)
 
     describe("createArtistInquiry()는") {
         context("작가 문의 생성 명령을 전달 받으면") {
@@ -39,7 +40,7 @@ class InquiryCommandServiceTest : DescribeSpec({
                 )
             val expectedId = 1L
             every { savePort.saveStudioInquiry(any()) } returns expectedId
-            every { sendPort.sendMail(any(), any(), any()) } just Runs
+            every { eventPublisher.publishEvent(any<InquiryCreateEvent>()) } just Runs
             it("문의를 저장하고 ID를 반환한다.") {
                 val result = service.createStudioInquiry(command)
                 result.inquiryId shouldBe expectedId
@@ -74,7 +75,7 @@ class InquiryCommandServiceTest : DescribeSpec({
                 )
             val expectedId = 1L
             every { savePort.saveServiceInquiry(any()) } returns expectedId
-            every { sendPort.sendMail(any(), any(), any()) } just Runs
+            every { eventPublisher.publishEvent(any<InquiryCreateEvent>()) } just Runs
             it("문의를 저장하고 ID를 반환한다.") {
                 val result = service.createServiceInquiry(command)
                 result.inquiryId shouldBe expectedId
