@@ -109,7 +109,6 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                 productType = "WEDDING_SNAP",
                 shootingPlace = "JEJU",
                 title = "Updated Product Title",
-                description = "Updated Description",
                 availableSeasons = listOf("YEAR_2025_SECOND_HALF"),
                 cameraTypes = listOf("DIGITAL"),
                 retouchStyles = listOf("CALM"),
@@ -124,8 +123,6 @@ class UpdateProductRestAdapterTest : RestApiTestBase() {
                     listOf(
                         ImageResponse(imageId = 105L, url = "http://image-server.com/additionalImage2_UPLOADED.jpg"),
                     ),
-                detailedInfo = "Updated Detailed Info",
-                contactInfo = "updated-contact@example.com",
                 createdAt = null,
                 updatedAt = null,
                 options =

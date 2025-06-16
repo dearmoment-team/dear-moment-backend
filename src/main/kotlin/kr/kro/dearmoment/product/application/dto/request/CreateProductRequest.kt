@@ -82,15 +82,12 @@ data class CreateProductRequest(
                 productType = productTypeEnum,
                 shootingPlace = shootingPlaceEnum,
                 title = req.title,
-                description = req.description ?: "",
                 availableSeasons = seasonSet,
                 cameraTypes = cameraSet,
                 retouchStyles = styleSet,
                 mainImage = mainImg,
                 subImages = subImgList,
                 additionalImages = addImgList,
-                detailedInfo = req.detailedInfo ?: "",
-                contactInfo = req.contactInfo ?: "",
                 options = optionList,
             )
         }

@@ -113,7 +113,6 @@ class UpdateProductUseCaseImpl(
                 productType = productFromReq.productType
                 shootingPlace = productFromReq.shootingPlace
                 title = productFromReq.title
-                description = productFromReq.description.takeIf { it.isNotBlank() } ?: ""
                 mainImage = ImageEmbeddable.fromDomainImage(productFromReq.mainImage)
 
                 availableSeasons.clear()
@@ -122,9 +121,6 @@ class UpdateProductUseCaseImpl(
                 cameraTypes.addAll(productFromReq.cameraTypes)
                 retouchStyles.clear()
                 retouchStyles.addAll(productFromReq.retouchStyles)
-                detailedInfo = productFromReq.detailedInfo.takeIf { it.isNotBlank() } ?: ""
-                contactInfo = productFromReq.contactInfo.takeIf { it.isNotBlank() } ?: ""
-
                 // 서브 및 추가 이미지 업데이트 (새롭게 매핑된 이미지 객체 사용)
                 subImages = mappedSubImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
                 additionalImages = mappedAdditionalImages.map { ImageEmbeddable.fromDomainImage(it) }.toMutableList()
