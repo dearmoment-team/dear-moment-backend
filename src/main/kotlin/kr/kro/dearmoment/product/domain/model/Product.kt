@@ -17,8 +17,6 @@ data class Product(
     val shootingPlace: ShootingPlace,
     // 상품명
     val title: String,
-    // 간단 설명
-    val description: String = "",
     // 촬영 가능 시기(다중 선택)
     val availableSeasons: Set<ShootingSeason> = emptySet(),
     // 카메라 종류(다중 선택)
@@ -32,8 +30,6 @@ data class Product(
     // 추가 이미지(최대 5장)
     val additionalImages: List<Image> = emptyList(),
     // 상세 정보, 연락처
-    val detailedInfo: String = "",
-    val contactInfo: String = "",
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
     // 여러 옵션

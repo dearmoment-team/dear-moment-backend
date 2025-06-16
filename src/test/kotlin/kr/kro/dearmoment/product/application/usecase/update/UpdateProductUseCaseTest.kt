@@ -93,15 +93,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             productType = ProductType.WEDDING_SNAP,
             shootingPlace = ShootingPlace.JEJU,
             title = "Existing Product",
-            description = "Existing Description",
             availableSeasons = setOf(ShootingSeason.YEAR_2025_FIRST_HALF),
             cameraTypes = setOf(CameraType.FILM),
             retouchStyles = setOf(RetouchStyle.NATURAL),
             mainImage = dummyExistingMainImage,
             subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
             additionalImages = listOf(dummyExistingAdditionalImage),
-            detailedInfo = "Existing Detailed Info",
-            contactInfo = "Existing Contact",
             createdAt = LocalDateTime.now().minusDays(2),
             updatedAt = LocalDateTime.now().minusDays(1),
             options = emptyList(),
@@ -321,15 +318,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             every { productPersistencePort.save(any(), any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",
-                    description = "Updated Description",
                     availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
                     cameraTypes = setOf(CameraType.DIGITAL),
                     retouchStyles = setOf(RetouchStyle.CALM),
                     mainImage = dummyNewMainImage,
                     subImages = listOf(dummyExistingSubImage, dummyNewSubImage1, dummyNewSubImage2, dummyExistingSubImage),
                     additionalImages = listOf(dummyNewAdditionalImage),
-                    detailedInfo = "Updated Detailed Info",
-                    contactInfo = "Updated Contact",
                     studio = studio,
                 )
 
@@ -722,15 +716,12 @@ class UpdateProductUseCaseTest : BehaviorSpec({
             every { productPersistencePort.save(any(), any()) } returns
                 existingProduct.copy(
                     title = "Updated Title",
-                    description = "Updated Description",
                     availableSeasons = setOf(ShootingSeason.YEAR_2025_SECOND_HALF),
                     cameraTypes = setOf(CameraType.DIGITAL),
                     retouchStyles = setOf(RetouchStyle.CALM),
                     mainImage = dummyNewMainImage,
                     subImages = listOf(dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage, dummyExistingSubImage),
                     additionalImages = listOf(dummyExistingAdditionalImage),
-                    detailedInfo = "Updated Detailed Info",
-                    contactInfo = "Updated Contact",
                     options = optionRequestList.map { UpdateProductOptionRequest.toDomain(it, 999L) },
                 )
 

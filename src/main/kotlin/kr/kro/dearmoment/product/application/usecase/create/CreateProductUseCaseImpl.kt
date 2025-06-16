@@ -30,53 +30,55 @@ class CreateProductUseCaseImpl(
         subImageFiles: List<MultipartFile>,
         additionalImageFiles: List<MultipartFile>,
     ): ProductResponse {
-        // 스튜디오 조회 및 소유자 검증: 요청한 스튜디오의 소유자(userId)와 현재 userId가 일치하는지 확인
+        // 1) 스튜디오 조회 & 소유자 검증
         val studio = getStudioPort.findById(request.studioId)
         if (studio.userId != userId) {
             throw CustomException(ErrorCode.UNAUTHORIZED_ACCESS)
         }
 
-        // 서브 이미지 검증: 정확히 4장이어야 함
+        // 2) 이미지 개수 검증
         if (subImageFiles.size != 4) {
             throw CustomException(ErrorCode.INVALID_SUB_IMAGE_COUNT)
         }
-        // 추가 이미지 검증: 최대 5장까지만 가능
         if (additionalImageFiles.size > 5) {
             throw CustomException(ErrorCode.INVALID_ADDITIONAL_IMAGE_COUNT)
         }
 
+        // 3) 이미지 저장
         val totalImages =
             buildList {
                 add(mainImageFile)
                 addAll(subImageFiles)
                 addAll(additionalImageFiles)
-            }.map { file ->
-                SaveImageCommand(file, userId)
-            }
+            }.map { file -> SaveImageCommand(file, userId) }
 
         val savedImages = imageService.saveAll(totalImages)
 
+        // 4) 저장 결과 분할
         val subImageSize = subImageFiles.size
         val additionalImageSize = additionalImageFiles.size
 
-        // 순서대로 나누기
         val mainImg = savedImages.first()
+
         val subImgs =
-            if (subImageSize > 0 && subImageFiles.isNotEmpty()) {
+            if (subImageSize > 0) {
                 savedImages.subList(1, 1 + subImageSize)
             } else {
                 emptyList()
             }
 
         val additionalImgs =
-            if (additionalImageSize > 0 && additionalImageFiles.isNotEmpty()) {
-                savedImages.subList(subImageSize, 1 + subImageSize + additionalImageSize)
+            if (additionalImageSize > 0) {
+                savedImages.subList(
+                    1 + subImageSize,
+                    1 + subImageSize + additionalImageSize
+                )
             } else {
                 emptyList()
             }
 
-        // 도메인 객체 생성 (옵션은 DTO 변환에서 이미 포함됨)
-        val product: Product =
+        // 5) 도메인 객체 생성
+        val product =
             CreateProductRequest.toDomain(
                 req = request,
                 userId = userId,
@@ -85,12 +87,12 @@ class CreateProductUseCaseImpl(
                 additionalImages = additionalImgs,
             )
 
-        // 생성 전 유효성 검사: 동일 제목의 상품이 이미 존재하는지 확인
+        // 6) 동일 제목 중복 검사
         validateForCreation(product)
-        val savedProduct = productPersistencePort.save(product, request.studioId)
 
-        // 저장된 상품 조회 실패 시 예외 처리
-        val completeProduct: Product =
+        // 7) 저장 및 최종 조회
+        val savedProduct = productPersistencePort.save(product, request.studioId)
+        val completeProduct =
             getProductPort.findById(savedProduct.productId)
                 ?: throw CustomException(ErrorCode.SAVED_PRODUCT_NOT_FOUND)
 

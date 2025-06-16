@@ -49,8 +49,6 @@ class ProductEntity(
     var shootingPlace: ShootingPlace,
     @Column(name = "TITLE", nullable = false)
     var title: String = "",
-    @Column(name = "DESCRIPTION", nullable = false)
-    var description: String = "",
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_AVAILABLE_SEASONS", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
     @Enumerated(EnumType.STRING)
@@ -75,10 +73,6 @@ class ProductEntity(
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PRODUCT_ADDITIONAL_IMAGES", joinColumns = [JoinColumn(name = "PRODUCT_ID")])
     var additionalImages: MutableList<ImageEmbeddable> = mutableListOf(),
-    @Column(name = "DETAILED_INFO")
-    var detailedInfo: String = "",
-    @Column(name = "CONTACT_INFO")
-    var contactInfo: String = "",
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     val options: MutableList<ProductOptionEntity> = mutableListOf(),
@@ -112,10 +106,7 @@ class ProductEntity(
                     productType = product.productType,
                     shootingPlace = product.shootingPlace,
                     title = product.title,
-                    description = product.description.takeIf { it.isNotBlank() } ?: "",
                     mainImage = ImageEmbeddable.fromDomainImage(product.mainImage),
-                    detailedInfo = product.detailedInfo.takeIf { it.isNotBlank() } ?: "",
-                    contactInfo = product.contactInfo.takeIf { it.isNotBlank() } ?: "",
                     studio = studio,
                     likeCount = product.likeCount,
                     optionLikeCount = product.optionLikeCount,
@@ -143,15 +134,12 @@ class ProductEntity(
             productType = productType,
             shootingPlace = shootingPlace,
             title = title,
-            description = description,
             availableSeasons = availableSeasons,
             cameraTypes = cameraTypes,
             retouchStyles = retouchStyles,
             mainImage = mainImage.toDomainImage(),
             subImages = subImages.map { it.toDomainImage() },
             additionalImages = additionalImages.map { it.toDomainImage() },
-            detailedInfo = detailedInfo,
-            contactInfo = contactInfo,
             options = options.map { it.toDomain() },
             studio = studio.toDomain(),
             likeCount = likeCount,

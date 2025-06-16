@@ -113,15 +113,12 @@ data class UpdateProductRequest(
                 productType = productTypeEnum,
                 shootingPlace = shootingPlaceEnum,
                 title = req.title ?: existingProduct.title,
-                description = req.description ?: existingProduct.description,
                 availableSeasons = seasonSet,
                 cameraTypes = cameraSet,
                 retouchStyles = styleSet,
                 mainImage = mainImg,
                 subImages = subImgList,
                 additionalImages = addImgList,
-                detailedInfo = req.detailedInfo ?: existingProduct.detailedInfo,
-                contactInfo = req.contactInfo ?: existingProduct.contactInfo,
                 options = domainOptions,
             )
         }

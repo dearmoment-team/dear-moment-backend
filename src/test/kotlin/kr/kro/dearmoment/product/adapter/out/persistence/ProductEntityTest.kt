@@ -53,7 +53,6 @@ internal class ProductEntityTest : StringSpec({
                 productType = ProductType.WEDDING_SNAP,
                 shootingPlace = ShootingPlace.JEJU,
                 title = "테스트 제품",
-                description = "테스트 설명",
                 availableSeasons =
                     setOf(
                         ShootingSeason.YEAR_2025_FIRST_HALF,
@@ -79,8 +78,6 @@ internal class ProductEntityTest : StringSpec({
                         Image(userId = dummyUserId, fileName = "add1.jpg", url = "http://example.com/add1.jpg"),
                         Image(userId = dummyUserId, fileName = "add2.jpg", url = "http://example.com/add2.jpg"),
                     ),
-                detailedInfo = "상세 정보",
-                contactInfo = "연락처 정보",
                 options = listOf(dummyOption),
             )
 
@@ -93,7 +90,6 @@ internal class ProductEntityTest : StringSpec({
         productEntity.productType shouldBe ProductType.WEDDING_SNAP
         productEntity.shootingPlace shouldBe ShootingPlace.JEJU
         productEntity.title shouldBe "테스트 제품"
-        productEntity.description shouldBe "테스트 설명"
 
         productEntity.availableSeasons shouldContainExactly
             setOf(
@@ -117,9 +113,6 @@ internal class ProductEntityTest : StringSpec({
         productEntity.additionalImages.size shouldBe 2
         productEntity.additionalImages[0].fileName shouldBe "add1.jpg"
         productEntity.additionalImages[1].fileName shouldBe "add2.jpg"
-
-        productEntity.detailedInfo shouldBe "상세 정보"
-        productEntity.contactInfo shouldBe "연락처 정보"
 
         // 옵션 리스트 변환 검증
         productEntity.options.size shouldBe 1

@@ -49,8 +49,6 @@ data class ProductResponse(
     val shootingPlace: String,
     @Schema(description = "상품 제목", example = "예쁜 웨딩 사진 촬영")
     val title: String,
-    @Schema(description = "상품 설명", example = "신랑, 신부의 아름다운 순간을 담은 사진", nullable = true)
-    val description: String?,
     @Schema(
         description = "촬영 가능 시기 (도메인: ShootingSeason)",
         example = "[\"YEAR_2025_FIRST_HALF\", \"YEAR_2025_SECOND_HALF\"]",
@@ -82,10 +80,6 @@ data class ProductResponse(
                 "{\"imageId\": 5, \"url\": \"http://example.com/add2.jpg\"}]",
     )
     val additionalImages: List<ImageResponse>,
-    @Schema(description = "상세 정보", example = "연락처: 010-1234-5678, 문의는 이메일", nullable = true)
-    val detailedInfo: String?,
-    @Schema(description = "연락처 정보", example = "010-1234-5678", nullable = true)
-    val contactInfo: String?,
     @Schema(description = "생성 일시", example = "2025-03-09T12:00:00", nullable = true)
     val createdAt: LocalDateTime?,
     @Schema(description = "수정 일시", example = "2025-03-09T12:00:00", nullable = true)
@@ -100,15 +94,12 @@ data class ProductResponse(
                 productType = prod.productType.name,
                 shootingPlace = prod.shootingPlace.name,
                 title = prod.title,
-                description = prod.description.takeIf { it.isNotBlank() },
                 availableSeasons = prod.availableSeasons.map { it.name },
                 cameraTypes = prod.cameraTypes.map { it.name },
                 retouchStyles = prod.retouchStyles.map { it.name },
                 mainImage = ImageResponse.fromDomain(prod.mainImage),
                 subImages = prod.subImages.map { ImageResponse.fromDomain(it) },
                 additionalImages = prod.additionalImages.map { ImageResponse.fromDomain(it) },
-                detailedInfo = prod.detailedInfo.takeIf { it.isNotBlank() },
-                contactInfo = prod.contactInfo.takeIf { it.isNotBlank() },
                 createdAt = prod.createdAt,
                 updatedAt = prod.updatedAt,
                 options = prod.options.map { ProductOptionResponse.fromDomain(it) },
@@ -122,7 +113,6 @@ data class ProductResponse(
             productType = ProductType.valueOf(this.productType),
             shootingPlace = ShootingPlace.valueOf(this.shootingPlace),
             title = this.title,
-            description = this.description ?: "",
             availableSeasons = this.availableSeasons.map { ShootingSeason.valueOf(it) }.toSet(),
             cameraTypes = this.cameraTypes.map { CameraType.valueOf(it) }.toSet(),
             retouchStyles = this.retouchStyles.map { RetouchStyle.valueOf(it) }.toSet(),
@@ -145,8 +135,6 @@ data class ProductResponse(
                         url = img.url,
                     )
                 },
-            detailedInfo = this.detailedInfo ?: "",
-            contactInfo = this.contactInfo ?: "",
             createdAt = this.createdAt ?: LocalDateTime.now(),
             updatedAt = this.updatedAt ?: LocalDateTime.now(),
             options = this.options.map { it.toDomain() },
