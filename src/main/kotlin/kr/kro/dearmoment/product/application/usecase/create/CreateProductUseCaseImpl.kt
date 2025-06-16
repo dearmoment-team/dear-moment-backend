@@ -22,7 +22,6 @@ class CreateProductUseCaseImpl(
     private val imageService: ImageService,
     private val getStudioPort: GetStudioPort,
 ) : CreateProductUseCase {
-
     @Transactional
     override fun saveProduct(
         request: CreateProductRequest,
@@ -46,11 +45,12 @@ class CreateProductUseCaseImpl(
         }
 
         // 3) 이미지 저장
-        val totalImages = buildList {
-            add(mainImageFile)
-            addAll(subImageFiles)
-            addAll(additionalImageFiles)
-        }.map { file -> SaveImageCommand(file, userId) }
+        val totalImages =
+            buildList {
+                add(mainImageFile)
+                addAll(subImageFiles)
+                addAll(additionalImageFiles)
+            }.map { file -> SaveImageCommand(file, userId) }
 
         val savedImages = imageService.saveAll(totalImages)
 
@@ -78,21 +78,23 @@ class CreateProductUseCaseImpl(
             }
 
         // 5) 도메인 객체 생성
-        val product = CreateProductRequest.toDomain(
-            req = request,
-            userId = userId,
-            mainImage = mainImg,
-            subImages = subImgs,
-            additionalImages = additionalImgs,
-        )
+        val product =
+            CreateProductRequest.toDomain(
+                req = request,
+                userId = userId,
+                mainImage = mainImg,
+                subImages = subImgs,
+                additionalImages = additionalImgs,
+            )
 
         // 6) 동일 제목 중복 검사
         validateForCreation(product)
 
         // 7) 저장 및 최종 조회
         val savedProduct = productPersistencePort.save(product, request.studioId)
-        val completeProduct = getProductPort.findById(savedProduct.productId)
-            ?: throw CustomException(ErrorCode.SAVED_PRODUCT_NOT_FOUND)
+        val completeProduct =
+            getProductPort.findById(savedProduct.productId)
+                ?: throw CustomException(ErrorCode.SAVED_PRODUCT_NOT_FOUND)
 
         return ProductResponse.fromDomain(completeProduct)
     }
