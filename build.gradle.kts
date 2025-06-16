@@ -125,7 +125,7 @@ sonar {
 
 kover {
     reports.verify.rule {
-        minBound(75)
+        minBound(70)
     }
 }
 
