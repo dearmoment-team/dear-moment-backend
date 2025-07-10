@@ -54,6 +54,7 @@
 │   │   │               ├── DearMomentApplication.kt
 │   │   │               ├── common
 │   │   │               │   ├── config
+│   │   │               │   │   ├── AsyncConfig.kt
 │   │   │               │   │   ├── JpaConfig.kt
 │   │   │               │   │   ├── OpenApiConfig.kt
 │   │   │               │   │   └── WebConfig.kt
@@ -87,7 +88,10 @@
 │   │   │               │   │       ├── objectstorage
 │   │   │               │   │       │   ├── OracleObjectStorageAdapter.kt
 │   │   │               │   │       │   ├── OracleObjectStorageProperties.kt
-│   │   │               │   │       │   └── OracleObjectStorageUtil.kt
+│   │   │               │   │       │   ├── OracleObjectStorageUtil.kt
+│   │   │               │   │       │   └── event
+│   │   │               │   │       │       ├── ImageDeleteEvent.kt
+│   │   │               │   │       │       └── ObjectStorageEventListener.kt
 │   │   │               │   │       └── persistence
 │   │   │               │   │           ├── ImageEntity.kt
 │   │   │               │   │           ├── ImagePersistenceAdapter.kt
@@ -105,7 +109,6 @@
 │   │   │               │   │   │   │   └── UpdateImagePort.kt
 │   │   │               │   │   │   └── output
 │   │   │               │   │   │       ├── DeleteImageFromDBPort.kt
-│   │   │               │   │   │       ├── DeleteImageFromObjectStoragePort.kt
 │   │   │               │   │   │       ├── GetImageFromObjectStoragePort.kt
 │   │   │               │   │   │       ├── GetImagePort.kt
 │   │   │               │   │   │       ├── SaveImagePort.kt
@@ -124,7 +127,10 @@
 │   │   │               │   │   └── output
 │   │   │               │   │       ├── mail
 │   │   │               │   │       │   ├── MailAdapter.kt
-│   │   │               │   │       │   └── MailProperties.kt
+│   │   │               │   │       │   ├── MailProperties.kt
+│   │   │               │   │       │   └── event
+│   │   │               │   │       │       ├── InquiryCreateEvent.kt
+│   │   │               │   │       │       └── InquiryEventListener.kt
 │   │   │               │   │       └── persistence
 │   │   │               │   │           ├── InquiryPersistenceAdapter.kt
 │   │   │               │   │           ├── InquiryReadOnlyPersistenceAdapter.kt
@@ -222,13 +228,18 @@
 │   │   │               │       ├── CreateProductOptionLike.kt
 │   │   │               │       ├── Like.kt
 │   │   │               │       ├── ProductLike.kt
-│   │   │               │       └── ProductOptionLike.kt
+│   │   │               │       ├── ProductOptionLike.kt
+│   │   │               │       └── SortCriteria.kt
 │   │   │               ├── product
 │   │   │               │   ├── adapter
 │   │   │               │   │   ├── input
 │   │   │               │   │   │   └── web
 │   │   │               │   │   │       └── ProductRestAdapter.kt
 │   │   │               │   │   └── out
+│   │   │               │   │       ├── jdsl
+│   │   │               │   │       │   ├── CustomExpression.kt
+│   │   │               │   │       │   ├── JdslSortStrategy.kt
+│   │   │               │   │       │   └── SearchProductOrderByPriceDto.kt
 │   │   │               │   │       └── persistence
 │   │   │               │   │           ├── ImageEmbeddable.kt
 │   │   │               │   │           ├── JpaProductOptionRepository.kt
@@ -239,13 +250,7 @@
 │   │   │               │   │           ├── ProductOptionReadOnlyRepository.kt
 │   │   │               │   │           ├── ProductOptionRepositoryAdapter.kt
 │   │   │               │   │           ├── ProductPersistenceAdapter.kt
-│   │   │               │   │           ├── ProductReadOnlyRepository.kt
-│   │   │               │   │           ├── dto
-│   │   │               │   │           │   └── SearchProductOrderByPriceDto.kt
-│   │   │               │   │           ├── jdsl
-│   │   │               │   │           │   └── CustomExpression.kt
-│   │   │               │   │           └── sort
-│   │   │               │   │               └── SortCriteria.kt
+│   │   │               │   │           └── ProductReadOnlyRepository.kt
 │   │   │               │   ├── application
 │   │   │               │   │   ├── dto
 │   │   │               │   │   │   ├── query
@@ -342,14 +347,12 @@
 │   │   │               │   │       └── StudioService.kt
 │   │   │               │   └── domain
 │   │   │               │       ├── Studio.kt
-│   │   │               │       ├── StudioPartnerShop.kt
-│   │   │               │       ├── StudioPartnerShopCategory.kt
 │   │   │               │       └── StudioStatus.kt
 │   │   │               └── user
 │   │   │                   ├── adapter
 │   │   │                   │   ├── input
 │   │   │                   │   │   └── web
-│   │   │                   │   │       ├── KakaoOAuthController.kt
+│   │   │                   │   │       ├── KakaoOAuthAdapter.kt
 │   │   │                   │   │       └── UserRestAdapter.kt
 │   │   │                   │   └── output
 │   │   │                   │       ├── oauth
@@ -357,33 +360,50 @@
 │   │   │                   │       └── persistence
 │   │   │                   │           ├── UserEntity.kt
 │   │   │                   │           ├── UserJpaRepository.kt
-│   │   │                   │           └── UserPersistenceAdapter.kt
+│   │   │                   │           ├── UserPersistenceAdapter.kt
+│   │   │                   │           ├── WithdrawalFeedbackEntity.kt
+│   │   │                   │           ├── WithdrawalFeedbackJpaAdapter.kt
+│   │   │                   │           └── WithdrawalFeedbackRepository.kt
 │   │   │                   ├── application
 │   │   │                   │   ├── command
+│   │   │                   │   │   ├── AgreeProfileConsentCommand.kt
 │   │   │                   │   │   └── RegisterUserCommand.kt
 │   │   │                   │   ├── dto
 │   │   │                   │   │   ├── request
+│   │   │                   │   │   │   ├── AgreeProfileConsentRequest.kt
 │   │   │                   │   │   │   ├── LoginUserRequest.kt
 │   │   │                   │   │   │   ├── RegisterUserRequest.kt
-│   │   │                   │   │   │   └── UpdateUserNameRequest.kt
+│   │   │                   │   │   │   ├── RegisterWithdrawalFeedbackRequest.kt
+│   │   │                   │   │   │   └── UpdateUserRequest.kt
 │   │   │                   │   │   └── response
+│   │   │                   │   │       ├── KakaoUserInfo.kt
 │   │   │                   │   │       ├── LoginUserResponse.kt
 │   │   │                   │   │       ├── UserResponse.kt
 │   │   │                   │   │       └── UserStudioResponse.kt
 │   │   │                   │   ├── port
 │   │   │                   │   │   ├── input
-│   │   │                   │   │   │   └── RegisterUserUseCase.kt
+│   │   │                   │   │   │   ├── AgreeProfileConsentUseCase.kt
+│   │   │                   │   │   │   ├── RegisterUserUseCase.kt
+│   │   │                   │   │   │   ├── RegisterWithdrawalFeedbackUseCase.kt
+│   │   │                   │   │   │   ├── SkipProfileConsentUseCase.kt
+│   │   │                   │   │   │   └── WithdrawProfileConsentUseCase.kt
 │   │   │                   │   │   └── output
+│   │   │                   │   │       ├── DeleteUserByIdPort.kt
 │   │   │                   │   │       ├── GetStudioUserPort.kt
 │   │   │                   │   │       ├── GetUserByIdPort.kt
 │   │   │                   │   │       ├── GetUserByKakaoIdPort.kt
-│   │   │                   │   │       └── SaveUserPort.kt
+│   │   │                   │   │       ├── SaveUserPort.kt
+│   │   │                   │   │       └── SaveWithdrawalFeedbackPort.kt
 │   │   │                   │   └── service
 │   │   │                   │       ├── KakaoOAuthService.kt
+│   │   │                   │       ├── RegisterWithdrawalFeedbackService.kt
 │   │   │                   │       ├── UserCommandService.kt
 │   │   │                   │       └── UserProfileService.kt
 │   │   │                   ├── domain
-│   │   │                   │   └── User.kt
+│   │   │                   │   ├── Sex.kt
+│   │   │                   │   ├── User.kt
+│   │   │                   │   ├── WithdrawalFeedback.kt
+│   │   │                   │   └── WithdrawalReason.kt
 │   │   │                   └── security
 │   │   │                       ├── CustomUserDetails.kt
 │   │   │                       └── CustomUserDetailsService.kt
@@ -538,11 +558,18 @@
 │       │               │   └── domain
 │       │               │       └── StudioTest.kt
 │       │               └── user
+│       │                   ├── adapter
+│       │                   │   ├── input
+│       │                   │   │   └── KakaoOAuthAdapterTest.kt
+│       │                   │   └── output
+│       │                   │       └── persistence
+│       │                   │           └── WithdrawalFeedbackJpaAdapterTest.kt
 │       │                   └── domain
-│       │                       └── UserTest.kt
+│       │                       ├── UserTest.kt
+│       │                       └── WithdrawalFeedbackTest.kt
 │       └── resources
 │           ├── application-test.yml
 │           └── test-image.jpg
 └── wait-for-it.sh
 
-207 directories, 338 files
+211 directories, 361 files

@@ -29,66 +29,79 @@ class ProductOptionEntity(
     @Id
     @GeneratedValue(
         strategy = GenerationType.SEQUENCE,
-        generator = "product_options_seq",
+        generator = "product_options_seq"
     )
     @SequenceGenerator(
         name = "product_options_seq",
         sequenceName = "PRODUCT_OPTIONS_SEQ",
-        allocationSize = 1,
+        allocationSize = 1
     )
     @Column(name = "OPTION_ID")
     var optionId: Long = 0L,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID", nullable = false)
     var product: ProductEntity,
+
     @Column(name = "NAME", nullable = false)
     var name: String = "",
+
     @Enumerated(EnumType.STRING)
     @Column(name = "OPTION_TYPE", nullable = false)
     var optionType: OptionType = OptionType.SINGLE,
+
     @Column(name = "DISCOUNT_AVAILABLE", nullable = false)
     var discountAvailable: Boolean = false,
+
     @Column(name = "ORIGINAL_PRICE", nullable = false)
     var originalPrice: Long = 0L,
+
     @Column(name = "DISCOUNT_PRICE", nullable = false)
     var discountPrice: Long = 0L,
-    @Column(name = "DESCRIPTION")
-    var description: String = "",
-    // 단품 필드들
-    @Column(name = "COSTUME_COUNT")
+
+    @Column(name = "DESCRIPTION", nullable = false)
+    var description: String = " ",
+
+    @Column(name = "COSTUME_COUNT", nullable = false)
     var costumeCount: Int = 0,
-    @Column(name = "SHOOTING_LOCATION_COUNT")
+
+    @Column(name = "SHOOTING_LOCATION_COUNT", nullable = false)
     var shootingLocationCount: Int = 0,
-    @Column(name = "SHOOTING_HOURS")
+
+    @Column(name = "SHOOTING_HOURS", nullable = false)
     var shootingHours: Int = 0,
-    @Column(name = "SHOOTING_MINUTES")
+
+    @Column(name = "SHOOTING_MINUTES", nullable = false)
     var shootingMinutes: Int = 0,
-    @Column(name = "RETOUCHED_COUNT")
+
+    @Column(name = "RETOUCHED_COUNT", nullable = false)
     var retouchedCount: Int = 0,
-    // [원본 제공 여부]
+
     @Column(name = "ORIGINAL_PROVIDED", nullable = false)
     var originalProvided: Boolean = false,
-    // 패키지 필드들
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "PRODUCT_PARTNER_SHOPS",
-        joinColumns = [JoinColumn(name = "OPTION_ID")],
+        joinColumns = [JoinColumn(name = "OPTION_ID")]
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
-    // 선택 추가사항 필드 추가 (옵션에 따라 필요한 추가 정보)
-    @Column(name = "OPTIONAL_ADDITIONAL_DETAILS")
-    var optionalAdditionalDetails: String? = "",
+
+    @Column(name = "OPTIONAL_ADDITIONAL_DETAILS", nullable = false)
+    var optionalAdditionalDetails: String = " ",
+
     @Column(nullable = false)
-    @ColumnDefault(value = "0")
-    var version: Long = 0L,
+    @ColumnDefault("0")
+    var version: Long = 0L
 ) : Auditable() {
+
     @PrePersist
     @PreUpdate
     private fun applyDefaultBlanks() {
         if (description.isBlank()) {
             description = " "
         }
-        if (optionalAdditionalDetails.isNullOrBlank()) {
+        if (optionalAdditionalDetails.isBlank()) {
             optionalAdditionalDetails = " "
         }
     }
@@ -96,7 +109,7 @@ class ProductOptionEntity(
     companion object {
         fun fromDomain(
             option: ProductOption,
-            productEntity: ProductEntity,
+            productEntity: ProductEntity
         ): ProductOptionEntity {
             return ProductOptionEntity(
                 optionId = option.optionId,
@@ -106,23 +119,22 @@ class ProductOptionEntity(
                 discountAvailable = option.discountAvailable,
                 originalPrice = option.originalPrice,
                 discountPrice = option.discountPrice,
-                description = option.description.takeIf { it.isNotBlank() } ?: "",
+                description = option.description.takeIf { it.isNotBlank() } ?: " ",
                 costumeCount = option.costumeCount,
                 shootingLocationCount = option.shootingLocationCount,
                 shootingHours = option.shootingHours,
                 shootingMinutes = option.shootingMinutes,
                 retouchedCount = option.retouchedCount,
                 originalProvided = option.originalProvided,
-                partnerShops =
-                    option.partnerShops.map {
-                        PartnerShopEmbeddable(
-                            category = it.category,
-                            name = it.name,
-                            link = it.link,
-                        )
-                    },
-                optionalAdditionalDetails = option.optionalAdditionalDetails,
-                version = 0L,
+                partnerShops = option.partnerShops.map {
+                    PartnerShopEmbeddable(
+                        category = it.category,
+                        name = it.name,
+                        link = it.link
+                    )
+                },
+                optionalAdditionalDetails = option.optionalAdditionalDetails.takeIf { it.isNotBlank() } ?: " ",
+                version = 0L
             )
         }
     }
@@ -136,25 +148,24 @@ class ProductOptionEntity(
             discountAvailable = discountAvailable,
             originalPrice = originalPrice,
             discountPrice = discountPrice,
-            description = description,
+            description = description.ifBlank { " " },
             costumeCount = costumeCount,
             shootingLocationCount = shootingLocationCount,
             shootingHours = shootingHours,
             shootingMinutes = shootingMinutes,
             retouchedCount = retouchedCount,
             originalProvided = originalProvided,
-            partnerShops =
-                partnerShops.map {
-                    val category = it.category ?: PartnerShopCategory.ETC
-                    PartnerShop(
-                        category = category,
-                        name = it.name,
-                        link = it.link,
-                    )
-                },
-            optionalAdditionalDetails = optionalAdditionalDetails,
+            partnerShops = partnerShops.map {
+                val category = it.category ?: PartnerShopCategory.ETC
+                PartnerShop(
+                    category = category,
+                    name = it.name,
+                    link = it.link
+                )
+            },
+            optionalAdditionalDetails = optionalAdditionalDetails.ifBlank { " " },
             createdAt = createdDate,
-            updatedAt = updateDate,
+            updatedAt = updateDate
         )
     }
 }
