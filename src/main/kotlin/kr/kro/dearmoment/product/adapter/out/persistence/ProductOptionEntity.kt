@@ -12,6 +12,8 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.PrePersist
+import jakarta.persistence.PreUpdate
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import kr.kro.dearmoment.common.persistence.Auditable
@@ -80,6 +82,17 @@ class ProductOptionEntity(
     @ColumnDefault(value = "0")
     var version: Long = 0L,
 ) : Auditable() {
+    @PrePersist
+    @PreUpdate
+    private fun applyDefaultBlanks() {
+        if (description.isBlank()) {
+            description = " "
+        }
+        if (optionalAdditionalDetails.isNullOrBlank()) {
+            optionalAdditionalDetails = " "
+        }
+    }
+
     companion object {
         fun fromDomain(
             option: ProductOption,
