@@ -247,7 +247,7 @@ data class UpdateProductOptionRequest(
                             link = it.link,
                         )
                     },
-                optionalAdditionalDetails = dto.optionalAdditionalDetails,
+                optionalAdditionalDetails = dto.optionalAdditionalDetails ?: " ",
                 createdAt = null,
                 updatedAt = null,
             )
