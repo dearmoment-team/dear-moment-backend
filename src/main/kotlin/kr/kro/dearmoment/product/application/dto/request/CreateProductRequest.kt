@@ -141,7 +141,7 @@ data class CreateProductOptionRequest(
                 discountAvailable = dto.discountAvailable,
                 originalPrice = dto.originalPrice,
                 discountPrice = dto.discountPrice,
-                description = dto.description ?: "",
+                description = dto.description ?: " ",
                 costumeCount = dto.costumeCount,
                 shootingLocationCount = dto.shootingLocationCount,
                 shootingHours = dto.shootingHours,
@@ -156,7 +156,7 @@ data class CreateProductOptionRequest(
                             link = it.link,
                         )
                     },
-                optionalAdditionalDetails = dto.optionalAdditionalDetails,
+                optionalAdditionalDetails = dto.optionalAdditionalDetails ?: " ",
                 createdAt = null,
                 updatedAt = null,
             )
