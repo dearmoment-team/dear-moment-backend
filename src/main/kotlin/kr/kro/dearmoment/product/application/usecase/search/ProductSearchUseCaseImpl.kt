@@ -6,6 +6,7 @@ import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.application.dto.response.SearchProductResponse
 import kr.kro.dearmoment.product.application.port.out.GetProductPort
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -22,13 +23,15 @@ class ProductSearchUseCaseImpl(
         page: Int,
         size: Int,
     ): PagedResponse<SearchProductResponse> {
-        val pageable = PageRequest.of(page, size)
+        val pageable = PageRequest.of(page, size, Sort.by("productId").ascending())
+
         val products = getProductPort.searchByCriteria(request.toQuery(), pageable)
         val productIds = products.map { it.productId }
+
         val userLikes =
             userId?.let {
-                getLikePort.findProductLikesByUserIdAndProductIds(userId, productIds)
-                    .associate { it.product.productId to it.id }
+                getLikePort.findProductLikesByUserIdAndProductIds(it, productIds)
+                    .associate { like -> like.product.productId to like.id }
             } ?: emptyMap()
 
         return PagedResponse(
