@@ -40,20 +40,26 @@ fun studioFixture(
         )
         .sample()
 
-fun productFixture(): Product =
+fun productFixture(productId: Long = 1L): Product =
     fixtureBuilder.giveMeKotlinBuilder<Product>()
         .setNotNull(Product::productId)
-        .setExp(Product::title, "상품 이롬")
+        .setExp(Product::title, "상품 이름")
         .set(Product::cameraTypes, setOf(CameraType.DIGITAL))
-        .set(Product::availableSeasons, ShootingSeason.entries.shuffled().take(2).map { it }.toSet())
-        .setExp(Product::retouchStyles, RetouchStyle.entries.shuffled().take(2).map { it }.toSet())
+        .set(
+            Product::availableSeasons,
+            ShootingSeason.entries.shuffled().take(2).toSet()
+        )
+        .setExp(
+            Product::retouchStyles,
+            RetouchStyle.entries.shuffled().take(2).toSet()
+        )
         .setExp(Product::additionalImages, listOf("url1", "url2", "url3", "url4"))
         .setExp(Product::options, listOf(productOptionFixture()))
         .setExp(Product::subImages, listOf("url1", "url2", "url3", "url4"))
         .set(Product::likeCount, (1..100).random().toLong())
         .set(Product::optionLikeCount, (1..100).random().toLong())
         .set(Product::inquiryCount, (1..100).random().toLong())
-        .setExp(Product::productId, 1L)
+        .setExp(Product::productId, productId)
         .setExp(Product::studio, studioFixture())
         .sample()
 
