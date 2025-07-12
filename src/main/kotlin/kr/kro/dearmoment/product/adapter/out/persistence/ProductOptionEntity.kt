@@ -2,6 +2,7 @@ package kr.kro.dearmoment.product.adapter.out.persistence
 
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -12,10 +13,9 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.PrePersist
-import jakarta.persistence.PreUpdate
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import kr.kro.dearmoment.common.converter.BlankToSpaceConverter
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.product.domain.model.option.OptionType
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
@@ -53,6 +53,7 @@ class ProductOptionEntity(
     @Column(name = "DISCOUNT_PRICE", nullable = false)
     var discountPrice: Long = 0L,
     @Column(name = "DESCRIPTION", nullable = false)
+    @Convert(converter = BlankToSpaceConverter::class)
     var description: String = " ",
     @Column(name = "COSTUME_COUNT", nullable = false)
     var costumeCount: Int = 0,
@@ -73,28 +74,18 @@ class ProductOptionEntity(
     )
     var partnerShops: List<PartnerShopEmbeddable> = emptyList(),
     @Column(name = "OPTIONAL_ADDITIONAL_DETAILS", nullable = false)
+    @Convert(converter = BlankToSpaceConverter::class)
     var optionalAdditionalDetails: String = " ",
     @Column(nullable = false)
     @ColumnDefault("0")
     var version: Long = 0L
 ) : Auditable() {
-    @PrePersist
-    @PreUpdate
-    private fun applyDefaultBlanks() {
-        if (description.isBlank()) {
-            description = " "
-        }
-        if (optionalAdditionalDetails.isBlank()) {
-            optionalAdditionalDetails = " "
-        }
-    }
-
     companion object {
         fun fromDomain(
             option: ProductOption,
             productEntity: ProductEntity
-        ): ProductOptionEntity {
-            return ProductOptionEntity(
+        ): ProductOptionEntity =
+            ProductOptionEntity(
                 optionId = option.optionId,
                 product = productEntity,
                 name = option.name,
@@ -117,14 +108,14 @@ class ProductOptionEntity(
                             link = it.link
                         )
                     },
-                optionalAdditionalDetails = option.optionalAdditionalDetails.takeIf { it.isNotBlank() } ?: " ",
+                optionalAdditionalDetails =
+                    option.optionalAdditionalDetails.takeIf { it.isNotBlank() } ?: " ",
                 version = 0L
             )
-        }
     }
 
-    fun toDomain(): ProductOption {
-        return ProductOption(
+    fun toDomain(): ProductOption =
+        ProductOption(
             optionId = optionId,
             productId = product.productId ?: 0L,
             name = name,
@@ -152,5 +143,4 @@ class ProductOptionEntity(
             createdAt = createdDate,
             updatedAt = updateDate
         )
-    }
 }
