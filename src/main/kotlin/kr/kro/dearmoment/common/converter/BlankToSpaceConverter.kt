@@ -10,10 +10,7 @@ import jakarta.persistence.Converter
  */
 @Converter(autoApply = false)
 class BlankToSpaceConverter : AttributeConverter<String, String?> {
+    override fun convertToDatabaseColumn(attribute: String?): String? = attribute?.takeIf { it.isNotBlank() }
 
-    override fun convertToDatabaseColumn(attribute: String?): String? =
-        attribute?.takeIf { it.isNotBlank() }
-
-    override fun convertToEntityAttribute(dbData: String?): String =
-        dbData?.ifBlank { " " } ?: " "
+    override fun convertToEntityAttribute(dbData: String?): String = dbData?.ifBlank { " " } ?: " "
 }
