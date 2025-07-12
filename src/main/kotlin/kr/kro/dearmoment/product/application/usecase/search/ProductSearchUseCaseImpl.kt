@@ -23,10 +23,13 @@ class ProductSearchUseCaseImpl(
         page: Int,
         size: Int,
     ): PagedResponse<SearchProductResponse> {
+        // ① 정렬 기준 유지(오름차순)
         val pageable = PageRequest.of(page, size, Sort.by("productId").ascending())
 
-        val products = getProductPort.searchByCriteria(request.toQuery(), pageable)
-        val productIds = products.map { it.productId }
+        // ② Page<Product> 반환으로 변경된 Port 사용
+        val productsPage = getProductPort.searchByCriteria(request.toQuery(), pageable)
+
+        val productIds = productsPage.content.map { it.productId }
 
         val userLikes =
             userId?.let {
@@ -34,10 +37,11 @@ class ProductSearchUseCaseImpl(
                     .associate { like -> like.product.productId to like.id }
             } ?: emptyMap()
 
+        // ③ Page 객체의 메타데이터 활용하여 응답 생성
         return PagedResponse(
-            content = products.map { SearchProductResponse.from(it, userLikes) },
-            page = page,
-            size = size,
+            content = productsPage.content.map { SearchProductResponse.from(it, userLikes) },
+            page = productsPage.number,
+            size = productsPage.size
         )
     }
 }

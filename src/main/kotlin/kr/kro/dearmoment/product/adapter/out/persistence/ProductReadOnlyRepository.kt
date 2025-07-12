@@ -19,6 +19,8 @@ import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.domain.StudioStatus
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -33,8 +35,9 @@ class ProductReadOnlyRepository(
     override fun searchByCriteria(
         query: SearchProductQuery,
         pageable: Pageable,
-    ): List<Product> {
-        val productIds =
+    ): Page<Product> {
+        // ─────────────── ① 페이지 단위로 상품 PK만 조회 ───────────────
+        val idDtos: List<SearchProductOrderByPriceDto?> =
             productJpaRepository.findAll(pageable) {
                 selectNew<SearchProductOrderByPriceDto>(
                     path(ProductEntity::productId),
@@ -42,81 +45,93 @@ class ProductReadOnlyRepository(
                         SortCriteria.PRICE_HIGH -> max(path(ProductOptionEntity::discountPrice))
                         SortCriteria.PRICE_LOW -> min(path(ProductOptionEntity::discountPrice))
                         else -> path(ProductOptionEntity::discountPrice)
-                    }
+                    },
                 ).from(
                     entity(ProductEntity::class),
                     leftJoin(ProductEntity::options),
                     join(ProductEntity::studio),
-                    if (query.partnerShopCategories.isNotEmpty()) join(ProductOptionEntity::partnerShops) else null,
+                    if (query.partnerShopCategories.isNotEmpty()) {
+                        join(ProductOptionEntity::partnerShops)
+                    } else {
+                        null
+                    },
                     joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
                     joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
                     joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
                 ).whereAnd(
-                    path(ProductEntity::studio)(StudioEntity::status).eq(StudioStatus.ACTIVE.name),
-                    path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                    path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
-                    entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
-                    entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
-                    entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
+                    path(ProductEntity::studio)(StudioEntity::status)
+                        .eq(StudioStatus.ACTIVE.name),
+                    path(ProductOptionEntity::discountPrice)
+                        .between(query.minPrice, query.maxPrice),
+                    path(PartnerShopEmbeddable::category)
+                        .inIfNotEmpty(query.partnerShopCategories),
+                    entity(ShootingSeason::class)
+                        .inIfNotEmpty(query.availableSeasons),
+                    entity(CameraType::class)
+                        .inIfNotEmpty(query.cameraTypes),
+                    entity(RetouchStyle::class)
+                        .inIfNotEmpty(query.retouchStyles),
                 ).groupBy(
-                    if (query.sortBy == SortCriteria.PRICE_HIGH || query.sortBy == SortCriteria.PRICE_LOW) {
+                    if (query.sortBy in
+                        listOf(
+                            SortCriteria.PRICE_HIGH,
+                            SortCriteria.PRICE_LOW
+                        )
+                    ) {
                         path(ProductEntity::productId)
                     } else {
                         null
-                    }
+                    },
                 ).orderBy(query.sortBy.toJdslComparator())
-            }.map { it?.productId }
+            }
 
-        return productJpaRepository.findAll {
-            select(
-                entity(ProductEntity::class),
-            ).from(
-                entity(ProductEntity::class),
-                leftJoin(ProductEntity::options),
-                fetchJoin(ProductEntity::studio),
-            ).where(
-                path(ProductEntity::productId).`in`(productIds)
-            )
-        }.mapNotNull { it?.toDomain() }
+        val productIds = idDtos.mapNotNull { it?.productId }
+        if (productIds.isEmpty()) return PageImpl(emptyList(), pageable, 0)
+
+        // ─────────────── ② PK 목록으로 Fetch‑Join 재조회(DISTINCT) ───────────────
+        val products: List<Product> =
+            productJpaRepository.findAll {
+                selectDistinct(entity(ProductEntity::class))
+                    .from(
+                        entity(ProductEntity::class),
+                        leftJoin(ProductEntity::options),
+                        fetchJoin(ProductEntity::studio),
+                    )
+                    .where(
+                        path(ProductEntity::productId).`in`(productIds),
+                    )
+            }.mapNotNull { it?.toDomain() }
+
+        // ─────────────── ③ PageImpl 로 감싸서 반환 ───────────────
+        return PageImpl(products, pageable, idDtos.size.toLong())
     }
 
     override fun existsByUserIdAndTitle(
         userId: UUID,
-        title: String,
+        title: String
     ): Boolean = productJpaRepository.existsByUserIdAndTitle(userId, title)
 
-    override fun findById(id: Long): Product? {
-        return productJpaRepository.findByIdOrNull(id)?.toDomain()
-    }
+    override fun findById(id: Long): Product? = productJpaRepository.findByIdOrNull(id)?.toDomain()
 
-    override fun findAll(): List<Product> {
-        return productJpaRepository.findAll().map { it.toDomain() }
-    }
+    override fun findAll(): List<Product> = productJpaRepository.findAll().map { it.toDomain() }
 
-    override fun findByUserId(userId: UUID): List<Product> {
-        return productJpaRepository.findByUserId(userId).map { it.toDomain() }
-    }
+    override fun findByUserId(userId: UUID): List<Product> = productJpaRepository.findByUserId(userId).map { it.toDomain() }
 
-    override fun existsById(id: Long): Boolean {
-        return productJpaRepository.existsById(id)
-    }
+    override fun existsById(id: Long): Boolean = productJpaRepository.existsById(id)
 
     override fun findWithStudioById(id: Long): Product {
         val query =
             jpql {
-                select(
-                    entity(ProductEntity::class),
-                ).from(
-                    entity(ProductEntity::class),
-                    fetchJoin(ProductEntity::studio),
-                ).where(
-                    path(ProductEntity::productId).eq(id),
-                )
+                select(entity(ProductEntity::class))
+                    .from(entity(ProductEntity::class), fetchJoin(ProductEntity::studio))
+                    .where(path(ProductEntity::productId).eq(id))
             }
 
         val product =
-            entityManager.createQuery(query, jpqlRenderContext).resultList.firstOrNull()
-                ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+            entityManager
+                .createQuery(query, jpqlRenderContext)
+                .resultList
+                .firstOrNull() ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
         return product.toDomain()
     }
