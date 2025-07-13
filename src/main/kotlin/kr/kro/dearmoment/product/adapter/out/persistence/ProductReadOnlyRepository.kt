@@ -119,17 +119,16 @@ class ProductReadOnlyRepository(
                             joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
                             joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
                         ).whereAnd(
-                            path(ProductEntity::studio)(StudioEntity::status)
-                                .eq(StudioStatus.ACTIVE.name),
-                            path(ProductOptionEntity::discountPrice)
-                                .between(query.minPrice, query.maxPrice),
-                            path(PartnerShopEmbeddable::category)
-                                .inIfNotEmpty(query.partnerShopCategories),
+                            path(ProductEntity::studio)(StudioEntity::status).eq(StudioStatus.ACTIVE.name),
+                            path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
+                            path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
                             entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
                             entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
                             entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
-                        ).groupBy(path(ProductEntity::productId))
-                            .orderBy(weightExpr.desc()) // 가중치로 정렬
+                        ).groupBy(
+                            path(ProductEntity::productId),
+                            weightExpr
+                        ).orderBy(weightExpr.desc())
                     }
                 idDtos.mapNotNull { it?.productId }
             }
