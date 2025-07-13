@@ -2,6 +2,7 @@ package kr.kro.dearmoment.studio.adapter.output.persistence
 
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
+import kr.kro.dearmoment.common.converter.BlankToSpaceConverter
 import kr.kro.dearmoment.common.persistence.Auditable
 import kr.kro.dearmoment.product.adapter.out.persistence.PartnerShopEmbeddable
 import kr.kro.dearmoment.product.domain.model.option.PartnerShop
@@ -67,10 +69,12 @@ class StudioEntity(
         protected set
 
     @Column
+    @Convert(converter = BlankToSpaceConverter::class)
     var reservationNotice: String = reservationNotice
         protected set
 
     @Column
+    @Convert(converter = BlankToSpaceConverter::class)
     var cancellationPolicy: String = cancellationPolicy
         protected set
 
