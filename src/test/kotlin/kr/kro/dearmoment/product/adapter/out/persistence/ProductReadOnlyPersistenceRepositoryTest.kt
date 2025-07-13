@@ -15,11 +15,9 @@ import kr.kro.dearmoment.like.domain.SortCriteria
 import kr.kro.dearmoment.product.application.dto.query.SearchProductQuery
 import kr.kro.dearmoment.product.application.dto.request.SearchProductRequest
 import kr.kro.dearmoment.product.domain.model.CameraType
-import kr.kro.dearmoment.product.domain.model.Product
 import kr.kro.dearmoment.product.domain.model.RetouchStyle
 import kr.kro.dearmoment.product.domain.model.ShootingSeason
 import kr.kro.dearmoment.product.domain.model.option.PartnerShopCategory
-import kr.kro.dearmoment.product.domain.model.option.ProductOption
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioEntity
 import kr.kro.dearmoment.studio.adapter.output.persistence.StudioJpaRepository
 import org.springframework.data.domain.PageRequest
@@ -33,7 +31,9 @@ class ProductReadOnlyPersistenceRepositoryTest(
     private val entityManager: EntityManager,
     private val jpqlRenderContext: RenderContext,
 ) : DescribeSpec({
+
         val readAdapter = ProductReadOnlyRepository(productRepository, entityManager, jpqlRenderContext)
+
         afterTest {
             productOptionRepository.deleteAll()
             productRepository.deleteAll()
@@ -43,65 +43,43 @@ class ProductReadOnlyPersistenceRepositoryTest(
         describe("findWithStudioById()는") {
             val studio = studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))
             val product = productRepository.save(productEntityFixture(userId = studio.userId, studioEntity = studio))
+
             context("상품 id가 전달되면") {
                 it("해당 상품과 스튜디오를 DB에서 조회한다.") {
                     val result = readAdapter.findWithStudioById(product.productId!!)
-
                     result.productId shouldBe product.productId!!
                     result.studio!!.id shouldBe studio.id
                 }
             }
         }
-        describe("searchByCriteria()는") {
-            val studios = mutableListOf<StudioEntity>()
-            repeat(5) { studios.add(studioRepository.save(studioEntityFixture(userId = UUID.randomUUID()))) }
 
-            val products = mutableListOf<Product>()
-            val options = mutableListOf<ProductOption>()
+        describe("searchByCriteria()는") {
+            // ── 테스트 데이터 셋업 ──────────────────────────────
+            val studios = mutableListOf<StudioEntity>()
+            repeat(5) { studios += studioRepository.save(studioEntityFixture(userId = UUID.randomUUID())) }
+
             val partnerShopCategories = mutableSetOf<PartnerShopCategory>()
             val shootingSeasons = mutableSetOf<ShootingSeason>()
             val retouchStyles = mutableSetOf<RetouchStyle>()
             val cameraTypes = mutableSetOf<CameraType>()
+
             studios.forEach { studio ->
                 repeat(2) {
-                    val product = productEntityFixture(userId = studio.userId, studioEntity = studio)
-                    val savedProduct = productRepository.save(product)
+                    val product = productRepository.save(productEntityFixture(userId = studio.userId, studioEntity = studio))
 
-                    product.retouchStyles.forEach { retouchStyles.add(it) }
-                    product.availableSeasons.forEach { shootingSeasons.add(it) }
-                    product.cameraTypes.forEach { cameraTypes.add(it) }
-                    // 상품 옵션 추가 (가격 필터링을 위해)
-                    val option =
-                        productOptionEntityFixture(
-                            productEntity =
-                                ProductEntity.fromDomain(
-                                    savedProduct.toDomain(),
-                                    studio,
-                                ),
-                        )
+                    product.retouchStyles.forEach { retouchStyles += it }
+                    product.availableSeasons.forEach { shootingSeasons += it }
+                    product.cameraTypes.forEach { cameraTypes += it }
 
-                    val option2 =
-                        productOptionEntityFixture(
-                            productEntity =
-                                ProductEntity.fromDomain(
-                                    savedProduct.toDomain(),
-                                    studio,
-                                ),
-                        )
-
-                    option.partnerShops.forEach {
-                        partnerShopCategories.add(it.category!!)
+                    // 옵션 2개 생성
+                    listOf(
+                        productOptionEntityFixture(ProductEntity.fromDomain(product.toDomain(), studio)),
+                        productOptionEntityFixture(ProductEntity.fromDomain(product.toDomain(), studio))
+                    ).forEach { option ->
+                        option.partnerShops.forEach { partnerShopCategories += it.category!! }
+                        product.options += option
+                        productOptionRepository.save(option)
                     }
-
-                    option2.partnerShops.forEach {
-                        partnerShopCategories.add(it.category!!)
-                    }
-
-                    savedProduct.options.add(option)
-                    savedProduct.options.add(option2)
-                    options.add(option.toDomain())
-                    options.add(option2.toDomain())
-                    products.add(savedProduct.toDomain())
                 }
             }
 
@@ -118,71 +96,46 @@ class ProductReadOnlyPersistenceRepositoryTest(
                             sortBy = SortCriteria.POPULAR,
                         )
 
-                    val pageable = PageRequest.of(0, 10)
-                    val startTime = System.nanoTime()
-                    val result = readAdapter.searchByCriteria(query, pageable)
-                    val endTime = System.nanoTime()
-                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
-                    println("JPA Query Execution Time: ${duration}ms")
+                    val result = readAdapter.searchByCriteria(query, PageRequest.of(0, 10))
 
-                    val content = result
-                    content.forEach { product ->
+                    result.forEach { product ->
                         product.options.forEach { option ->
                             option.discountPrice shouldBeGreaterThanOrEqualTo query.minPrice
                             option.discountPrice shouldBeLessThanOrEqualTo query.maxPrice
-
-                            option.partnerShops.forEach { partnerShop ->
-                                partnerShop.category shouldBeIn query.partnerShopCategories
-                            }
+                            option.partnerShops.forEach { it.category shouldBeIn query.partnerShopCategories }
                         }
-
-                        product.availableSeasons.forEach { season -> season shouldBeIn query.availableSeasons }
-                        product.cameraTypes.forEach { cameraType -> cameraType shouldBeIn query.cameraTypes }
-                        product.retouchStyles.forEach { retouchStyle -> retouchStyle shouldBeIn query.retouchStyles }
+                        product.availableSeasons.forEach { it shouldBeIn query.availableSeasons }
+                        product.cameraTypes.forEach { it shouldBeIn query.cameraTypes }
+                        product.retouchStyles.forEach { it shouldBeIn query.retouchStyles }
                     }
                 }
             }
 
             context("검색 조건이 비어 있어도") {
                 it("상품이 조회된다.") {
-
                     val query = SearchProductRequest().toQuery()
+                    val result = readAdapter.searchByCriteria(query, PageRequest.of(0, 10))
 
-                    val pageable = PageRequest.of(0, 10)
-//                    val startTime = System.nanoTime()
-                    val result = readAdapter.searchByCriteria(query, pageable)
-//                    val endTime = System.nanoTime()
-//                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
-//                    println("JPA Query Execution Time: ${duration}ms")
-                    val content = result
-                    content.forEach { product ->
-//                        println(
-//                            "Weight: ${product.likeCount * 10 + product.inquiryCount * 12 + product.optionLikeCount * 11}",
-//                        )
+                    result.forEach { product ->
                         if (query.availableSeasons.isNotEmpty()) {
-                            product.availableSeasons.forEach { season -> season shouldBeIn query.availableSeasons }
+                            product.availableSeasons.forEach { it shouldBeIn query.availableSeasons }
                         }
                         if (query.cameraTypes.isNotEmpty()) {
-                            product.cameraTypes.forEach { cameraType -> cameraType shouldBeIn query.cameraTypes }
+                            product.cameraTypes.forEach { it shouldBeIn query.cameraTypes }
                         }
                         if (query.retouchStyles.isNotEmpty()) {
-                            product.retouchStyles.forEach { retouchStyle -> retouchStyle shouldBeIn query.retouchStyles }
+                            product.retouchStyles.forEach { it shouldBeIn query.retouchStyles }
                         }
                     }
                 }
             }
 
-            context("검색 조건이 가격순이면 있어도") {
+            context("검색 조건이 가격순이면") {
                 it("상품이 조회된다.") {
-
                     val query =
                         SearchProductQuery(
                             minPrice = 50_000L,
                             maxPrice = 200_000L,
-//                            partnerShopCategories = partnerShopCategories.toList(),
-//                            availableSeasons = shootingSeasons.toList(),
-//                            cameraTypes = cameraTypes.toList(),
-//                            retouchStyles = retouchStyles.toList(),
                             partnerShopCategories = emptyList(),
                             availableSeasons = emptyList(),
                             cameraTypes = emptyList(),
@@ -190,25 +143,12 @@ class ProductReadOnlyPersistenceRepositoryTest(
                             sortBy = SortCriteria.PRICE_HIGH,
                         )
 
-                    val pageable = PageRequest.of(0, 10)
-//                    val startTime = System.nanoTime()
-                    val result = readAdapter.searchByCriteria(query, pageable)
-//                    val endTime = System.nanoTime()
-//                    val duration = (endTime - startTime) / 1_000_000 // Convert nanoseconds to milliseconds
-//                    println("JPA Query Execution Time: ${duration}ms")
-                    val content = result
-                    content.forEach { product ->
-//                        println(
-//                            "Weight: ${product.likeCount * 10 + product.inquiryCount * 12 + product.optionLikeCount * 11}",
-//                        )
-                        if (query.availableSeasons.isNotEmpty()) {
-                            product.availableSeasons.forEach { season -> season shouldBeIn query.availableSeasons }
-                        }
-                        if (query.cameraTypes.isNotEmpty()) {
-                            product.cameraTypes.forEach { cameraType -> cameraType shouldBeIn query.cameraTypes }
-                        }
-                        if (query.retouchStyles.isNotEmpty()) {
-                            product.retouchStyles.forEach { retouchStyle -> retouchStyle shouldBeIn query.retouchStyles }
+                    val result = readAdapter.searchByCriteria(query, PageRequest.of(0, 10))
+
+                    result.forEach { product ->
+                        product.options.forEach {
+                            it.discountPrice shouldBeGreaterThanOrEqualTo query.minPrice
+                            it.discountPrice shouldBeLessThanOrEqualTo query.maxPrice
                         }
                     }
                 }
