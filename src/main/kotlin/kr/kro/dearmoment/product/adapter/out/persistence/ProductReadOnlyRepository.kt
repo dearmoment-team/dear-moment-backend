@@ -85,10 +85,47 @@ class ProductReadOnlyRepository(
                     }
                 idDtos.mapNotNull { it?.productId }
             } else {
-                // 인기 정렬(가중치)  ——  JDSL 수식으로 실행
+                // 인기 정렬(가중치) - 서브쿼리 분리 방식
+
+                // 1-1단계: 조건에 맞는 product_id만 먼저 조회
+                val filteredProductIds =
+                    productJpaRepository.findAll {
+                        val partnerShopJoin =
+                            if (query.partnerShopCategories.isNotEmpty()) {
+                                join(ProductOptionEntity::partnerShops)
+                            } else {
+                                null
+                            }
+
+                        selectDistinct(path(ProductEntity::productId))
+                            .from(
+                                entity(ProductEntity::class),
+                                leftJoin(ProductEntity::options),
+                                join(ProductEntity::studio),
+                                partnerShopJoin,
+                                joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
+                                joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
+                                joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
+                            ).whereAnd(
+                                path(ProductEntity::studio)(StudioEntity::status)
+                                    .eq(StudioStatus.ACTIVE.name),
+                                path(ProductOptionEntity::discountPrice)
+                                    .between(query.minPrice, query.maxPrice),
+                                path(PartnerShopEmbeddable::category)
+                                    .inIfNotEmpty(query.partnerShopCategories),
+                                entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
+                                entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
+                                entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
+                            )
+                    }.mapNotNull { it }
+
+                if (filteredProductIds.isEmpty()) {
+                    return PageImpl(emptyList(), pageable, 0)
+                }
+
+                // 1-2단계: 필터링된 product_id로 가중치 계산 및 정렬
                 data class WeightedDto(val productId: Long?, val weight: Long?)
 
-                // (like*10) + (inquiry*12) + (optionLike*11)
                 val weightExpr =
                     plus(
                         plus(
@@ -100,36 +137,16 @@ class ProductReadOnlyRepository(
 
                 val idDtos =
                     productJpaRepository.findAll(pageable) {
-                        val partnerShopJoin =
-                            if (query.partnerShopCategories.isNotEmpty()) {
-                                join(ProductOptionEntity::partnerShops)
-                            } else {
-                                null
-                            }
-
                         selectNew<WeightedDto>(
                             path(ProductEntity::productId),
                             weightExpr
                         ).from(
-                            entity(ProductEntity::class),
-                            leftJoin(ProductEntity::options),
-                            join(ProductEntity::studio),
-                            partnerShopJoin,
-                            joinIfNotEmpty(query.availableSeasons) { ProductEntity::availableSeasons },
-                            joinIfNotEmpty(query.cameraTypes) { ProductEntity::cameraTypes },
-                            joinIfNotEmpty(query.retouchStyles) { ProductEntity::retouchStyles },
-                        ).whereAnd(
-                            path(ProductEntity::studio)(StudioEntity::status).eq(StudioStatus.ACTIVE.name),
-                            path(ProductOptionEntity::discountPrice).between(query.minPrice, query.maxPrice),
-                            path(PartnerShopEmbeddable::category).inIfNotEmpty(query.partnerShopCategories),
-                            entity(ShootingSeason::class).inIfNotEmpty(query.availableSeasons),
-                            entity(CameraType::class).inIfNotEmpty(query.cameraTypes),
-                            entity(RetouchStyle::class).inIfNotEmpty(query.retouchStyles),
-                        ).groupBy(
-                            path(ProductEntity::productId),
-                            weightExpr
+                            entity(ProductEntity::class)
+                        ).where(
+                            path(ProductEntity::productId).`in`(filteredProductIds)
                         ).orderBy(weightExpr.desc())
                     }
+
                 idDtos.mapNotNull { it?.productId }
             }
 
@@ -148,8 +165,20 @@ class ProductReadOnlyRepository(
                     )
             }.mapNotNull { it?.toDomain() }
 
-        // ───────── 3단계: PageImpl 래핑 후 반환 ─────────
-        return PageImpl(products, pageable, productIds.size.toLong())
+        // ───────── 3단계: 원래 정렬 순서 유지 ─────────
+        val sortedProducts =
+            if (isPriceSort) {
+                // 가격 정렬의 경우 이미 정렬된 순서대로 반환
+                val productMap = products.associateBy { it.productId }
+                productIds.mapNotNull { productMap[it] }
+            } else {
+                // 인기 정렬의 경우 가중치 순서대로 반환
+                val productMap = products.associateBy { it.productId }
+                productIds.mapNotNull { productMap[it] }
+            }
+
+        // ───────── 4단계: PageImpl 래핑 후 반환 ─────────
+        return PageImpl(sortedProducts, pageable, productIds.size.toLong())
     }
 
     override fun existsByUserIdAndTitle(
