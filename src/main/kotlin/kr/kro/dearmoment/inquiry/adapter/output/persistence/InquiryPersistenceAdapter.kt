@@ -27,7 +27,7 @@ class InquiryPersistenceAdapter(
 ) : SaveInquiryPort, DeleteInquiryPort {
     override fun saveProductOptionInquiry(inquiry: CreateProductOptionInquiry): Long {
         val optionEntity =
-            productOptionRepository.findByIdOrNull(inquiry.productId)
+            productOptionRepository.findByIdOrNull(inquiry.optionId)
                 ?: throw CustomException(ErrorCode.PRODUCT_OPTION_NOT_FOUND)
         val entity = ProductOptionInquiryEntity.from(inquiry, optionEntity)
 
